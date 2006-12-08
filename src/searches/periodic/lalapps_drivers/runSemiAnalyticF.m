@@ -39,7 +39,6 @@ function ret = runSemiAnalyticF (params, safCode)
   cmdline = addCmdlineOption(cmdline, params, "psi");
   cmdline = addCmdlineOption(cmdline, params, "Alpha" );
   cmdline = addCmdlineOption(cmdline, params, "Delta" );
-  cmdline = addCmdlineOption(cmdline, params, "Freq" );
 
   %% optional params
   cmdline = addCmdlineOption(cmdline, params, "IFO");
