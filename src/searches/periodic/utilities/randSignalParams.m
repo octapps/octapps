@@ -53,8 +53,8 @@ function ret = randSignalParams(ranges)
   ret.f3dot = pickFromRange ( ranges.f3dot );
 
   %% return also Aplus, Across
-  ret.aPlus = 0.5 * ret.h0 * ( 1.0 + ret.cosi ^ 2);
-  ret.aCross = ret.h0 * ret.cosi;
+  %% ret.aPlus = 0.5 * ret.h0 * ( 1.0 + ret.cosi ^ 2);
+  %% ret.aCross = ret.h0 * ret.cosi;
 
 endfunction % randSignalParams()
 
