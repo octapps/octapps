@@ -1,7 +1,7 @@
 %% convert MJD (based on TDB) into GPS seconds 
 %% translated from LAL-function LALTDBMJDtoGPS() in BinaryPulsarTiming.c
 %%
-function [ GPS, GPS2 ] = MJDtdb_to_GPS ( MJD_tdb )
+function GPS = MJDtdb_to_GPS ( MJD_tdb )
   
   %% Check not before the start of GPS time (MJD 44222)
   if(MJD_tdb < 44244)
