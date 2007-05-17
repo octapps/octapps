@@ -84,6 +84,8 @@ function runComputeFStatistic_v2 (params, cfsCode)
   cmdline = addCmdlineOption(cmdline, params, "outputSkyGrid" );
   cmdline = addCmdlineOption(cmdline, params, "outputLoudest" );
 
+  cmdline = addCmdlineOption(cmdline, params, "clusterOnScanline" );
+
   %% ----- misc
   cmdline = addCmdlineOption(cmdline, params, "ephemDir" );
   cmdline = addCmdlineOption(cmdline, params, "ephemYear" );
