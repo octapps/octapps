@@ -80,7 +80,7 @@ function runComputeFStatistic_v2 (params, cfsCode)
   cmdline = addCmdlineOption(cmdline, params, "TwoFthreshold" );
   cmdline = addCmdlineOption(cmdline, params, "outputFstat" );
   cmdline = addCmdlineOption(cmdline, params, "outputBstat" );
-  cmdline = addCmdlineOption(cmdline, params, "outputLabel" );
+  cmdline = addCmdlineOption(cmdline, params, "outputLogfile" );
   cmdline = addCmdlineOption(cmdline, params, "outputSkyGrid" );
   cmdline = addCmdlineOption(cmdline, params, "outputLoudest" );
 
