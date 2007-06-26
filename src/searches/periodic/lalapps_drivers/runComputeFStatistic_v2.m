@@ -113,8 +113,8 @@ function runComputeFStatistic_v2 (params, cfsCode)
   [out, status] = system(cmdline);
   if isstr(status)
     myout = status;
-    status = output;
-    output = myout;
+    status = out;
+    out = myout;
   endif
   if ( status != 0 )
     printf ("\nSomething failed in running '%s'\n\n", cfsCode);
