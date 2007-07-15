@@ -119,6 +119,7 @@ function runComputeFStatistic_v2 (params, cfsCode)
   if ( status != 0 )
     printf ("\nSomething failed in running '%s'\n\n", cfsCode);
     error ("Commandline was: %s", cmdline);
+    error ("Error was: %s", out);
   endif
   
   return;
