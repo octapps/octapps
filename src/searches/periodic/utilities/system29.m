@@ -1,19 +1,7 @@
-function [status, output] = system29 ( arg )
-  %% attempt to compensate for output-argument switch
-  %% in the system() command between octave2.1 and octave2.9 [doh]
-  %% 'normalize' output-order to octave2.9 conventions
-  is29 = ( index ( OCTAVE_VERSION, "2.9" ) == 1 );
-
-  [ret1, ret2] = system ( arg );
-
-  if ( is29 )
-    status = ret1;
-    output = ret2;
-  else
-    status = ret2;
-    output = ret1;
-  endif
-endfunction
+%% attempt to compensate for output-argument switch
+%% in the system() command between octave2.1 and octave2.9 [doh]
+%% 'normalize' output-order to octave2.9 conventions
+%%
 
 %%
 %% Copyright (C) 2007 Reinhard Prix
@@ -33,4 +21,18 @@ endfunction
 %%  Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, 
 %%  MA  02111-1307  USA
 %%
+
+function [status, output] = system29 ( arg )
+  is29 = ( index ( OCTAVE_VERSION, "2.9" ) == 1 );
+
+  [ret1, ret2] = system ( arg );
+
+  if ( is29 )
+    status = ret1;
+    output = ret2;
+  else
+    status = ret2;
+    output = ret1;
+  endif
+endfunction
 

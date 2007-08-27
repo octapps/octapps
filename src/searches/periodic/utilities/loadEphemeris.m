@@ -1,3 +1,7 @@
+%% load in a given earth ephemeris-file
+%% and returns a list of [gps, pos, vel, acc]
+%%
+
 %%
 %% Copyright (C) 2006 Reinhard Prix
 %%
@@ -19,8 +23,6 @@
 
 
 function ephem = loadEphemeris (fname)
-  %% load in a given earth ephemeris-file
-  %% and returns a list of [gps, pos, vel, acc]
 
   fid = fopen(fname, "rb");
   if ( fid == -1 )

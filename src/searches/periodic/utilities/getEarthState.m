@@ -1,3 +1,8 @@
+%% input: earth-ephemeris file (load with loadEphemeris()) and gps-time
+%% interpolate earth-state at gps-time from given ephemeris-table
+%% returns 'earthState' struct with elements { pos, vel, acc, accDot }
+%%
+
 %%
 %% Copyright (C) 2006 Reinhard Prix
 %%
@@ -19,9 +24,6 @@
 
 
 function ret = getEarthState (ephem, gps)
-  %% input: earth-ephemeris file (load with loadEphemeris()) and gps-time
-  %% interpolate earth-state at gps-time from given ephemeris-table
-  %% returns 'earthState' struct with elements { pos, vel, acc, accDot }
 
   tinitE = ephem(1,1);	% start-time of ephemeris-table
   dtEtable = ephem(2,1) - ephem(1,1); % time-interval of ephemeris-table

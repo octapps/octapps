@@ -1,3 +1,8 @@
+%% loadCandidateFile ( fname )
+%% loads a 'candidate-file' from ComputeFStatistic_v2 --outputLoudest=cand.file
+%% and returns a struct containing the data
+%%
+
 %%
 %% Copyright (C) 2006 Reinhard Prix
 %%
@@ -18,9 +23,6 @@
 %%
 
 function ret = loadCandidateFile ( fname )
-  %% loadCandidateFile ( fname )
-  %% loads a 'candidate-file' from ComputeFStatistic_v2 --outputLoudest=cand.file
-  %% and returns a struct containing the data
   source ( fname );	%% uses only local variables!
   
   %% amplitude params with error-estimates
