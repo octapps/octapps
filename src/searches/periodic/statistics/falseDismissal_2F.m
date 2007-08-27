@@ -1,3 +1,7 @@
+%% compute the false-dismissal rate for given threshold 2F* and 
+%% non-centrality parameter lambda = rho^2
+%%
+
 %%
 %% Copyright (C) 2006 Reinhard Prix
 %%
@@ -18,8 +22,6 @@
 %%
 
 function beta = falseDismissal_2F ( thresh, rho2 )
-  %% compute the false-dismissal rate for given threshold 2F* and 
-  %% non-centrality parameter lambda = rho^2
 
   integrand = inline ( sprintf("ChiSquare_pdf(x, 4, %f)", rho2) );
   

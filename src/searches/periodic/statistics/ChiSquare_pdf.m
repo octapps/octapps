@@ -1,4 +1,11 @@
 %%
+%% Compute the general, NON-CENTRAL or central chi^2-distribution with
+%% N degrees of freedom and non-centrality parameter lambda, for the (vector)
+%% input argument z
+%% [matlab might have a function for this, but octave does not]
+%%
+
+%%
 %% Copyright (C) 2006 Reinhard Prix
 %%
 %%  This program is free software; you can redistribute it and/or modify
@@ -17,10 +24,6 @@
 %%  MA  02111-1307  USA
 %%
 %%
-%% Compute the general, NON-CENTRAL or central chi^2-distribution with
-%% N degrees of freedom and non-centrality parameter lambda, for the (vector)
-%% input argument z
-%% [matlab might have a function for this, but octave does not]
 
 function chi2 = ChiSquare_pdf ( z, N, lambda )
   if ( lambda == 0 )

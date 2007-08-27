@@ -1,3 +1,8 @@
+%% ret = pickFromRange(range)
+%% function to return a random-value from within 'range',
+%% which can be a single number, or a vector with [min, max] entries
+%%
+
 %%
 %% Copyright (C) 2006 Reinhard Prix
 %%
@@ -18,9 +23,6 @@
 %%
 
 function ret = pickFromRange(range)
-  %% ret = pickFromRange(range)
-  %% function to return a random-value from within 'range',
-  %% which can be a single number, or a vector with [min, max] entries
   if ( length(range) == 1 )
     ret = range;
     return;		%% trivial case

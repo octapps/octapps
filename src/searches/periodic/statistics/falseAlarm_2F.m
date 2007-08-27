@@ -1,3 +1,6 @@
+%% compute the false-alarm rate for given threshold 2F* 
+%%
+
 %%
 %% Copyright (C) 2006 Reinhard Prix
 %%
@@ -18,7 +21,6 @@
 %%
 
 function alpha = falseAlarm_2F ( thresh )
-  %% compute the false-alarm rate for given threshold 2F* 
 
   alpha = ( 1 + thresh/2 ) .* e.^(-thresh/2);
 

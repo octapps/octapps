@@ -1,3 +1,7 @@
+%% [NN, XX] = normHist ( data, numBins )
+%% compute a pdf-normalized histogram (i.e. the *integral* is 1)
+%%
+
 %%
 %% Copyright (C) 2006 Reinhard Prix
 %%
@@ -18,8 +22,6 @@
 %%
 
 function [NN, XX] = normHist ( data, numBins )
-  %% [NN, XX] = normHist ( data, numBins )
-  %% compute a pdf-normalized histogram (i.e. the *integral* is 1)
 
   [NN, XX] = hist ( data, numBins, 1 );
 

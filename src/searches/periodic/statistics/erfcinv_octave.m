@@ -1,3 +1,8 @@
+%% octave-dropin for inverse complementary error-function (matlab has this one, 
+%% so I named it differently to avoid namespace-conflict)
+%% trivial implementation of erfc^-1(x), which is simply erf^-1(1 - x)
+%%
+
 %%
 %% Copyright (C) 2006 Reinhard Prix
 %%
@@ -17,10 +22,6 @@
 %%  MA  02111-1307  USA
 %%
 
-%% octave-dropin for inverse complementary error-function (matlab has this one, 
-%% so I named it differently to avoid namespace-conflict)
-
 function ret = erfcinv_octave ( x )
-  %% trivial implementation of erfc^-1(x), which is simply erf^-1(1 - x)
   ret = erfinv ( 1 - x );
 endfunction
