@@ -1,3 +1,8 @@
+%% function runSemiAnalyticF (params, code)
+%% general SemiAnalyticF driver: pass all commandline-options in params
+%% run lalapps_SemiAnalyticF, return 2F_saf
+%%
+
 %%
 %% Copyright (C) 2006 Reinhard Prix
 %%
@@ -18,9 +23,6 @@
 %%
 
 function ret = runSemiAnalyticF (params, safCode)
-  %% function runSemiAnalyticF (params, code)
-  %% general SemiAnalyticF driver: pass all commandline-options in params
-  %% run lalapps_SemiAnalyticF, return 2F_saf
   global debug;
 
   if ( !exist("params" ) )
@@ -59,7 +61,7 @@ function ret = runSemiAnalyticF (params, safCode)
   endif
 
   %% ----- and run it:
-  [out, status] = system(cmdline);
+  [status, out] = system29(cmdline);
   if ( status != 0 )
     printf ("\nSomething failed in running '%s'\n\n", safCode);
     error ("Commandline was: %s", cmdline);

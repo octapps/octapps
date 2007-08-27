@@ -1,3 +1,8 @@
+%% Function runComputeFStatistic_v2 (params)
+%% general CFSv2 driver: pass any CFS_v2 commandline option in params
+%% and run F-stat search with CFS_v2
+%%
+
 %%
 %% Copyright (C) 2006 Reinhard Prix
 %%
@@ -18,9 +23,6 @@
 %%
 
 function runComputeFStatistic_v2 (params, cfsCode)
-  %% function runComputeFStatistic_v2 (params)
-  %% general CFSv2 driver: pass any CFS_v2 commandline option in params
-  %% and run F-stat search with CFS_v2
   global debug;
 
   if ( !exist("params" ) )
@@ -110,12 +112,7 @@ function runComputeFStatistic_v2 (params, cfsCode)
   endif
 
   %% ----- and run it:
-  [out, status] = system(cmdline);
-  if isstr(status)
-    myout = status;
-    status = out;
-    out = myout;
-  endif
+  [status, out] = system29(cmdline);
   if ( status != 0 )
     printf ("\nSomething failed in running '%s'\n\n", cfsCode);
     error ("Commandline was: %s", cmdline);

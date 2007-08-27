@@ -1,3 +1,8 @@
+%% function runMakefakedata (params)
+%% general makefakedata_v4-driver: pass all commandline-option in params
+%% run lalapps_Makefakedata
+%%
+
 %%
 %% Copyright (C) 2006 Reinhard Prix
 %%
@@ -17,11 +22,7 @@
 %%  MA  02111-1307  USA
 %%
 
-
 function runMakefakedata (params, mfdCode)
-  %% function runMakefakedata (params)
-  %% general makefakedata_v4-driver: pass all commandline-option in params
-  %% run lalapps_Makefakedata
   global debug;
 
   if ( !exist("params" ) )
@@ -96,7 +97,7 @@ function runMakefakedata (params, mfdCode)
   endif
 
   %% ----- and run it:
-  [out, status] = system(cmdline);
+  [status, out] = system29(cmdline);
   if ( status != 0 )
     printf ("\nSomething failed in running '%s'\n\n", mfdCode);
     error ("Commandline was: %s", cmdline);

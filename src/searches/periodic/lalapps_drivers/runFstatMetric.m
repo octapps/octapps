@@ -1,3 +1,7 @@
+%% function runFstatMetric (params)
+%% general driver for 'FstatMetric' code
+%%
+
 %%
 %% Copyright (C) 2007 Reinhard Prix
 %%
@@ -18,8 +22,6 @@
 %%
 
 function runFstatMetric (params, fmCode)
-  %% function runFstatMetric (params)
-  %% general driver for 'FstatMetric'
   global debug;
 
   if ( !exist("params" ) )
@@ -74,7 +76,7 @@ function runFstatMetric (params, fmCode)
   endif
 
   %% ----- and run it:
-  [out, status] = system(cmdline);
+  [status, out] = system29(cmdline);
   if ( status != 0 )
     printf ("\nSomething failed in running '%s'\n\n", fmCode);
     error ("Commandline was: %s", cmdline);

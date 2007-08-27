@@ -1,3 +1,8 @@
+%% function runPredictFStat (params)
+%% general PredictFStat driver: pass all commandline-option in params
+%% run lalappsPredictFStat, return [ <2F>, std(2F) ]
+%%
+
 %%
 %% Copyright (C) 2006 Reinhard Prix
 %%
@@ -18,9 +23,6 @@
 %%
 
 function ret = runPredictFStat (params, pfsCode)
-  %% function runPredictFStat (params)
-  %% general PredictFStat driver: pass all commandline-option in params
-  %% run lalappsPredictFStat, return [ <2F>, std(2F) ]
   global debug;
 
   if ( !exist("params" ) )
@@ -66,7 +68,7 @@ function ret = runPredictFStat (params, pfsCode)
   endif
 
   %% ----- and run it:
-  [out, status] = system(cmdline);
+  [status, out] = system29(cmdline);
   if ( status != 0 )
     printf ("\nSomething failed in running '%s'\n\n", pfsCode);
     error ("Commandline was: %s", cmdline);

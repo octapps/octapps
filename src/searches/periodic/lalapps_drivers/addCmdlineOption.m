@@ -1,3 +1,10 @@
+%% This is a helper function to construct commandlines for running executables 
+%%
+%% Usage: ret = addCmdlineOption ( params, option );
+%% 
+%% return 'cmdline' with 'option' appended, if this field exists in 'params' 
+%%
+
 %%
 %% Copyright (C) 2006 Reinhard Prix
 %%
@@ -17,11 +24,7 @@
 %%  MA  02111-1307  USA
 %%
 
-%% This is a helper function to construct commandlines for running executables 
-
 function ret = addCmdlineOption ( cmdline, params, option )
-  %% ret = addCmdlineOption ( params, option );
-  %% return 'cmdline' with 'option' appended, if this field exists in 'params' 
 
   if ( !isfield (params, option ) )
     ret = cmdline;
@@ -43,5 +46,4 @@ function ret = addCmdlineOption ( cmdline, params, option )
   return;
 
 endfunction
-
 
