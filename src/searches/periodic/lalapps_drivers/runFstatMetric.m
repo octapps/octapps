@@ -62,6 +62,7 @@ function runFstatMetric (params, fmCode)
   cmdline = addCmdlineOption(cmdline, params, "outputMetric");
   cmdline = addCmdlineOption(cmdline, params, "metricType");
   cmdline = addCmdlineOption(cmdline, params, "unitsType");
+  cmdline = addCmdlineOption(cmdline, params, "projection");
 
   %% ----- debug
   if ( isfield(params, "lalDebugLevel" ) && params.lalDebugLevel )
