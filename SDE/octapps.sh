@@ -32,7 +32,7 @@ if [ ${#OCTAPPS_SDE} -gt 0 ]; then
     export OCTAVE_PATH=${OCTAPPS_SDE}
   fi
 
-  for i in `cat ${OCTAPPS_SDE}/octave_paths.txt`
+  for i in `cat ${OCTAPPS_SDE}/octapps_paths.txt`
     do
       export OCTAVE_PATH=${OCTAPPS_TOP}/$i\:${OCTAVE_PATH}
     done
