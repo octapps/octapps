@@ -1,0 +1,4 @@
+SDE/
+src/searches/periodic/lalapps_drivers
+src/searches/periodic/statistics
+src/searches/periodic/utilities
