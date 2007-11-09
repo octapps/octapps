@@ -26,15 +26,15 @@ fi
 #  -- Define Octave path = Octave path
 # ENDIF
 if [ ${#OCTAPPS_SDE} -gt 0 ]; then
-  if [ ${#OCTAVEPATH} -gt 0 ]; then
-    export OCTAVEPATH=${OCTAPPS_SDE}\:${OCTAVEPATH}
+  if [ ${#OCTAVE_PATH} -gt 0 ]; then
+    export OCTAVE_PATH=${OCTAPPS_SDE}\:${OCTAVE_PATH}
   else
-    export OCTAVEPATH=${OCTAPPS_SDE}
+    export OCTAVE_PATH=${OCTAPPS_SDE}
   fi
 
   for i in `cat ${OCTAPPS_SDE}/octave_paths.txt`
     do
-      export OCTAVEPATH=${OCTAPPS_TOP}/$i\:${OCTAVEPATH}
+      export OCTAVE_PATH=${OCTAPPS_TOP}/$i\:${OCTAVE_PATH}
     done
 #
 fi
