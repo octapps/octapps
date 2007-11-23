@@ -25,13 +25,13 @@ endif
 #
 # ENDIF
 if $?OCTAPPS_SDE then
-  if $?OCTAVEPATH then
-    setenv OCTAVEPATH ${OCTAPPS_SDE}\:${OCTAVEPATH}
+  if $?OCTAVE_PATH then
+    setenv OCTAVE_PATH ${OCTAPPS_SDE}\:${OCTAVE_PATH}
   else
-    setenv OCTAVEPATH ${OCTAPPS_SDE}
+    setenv OCTAVE_PATH ${OCTAPPS_SDE}
   endif
   foreach i(`cat ${OCTAPPS_SDE}/octapps_paths.txt`)
-    setenv OCTAVEPATH ${OCTAPPS_TOP}/{$i}\:${OCTAVEPATH}
+    setenv OCTAVE_PATH ${OCTAPPS_TOP}/{$i}\:${OCTAVE_PATH}
   end
 #
 endif
