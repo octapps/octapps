@@ -23,7 +23,6 @@ fi
 #       ADD directory to OCTAVE path
 #   ENDLOOP
 #
-#  -- Define Octave path = Octave path
 # ENDIF
 if [ ${#OCTAPPS_SDE} -gt 0 ]; then
   if [ ${#OCTAVE_PATH} -gt 0 ]; then
