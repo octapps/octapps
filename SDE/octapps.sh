@@ -7,8 +7,8 @@
 #   SET path to SDE sub-directory
 # ENDIF
 if [ $# -gt 0 ]; then
-  export OCTAVE_TOP=${1}
-  export OCTAVE_TOP=`echo "$OCTAVE_TOP" | sed 's/\/$//' `
+  export OCTAPPS_TOP=${1}
+  export OCTAPPS_TOP=`echo "$OCTAPPS_TOP" | sed 's/\/$//' `
 fi
 if [ ${#OCTAPPS_TOP} -gt 0 ]; then
   export OCTAPPS_SDE=${OCTAPPS_TOP}/SDE
