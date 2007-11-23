@@ -1,0 +1,25 @@
+Welcome to octapps, the unofficial LSC octave-script repository.
+
+This is currently available via git with the following command:
+
+git-clone gitanon@n0.aei.uni-hannover.de:~repr/git-public/octapps.git
+
+To use these routines, add the following to your .bashrc
+
+export OCTAPPS_TOP=<path-to-your-octapps-git-dir>
+OCTAPPSRC=${OCTAPPS_TOP}/SDE/octapps.sh
+if [ -f "${OCTAPPSRC}" ]; then
+    source ${OCTAPPSRC} ${OCTAPPS_TOP}
+fi
+
+or the following to your .cshrc:
+
+setenv OCTAPPS_TOP ${HOME}/lscsoft/octapps
+setenv OCTAPPSRC ${OCTAPPS_TOP}/SDE/octapps.csh
+if ( -f ${OCTAPPSRC} ) then
+    source ${OCTAPPSRC} ${OCTAPPS_TOP}
+endif
+
+If you also use matapps, it's probably important to add the octapps
+activation above AFTER any matapps activation in your .bashrc or
+.cshrc
