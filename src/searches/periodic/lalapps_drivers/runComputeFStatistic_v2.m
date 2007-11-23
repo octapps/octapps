@@ -94,6 +94,7 @@ function runComputeFStatistic_v2 (params, cfsCode)
   cmdline = addCmdlineOption(cmdline, params, "SignalOnly" );
   cmdline = addCmdlineOption(cmdline, params, "dopplermax" );
   cmdline = addCmdlineOption(cmdline, params, "SSBprecision" );
+  cmdline = addCmdlineOption(cmdline, params, "useRAA" );
   cmdline = addCmdlineOption(cmdline, params, "RngMedWindow" );
   cmdline = addCmdlineOption(cmdline, params, "Dterms" );
   cmdline = addCmdlineOption(cmdline, params, "workingDir" );
