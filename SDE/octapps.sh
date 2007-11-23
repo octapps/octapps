@@ -37,3 +37,6 @@ if [ ${#OCTAPPS_SDE} -gt 0 ]; then
     done
 #
 fi
+
+## protect OCTAVE_PATH from mungling by buggy Debian octave2.1 installation
+export OCTAVE_PATH=\:${OCTAVE_PATH}

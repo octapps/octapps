@@ -35,3 +35,6 @@ if $?OCTAPPS_SDE then
   end
 #
 endif
+
+## protect OCTAVE_PATH from mungling by buggy Debian octave2.1 installation
+setenv OCTAVE_PATH \:${OCTAVE_PATH}
