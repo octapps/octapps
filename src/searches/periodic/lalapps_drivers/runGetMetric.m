@@ -71,7 +71,9 @@ function gij = runGetMetric (params, gmCode)
     error ("Commandline was: %s", cmdline);
   endif
 
-  eval ( [ "gij = ", out ], "error(\"Failed to parse output from getMetric!\n\")" );
+  %% output is the form: 'g_ij = [... ];', so we simply evaluate it
+  eval ( out, 'error("Failed to parse output from getMetric!\n");' );
+  gij = g_ij;
 
   return;
 
