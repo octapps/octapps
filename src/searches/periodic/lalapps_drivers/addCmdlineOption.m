@@ -1,9 +1,11 @@
-%% This is a helper function to construct commandlines for running executables 
+%% This is a helper function to construct commandlines for running executables
 %%
-%% Usage: ret = addCmdlineOption ( params, option );
-%% 
-%% return 'cmdline' with 'option' appended, if this field exists in 'params' 
+%% Usage: ret = addCmdlineOption ( params, option, [isRequired] );
 %%
+%% return 'cmdline' with 'option' appended, if this field exists in 'params'
+%%
+%% the optional field 'isRequired': if (isRequired): exit with an error if
+%% that option does not exist in params
 
 %%
 %% Copyright (C) 2006 Reinhard Prix
@@ -19,20 +21,28 @@
 %%  GNU General Public License for more details.
 %%
 %%  You should have received a copy of the GNU General Public License
-%%  along with with program; see the file COPYING. If not, write to the 
-%%  Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, 
+%%  along with with program; see the file COPYING. If not, write to the
+%%  Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 %%  MA  02111-1307  USA
 %%
 
-function ret = addCmdlineOption ( cmdline, params, option )
+function ret = addCmdlineOption ( cmdline, params, option, isRequired )
+
+  if ( !exist("isRequired") )
+    isRequired = false;
+  endif
 
   if ( !isfield (params, option ) )
-    ret = cmdline;
-    return;
+    if ( isRequired )
+      error ("Required option '%s' is missing in params\n", option);
+    else
+      ret = cmdline;	%% missing but not required: return unmodified commandline
+      return;
+    endif
   endif
 
   eval( strcat("val = params.", option, ";" ) );
-  
+
   if ( !isnumeric ( val ) )
     valstr = sprintf ("'%s'", val );
   elseif ( isscalar (val) && isreal (val) )
@@ -40,7 +50,7 @@ function ret = addCmdlineOption ( cmdline, params, option )
   else
     error ("Field '%s' is neither a string nor a real scalar!\n", option );
   endif
-  
+
   ret = strcat ( cmdline, " --", option, "=", valstr );
 
   return;
