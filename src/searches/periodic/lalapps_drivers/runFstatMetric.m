@@ -16,13 +16,14 @@
 %%  GNU General Public License for more details.
 %%
 %%  You should have received a copy of the GNU General Public License
-%%  along with with program; see the file COPYING. If not, write to the 
-%%  Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, 
+%%  along with with program; see the file COPYING. If not, write to the
+%%  Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 %%  MA  02111-1307  USA
 %%
 
 function runFstatMetric (params, fmCode)
   global debug;
+  required = true;
 
   if ( !exist("params" ) )
     error("Missing function argument 'params'\n");
@@ -32,15 +33,10 @@ function runFstatMetric (params, fmCode)
     fmCode = "FstatMetric";
   endif
 
-  %% first handle all *required* params
-  if ( !isfield(params, "IFOs" ) )
-    error("Required FstatMetric-option 'IFOs' is missing in params\n");
-  endif
-
   cmdline = fmCode;
 
   %% ----- target parameters
-  cmdline = addCmdlineOption(cmdline, params, "IFOs");
+  cmdline = addCmdlineOption(cmdline, params, "IFOs", required );
   cmdline = addCmdlineOption(cmdline, params, "IFOweights");
   cmdline = addCmdlineOption(cmdline, params, "Alpha");
   cmdline = addCmdlineOption(cmdline, params, "dAlpha");
@@ -66,7 +62,7 @@ function runFstatMetric (params, fmCode)
 
   %% ----- debug
   if ( isfield(params, "lalDebugLevel" ) && params.lalDebugLevel )
-    lalDebugLevel = params.lalDebugLevel; 
+    lalDebugLevel = params.lalDebugLevel;
     cmdline = sprintf ( "%s -v%d", cmdline, params.lalDebugLevel )
   else
     lalDebugLevel = 0;
@@ -82,7 +78,7 @@ function runFstatMetric (params, fmCode)
     printf ("\nSomething failed in running '%s'\n\n", fmCode);
     error ("Commandline was: %s", cmdline);
   endif
-  
+
   return;
 
 endfunction %% runFstatMetric()

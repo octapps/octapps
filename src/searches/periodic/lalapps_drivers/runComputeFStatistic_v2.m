@@ -24,6 +24,7 @@
 
 function runComputeFStatistic_v2 (params, cfsCode)
   global debug;
+  required = true;
 
   if ( !exist("params" ) )
     error("Missing function argument 'params'\n");
@@ -33,21 +34,13 @@ function runComputeFStatistic_v2 (params, cfsCode)
     cfsCode = "ComputeFStatistic_v2";
   endif
 
-  %% first handle all *required* params
-  if ( !isfield(params, "Freq" ) )
-    error("Required CFS-option 'Freq' is missing in params\n");
-  endif
-  if ( !isfield(params, "DataFiles") )
-    error("Required CFS-option 'DataFiles' is missing in params\n");
-  endif
-
   cmdline = cfsCode;
 
   %% ----- target parameters
+  cmdline = addCmdlineOption(cmdline, params, "Freq", required );
   cmdline = addCmdlineOption(cmdline, params, "refTime" );
   cmdline = addCmdlineOption(cmdline, params, "Alpha" );
   cmdline = addCmdlineOption(cmdline, params, "Delta" );
-  cmdline = addCmdlineOption(cmdline, params, "Freq" );
   cmdline = addCmdlineOption(cmdline, params, "f1dot" );
   cmdline = addCmdlineOption(cmdline, params, "f2dot" );
   cmdline = addCmdlineOption(cmdline, params, "f3dot" );
@@ -74,7 +67,7 @@ function runComputeFStatistic_v2 (params, cfsCode)
   %% ----- input
   cmdline = addCmdlineOption(cmdline, params, "minStartTime" );
   cmdline = addCmdlineOption(cmdline, params, "maxEndTime" );
-  cmdline = addCmdlineOption(cmdline, params, "DataFiles" );
+  cmdline = addCmdlineOption(cmdline, params, "DataFiles", required );
   cmdline = addCmdlineOption(cmdline, params, "IFO");
 
   %% ----- output
@@ -120,7 +113,7 @@ function runComputeFStatistic_v2 (params, cfsCode)
     error ("Commandline was: %s", cmdline);
     error ("Error was: %s", out);
   endif
-  
+
   return;
 
 endfunction %% runComputeFStatistic_v2
