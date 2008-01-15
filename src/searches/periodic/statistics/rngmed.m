@@ -1,4 +1,4 @@
-%% rngmed(data,window): return a 'smoothed' vector using a 
+%% rngmed(data,window): return a 'smoothed' vector using a
 %% running-median of the given window-size.
 %% output-vector has same number of entries, with window/2 bins
 %% at the borders filled with identical values
@@ -19,8 +19,8 @@
 %%  GNU General Public License for more details.
 %%
 %%  You should have received a copy of the GNU General Public License
-%%  along with with program; see the file COPYING. If not, write to the 
-%%  Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, 
+%%  along with with program; see the file COPYING. If not, write to the
+%%  Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 %%  MA  02111-1307  USA
 %%
 

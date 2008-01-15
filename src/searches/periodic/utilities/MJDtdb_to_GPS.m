@@ -1,11 +1,11 @@
-%% convert MJD (based on TDB) into GPS seconds 
+%% convert MJD (based on TDB) into GPS seconds
 %% translated from LAL-function LALTDBMJDtoGPS() in BinaryPulsarTiming.c
 %%
 
 %%
 %% Copyright (C) 2006 Matt Pitkin
 %% Copyright (C) 2007 Reinhard Prix
-%% 
+%%
 %%  This program is free software; you can redistribute it and/or modify
 %%  it under the terms of the GNU General Public License as published by
 %%  the Free Software Foundation; either version 2 of the License, or
@@ -17,22 +17,22 @@
 %%  GNU General Public License for more details.
 %%
 %%  You should have received a copy of the GNU General Public License
-%%  along with with program; see the file COPYING. If not, write to the 
-%%  Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, 
+%%  along with with program; see the file COPYING. If not, write to the
+%%  Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 %%  MA  02111-1307  USA
 %%
 
 function GPS = MJDtdb_to_GPS ( MJD_tdb )
-  
+
   %% Check not before the start of GPS time (MJD 44222)
   if(MJD_tdb < 44244)
     error("Input time is not in range [earlier than MJD0=44244].\n");
   endif
 
   Tdiff = MJD_tdb + (2400000.5 - 2451545.0);
-  meanAnomaly = 357.53 + 0.98560028 * Tdiff; 	%% mean anomaly in degrees 
+  meanAnomaly = 357.53 + 0.98560028 * Tdiff; 	%% mean anomaly in degrees
   meanAnomaly *= pi/180; 			%% mean anomaly in rads
-  
+
   TDBtoTT = 0.001658 * sin(meanAnomaly) + 0.000014 * sin(2 * meanAnomaly); %% time diff in seconds
 
   %% convert TDB to TT (TDB-TDBtoTT) and then convert TT to GPS

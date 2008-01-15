@@ -1,4 +1,4 @@
-%% octave-dropin for inverse complementary error-function (matlab has this one, 
+%% octave-dropin for inverse complementary error-function (matlab has this one,
 %% so I named it differently to avoid namespace-conflict)
 %% trivial implementation of erfc^-1(x), which is simply erf^-1(1 - x)
 %%
@@ -17,8 +17,8 @@
 %%  GNU General Public License for more details.
 %%
 %%  You should have received a copy of the GNU General Public License
-%%  along with with program; see the file COPYING. If not, write to the 
-%%  Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, 
+%%  along with with program; see the file COPYING. If not, write to the
+%%  Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 %%  MA  02111-1307  USA
 %%
 

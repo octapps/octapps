@@ -33,8 +33,8 @@
 %%  GNU General Public License for more details.
 %%
 %%  You should have received a copy of the GNU General Public License
-%%  along with with program; see the file COPYING. If not, write to the 
-%%  Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, 
+%%  along with with program; see the file COPYING. If not, write to the
+%%  Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 %%  MA  02111-1307  USA
 %%
 
@@ -43,7 +43,7 @@ function ret = plotSFT(fname)
   if ( (fid = fopen (fname, "rb")) == -1 )
     error ("Could not open SFT-file '%s'.", fname )
   endif
-  
+
   [ret.version, count] = fread (fid, 1, "real*8");
   if ( count != 1 )
     error ("Error reading version-info from SFT!");
@@ -53,7 +53,7 @@ function ret = plotSFT(fname)
 
   [ ret.epoch.gpsSeconds, count ] = fread ( fid, 1, "int32" );
   if ( count != 1 ) error ("Error reading header-info 'gpsSeconds' from SFT-file '%s'", fname); endif
-  
+
   [ ret.epoch.gpsNanoSeconds, count ] = fread ( fid, 1, "int32" );
   if ( count != 1 ) error ("Error reading header-info 'gpsNanoSeconds' from SFT-file '%s'", fname); endif
 
@@ -85,7 +85,7 @@ function ret = plotSFT(fname)
     ret.comment = char ( comment' );
   endif %% if version 2
 
-  dfreq = 1.0 / ret.Tsft; 
+  dfreq = 1.0 / ret.Tsft;
   ret.f0 = fminBinIndex * dfreq;
   ret.Band = (SFTlen-1) * dfreq;
 
@@ -110,7 +110,7 @@ function ret = plotSFT(fname)
 
   fE = ret.f0 + ret.Band;
   ret.freqs = ret.f0:dfreq:fE;
-  
+
   axis([ret.f0,fE]);
   plot ( ret.freqs, psd );
 

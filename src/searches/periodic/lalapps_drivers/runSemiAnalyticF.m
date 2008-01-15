@@ -17,8 +17,8 @@
 %%  GNU General Public License for more details.
 %%
 %%  You should have received a copy of the GNU General Public License
-%%  along with with program; see the file COPYING. If not, write to the 
-%%  Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, 
+%%  along with with program; see the file COPYING. If not, write to the
+%%  Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 %%  MA  02111-1307  USA
 %%
 
@@ -32,7 +32,7 @@ function ret = runSemiAnalyticF (params, safCode)
     cfsCode = "lalapps_SemiAnalyticF";
   endif
 
-  cmdline = safCode; 
+  cmdline = safCode;
 
   cmdline = addCmdlineOption(cmdline, params, "h0" );
   cmdline = addCmdlineOption(cmdline, params, "cosi" );
@@ -69,7 +69,7 @@ function ret = runSemiAnalyticF (params, safCode)
 
   %% ----- read output
   ret = 2 * str2num ( out );	%% E[2F]
-  
+
   return;
 
 endfunction % runSemiAnalyticF

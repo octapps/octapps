@@ -1,5 +1,5 @@
 %% ret = randSignalParams(ranges)
-%% generate random-parameters for a signal within given ranges and 
+%% generate random-parameters for a signal within given ranges and
 %% return the signal-parameters in a struct
 %% sigparams = [h0, cosi, psi, phi0, alpha, delta, f, f1dot, f2dot, f3dot]
 %%
@@ -18,8 +18,8 @@
 %%  GNU General Public License for more details.
 %%
 %%  You should have received a copy of the GNU General Public License
-%%  along with with program; see the file COPYING. If not, write to the 
-%%  Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, 
+%%  along with with program; see the file COPYING. If not, write to the
+%%  Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 %%  MA  02111-1307  USA
 %%
 
@@ -48,7 +48,7 @@ function ret = randSignalParams(ranges)
   if ( ! isfield (ranges, "f3dot" ) )
     ranges.f3dot = 0;
   endif
-  
+
   ret.f1dot = pickFromRange ( ranges.f1dot );
   ret.f2dot = pickFromRange ( ranges.f2dot );
   ret.f3dot = pickFromRange ( ranges.f3dot );

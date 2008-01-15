@@ -1,4 +1,4 @@
-%% compute the false-dismissal rate for given threshold 2F* and 
+%% compute the false-dismissal rate for given threshold 2F* and
 %% non-centrality parameter lambda = rho^2
 %%
 
@@ -16,15 +16,15 @@
 %%  GNU General Public License for more details.
 %%
 %%  You should have received a copy of the GNU General Public License
-%%  along with with program; see the file COPYING. If not, write to the 
-%%  Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, 
+%%  along with with program; see the file COPYING. If not, write to the
+%%  Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 %%  MA  02111-1307  USA
 %%
 
 function beta = falseDismissal_2F ( thresh, rho2 )
 
   integrand = inline ( sprintf("ChiSquare_pdf(x, 4, %f)", rho2) );
-  
+
   beta = quad ( formula ( integrand ), 0, thresh );
 
 endfunction
