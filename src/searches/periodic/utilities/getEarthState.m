@@ -1,3 +1,6 @@
+%%
+%% ret = getEarthState (ephem, gps)
+%%
 %% input: earth-ephemeris file (load with loadEphemeris()) and gps-time
 %% interpolate earth-state at gps-time from given ephemeris-table
 %% returns 'earthState' struct with elements { pos, vel, acc, accDot }
