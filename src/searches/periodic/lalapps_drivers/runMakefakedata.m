@@ -29,7 +29,7 @@ function runMakefakedata (params, mfdCode)
     error("Missing function argument 'params'\n");
   endif
   if ( !exist("mfdCode") )
-    mfdCode = "lalapps_Makefakedata";
+    mfdCode = "lalapps_Makefakedata_v4";
   endif
 
   cmdline = mfdCode;

@@ -30,7 +30,7 @@ function gij = runGetMetric (params, gmCode)
   endif
 
   if ( !exist("gmCode") )
-    gmCode = "getMetric";
+    gmCode = "lalapps_getMetric";
   endif
 
   cmdline = gmCode;

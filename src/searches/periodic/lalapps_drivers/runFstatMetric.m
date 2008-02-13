@@ -30,7 +30,7 @@ function runFstatMetric (params, fmCode)
   endif
 
   if ( !exist("fmCode") )
-    fmCode = "FstatMetric";
+    fmCode = "lalapps_FstatMetric";
   endif
 
   cmdline = fmCode;

@@ -31,7 +31,7 @@ function runComputeFStatistic_v2 (params, cfsCode)
   endif
 
   if ( !exist("cfsCode") )
-    cfsCode = "ComputeFStatistic_v2";
+    cfsCode = "lalappsComputeFStatistic_v2";
   endif
 
   cmdline = cfsCode;
