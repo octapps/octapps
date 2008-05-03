@@ -1,3 +1,6 @@
+%% normalized thickness (=center density) of An* lattice, from Eq.(2),(82) in CS99
+%% [this function can handle vector input]
+
 %%
 %% Copyright (C) 2008 Reinhard Prix
 %%
@@ -17,7 +20,8 @@
 %%  MA  02111-1307  USA
 %%
 
-function ret = thicknessHypercubicNormalized ( nDim )
-  %% normalized thickness of hypercubic grid in nDim dimensions
-  ret = 2.^(-nDim) .* nDim.^(nDim/2);
+function ret = AnsNormalizedThickness ( n )
+
+  ret = sqrt( n + 1) .* ( ( n .* ( n + 2 ) ) ./ ( 12 * ( n + 1 ) ) ).^(n/2);
+
 endfunction

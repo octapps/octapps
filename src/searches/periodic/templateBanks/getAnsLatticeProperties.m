@@ -1,3 +1,6 @@
+%% Return a struct holding important properties of An* lattice in n-dimensions
+%% from Sect.6.6 in Conway&Sloane(1999):
+
 %%
 %% Copyright (C) 2008 Reinhard Prix
 %%
@@ -17,7 +20,17 @@
 %%  MA  02111-1307  USA
 %%
 
-function ret = thicknessHypercubicNormalized ( nDim )
-  %% normalized thickness of hypercubic grid in nDim dimensions
-  ret = 2.^(-nDim) .* nDim.^(nDim/2);
-endfunction
+function ret = getAnsLatticeProperties ( dim )
+
+  ret.generator = AnsGenerator ( dim );
+  ret.packingRadius = AnsPackingRadius ( dim );
+  ret.coveringRadius = AnsCoveringRadius ( dim );
+  ret.volume = AnsVolume ( dim );
+  ret.thickness = AnsThickness ( dim );
+  ret.normalizedThickness = AnsNormalizedThickness ( dim );
+  ret.relevantVectors = AnsRelevantVectors ( dim );
+  ret.kissingNumber = AnsKissingNumber ( dim );
+
+  return;
+
+endfunction %% getAnsLatticeProperties()

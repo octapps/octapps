@@ -1,3 +1,7 @@
+%% Volume of unit hypersphere in n dimensions: Vn = pi^(n/2) / (n/2)!,
+%% Eq.(7) in CS99
+%% [this function can handle vector input]
+
 %%
 %% Copyright (C) 2008 Reinhard Prix
 %%
@@ -17,7 +21,8 @@
 %%  MA  02111-1307  USA
 %%
 
-function ret = thicknessHypercubicNormalized ( nDim )
-  %% normalized thickness of hypercubic grid in nDim dimensions
-  ret = 2.^(-nDim) .* nDim.^(nDim/2);
+function ret = UnitHypersphereVolume ( n )
+
+  ret = pi.^(n/2) ./ gamma ( n/2 + 1 );
+
 endfunction

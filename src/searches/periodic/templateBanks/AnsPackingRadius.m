@@ -1,3 +1,8 @@
+%% Return the packing-radius for An* lattice in n dimensions, Eq.(79) in CS99
+%% referring to lattice-definition corresponding to the generator
+%% returned by AnsLatticeGenerator.m, i.e. Eq.(76) of Conway&Sloane99:
+%% [this function can handle vector input]
+
 %%
 %% Copyright (C) 2008 Reinhard Prix
 %%
@@ -17,7 +22,10 @@
 %%  MA  02111-1307  USA
 %%
 
-function ret = thicknessHypercubicNormalized ( nDim )
-  %% normalized thickness of hypercubic grid in nDim dimensions
-  ret = 2.^(-nDim) .* nDim.^(nDim/2);
-endfunction
+function packingRadius = AnsPackingRadius ( dim )
+
+  packingRadius = 0.5 * sqrt ( dim ./ ( dim + 1 ) );
+
+  return;
+
+endfunction %% AnsPackingRadius()

@@ -1,3 +1,6 @@
+%% volume of regular simplex in n dimensions with unit side-length, Eq.(12) in CS99
+%% [this function can handle vector input]
+
 %%
 %% Copyright (C) 2008 Reinhard Prix
 %%
@@ -17,7 +20,8 @@
 %%  MA  02111-1307  USA
 %%
 
-function ret = thicknessHypercubicNormalized ( nDim )
-  %% normalized thickness of hypercubic grid in nDim dimensions
-  ret = 2.^(-nDim) .* nDim.^(nDim/2);
+function ret = RegularSimplexVolume ( n )
+
+  ret = sqrt(n+1) ./ ( gamma(n+1) .* 2.^(n/2) );
+
 endfunction

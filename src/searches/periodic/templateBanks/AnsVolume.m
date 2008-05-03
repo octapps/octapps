@@ -1,3 +1,9 @@
+%% Return the "lattice-volume", i.e. the volume of an elementary lattice-cell
+%% for an An* lattice in n dimensions.
+%% This is referring to the lattice-definition corresponding to the generator
+%% returned by AnsLatticeGenerator.m, i.e. Eq.(76) of Conway&Sloane99:
+%% [this function can handle vector input]
+
 %%
 %% Copyright (C) 2008 Reinhard Prix
 %%
@@ -17,7 +23,10 @@
 %%  MA  02111-1307  USA
 %%
 
-function ret = thicknessHypercubicNormalized ( nDim )
-  %% normalized thickness of hypercubic grid in nDim dimensions
-  ret = 2.^(-nDim) .* nDim.^(nDim/2);
-endfunction
+function vol = AnsVolume ( dim )
+
+  vol = 1 ./ sqrt ( dim + 1 );
+
+  return;
+
+endfunction %% AnsVolume()

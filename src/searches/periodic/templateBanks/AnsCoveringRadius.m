@@ -1,3 +1,8 @@
+%% Return covering-radius for An* lattice in n dimensions
+%% referring to lattice-definition corresponding to the generator
+%% returned by getAnsLatticeGenerator.m, i.e. Eq.(76) in Conway&Sloane99:
+%% [this function can handle vector input]
+
 %%
 %% Copyright (C) 2008 Reinhard Prix
 %%
@@ -17,7 +22,11 @@
 %%  MA  02111-1307  USA
 %%
 
-function ret = thicknessHypercubicNormalized ( nDim )
-  %% normalized thickness of hypercubic grid in nDim dimensions
-  ret = 2.^(-nDim) .* nDim.^(nDim/2);
-endfunction
+function coveringRadius = AnsCoveringRadius ( dim )
+
+  %% covering Radius of An* is R = sqrt( n*(n+2) / (12*(n+1)) ), see \ref CS99 */
+  coveringRadius = sqrt ( 1.0 * dim .* (dim + 2.0) ./ (12.0 * (dim + 1) ));
+
+  return;
+
+endfunction %% AnsCoveringRadius()
