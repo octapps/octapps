@@ -1,5 +1,7 @@
-%% return matrix containing the 2(n+1) 'Voronoi-relevant' vectors for An*
-%% in n dimensions. Given in Conway&Sloane(1991) "The cell Structure of Certain Lattices"
+%% return matrix containing the tau/2=(n+1) 'minimal' vectors for An*,
+%% (tau is the kissing number) in n dimensions. The second half of minimal
+%% vectors is simply obtained by multiplying these by (-1).
+%% From Conway&Sloane(1991) "The cell Structure of Certain Lattices"
 
 %%
 %% Copyright (C) 2008 Reinhard Prix
@@ -20,7 +22,7 @@
 %%  MA  02111-1307  USA
 %%
 
-function relevants = AnsRelevantVectors ( dim )
+function ret = AnsMinimalVectors ( dim )
 
   val1 = dim / ( dim + 1 );
   val0 = - ( 1 / ( dim + 1 ) );
@@ -32,18 +34,18 @@ function relevants = AnsRelevantVectors ( dim )
     baseVplus(i,:) = [ p0, val1, p1 ];
   endfor
 
-  baseVminus = - baseVplus;
-
-  rel0 = [ baseVplus; baseVminus ];
-
   %% NOTE: similar to AnsLatticeGenerator(),
   %% we follow our own convention where column == lattice-vectors
   %% so we need to transpose the final result
 
-  rel0 = rel0';
+  mini = baseVplus';
 
-  %% now convert this to a full-rank matrix so we have an n x n generator
+  %% now convert this to vectors in the n-dimensional lattice-space,
+  %% using the (n+1)-dimensional description of the n-basis vectors
+
   [ generator, base ] = AnsGenerator ( dim );
-  relevants = base' * rel0;
+  ret = base' * mini;
 
-endfunction %% AnsRelevantVectors()
+  return;
+
+endfunction %% AnsMinimalVectors()
