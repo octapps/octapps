@@ -1,3 +1,6 @@
+%% normalized thickness of hypercubic grid in n dimensions
+%%
+
 %%
 %% Copyright (C) 2008 Reinhard Prix
 %%
@@ -17,7 +20,9 @@
 %%  MA  02111-1307  USA
 %%
 
-function ret = thicknessHypercubicNormalized ( nDim )
-  %% normalized thickness of hypercubic grid in nDim dimensions
-  ret = 2.^(-nDim) .* nDim.^(nDim/2);
+function ret = ZnNormalizedThickness ( n )
+
+  ret = 2.^(-n) .* n.^(n/2);
+  return;
+
 endfunction
