@@ -1,5 +1,7 @@
-%% Return a struct holding important properties of An* lattice in n-dimensions
-%% from Sect.6.6 in Conway&Sloane(1999):
+%% Return the number of Voronoi-facets for An* lattice, which corresponds
+%% to the maximal number of facets of an n-dimension parallelohedron (see CS99),
+%% namely 2 ( 2^n - 1 )
+%% [this function can handle vector input]
 
 %%
 %% Copyright (C) 2008 Reinhard Prix
@@ -20,17 +22,10 @@
 %%  MA  02111-1307  USA
 %%
 
-function ret = getAnsLatticeProperties ( dim )
+function ret = AnsNumVoronoiFacets ( dim )
 
-  ret.generator = AnsGenerator ( dim );
-  ret.packingRadius = AnsPackingRadius ( dim );
-  ret.coveringRadius = AnsCoveringRadius ( dim );
-  ret.volume = AnsVolume ( dim );
-  ret.thickness = AnsThickness ( dim );
-  ret.normalizedThickness = AnsNormalizedThickness ( dim );
-  ret.minimalVectors = AnsMinimalVectors ( dim );
-  ret.kissingNumber = AnsKissingNumber ( dim );
-  ret.numVoronoiFacets = AnsNumVoronoiFacets ( dim );
+  ret = 2 * ( 2.^n - 1 );
+
   return;
 
-endfunction %% getAnsLatticeProperties()
+endfunction
