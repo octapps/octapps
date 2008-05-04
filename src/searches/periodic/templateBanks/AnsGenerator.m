@@ -1,7 +1,10 @@
 %% return an nxn full-rank generating matrix for an An* lattice,
 %% based on the (n+1)xn generator of Eq.(76) in Conway&Sloane99,
-%% and an orthonormal basis of the original lattice space in n+1 dimensions
-%% adapted from implementation in LAL/packages/pulsar/src/LatticeCovering.c:XLALGetLatticeGenerator()
+%% and a rotation-matrix that takes the nxn generator back to the original
+%% n+1 x n representation of the lattice space in n+1 dimensions.
+%% This is simply obtained by QR-decomposition of the original generator,
+%% which can be obtained from the returned: rotator * generator
+
 
 %%
 %% Copyright (C) 2008 Reinhard Prix
@@ -22,7 +25,7 @@
 %%  MA  02111-1307  USA
 %%
 
-function [ generator, base ] = AnsGenerator ( dim )
+function [ generator, rotator ] = AnsGenerator ( dim )
 
   gen0 = zeros(dim,dim+1);
   for row = [1:dim]
@@ -60,10 +63,12 @@ function [ generator, base ] = AnsGenerator ( dim )
 
   gen0 = gen0';	%% use transpose matrix: columns == lattice-vectors
 
-  %% now convert this to a full-rank matrix so we have an n x n generator
-  base = orth ( gen0 );
-  generator = base' * gen0;
+  %% now convert this to a full-rank matrix so we have an n x n generator,
+  %% simply using octave's QR-decomposition
+  [q, r, p] = qr ( gen0 );
 
+  generator = r(1:dim,:);
+  rotator = q(:,1:dim);
   return;
 
 endfunction %% AnsGenerator()

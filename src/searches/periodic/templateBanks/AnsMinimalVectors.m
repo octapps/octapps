@@ -3,6 +3,7 @@
 %% vectors is simply obtained by multiplying these by (-1).
 %% From Conway&Sloane(1991) "The cell Structure of Certain Lattices"
 
+
 %%
 %% Copyright (C) 2008 Reinhard Prix
 %%
@@ -43,8 +44,8 @@ function ret = AnsMinimalVectors ( dim )
   %% now convert this to vectors in the n-dimensional lattice-space,
   %% using the (n+1)-dimensional description of the n-basis vectors
 
-  [ generator, base ] = AnsGenerator ( dim );
-  ret = base' * mini;
+  [ gen, rot ] = AnsGenerator ( dim );
+  ret = rot' * mini;
 
   return;
 
