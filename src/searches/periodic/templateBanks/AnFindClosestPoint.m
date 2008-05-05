@@ -41,15 +41,15 @@ function [ close, close0 ] = AnFindClosestPoint ( x )
   [ s, inds ] = sort ( dx0, 1 );
 
   %% ----- Step 4 -----
-  corr = zeros ( dim+1, numPoints );
   inds_gt0 = find ( def > 0 );
   inds_lt0 = find ( def < 0 );
 
+  corr = zeros ( dim+1, numPoints );
   for i = inds_gt0
-    corr ( inds(1:(def(i))), i ) = -1;
+    corr ( inds(1:def(i), i), i ) = -1;
   endfor
   for i = inds_lt0
-    corr( inds( (dim+1):(dim+2-abs(def(i)))), i ) = 1;
+    corr( inds( (dim+2 + def(i)):(dim+1), i), i ) = 1;
   endfor
 
   close0 = fx0 + corr;
