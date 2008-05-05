@@ -24,10 +24,7 @@
 
 function [ close, close0 ] = AnFindClosestPoint ( x )
 
-  [ dim, cols ] = size ( x );
-  if ( cols != 1 )
-    error ("Input vector has to be a column-vector n x 1!\n");
-  endif
+  [ dim, numPoints ] = size ( x );
 
   [ gen, rot ] = AnGenerator ( dim );
 
@@ -38,24 +35,26 @@ function [ close, close0 ] = AnFindClosestPoint ( x )
   %% ----- Step 2 -----
   fx0 = round ( x0 );		%% f(x)
   dx0 = x0 - fx0;		%% delta(x)
-  def = sum ( fx0 );		%% deficiency Delta
+  def = sum ( fx0, 1 );		%% deficiency Delta
 
   %% ----- Step 3 -----
-  [ s, i ] = sort ( dx0 );
+  [ s, inds ] = sort ( dx0, 1 );
 
   %% ----- Step 4 -----
-  if ( def == 0 )
-    close0 = fx0;
-  elseif ( def > 0 )
-    corr = zeros ( dim+1, 1);
-    corr( i(1:(def-1)) ) = 1;
-    close0 = fx0 - corr;
-  else
-    corr = zeros ( dim+1, 1);
-    corr( i( (dim+1):(dim+2-abs(def))) ) = 1;
-    close0 = fx0 + corr;
-  endif
+  corr = zeros ( dim+1, numPoints );
+  inds_gt0 = find ( def > 0 );
+  inds_lt0 = find ( def < 0 );
 
+  for i = inds_gt0
+    corr ( inds(1:(def(i))), i ) = -1;
+  endfor
+  for i = inds_lt0
+    corr( inds( (dim+1):(dim+2-abs(def(i)))), i ) = 1;
+  endfor
+
+  close0 = fx0 + corr;
+
+  %% rotate back into n-dim space representation
   close = rot' * close0;
   return;
 
