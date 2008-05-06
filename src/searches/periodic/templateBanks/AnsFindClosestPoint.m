@@ -23,7 +23,7 @@
 
 function closest = AnsFindClosestPoint ( x )
 
-  [ dim, numPoints ] = size ( x );
+  [dim, numPoints ] = size ( x );
   [gen, rot] = AnGenerator ( dim );
 
   %% compute closest point to coset r_i + An:
@@ -42,9 +42,9 @@ function closest = AnsFindClosestPoint ( x )
     yi = AnFindClosestPoint ( x - gluei ) + gluei;	%% central step: try each glue-vector with An
 
     ni = sumsq ( x - yi, 1 );
-    niMin = min ( ni, niMin );
 
-    indsMin = find ( ni == niMin );
+    indsMin = find ( ni <= niMin );
+    niMin ( indsMin ) = ni ( indsMin );
     yiMin ( :, indsMin ) = yi ( :, indsMin );		%% update record-holders
 
   endfor %% i = 0:numGlueVectors-1
