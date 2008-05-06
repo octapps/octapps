@@ -1,5 +1,5 @@
 %% returns Coxter-Few-Rogers bound on normalized thickness in dimension n
-%% taken from Conway&Sloane 99, Eq.(17)
+%% taken from Conway&Sloane (1999), Chap.2, Eq.(17)
 %% [this function can handle vector input]
 
 %%

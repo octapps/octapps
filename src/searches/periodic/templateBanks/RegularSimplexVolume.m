@@ -1,4 +1,5 @@
-%% volume of regular simplex in n dimensions with unit side-length, Eq.(12) in CS99
+%% volume of regular simplex in n dimensions with unit side-length,
+%% Chap.21, Eq.(12) in Conway&Sloane (1999)
 %% [this function can handle vector input]
 
 %%

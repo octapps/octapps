@@ -1,7 +1,7 @@
 %% Return the "lattice-volume", i.e. the volume of an elementary lattice-cell
 %% for an An* lattice in n dimensions.
-%% This is referring to the lattice-definition corresponding to the generator
-%% returned by AnsLatticeGenerator.m, i.e. Eq.(76) of Conway&Sloane99:
+%% This is referring to the lattice-definition used by AnsLatticeGenerator.m,
+%% i.e. Chap.4, Eq.(76) of Conway&Sloane(1999).
 %% [this function can handle vector input]
 
 %%

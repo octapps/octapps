@@ -1,4 +1,5 @@
-%% normalized thickness (=center density) of An* lattice, from Eq.(2),(82) in CS99
+%% normalized thickness (=center density) of An* lattice,
+%% from Chap.4, Eq.(82) in Conway&Sloane(1999)
 %% [this function can handle vector input]
 
 %%

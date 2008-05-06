@@ -1,5 +1,5 @@
 %% Return the "kissing number", i.e. number of touching spheres to one lattice cell
-%% for an An* lattice in n dimensions, Sect.6.6 in CS99
+%% for an An* lattice in n dimensions, Sect.6.6 in Conway&Sloane(1999)
 %% [this function can handle vector input]
 
 %%

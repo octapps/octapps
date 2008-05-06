@@ -1,9 +1,9 @@
 %% return an nxn full-rank generating matrix for an An lattice,
-%% based on the (n+1)xn generator of Eq.(52) in Conway&Sloane99,
-%% and a rotation-matrix that takes the nxn generator back to the original
-%% n+1 x n representation of the lattice space in n+1 dimensions.
-%% This is simply obtained by QR-decomposition of the original generator,
-%% which can be obtained from the returned: rotator * generator
+%% based on the (n+1)xn generator of Chap.4,Eq.(52) in Conway&Sloane(1999)
+%%
+%% also returns the rotation-matrix that takes the nxn generator back to the
+%% (n+1)x n representation of the lattice space in n+1 dimensions,
+%% which is simply obtained by QR-decomposition of the (n+1)x n dimensional generator.
 
 
 %%
@@ -44,9 +44,9 @@ function [ generator, rotator ] = AnGenerator ( dim )
 
   %% NOTE: the above is the An generator in CS99 conventions,
   %% i.e. each *LINE* of the generator-matrix represents one lattice vector.
-  %% However, for some reason, the git of CQG 24, 481 (2007)
-  %% decided to use a convention where the *COLUMNS* of the generator contain
-  %% the lattice-vectors. I'm afraid I'm stuck with the latter convention now ...
+  %% However, in CQG 24, 481 (2007) we used a convention where the *COLUMNS*
+  %% of the generator contain the lattice-vectors. I'm afraid I'm stuck with
+  %% that latter convention now ...
 
   gen0 = gen0';	%% use transpose matrix: columns == lattice-vectors
 

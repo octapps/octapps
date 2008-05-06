@@ -1,9 +1,9 @@
 %% return an nxn full-rank generating matrix for an An* lattice,
-%% based on the (n+1)xn generator of Eq.(76) in Conway&Sloane99,
-%% and a rotation-matrix that takes the nxn generator back to the original
-%% n+1 x n representation of the lattice space in n+1 dimensions.
-%% This is simply obtained by QR-decomposition of the original generator,
-%% which can be obtained from the returned: rotator * generator
+%% based on the (n+1)xn generator of Chap.4, Eq.(76) in Conway&Sloane(1999),
+%%
+%% also returns a rotation-matrix that takes the nxn generator back to the
+%% (n+1)x n dimensional representation of the lattice space in n+1 dimensions.
+%% This is simply obtained by QR-decomposition of the (n+1)xn generator.
 
 
 %%

@@ -1,6 +1,7 @@
-%% Return the packing-radius for An* lattice in n dimensions, Eq.(79) in CS99
+%% Return the packing-radius for An* lattice in n dimensions,
+%% from Chap.4, Eq.(79) in Conway&Sloane(1999)
 %% referring to lattice-definition corresponding to the generator
-%% returned by AnsLatticeGenerator.m, i.e. Eq.(76) of Conway&Sloane99:
+%% returned by AnsLatticeGenerator.m, i.e. Chap.4, Eq.(76) of CS99
 %% [this function can handle vector input]
 
 %%

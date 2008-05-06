@@ -1,7 +1,6 @@
-%% return the closest lattice point to the given point x in R^n
-%% based on 'Algorithm 5' in Conway&Sloane, IEEE 28, 227 (1982)
-%% "Fast Quantizing and Decoding Algorithms for Lattice Quantizers and Codes"
-
+%% return the closest point of the An-lattice to the given point x in R^n
+%% based on Chap.20.2 'Algorithm 3' in Conway&Sloane (1999)
+%% [this function can handle vector input]
 
 %%
 %% Copyright (C) 2008 Reinhard Prix
@@ -45,16 +44,16 @@ function [ close, close0 ] = AnFindClosestPoint ( x )
   inds_lt0 = find ( def < 0 );
 
   corr = zeros ( dim+1, numPoints );
-  for i = inds_gt0
+  for i = inds_gt0	%% if deficiency > 0: subtract 1 from f(x_i0)...f(x_i(def-1))
     corr ( inds(1:def(i), i), i ) = -1;
   endfor
-  for i = inds_lt0
+  for i = inds_lt0	%% if deficiency < 0: add 1 to f(x_dim) .... f(x_i(dim+1-def)
     corr( inds( (dim+2 + def(i)):(dim+1), i), i ) = 1;
   endfor
 
   close0 = fx0 + corr;
 
-  %% rotate back into n-dim space representation
+  %% rotate back from (n+1)-dim into n-dim space representation
   close = rot' * close0;
   return;
 
