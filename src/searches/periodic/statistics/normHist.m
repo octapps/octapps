@@ -21,7 +21,7 @@
 %%  MA  02111-1307  USA
 %%
 
-function [NN, XX] = normHist ( data, numBins )
+function [NN, XX] = normHist ( data, numBins, style )
 
   [NN, XX] = hist ( data, numBins, 1 );
 
@@ -29,6 +29,9 @@ function [NN, XX] = normHist ( data, numBins )
 
   NN /= df;
 
-  bar ( XX, NN );
+  if ( !exist("style") )
+    style = "";
+  endif
+  bar ( XX, NN, style );
 
 endfunction
