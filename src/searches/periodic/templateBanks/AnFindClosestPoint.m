@@ -1,6 +1,14 @@
 %% return the closest point of the An-lattice to the given point x in R^n
 %% based on Chap.20.2 'Algorithm 3' in Conway&Sloane (1999)
 %% [this function can handle vector input]
+%%
+%% The boolean option input 'embedded' (default=false) governs whether
+%% the input vectors are interpreted as vectors in the (n+1) dimensional
+%% embedding space of the lattice, otherwise they are interpreted as
+%% n-dimensional vectors in an n-dimensional lattice
+%% NOTE: The returned lattice vectors use the same representation as
+%% the input-vectors (i.e. 'embedded' or not)
+
 
 %%
 %% Copyright (C) 2008 Reinhard Prix
@@ -21,15 +29,30 @@
 %%  MA  02111-1307  USA
 %%
 
-function [ close, close0 ] = AnFindClosestPoint ( x )
+function closest = AnFindClosestPoint ( x, embedded )
 
-  [ dim, numPoints ] = size ( x );
+  if ( !exist("embedded") )
+    embedded = false;		%% normal n-dimensional representation of n-dim lattice
+  endif
 
-  [ gen, rot ] = AnGenerator ( dim );
+  [ rows, numPoints ] = size ( x );
 
-  %% map n-dimensional point x "back" into xp in the n+1-dimensional
-  %% lattice space of the original generator space, satisfying sum(xp) = 0
-  x0 = rot * x;
+  %% ----- find input-vectors in embedding space -----
+  if ( embedded )
+    dim = rows - 1;	%% space is (n+1)-dimensional, lattice is n-dimensional
+    x1 = x;
+  else
+    dim = rows;		%% space == lattice == n-dimensional
+    [ gen, rot ] = AnGenerator ( dim );
+    %% map n-dimensional input points x "back" into x0 in the n+1-dimensional
+    %% embedding lattice space of the original generator space, satisfying sum(x0) = 0
+    x1 = rot * x;
+  endif
+
+  %% ----- Step 1: make sure the input vectors lie in the lattice-subspace: Chap.20, Eq.(3) in CS99
+  s = sum ( x1, 1 ) / ( dim + 1 );
+  sMat = ones ( dim+1, 1 ) * s;
+  x0 = x1 - sMat;
 
   %% ----- Step 2 -----
   fx0 = round ( x0 );		%% f(x)
@@ -53,8 +76,13 @@ function [ close, close0 ] = AnFindClosestPoint ( x )
 
   close0 = fx0 + corr;
 
-  %% rotate back from (n+1)-dim into n-dim space representation
-  close = rot' * close0;
+  if ( !embedded )
+    %% rotate (n+1)-dim lattice-vectors back into the n-dim lattice-space representation
+    closest = rot' * close0;
+  else
+    closest = close0;
+  endif
+
   return;
 
 endfunction
