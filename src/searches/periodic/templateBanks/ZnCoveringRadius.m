@@ -1,6 +1,4 @@
-%% Return covering-radius for An* lattice in n dimensions
-%% referring to lattice-definition corresponding to the generator
-%% returned by getAnsLatticeGenerator.m, i.e. Chap.4, Eq.(76) in Conway&Sloane(1999):
+%% Return covering-radius for the Zn lattice in n dimensions
 %% [this function can handle vector input]
 
 %%
@@ -22,10 +20,10 @@
 %%  MA  02111-1307  USA
 %%
 
-function coveringRadius = AnsCoveringRadius ( dim )
+function coveringRadius = ZnCoveringRadius ( dim )
 
-  %% covering Radius of An* is R = sqrt( n*(n+2) / (12*(n+1)) ), see \ref CS99 */
-  coveringRadius = sqrt ( 1.0 * dim .* (dim + 2.0) ./ (12.0 * (dim + 1) ));
+  %% covering Radius of Zn is imply sqrt(dim)/2 : see Chap.4,Sect.5 in Conway&Sloane(1999)
+  coveringRadius = sqrt ( dim ) / 2;
 
   return;
 

@@ -1,6 +1,6 @@
-%% Return covering-radius for An* lattice in n dimensions
+%% Return covering-radius for the An lattice in n dimensions
 %% referring to lattice-definition corresponding to the generator
-%% returned by getAnsLatticeGenerator.m, i.e. Chap.4, Eq.(76) in Conway&Sloane(1999):
+%% returned by getAnsLatticeGenerator.m, i.e. Chap.4, Eq.(52) in Conway&Sloane(1999):
 %% [this function can handle vector input]
 
 %%
@@ -22,10 +22,12 @@
 %%  MA  02111-1307  USA
 %%
 
-function coveringRadius = AnsCoveringRadius ( dim )
+function coveringRadius = AnCoveringRadius ( dim )
 
-  %% covering Radius of An* is R = sqrt( n*(n+2) / (12*(n+1)) ), see \ref CS99 */
-  coveringRadius = sqrt ( 1.0 * dim .* (dim + 2.0) ./ (12.0 * (dim + 1) ));
+  %% covering Radius of An is given in Chap.4, Eq.(54) in CS99
+  rho = 1/sqrt(2);	%% packing radius
+  a = round ( (dim + 1)/2 );
+  coveringRadius = rho * sqrt ( 2 * a .* (dim + 1 - a) ./ (dim + 1) );
 
   return;
 

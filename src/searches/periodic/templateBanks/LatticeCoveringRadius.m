@@ -1,7 +1,5 @@
-%% Return covering-radius for An* lattice in n dimensions
-%% referring to lattice-definition corresponding to the generator
-%% returned by getAnsLatticeGenerator.m, i.e. Chap.4, Eq.(76) in Conway&Sloane(1999):
-%% [this function can handle vector input]
+%% return the covering radius for the given lattice
+%% lattice is one of the strings { "Zn", "An", "Ans" }
 
 %%
 %% Copyright (C) 2008 Reinhard Prix
@@ -22,10 +20,25 @@
 %%  MA  02111-1307  USA
 %%
 
-function coveringRadius = AnsCoveringRadius ( dim )
+function R = LatticeCoveringRadius ( dim, lattice )
 
-  %% covering Radius of An* is R = sqrt( n*(n+2) / (12*(n+1)) ), see \ref CS99 */
-  coveringRadius = sqrt ( 1.0 * dim .* (dim + 2.0) ./ (12.0 * (dim + 1) ));
+  valid = { "Zn", "An", "Ans" };
+
+  if ( strcmp ( lattice, valid{1}) )		%% Zn
+    R = ZnCoveringRadius ( dim );
+    return;
+  elseif ( strcmp ( lattice, valid{2} ) ) 	%% An
+    R = AnCoveringRadius ( dim );
+    return;
+  elseif ( strcmp ( lattice, valid{3} ) )	%% An*
+    R = AnsCoveringRadius ( dim );
+    return;
+  else
+    printf ("Unknown lattice-type, must be one of: ");
+    printf (" '%s',", valid{1:length(valid)} );
+    printf ("\n");
+    error ("Illegal input.\n");
+  endif
 
   return;
 
