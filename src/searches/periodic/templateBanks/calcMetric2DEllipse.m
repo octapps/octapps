@@ -6,6 +6,7 @@
 %%
 %% Note: only the first 2 dimensions of gij are used!
 %% if 'rotate' is given, rotate ellipse by this angle
+%%
 
 %%
 %% Copyright (C) 2008 Reinhard Prix

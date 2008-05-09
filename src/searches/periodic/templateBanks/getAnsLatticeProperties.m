@@ -2,6 +2,7 @@
 %%
 %% Return a struct holding important properties of An* lattice in n-dimensions
 %% from Chap.4, Sect.6.6 in Conway&Sloane(1999):
+%%
 
 %%
 %% Copyright (C) 2008 Reinhard Prix

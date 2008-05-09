@@ -1,4 +1,4 @@
-%% function runMakefakedata (params, mfdCode)
+%% runMakefakedata (params, mfdCode)
 %%
 %% general makefakedata driver: pass any commandline options in 'params'
 %% and run mfd code, optionally specifying a binary

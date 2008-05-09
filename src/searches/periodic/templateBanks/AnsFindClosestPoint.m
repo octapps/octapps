@@ -10,7 +10,7 @@
 %% n-dimensional vectors in an n-dimensional lattice
 %% NOTE: The returned lattice vectors use the same representation as
 %% the input-vectors (i.e. 'embedded' or not)
-
+%%
 
 %%
 %% Copyright (C) 2008 Reinhard Prix

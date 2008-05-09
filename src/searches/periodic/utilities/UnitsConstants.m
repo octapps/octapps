@@ -1,4 +1,3 @@
-
 %% define common units and physical constants
 
 % 1 erg = 1 g cm^2 / s^2

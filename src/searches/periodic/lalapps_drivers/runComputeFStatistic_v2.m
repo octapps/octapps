@@ -1,4 +1,4 @@
-%% Function runComputeFStatistic_v2 (params, cfsCode)
+%% runComputeFStatistic_v2 (params, cfsCode)
 %%
 %% general CFSv2 driver: pass any CFS_v2 commandline options in 'params'
 %% and run F-stat search with CFS_v2, optionally specifying a binary

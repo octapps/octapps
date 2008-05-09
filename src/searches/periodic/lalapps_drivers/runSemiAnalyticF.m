@@ -1,4 +1,4 @@
-%% function runSemiAnalyticF (params, safCode)
+%% runSemiAnalyticF (params, safCode)
 %%
 %% general SemiAnalyticF driver: pass any commandline options in 'params'
 %% and run saf code, optionally specifying a binary

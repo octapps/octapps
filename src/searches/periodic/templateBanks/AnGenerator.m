@@ -6,7 +6,7 @@
 %% also returns the rotation-matrix that takes the nxn generator back to the
 %% (n+1)x n representation of the lattice space in n+1 dimensions,
 %% which is simply obtained by QR-decomposition of the (n+1)x n dimensional generator.
-
+%%
 
 %%
 %% Copyright (C) 2008 Reinhard Prix

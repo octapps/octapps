@@ -1,11 +1,11 @@
+%% ret = addCmdlineOption ( params, option, [isRequired] );
+%%
 %% This is a helper function to construct commandlines for running executables
-%%
-%% Usage: ret = addCmdlineOption ( params, option, [isRequired] );
-%%
-%% return 'cmdline' with 'option' appended, if this field exists in 'params'
+%% Return 'cmdline' with 'option' appended, if this field exists in 'params'
 %%
 %% the optional field 'isRequired': if (isRequired): exit with an error if
 %% that option does not exist in params
+%%
 
 %%
 %% Copyright (C) 2006 Reinhard Prix

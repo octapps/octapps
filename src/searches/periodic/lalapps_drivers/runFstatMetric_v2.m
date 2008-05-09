@@ -1,4 +1,4 @@
-%% function runFstatMetric_v2 (params, fmCode)
+%% runFstatMetric_v2 (params, fmCode)
 %%
 %% general FstatMetric_v2 driver: pass any commandline options in 'params'
 %% and run metric code, optionally specifying a binary

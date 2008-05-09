@@ -1,4 +1,4 @@
-%% function runPredictFStat (params, pfsCode)
+%% runPredictFStat (params, pfsCode)
 %%
 %% general PredictFStat driver: pass any commandline options in 'params'
 %% and run pfs code, optionally specifying a binary

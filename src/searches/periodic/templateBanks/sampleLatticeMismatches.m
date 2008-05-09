@@ -2,7 +2,7 @@
 %%
 %% return the result of 'trials' randomly generated mismatches in 'lattice'
 %% in 'dim' dimensions, uniformly sampling the Wigner-Seitz (Voronoi) cell
-
+%%
 
 %%
 %% Copyright (C) 2008 Reinhard Prix

@@ -1,4 +1,4 @@
-%% function runGetMetric (params, gmCode)
+%% runGetMetric (params, gmCode)
 %%
 %% general getMetric driver: pass any commandline options in 'params'
 %% and run metric code, optionally specifying a binary
