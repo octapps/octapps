@@ -1,5 +1,8 @@
+%% [ generator, rotator ] = ZnGenerator ( dim )
+%%
 %% return an nxn full-rank generating matrix for the Zn lattice,
 %% [this is trivial, of course, but added for completeness]
+%%
 
 %%
 %% Copyright (C) 2008 Reinhard Prix

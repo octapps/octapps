@@ -1,5 +1,8 @@
-%% function runFstatMetric_v2 (params)
-%% general driver for 'FstatMetric_v2' code
+%% function runFstatMetric_v2 (params, fmCode)
+%%
+%% general FstatMetric_v2 driver: pass any commandline options in 'params'
+%% and run metric code, optionally specifying a binary
+%% 'fmCode' (default = "lalapps_FstatMetric_v2")
 %%
 
 %%

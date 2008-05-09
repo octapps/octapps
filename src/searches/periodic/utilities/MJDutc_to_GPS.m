@@ -1,8 +1,11 @@
+%% GPS = MJDutc_to_GPS ( MJDutc )
+%%
 %% convert MJD (based on UTC) into GPS seconds
 %% translated from lalapps-CVS/src/pulsar/TDS_isolated/TargetedPulsars.c
 %% This conversion corresponds to what lalapps_tconvert does, but
 %% is NOT the right thing for pulsar timing, as pulsar-epochs are typically
 %% given in MJD(TDB) ! ==> use MJDtdb_to_GPS.m for that purpose!
+%%
 
 %%
 %% Copyright (C) 2006 Matt Pitkin

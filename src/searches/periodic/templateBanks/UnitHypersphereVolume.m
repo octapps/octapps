@@ -1,6 +1,9 @@
+%% ret = UnitHypersphereVolume ( n )
+%% [can handle vector input]
+%%
 %% Volume of unit hypersphere in n dimensions: Vn = pi^(n/2) / (n/2)!,
 %% from Chap.21, Eq.(7) in Conway&Sloane(1999)
-%% [this function can handle vector input]
+%%
 
 %%
 %% Copyright (C) 2008 Reinhard Prix

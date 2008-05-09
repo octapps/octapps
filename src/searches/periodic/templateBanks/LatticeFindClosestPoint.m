@@ -1,6 +1,10 @@
+%% closest = LatticeFindClosestPoint ( dim, lattice )
+%% [can handle vector input in 'dim']
+%%
 %% return the closest point of the lattice to the given point x in R^n
 %% This is just a wrapper to the lower-level lattice-specific functions.
 %% lattice is one of the strings { "Zn", "An", "Ans" }
+%%
 
 %%
 %% Copyright (C) 2008 Reinhard Prix

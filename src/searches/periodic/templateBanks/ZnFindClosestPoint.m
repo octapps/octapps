@@ -1,6 +1,9 @@
+%% close = ZnFindClosestPoint ( x)
+%% [can handle vector input]
+%%
 %% return the closest point of the (hypercubic) Zn-lattice to the given point x in R^n
 %% based on Chap.20.2 in Conway&Sloane (1999). This is the most trivial case.
-%% [this function can handle vector input]
+%%
 
 %%
 %% Copyright (C) 2008 Reinhard Prix

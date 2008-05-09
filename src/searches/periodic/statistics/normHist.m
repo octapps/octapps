@@ -1,4 +1,5 @@
 %% [NN, XX] = normHist ( data, numBins )
+%%
 %% compute a pdf-normalized histogram (i.e. the *integral* is 1)
 %%
 

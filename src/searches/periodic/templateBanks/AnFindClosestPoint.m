@@ -1,3 +1,6 @@
+%% closest = AnFindClosestPoint ( x, embedded )
+%% [can handle vector input]
+%%
 %% return the closest point of the An-lattice to the given point x in R^n
 %% based on Chap.20.2 'Algorithm 3' in Conway&Sloane (1999)
 %% [this function can handle vector input]
@@ -8,6 +11,8 @@
 %% n-dimensional vectors in an n-dimensional lattice
 %% NOTE: The returned lattice vectors use the same representation as
 %% the input-vectors (i.e. 'embedded' or not)
+%%
+
 
 
 %%

@@ -1,6 +1,9 @@
+%% ret = AnsKissingNumber ( dim )
+%% [can handle vector input]
+%%
 %% Return the "kissing number", i.e. number of touching spheres to one lattice cell
 %% for an An* lattice in n dimensions, Sect.6.6 in Conway&Sloane(1999)
-%% [this function can handle vector input]
+%%
 
 %%
 %% Copyright (C) 2008 Reinhard Prix

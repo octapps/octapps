@@ -1,5 +1,8 @@
-%% function runGetMetric (params)
-%% general driver for 'getMetric' lalapps code, return the metric matrix
+%% function runGetMetric (params, gmCode)
+%%
+%% general getMetric driver: pass any commandline options in 'params'
+%% and run metric code, optionally specifying a binary
+%% 'gmCode' (default = "lalapps_getMetric")
 %%
 
 %%

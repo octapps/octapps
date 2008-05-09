@@ -1,3 +1,5 @@
+%% [status, output] = system29 ( arg )
+%%
 %% attempt to compensate for output-argument switch
 %% in the system() command between octave2.1 and octave2.9 [doh]
 %% 'normalize' output-order to octave2.9 conventions

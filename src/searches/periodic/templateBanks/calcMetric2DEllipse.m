@@ -1,3 +1,5 @@
+%% [ret, angle, smin, smaj] = calcMetric2DEllipse ( gij, mismatch, numPoints, rotate )
+%%
 %% ret = calcMetric2DEllipse ( gij, mismatch, numPoints ):
 %% given a parameter-space metric 'gij' and a mismatch 'm', return the
 %% corresponding metric 2D ellipse (centered at (0,0)) using 'numPoints'

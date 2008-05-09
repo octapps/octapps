@@ -1,7 +1,10 @@
+%% coveringRadius = AnsCoveringRadius ( dim )
+%% [can handle vector input]
+%%
 %% Return covering-radius for An* lattice in n dimensions
 %% referring to lattice-definition corresponding to the generator
 %% returned by getAnsLatticeGenerator.m, i.e. Chap.4, Eq.(76) in Conway&Sloane(1999):
-%% [this function can handle vector input]
+%%
 
 %%
 %% Copyright (C) 2008 Reinhard Prix

@@ -1,6 +1,9 @@
+%% [ gen, rot ] = LatticeGenerator ( dim, lattice )
+%%
 %% return an nxn full-rank generating matrix for the specified lattice
 %% This is just a wrapper to the lower-level lattice-specific functions.
 %% lattice is one of the strings { "Zn", "An", "Ans" }
+%%
 
 %%
 %% Copyright (C) 2008 Reinhard Prix

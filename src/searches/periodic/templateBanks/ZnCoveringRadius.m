@@ -1,5 +1,8 @@
+%% coveringRadius = ZnCoveringRadius ( dim )
+%% [can handle vector input]
+%%
 %% Return covering-radius for the Zn lattice in n dimensions
-%% [this function can handle vector input]
+%%
 
 %%
 %% Copyright (C) 2008 Reinhard Prix

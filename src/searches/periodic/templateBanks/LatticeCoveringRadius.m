@@ -1,5 +1,9 @@
+%% R = LatticeCoveringRadius ( dim, lattice )
+%% [can handle vector input in 'dim']
+%%
 %% return the covering radius for the given lattice
 %% lattice is one of the strings { "Zn", "An", "Ans" }
+%%
 
 %%
 %% Copyright (C) 2008 Reinhard Prix

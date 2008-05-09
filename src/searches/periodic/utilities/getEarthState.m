@@ -1,4 +1,3 @@
-%%
 %% ret = getEarthState (ephem, gps)
 %%
 %% input: earth-ephemeris file (load with loadEphemeris()) and gps-time

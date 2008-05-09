@@ -1,6 +1,8 @@
-%% function runMakefakedata (params)
-%% general makefakedata_v4-driver: pass all commandline-option in params
-%% run lalapps_Makefakedata
+%% function runMakefakedata (params, mfdCode)
+%%
+%% general makefakedata driver: pass any commandline options in 'params'
+%% and run mfd code, optionally specifying a binary
+%% 'mfdCode' (default = "lalapps_Makefakedata_v4")
 %%
 
 %%

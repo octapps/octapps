@@ -1,4 +1,6 @@
-%% compute the false-alarm rate for given threshold 2F*
+%% alpha = falseAlarm_2F ( thresh )
+%%
+%% compute the false-alarm rate for given threshold 'thresh' = 2F*
 %%
 
 %%

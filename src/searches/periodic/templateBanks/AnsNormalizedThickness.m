@@ -1,6 +1,9 @@
+%% ret = AnsNormalizedThickness ( n )
+%% [can handle vector input]
+%%
 %% normalized thickness (=center density) of An* lattice,
 %% from Chap.4, Eq.(82) in Conway&Sloane(1999)
-%% [this function can handle vector input]
+%%
 
 %%
 %% Copyright (C) 2008 Reinhard Prix

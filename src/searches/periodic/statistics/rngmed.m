@@ -1,4 +1,6 @@
-%% rngmed(data,window): return a 'smoothed' vector using a
+%% ret = rngmed(data,window)
+%%
+%% return a 'smoothed' vector using a
 %% running-median of the given window-size.
 %% output-vector has same number of entries, with window/2 bins
 %% at the borders filled with identical values

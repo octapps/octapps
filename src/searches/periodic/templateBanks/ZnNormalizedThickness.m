@@ -1,4 +1,7 @@
-%% normalized thickness of hypercubic grid in n dimensions
+%% ret = ZnNormalizedThickness ( n )
+%% [can handle vector input]
+%%
+%% returns normalized thickness of hypercubic grid in n dimensions
 %%
 
 %%

@@ -1,4 +1,5 @@
 %% ret = pickFromRange(range)
+%%
 %% function to return a random-value from within 'range',
 %% which can be a single number, or a vector with [min, max] entries
 %%

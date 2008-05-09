@@ -1,3 +1,5 @@
+%% [ generator, rotator ] = AnGenerator ( dim )
+%%
 %% return an nxn full-rank generating matrix for an An lattice,
 %% based on the (n+1)xn generator of Chap.4,Eq.(52) in Conway&Sloane(1999)
 %%

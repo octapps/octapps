@@ -1,3 +1,4 @@
+%% chi2 = ChiSquare_pdf ( z, N, lambda )
 %%
 %% Compute the general, NON-CENTRAL or central chi^2-distribution with
 %% N degrees of freedom and non-centrality parameter lambda, for the (vector)

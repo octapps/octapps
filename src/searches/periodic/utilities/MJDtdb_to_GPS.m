@@ -1,3 +1,5 @@
+%% GPS = MJDtdb_to_GPS ( MJD_tdb )
+%%
 %% convert MJD (based on TDB) into GPS seconds
 %% translated from LAL-function LALTDBMJDtoGPS() in BinaryPulsarTiming.c
 %%

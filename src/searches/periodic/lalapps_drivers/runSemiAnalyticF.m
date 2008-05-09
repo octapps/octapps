@@ -1,6 +1,8 @@
-%% function runSemiAnalyticF (params, code)
-%% general SemiAnalyticF driver: pass all commandline-options in params
-%% run lalapps_SemiAnalyticF, return 2F_saf
+%% function runSemiAnalyticF (params, safCode)
+%%
+%% general SemiAnalyticF driver: pass any commandline options in 'params'
+%% and run saf code, optionally specifying a binary
+%% 'safCode' (default = "lalapps_SemiAnalyticF")
 %%
 
 %%

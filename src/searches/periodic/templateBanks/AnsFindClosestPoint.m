@@ -1,6 +1,8 @@
+%% closest = AnsFindClosestPoint ( x, embedded )
+%% [can handle vector input]
+%%
 %% return the closest point of the An*-lattice to the given point x in R^n
 %% based on Chap.20.3 'Algorithm 4' in Conway&Sloane (1999)
-%% [this function can handle vector input]
 %%
 %% The boolean option input 'embedded' (default=false) governs whether
 %% the input vectors are interpreted as vectors in the (n+1) dimensional

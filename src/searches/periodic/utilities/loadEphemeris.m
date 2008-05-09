@@ -1,3 +1,5 @@
+%% ephem = loadEphemeris (fname)
+%%
 %% load in a given earth ephemeris-file
 %% and returns a list of [gps, pos, vel, acc]
 %%

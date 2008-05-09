@@ -1,4 +1,5 @@
 %% ret = randSignalParams(ranges)
+%%
 %% generate random-parameters for a signal within given ranges and
 %% return the signal-parameters in a struct
 %% sigparams = [h0, cosi, psi, phi0, alpha, delta, f, f1dot, f2dot, f3dot]

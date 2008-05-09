@@ -1,4 +1,6 @@
-%% compute the false-dismissal rate for given threshold 2F* and
+%% beta = falseDismissal_2F ( thresh, rho2 )
+%%
+%% compute the false-dismissal rate for given threshold 'thresh' = 2F* and
 %% non-centrality parameter lambda = rho^2
 %%
 

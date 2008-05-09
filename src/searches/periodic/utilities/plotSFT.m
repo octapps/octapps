@@ -1,3 +1,5 @@
+%% ret = plotSFT(fname)
+%%
 %% plot a given SFT and return its meta-info (header) and data as a struct:
 %% ret = {version; epoch; Tsft; f0; Band; SFTdata }
 %%

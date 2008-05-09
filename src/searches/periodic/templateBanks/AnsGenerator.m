@@ -1,9 +1,12 @@
+%% [ generator, rotator ] = AnsGenerator ( dim )
+%%
 %% return an nxn full-rank generating matrix for an An* lattice,
 %% based on the (n+1)xn generator of Chap.4, Eq.(76) in Conway&Sloane(1999),
 %%
 %% also returns a rotation-matrix that takes the nxn generator back to the
 %% (n+1)x n dimensional representation of the lattice space in n+1 dimensions.
 %% This is simply obtained by QR-decomposition of the (n+1)xn generator.
+%%
 
 
 %%

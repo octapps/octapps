@@ -1,6 +1,8 @@
-%% function runPredictFStat (params)
-%% general PredictFStat driver: pass all commandline-option in params
-%% run lalappsPredictFStat, return [ <2F>, std(2F) ]
+%% function runPredictFStat (params, pfsCode)
+%%
+%% general PredictFStat driver: pass any commandline options in 'params'
+%% and run pfs code, optionally specifying a binary
+%% 'pfsCode' (default = "lalapps_PredictFStat")
 %%
 
 %%

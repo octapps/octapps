@@ -1,6 +1,9 @@
+%% ret = RogersBoundNormalized ( n )
+%% [can handle vector input]
+%%
 %% Rogers' upper bound on (normalized) packing density in n dimensions
 %% from Chap.1, Conway&Sloane(1999)
-%% [this function can handle vector input]
+%%
 
 %%
 %% Copyright (C) 2008 Reinhard Prix

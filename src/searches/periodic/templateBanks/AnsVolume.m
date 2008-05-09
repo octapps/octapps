@@ -1,8 +1,11 @@
+%% vol = AnsVolume ( dim )
+%% [can handle vector input]
+%%
 %% Return the "lattice-volume", i.e. the volume of an elementary lattice-cell
 %% for an An* lattice in n dimensions.
 %% This is referring to the lattice-definition used by AnsLatticeGenerator.m,
 %% i.e. Chap.4, Eq.(76) of Conway&Sloane(1999).
-%% [this function can handle vector input]
+%%
 
 %%
 %% Copyright (C) 2008 Reinhard Prix

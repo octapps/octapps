@@ -1,4 +1,5 @@
 %% loadCandidateFile ( fname )
+%%
 %% loads a 'candidate-file' from ComputeFStatistic_v2 --outputLoudest=cand.file
 %% and returns a struct containing the data
 %%

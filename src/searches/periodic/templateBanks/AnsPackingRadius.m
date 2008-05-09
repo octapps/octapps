@@ -1,8 +1,11 @@
+%% packingRadius = AnsPackingRadius ( dim )
+%% [can handle vector input]
+%%
 %% Return the packing-radius for An* lattice in n dimensions,
 %% from Chap.4, Eq.(79) in Conway&Sloane(1999)
 %% referring to lattice-definition corresponding to the generator
 %% returned by AnsLatticeGenerator.m, i.e. Chap.4, Eq.(76) of CS99
-%% [this function can handle vector input]
+%%
 
 %%
 %% Copyright (C) 2008 Reinhard Prix

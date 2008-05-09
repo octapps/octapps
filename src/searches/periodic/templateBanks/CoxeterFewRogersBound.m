@@ -1,6 +1,9 @@
+%% ret = CoxeterFewRogersBound ( n )
+%% [can handle vector input]
+%%
 %% returns Coxter-Few-Rogers bound on thickness in dimension n
 %% taken from Conway&Sloane (1999), Chap.2, Eq.(17)
-%% [this function can handle vector input]
+%%
 
 %%
 %% Copyright (C) 2008 Reinhard Prix

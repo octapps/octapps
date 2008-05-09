@@ -1,7 +1,10 @@
+%% ret = AnsNumVoronoiFacets ( dim )
+%% [can handle vector input]
+%%
 %% Return the number of Voronoi-facets for An* lattice, which corresponds
 %% to the maximal number of facets of an n-dimension parallelohedron (see CS99),
 %% namely 2 ( 2^n - 1 )
-%% [this function can handle vector input]
+%%
 
 %%
 %% Copyright (C) 2008 Reinhard Prix

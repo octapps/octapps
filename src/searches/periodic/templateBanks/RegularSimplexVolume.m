@@ -1,6 +1,9 @@
+%% ret = RegularSimplexVolume ( n )
+%% [can handle vector input]
+%%
 %% volume of regular simplex in n dimensions with unit side-length,
 %% Chap.21, Eq.(12) in Conway&Sloane (1999)
-%% [this function can handle vector input]
+%%
 
 %%
 %% Copyright (C) 2008 Reinhard Prix

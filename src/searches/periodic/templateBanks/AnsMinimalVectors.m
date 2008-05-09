@@ -1,8 +1,10 @@
+%% ret = AnsMinimalVectors ( dim )
+%%
 %% return matrix containing the tau/2=(n+1) 'minimal' vectors for An*,
 %% (tau is the kissing number) in n dimensions. The second half of minimal
 %% vectors is simply obtained by multiplying these by (-1).
 %% From Conway&Sloane(1991) "The cell Structure of Certain Lattices"
-
+%%
 
 %%
 %% Copyright (C) 2008 Reinhard Prix
