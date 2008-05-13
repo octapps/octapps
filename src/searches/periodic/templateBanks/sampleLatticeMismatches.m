@@ -1,7 +1,10 @@
 %% mis = sampleLatticeMismatches ( dim, trials, lattice )
 %%
 %% return the result of 'trials' randomly generated mismatches in 'lattice'
-%% in 'dim' dimensions, uniformly sampling the Wigner-Seitz (Voronoi) cell
+%% in 'dim' dimensions, uniformly sampling the Wigner-Seitz (Voronoi) cell.
+%%
+%% NOTE: the mismatches are normalized by the covering radius of the lattice,
+%% so they all lie within [0, 1] by construction!
 %%
 
 %%
