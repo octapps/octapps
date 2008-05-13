@@ -1,10 +1,9 @@
-%% vol = AnsVolume ( dim )
+%% vol = ZnVolume ( dim )
 %% [can handle vector input]
 %%
 %% Return the "lattice-volume" (i.e. the volume of an elementary lattice-cell)
-%% for an An* lattice in 'dim' dimensions.
-%% This is referring to the lattice-definition used by AnsGenerator.m,
-%% i.e. Chap.4, Eq.(76) of Conway&Sloane(1999).
+%% for a Zn lattice in 'dim' dimensions.
+%% This is referring to the lattice-definition used by ZnGenerator.m,
 %%
 
 %%
@@ -26,10 +25,11 @@
 %%  MA  02111-1307  USA
 %%
 
-function vol = AnsVolume ( dim )
+function vol = ZnVolume ( dim )
 
-  vol = 1 ./ sqrt ( dim + 1 );
+  %% this is trivial of course, but included for completeness of 'LatticeVolume()'
+  vol = ones ( 1, length(dim) );
 
   return;
 
-endfunction %% AnsVolume()
+endfunction %% ZnVolume()

@@ -1,10 +1,9 @@
-%% vol = AnsVolume ( dim )
+%% vol = AnVolume ( dim )
 %% [can handle vector input]
 %%
 %% Return the "lattice-volume" (i.e. the volume of an elementary lattice-cell)
-%% for an An* lattice in 'dim' dimensions.
-%% This is referring to the lattice-definition used by AnsGenerator.m,
-%% i.e. Chap.4, Eq.(76) of Conway&Sloane(1999).
+%% for an An lattice in 'dim' dimensions.
+%% This is referring to the lattice-definition used by AnGenerator.m,
 %%
 
 %%
@@ -26,10 +25,10 @@
 %%  MA  02111-1307  USA
 %%
 
-function vol = AnsVolume ( dim )
+function vol = AnVolume ( dim )
 
-  vol = 1 ./ sqrt ( dim + 1 );
+  vol = sqrt ( dim + 1 );
 
   return;
 
-endfunction %% AnsVolume()
+endfunction %% AnVolume()

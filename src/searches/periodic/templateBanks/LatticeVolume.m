@@ -1,10 +1,8 @@
-%% vol = AnsVolume ( dim )
-%% [can handle vector input]
+%% vol = LatticeVolume ( dim, lattice )
+%% [can handle vector input in 'dim']
 %%
-%% Return the "lattice-volume" (i.e. the volume of an elementary lattice-cell)
-%% for an An* lattice in 'dim' dimensions.
-%% This is referring to the lattice-definition used by AnsGenerator.m,
-%% i.e. Chap.4, Eq.(76) of Conway&Sloane(1999).
+%% return the lattice volume (ie volume of the fundamental cell) of given 'lattice'
+%% lattice is one of the strings { "Zn", "An", "Ans" }
 %%
 
 %%
@@ -26,10 +24,26 @@
 %%  MA  02111-1307  USA
 %%
 
-function vol = AnsVolume ( dim )
+function ret = LatticeVolume ( dim, lattice )
 
-  vol = 1 ./ sqrt ( dim + 1 );
+  valid = { "Zn", "An", "Ans" };
+
+  if ( strcmp ( lattice, valid{1}) )		%% Zn
+    ret = ZnVolume ( dim );
+    return;
+  elseif ( strcmp ( lattice, valid{2} ) ) 	%% An
+    ret = AnVolume ( dim );
+    return;
+  elseif ( strcmp ( lattice, valid{3} ) )	%% An*
+    ret = AnsVolume ( dim );
+    return;
+  else
+    printf ("Unknown lattice-type, must be one of: ");
+    printf (" '%s',", valid{1:length(valid)} );
+    printf ("\n");
+    error ("Illegal input.\n");
+  endif
 
   return;
 
-endfunction %% AnsVolume()
+endfunction
