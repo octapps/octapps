@@ -22,7 +22,7 @@
 %%  MA  02111-1307  USA
 %%
 
-function [NN, XX] = normHist ( data, numBins, style )
+function [NN, XX] = normHist ( data, numBins, plotStyle )
 
   [NN, XX] = hist ( data, numBins, 1 );
 
@@ -30,9 +30,9 @@ function [NN, XX] = normHist ( data, numBins, style )
 
   NN /= df;
 
-  if ( !exist("style") )
-    style = "";
+  %% plot only if 'plotStyle' has been specified
+  if ( exist("plotStyle") )
+    bar ( XX, NN, plotStyle );
   endif
-  bar ( XX, NN, style );
 
 endfunction
