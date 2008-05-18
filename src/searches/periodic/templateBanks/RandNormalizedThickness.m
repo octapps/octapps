@@ -1,7 +1,7 @@
-%% ret = normalizedThickness_RandomGrid ( nDim, falseDismissal )
+%% ret = RandNormalizedThickness ( dim, falseDismissal )
 %% [can handle vector input in 'dim']
 %%
-%% Return the normalized thickness of an 'nDim'-dimensional random-template
+%% Return the normalized thickness of an 'dim'-dimensional random-template
 %% grid with given falseDismissal probability
 %%
 
@@ -25,11 +25,11 @@
 %%  MA  02111-1307  USA
 %%
 
-function ret = normalizedThickness_RandomGrid ( dim, falseDismissal )
+function ret = RandNormalizedThickness ( dim, falseDismissal )
   %% compute the normalized thickness, i.e. number of templates per
   %% volume for unity covering radius [ie mismatch^(1/2)], as
   %% a function of dimension and falseDismissal probability
 
-  ret = - log(falseDismissal) * gamma( dim/2 + 1 ) ./ pi.^(dim/2);
+  ret = - log(falseDismissal) ./ UnitHypersphereVolume ( dim );
 
 endfunction
