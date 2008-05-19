@@ -27,6 +27,6 @@
 
 function ret = RandThickness ( dim, falseDismissal )
 
-  ret = - log(falseDismissal);
+  ret = - log(falseDismissal) * ones ( size(dim) );
 
 endfunction
