@@ -1,8 +1,9 @@
 %% [status, output] = system29 ( arg )
 %%
 %% attempt to compensate for output-argument switch
-%% in the system() command between octave2.1 and octave2.9 [doh]
-%% 'normalize' output-order to octave2.9 conventions
+%% in the system() command between octave2.1 and octave >= 2.9 [doh]
+%% 'normalize' output-order to octave >= 2.9 conventions, which were
+%% changed to be consistent with matlab ...
 %%
 
 %%
@@ -25,16 +26,17 @@
 %%
 
 function [status, output] = system29 ( arg )
-  is29 = ( index ( OCTAVE_VERSION, "2.9" ) == 1 );
+  is21 = ( index ( OCTAVE_VERSION, "2.1" ) == 1 );
 
   [ret1, ret2] = system ( arg );
 
-  if ( is29 )
-    status = ret1;
-    output = ret2;
-  else
+  if ( is21 )	%% octave 2.1s special convention
     status = ret2;
     output = ret1;
+  else 	%% newer octave >= 2.9 convention, compatible with matlab
+    status = ret1;
+    output = ret2;
   endif
+
 endfunction
 
