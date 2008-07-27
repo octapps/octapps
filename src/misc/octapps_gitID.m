@@ -7,8 +7,8 @@
 %% determine the git-tag of the *local* directory in which the
 %% current calling script is running. (default == false)
 %%
-%% returns struct with fields {commitID, commitDate, commitAuthor, commitTitle}
-%%
+%% returns struct with fields {fullID, commitID, commitDate, commitAuthor, commitTitle}
+%% where 'fullID' is simply the unparsed ID string
 %%
 
 %%
@@ -71,6 +71,7 @@ function ret = octapps_gitID ( run_local )
     error ("Failed to parse git-id string '%s'\n", gitid );
   endif
 
+  ret.fullID       = gitid;	%% full unparsed ID string
   ret.commitID     = deblank(gitid ( ind0+length("CommitID: "):ind1-1 ));
   ret.commitDate   = deblank(gitid ( ind1+length("CommitDate: "):ind2-1 ));
   ret.commitAuthor = deblank(gitid ( ind2+length("CommitAuthor: "):ind3-1 ));
