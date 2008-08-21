@@ -54,7 +54,7 @@ function ret = octapps_gitID ( run_local )
     logcmd = "";
   endif	## !run_local
 
-  fmt = "format:CommitID: %H %nCommitDate: %aD %nCommitAuthor: %ae %nCommitTitle: %s";
+  fmt = "format:CommitID: %H%nCommitDate: %aD%nCommitAuthor: %ae%nCommitTitle: %s";
   logcmd = sprintf ( "%s git-log -1 --pretty='%s'", logcmd, fmt );
 
   [err, gitid ] = system29 ( logcmd );
