@@ -96,6 +96,9 @@ function runComputeFStatistic_v2 (params, cfsCode)
   cmdline = addCmdlineOption(cmdline, params, "workingDir" );
   cmdline = addCmdlineOption(cmdline, params, "internalRefTime" );
 
+  %% experimental addition for leap-second Monte-Carlo test
+  cmdline = addCmdlineOption(cmdline, params, "leapSeconds" );
+
   %% ----- debug
   if ( isfield(params, "lalDebugLevel" ) && params.lalDebugLevel )
     lalDebugLevel = params.lalDebugLevel;
