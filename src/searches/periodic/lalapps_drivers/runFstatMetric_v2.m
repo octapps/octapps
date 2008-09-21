@@ -48,8 +48,8 @@ function runFstatMetric_v2 (params, fmCode)
   cmdline = addCmdlineOption(cmdline, params, "f1dot");
   cmdline = addCmdlineOption(cmdline, params, "startTime");
   cmdline = addCmdlineOption(cmdline, params, "duration");
-  cmdline = addCmdlineOption(cmdline, params, "ephemEarth");
-  cmdline = addCmdlineOption(cmdline, params, "ephemSun");
+  cmdline = addCmdlineOption(cmdline, params, "ephemDir");
+  cmdline = addCmdlineOption(cmdline, params, "ephemYear");
   cmdline = addCmdlineOption(cmdline, params, "cosi");
   cmdline = addCmdlineOption(cmdline, params, "psi");
   cmdline = addCmdlineOption(cmdline, params, "outputMetric");
@@ -57,6 +57,7 @@ function runFstatMetric_v2 (params, fmCode)
   cmdline = addCmdlineOption(cmdline, params, "coords");
   cmdline = addCmdlineOption(cmdline, params, "fullFmetric");
   cmdline = addCmdlineOption(cmdline, params, "detMotionType");
+  cmdline = addCmdlineOption(cmdline, params, "version");
 
   %% ----- debug
   if ( isfield(params, "lalDebugLevel" ) && params.lalDebugLevel )
