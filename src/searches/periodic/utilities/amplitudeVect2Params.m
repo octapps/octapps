@@ -1,12 +1,27 @@
-function Amp = amplitudeVect2Params ( Amu )
+function Amp = amplitudeVect2Params ( Amu, convention )
   %% compute amplitude-vector {A^mu} from (MLDC) amplitudes {Amplitude, Inclination, Polarization, InitialPhase }
   %% Adapted from algorithm in LALEstimatePulsarAmplitudeParams()
   %% Amu is a row-vector for each signal, multiple signals being stored in multiple rows ,
   %% the resulting fields in Amp are also column-vectors for multiple signals
+  %% if convention == "LIGO", return {h0,cosi,psi.iota} and {aPlus,aCross},
+  %% if convention == "MLDC" return {Amplitude,Inclination,Polarization, InitialPhase} using MLDC conventions
+  %% the default = "LIGO" if not specified
 
   [ rows0, cols0 ] = size ( Amu );
   if ( cols0 != 4 )
     error ("Amu has to contains 4-columns [ A1, A2, A3, A4 ]! \n");
+  endif
+
+  if ( exist("convention") )
+    if ( strcmp ( convention, "MLDC") )
+      isMLDC = true;
+    elseif ( strcmp ( convention, "LIGO" ) )
+      isMLDC = false;
+    else
+      error ("Convention must be either 'LIGO' or 'MLDC'.");
+    endif
+  else
+    isMLDC = false;
   endif
 
   A1 = Amu(:,1);
@@ -43,25 +58,37 @@ function Amp = amplitudeVect2Params ( Amu )
   h0 = aPlus + sqrt ( disc );
   cosi = aCross ./ h0;
 
-  %% Finally convert LIGO conventions -> MLDC conventions
-  %% in order to get a *unique* result, we need to restrict the gauge
-  %% of {Polarization, InitialPhase} to: InitialPhase in [0, 2pi), and
-  %% Polarization in [0, pi/2 ): this can always be achieved by applying
-  %% the gauge-transformations: (Polarization += pi/2) && (InitialPhase += pi)
-  Amp.Amplitude    = 0.5 * h0;
-  Amp.Inclination  = pi - acos(cosi);
+  if ( !isMLDC )
+    %% ---------- Return LSC conventions
+    Amp.h0 = h0;
+    Amp.cosi = cosi;
+    Amp.phi0 = phi0;
+    Amp.psi = psi;
 
-  Polarization = mod( pi/2 - psi, pi );		%% in [0, pi): inv under += pi
-  InitialPhase = phi0 + pi;			%% FIXME: Mystery sign-flip!
+    Amp.aPlus = aPlus;
+    Amp.aCross = aCross;
+  else
+    %% ---------- Convert LIGO conventions -> MLDC conventions
+    %% in order to get a *unique* result, we need to restrict the gauge
+    %% of {Polarization, InitialPhase} to: InitialPhase in [0, 2pi), and
+    %% Polarization in [0, pi/2 ): this can always be achieved by applying
+    %% the gauge-transformations: (Polarization += pi/2) && (InitialPhase += pi)
+    Amp.Amplitude    = 0.5 * h0;
+    Amp.Inclination  = pi - acos(cosi);
 
-  flipInds = find ( Polarization >= pi/2 );
-  Polarization(flipInds) -= pi/2;		%% now in [0, pi/2)
-  InitialPhase(flipInds) += pi;
+    Polarization = mod( pi/2 - psi, pi );		%% in [0, pi): inv under += pi
+    InitialPhase = phi0 + pi;			%% FIXME: Mystery sign-flip!
 
-  InitialPhase = mod ( InitialPhase, 2*pi );	%% in [0, 2pi) inv under += 2pi
+    flipInds = find ( Polarization >= pi/2 );
+    Polarization(flipInds) -= pi/2;		%% now in [0, pi/2)
+    InitialPhase(flipInds) += pi;
 
-  Amp.Polarization  = Polarization;
-  Amp.InitialPhase  = InitialPhase;
+    InitialPhase = mod ( InitialPhase, 2*pi );	%% in [0, 2pi) inv under += 2pi
+
+    Amp.Polarization  = Polarization;
+    Amp.InitialPhase  = InitialPhase;
+
+  endif
 
   return;
 
