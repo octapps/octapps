@@ -47,8 +47,8 @@ function Amp = amplitudeVect2Params ( Amu, convention )
   b3 = - A1 + beta .* A4 ;
 
   %% compute amplitude params in LIGO conventions first
-  psi  = 0.5 * atan ( b1 ./  b2 ); %% in [-pi/4,pi/4] (gauge used also by TDS)
-  phi0 =       atan ( b2 ./ b3 );  %% in [-pi/2,pi/2]
+  psi  = 0.5 * atan2 ( b1,  b2 );  %% in [-pi/4,pi/4] (gauge used also by TDS)
+  phi0 =       atan2 ( b2,  b3 );  %% in [-pi/2,pi/2]
 
   %% Fix remaining sign-ambiguity by checking sign of reconstructed A1
   A1check = aPlus .* cos(phi0) .* cos(2.0*psi) - aCross .* sin(phi0) .* sin(2*psi);
