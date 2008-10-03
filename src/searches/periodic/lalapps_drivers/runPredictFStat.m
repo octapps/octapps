@@ -41,6 +41,7 @@ function ret = runPredictFStat (params, pfsCode)
   cmdline = addCmdlineOption(cmdline, params, "aPlus" );
   cmdline = addCmdlineOption(cmdline, params, "aCross");
   cmdline = addCmdlineOption(cmdline, params, "psi");
+  cmdline = addCmdlineOption(cmdline, params, "phi0");
   cmdline = addCmdlineOption(cmdline, params, "Alpha" );
   cmdline = addCmdlineOption(cmdline, params, "Delta" );
   cmdline = addCmdlineOption(cmdline, params, "Freq" );
