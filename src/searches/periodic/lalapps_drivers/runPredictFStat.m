@@ -77,9 +77,9 @@ function ret = runPredictFStat (params, pfsCode)
   endif
 
   %% ----- read output
-  out = load( params.outputFstat );
+  source( params.outputFstat );
 
-  ret = [ out(1), out(2) ];	%% E[2F], sigma(2F)
+  ret = [ twoF_expected, twoF_sigma ];	%% E[2F], sigma(2F)
 
   return;
 
