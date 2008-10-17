@@ -1,7 +1,7 @@
-%% ret = randSignalParams(ranges)
+%% ret = randSignalParams( ranges, [numSignals] )
 %%
-%% generate random-parameters for a signal within given ranges and
-%% return the signal-parameters in a struct
+%% generate random-parameters for 'numSignals' (default=1, returns a colunm-vector)
+%% signals within given ranges and return the signal-parameters in a struct
 %% sigparams = [h0, cosi, psi, phi0, alpha, delta, f, f1dot, f2dot, f3dot]
 %%
 
@@ -24,35 +24,49 @@
 %%  MA  02111-1307  USA
 %%
 
-function ret = randSignalParams(ranges)
+function ret = randSignalParams(ranges, numSignals)
   %% generate corresponding random-values
 
-  ret.Freq  = pickFromRange ( ranges.Freq );
-  ret.Alpha = pickFromRange ( ranges.Alpha );
+  if ( !exist("numSignals") )
+    numSignals = 1;
+  endif
 
-  cthMin = cos( pi/2 - min(ranges.Delta(:) ));
-  cthMax = cos( pi/2 - max(ranges.Delta(:) ));
-  ret.Delta = pi/2 - acos ( pickFromRange([cthMin,cthMax]) );
-
-  ret.h0    = pickFromRange ( ranges.h0 );
-  ret.cosi  = pickFromRange ( ranges.cosi );
-  ret.psi   = pickFromRange ( ranges.psi );
-  ret.phi0  = pickFromRange ( ranges.phi0 );
-
-  %% handle spindown-ranges as optional, but always output them!! (3 spindowns)
-  if ( ! isfield (ranges, "f1dot" ) )
+  %% handle Doppler-params as optional, but always output them!! (3 spindowns)
+  if ( ! isfield ( ranges, "Freq") )
+    ranges.Freq = 0;
+  endif
+  if ( ! isfield ( ranges, "Alpha") )
+    ranges.Alpha = 0;
+  endif
+  if ( ! isfield ( ranges, "Delta" ) )
+    ranges.Delta = 0;
+  endif
+  if ( ! isfield ( ranges, "f1dot" ) )
     ranges.f1dot = 0;
   endif
-  if ( ! isfield (ranges, "f2dot" ) )
+  if ( ! isfield ( ranges, "f2dot" ) )
     ranges.f2dot = 0;
   endif
-  if ( ! isfield (ranges, "f3dot" ) )
+  if ( ! isfield ( ranges, "f3dot" ) )
     ranges.f3dot = 0;
   endif
 
-  ret.f1dot = pickFromRange ( ranges.f1dot );
-  ret.f2dot = pickFromRange ( ranges.f2dot );
-  ret.f3dot = pickFromRange ( ranges.f3dot );
+
+  ret.Freq  = pickFromRange ( ranges.Freq, numSignals );
+  ret.Alpha = pickFromRange ( ranges.Alpha, numSignals );
+
+  cthMin = cos( pi/2 - min(ranges.Delta(:) ));
+  cthMax = cos( pi/2 - max(ranges.Delta(:) ));
+  ret.Delta = pi/2 - acos ( pickFromRange([cthMin,cthMax], numSignals ) );
+
+  ret.h0    = pickFromRange ( ranges.h0, numSignals );
+  ret.cosi  = pickFromRange ( ranges.cosi, numSignals );
+  ret.psi   = pickFromRange ( ranges.psi, numSignals );
+  ret.phi0  = pickFromRange ( ranges.phi0, numSignals );
+
+  ret.f1dot = pickFromRange ( ranges.f1dot, numSignals );
+  ret.f2dot = pickFromRange ( ranges.f2dot, numSignals );
+  ret.f3dot = pickFromRange ( ranges.f3dot, numSignals );
 
   %% return also Aplus, Across
   %% ret.aPlus = 0.5 * ret.h0 * ( 1.0 + ret.cosi ^ 2);
