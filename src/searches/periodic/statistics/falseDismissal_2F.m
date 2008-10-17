@@ -38,7 +38,11 @@ function beta = falseDismissal_2F ( thresh, rho2, dof )
     integrand = inline ( sprintf("ChiSquare_pdf(x, %d, %f)", dof, rho2(jj)) );
 
     for ii = 1:N
-      beta(jj, ii) = quad ( formula ( integrand ), 0, thresh(ii) );
+      if ( thresh(ii) == 0 )
+	beta(jj, ii) = 0;
+      else
+	beta(jj, ii) = quad ( formula ( integrand ), 0, thresh(ii) );
+      endif
     endfor %% ii
 
   endfor %% jj
