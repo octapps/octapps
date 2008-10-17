@@ -1,6 +1,7 @@
-%% ret = pickFromRange(range)
+%% ret = pickFromRange(range, [num])
 %%
-%% function to return a random-value from within 'range',
+%% function to return a number of random-values (specified by the optional
+%% argument 'num', default is 1. Return is a column-vector) from within 'range',
 %% which can be a single number, or a vector with [min, max] entries
 %%
 
@@ -23,9 +24,13 @@
 %%  MA  02111-1307  USA
 %%
 
-function ret = pickFromRange(range)
+function ret = pickFromRange(range, num)
+  if ( !exist("num") )
+    num = 1;
+  endif
+
   if ( length(range) == 1 )
-    ret = range;
+    ret = range * ones(num,1);
     return;		%% trivial case
   endif
   if ( rows(range) * columns(range) > 2 )
@@ -35,6 +40,6 @@ function ret = pickFromRange(range)
   minVal = min( range(:) );
   maxVal = max( range(:) );
 
-  ret = minVal + rand() * ( maxVal - minVal );
+  ret = minVal + rand(num,1) * ( maxVal - minVal );
 
 endfunction
