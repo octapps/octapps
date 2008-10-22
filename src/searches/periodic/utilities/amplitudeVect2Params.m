@@ -69,8 +69,8 @@ function Amp = amplitudeVect2Params ( Amu, convention )
   b3 = - A1 + beta .* A4 ;
 
   %% compute amplitude params in LIGO conventions first
-  psi  = 0.5 * atan2 ( b1,  b2 );  %% in [-pi/4,pi/4] (gauge used also by TDS)
-  phi0 =       atan2 ( b2,  b3 );  %% in [-pi/2,pi/2]
+  psi  = 0.5 * atan2 ( b1,  b2 );  %% in [-pi/2,pi/2]
+  phi0 =       atan2 ( b2,  b3 );  %% in [-pi, pi]
 
   %% Fix remaining sign-ambiguity by checking sign of reconstructed A1
   A1check = aPlus .* cos(phi0) .* cos(2.0*psi) - aCross .* sin(phi0) .* sin(2*psi);
@@ -82,6 +82,23 @@ function Amp = amplitudeVect2Params ( Amu, convention )
 
   if ( !isMLDC )
     %% ---------- Return LSC conventions
+
+    %% make unique by fixing the gauge to be psi in [-pi/4, pi/4], phi0 in [0, 2*pi]
+    while ( !isempty ( (inds = find ( psi > pi/4 )) ) )
+      psi(inds) -= pi/2;
+      phi0(inds) -= pi;
+    endwhile
+    while ( !isempty ( (inds = find ( psi < - pi/4 )) ) )
+      psi(inds) += pi/2;
+      phi0(inds) += pi;
+    endwhile
+    while ( !isempty ( (inds = find ( phi0 < 0 )) ) )
+      phi0(inds) += 2 * pi;
+    endwhile
+    while ( !isempty ( (inds = find ( phi0 > 2 * pi )) ) )
+      phi0(inds) -= 2 * pi;
+    endwhile
+
     Amp.h0 = h0;
     Amp.cosi = cosi;
     Amp.phi0 = phi0;
