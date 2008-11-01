@@ -118,10 +118,10 @@ function ret = octapps_gitID ( directory=false, prefix )
   if ( err )
     if ( msg )
       ## non-zero error code, with output: no changes to be committed
-      git_status = "CLEAN. All modifications commited."
+      git_status = "CLEAN. All modifications commited.";
     else
       ## non-zero error code, empty output: call to git status failed
-      git_status = "unknown."
+      git_status = "unknown.";
     endif
   else
     ## zero error code: changes to be committed
