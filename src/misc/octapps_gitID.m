@@ -1,16 +1,26 @@
-%% ret = octapps_gitID()
+%% ret = octapps_gitID( directory, prefix )
 %%
-%% Return the current HEAD git-tag (commitID, date, etc)
-%% of OCTAPPS.
+%% Return the git-tag (commitID, date, etc) information for the
+%% specified git repository containing directory.  If the directory is
+%% omitted, it defaults to octapps itself
 %%
-%% If the optional argument 'run_local' == true, then
-%% determine the git-tag of the *local* directory in which the
-%% current calling script is running. (default == false)
+%% For backwards compatiblility, if prefix is omitted,
+%%
+%% ret = octapps_gitID( run_local )
+%%
+%% is equivalent to
+%%
+%% octapps_gitID( ".", "" )
+%%
+%% if run_local == true and
+%%
+%% octapps_gitID( :, "octapps" )
+%%
+%% if run_local == false
 %%
 %% returns struct with fields {fullID, commitID, commitDate, commitAuthor, commitTitle, gitStatus}
 %% where 'fullID' is a nicely-formatted concatenation of the individual fields
 %%
-
 %%
 %% Copyright (C) 2008 Reinhard Prix, John Whelan
 %%
@@ -30,29 +40,32 @@
 %%  MA  02111-1307  USA
 %%
 
-function ret = octapps_gitID ( run_local )
+function ret = octapps_gitID ( directory=false, prefix )
 
-  if ( !exist("run_local") )	%% default is to run in OCTAPPS repo
-    run_local = 0;
-  endif
-
-  if ( ! run_local )
+  if ( !exist("directory") || !directory ) # run on octapps
     orig = which("octapps_gitID");
 
     if ( isempty ( orig ) )
-      error ("Sorry, could not localize your octapps-installation ...\n");
+      error ("Sorry, could not locate your octapps-installation ...\n");
     endif
 
     ind = rindex ( orig, "/" );
     if ( ind == 0 )
       error ("Could not find path from '%s'\n", orig );
     endif
-    origdir = orig ( 1:(ind -1) );
+    directory = orig ( 1:(ind -1) );
+    if ( !exist("prefix") )
+      prefix = "octapps";
+    endif
 
-    cdcmd = strcat ( "cd ", origdir, " && " );
-  else
-    cdcmd = "";
-  endif	## !run_local
+  endif
+
+  if ( !exist("prefix") ) %% backward compatibility option
+    directory = ".";
+    prefix = "";
+  endif
+
+  cdcmd = strcat ( "cd ", directory, " && " );
 
   ## ---------- read out git-log of last commit --------------------
   ## This method matches what's used in lal/lalapps, but could fall
@@ -115,12 +128,12 @@ function ret = octapps_gitID ( run_local )
     git_status = "UNCLEAN: some modifications were not commited!";
  endif
 
-  ret.commitID = sprintf("$CommitID: %s$", git_id);
-  ret.commitDate = sprintf("$CommitDate: %s$", git_date_utc);
-  ret.commitAuthor = sprintf("$CommitAuthor: %s$", git_author);
+  ret.commitID = sprintf("$%sCommitID: %s$", prefix, git_id);
+  ret.commitDate = sprintf("$%sCommitDate: %s$", prefix, git_date_utc);
+  ret.commitAuthor = sprintf("$%sCommitAuthor: %s$", prefix, git_author);
   ## Should clean up the title in case it has a $ or something
-  ret.commitTitle = sprintf("$CommitTitle: %s$", git_title);
-  ret.gitStatus = sprintf("$GitStatus: %s$", git_status);
+  ret.commitTitle = sprintf("$%sCommitTitle: %s$", prefix, git_title);
+  ret.gitStatus = sprintf("$%sGitStatus: %s$", prefix, git_status);
   ret.fullID = sprintf("     %s\n     %s\n     %s\n     %s\n     %s\n",
 		       ret.commitID, ret.commitDate, ret.commitAuthor,
 		       ret.commitTitle, ret.gitStatus);
