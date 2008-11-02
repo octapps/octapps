@@ -14,7 +14,7 @@
 %%
 %% if run_local == true and
 %%
-%% octapps_gitID( :, "octapps" )
+%% octapps_gitID( false, "octapps" )
 %%
 %% if run_local == false
 %%
@@ -40,7 +40,7 @@
 %%  MA  02111-1307  USA
 %%
 
-function ret = octapps_gitID ( directory=false, prefix )
+function ret = octapps_gitID ( directory, prefix )
 
   if ( !exist("directory") || !directory ) # run on octapps
     orig = which("octapps_gitID");
@@ -116,7 +116,7 @@ function ret = octapps_gitID ( directory=false, prefix )
 
   ## Three possibilities:
   if ( err )
-    if ( msg )
+    if ( length(msg) )
       ## non-zero error code, with output: no changes to be committed
       git_status = "CLEAN. All modifications commited.";
     else
