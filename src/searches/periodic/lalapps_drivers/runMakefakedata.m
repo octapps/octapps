@@ -90,6 +90,8 @@ function runMakefakedata (params, mfdCode)
   cmdline = addCmdlineOption(cmdline, params, "exactSignal" );
   cmdline = addCmdlineOption(cmdline, params, "lineFeature" );
 
+  cmdline = addCmdlineOption(cmdline, params, "randSeed" );
+
   if ( isfield(params, "lalDebugLevel" ) && params.lalDebugLevel )
     cmdline = sprintf ( "%s -v%d", cmdline, params.lalDebugLevel )
   endif
