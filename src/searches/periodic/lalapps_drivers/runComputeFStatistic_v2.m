@@ -83,6 +83,8 @@ function runComputeFStatistic_v2 (params, cfsCode)
 
   cmdline = addCmdlineOption(cmdline, params, "clusterOnScanline" );
 
+  cmdline = addCmdlineOption(cmdline, params, "outputFstatAtoms" );
+
   %% ----- misc
   cmdline = addCmdlineOption(cmdline, params, "ephemDir" );
   cmdline = addCmdlineOption(cmdline, params, "ephemYear" );
@@ -95,6 +97,8 @@ function runComputeFStatistic_v2 (params, cfsCode)
   cmdline = addCmdlineOption(cmdline, params, "Dterms" );
   cmdline = addCmdlineOption(cmdline, params, "workingDir" );
   cmdline = addCmdlineOption(cmdline, params, "internalRefTime" );
+
+  cmdline = addCmdlineOption(cmdline, params, "UseNoiseWeights" );
 
   %% experimental addition for leap-second Monte-Carlo test
   cmdline = addCmdlineOption(cmdline, params, "leapSeconds" );
