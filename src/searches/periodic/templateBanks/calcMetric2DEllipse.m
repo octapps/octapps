@@ -40,10 +40,10 @@ function [ret, angle, sMin, sMaj] = calcMetric2DEllipse ( gij, mismatch, numPoin
   gad = gij(1,2);
   gdd = gij(2,2);
 
-  [evs, ll] = eig ( gij(1:2,1:2) )
+  [evs, ll] = eig ( gij(1:2,1:2) );
   ews = [ ll(1,1), ll(2,2) ];
 
-  [ewS,i] = sort ( ews )
+  [ewS,i] = sort ( ews );
 
   %% Semiminor/major axes from eigenvalues of the metric.
   sMin = sqrt ( mismatch / ewS(2) );
