@@ -27,7 +27,7 @@
 %%  MA  02111-1307  USA
 %%
 
-function [ret, angle, smin, smaj] = calcMetric2DEllipse ( gij, mismatch, numPoints, rotate )
+function [ret, angle, sMin, sMaj] = calcMetric2DEllipse ( gij, mismatch, numPoints, rotate )
   global debug;
 
   if ( exist("rotate") )
@@ -40,19 +40,18 @@ function [ret, angle, smin, smaj] = calcMetric2DEllipse ( gij, mismatch, numPoin
   gad = gij(1,2);
   gdd = gij(2,2);
 
-  ew = eig ( gij(1:2,1:2) );
+  [evs, ll] = eig ( gij(1:2,1:2) )
+  ews = [ ll(1,1), ll(2,2) ];
 
-  %% Semiminor axis from eigenvalues of the metric.
-  ewMax = max(ew);
-  ewMin = min(ew);
+  [ewS,i] = sort ( ews )
 
-  sMin = sqrt ( mismatch / ewMax );
-  sMaj = sqrt ( mismatch / ewMin );
+  %% Semiminor/major axes from eigenvalues of the metric.
+  sMin = sqrt ( mismatch / ewS(2) );
+  sMaj = sqrt ( mismatch / ewS(1) );
 
-  %% Angle of semimajor axis with "horizontal" from corresponding eigenvector
-  evMaj_y = 1;
-  evMaj_x = gad / ( ewMin - gaa + 1e-9);
-  angle = atan2( evMaj_y, evMaj_x );
+  %% Angle of semimajor axis (corresponding to *smaller* EV!) with "horizontal" from corresponding eigenvector
+  evMaj = evs(:,i(1));
+  angle = atan2( evMaj(2), evMaj(1) );
 
   %%printf ("angle = %g\n", angle );
 
