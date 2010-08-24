@@ -41,7 +41,7 @@ function ret = addCmdlineOption ( cmdline, params, option, isRequired )
     endif
   endif
 
-  eval( strcat("val = params.", option, ";" ) );
+  val = getfield ( params, option );
 
   if ( !isnumeric ( val ) )
     valstr = sprintf ("'%s'", val );
