@@ -73,7 +73,7 @@ function ret = runPredictFStat (params, pfsCode)
   %% ----- and run it:
   [status, out] = system29(cmdline);
   if ( status != 0 )
-    printf ("\nSomething failed in running '%s'\n\n", pfsCode);
+    fprintf (stderr, "\nSomething failed in running '%s'\n\n", pfsCode);
     error ("Commandline was: %s", cmdline);
   endif
 

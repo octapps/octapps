@@ -103,7 +103,7 @@ function runMakefakedata (params, mfdCode)
   %% ----- and run it:
   [status, out] = system29(cmdline);
   if ( status != 0 )
-    printf ("\nSomething failed in running '%s'\n\n", mfdCode);
+    fprintf (stderr, "\nSomething failed in running '%s'\n\n", mfdCode);
     error ("Commandline was: %s", cmdline);
   endif
 

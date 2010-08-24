@@ -60,8 +60,8 @@ function runCode (params, code)
   %% ----- and run it:
   [status, out] = system(cmdline);
   if ( status != 0 )
-    printf (stderr, "\nSomething failed in running '%s'\n\n", code);
-    printf (stderr, "Commandline was: %s\n", cmdline);
+    fprintf (stderr, "\nSomething failed in running '%s'\n\n", code);
+    fprintf (stderr, "Commandline was: %s\n", cmdline);
     error ("Error was: %s", out);
   endif
 

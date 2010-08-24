@@ -65,7 +65,7 @@ function ret = runSemiAnalyticF (params, safCode)
   %% ----- and run it:
   [status, out] = system29(cmdline);
   if ( status != 0 )
-    printf ("\nSomething failed in running '%s'\n\n", safCode);
+    fprintf (stderr, "\nSomething failed in running '%s'\n\n", safCode);
     error ("Commandline was: %s", cmdline);
   endif
 

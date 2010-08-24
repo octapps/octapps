@@ -70,7 +70,7 @@ function gij = runGetMetric (params, gmCode)
   %% ----- and run it:
   [status, out] = system29(cmdline);
   if ( status != 0 )
-    printf ("\nSomething failed in running '%s'\n\n", gmCode);
+    fprintf (stderr, "\nSomething failed in running '%s'\n\n", gmCode);
     error ("Commandline was: %s", cmdline);
   endif
 
