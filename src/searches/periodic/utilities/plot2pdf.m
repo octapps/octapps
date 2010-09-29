@@ -1,5 +1,10 @@
 %% plot2pdf ( handle, bname )
 %% output a figure with given handle to a pdf plot named '<bname>.pdf'
+%%
+%% nocleanup=true: don't delete by-products at the end (used for debugging)
+%% preamble: allows specifying a LaTeX command to be added before \begin{document},
+%%           this can typically be used to input a LaTeX-defines file for use in the figure
+
 
 %%
 %% Copyright (C) 2010 Reinhard Prix
@@ -20,7 +25,7 @@
 %%  MA  02111-1307  USA
 %%
 
-function plot2pdf ( handle, bname )
+function plot2pdf ( handle, bname, nocleanup=false, preamble=[] )
 
   %% check input
   if ( ! isfigure ( handle ) )
@@ -39,7 +44,15 @@ function plot2pdf ( handle, bname )
   chdir (tmpdir );
 
   texname = sprintf ("%s.tex", bname);
-  print (handle, texname, "-depslatexstandalone" );
+  print (handle, texname, '-dashed', '-depslatexstandalone' );
+
+  %% prepare a gnuplot.cfg file containing preamble, if any given
+  if ( !isempty ( preamble )  )
+    fid = fopen ("gnuplot.cfg", "wb" );
+    if ( fid == -1 ) error ("Failed to open 'gnuplot.cfg' for writing.\n"); endif
+    fprintf ( fid, "%s\n", preamble );
+    fclose ( fid );
+  endif
 
   %% turn this tex+eps figure into a pdf endproduct
   dviname = sprintf ("%s.dvi", bname);
@@ -51,13 +64,15 @@ function plot2pdf ( handle, bname )
     error ("Error output was '%s'\n", out );
   endif
 
-  %% cleanup:
   chdir(curdir);
-  cmdline = sprintf ("rm -rf %s", tmpdir );
-  [status, out] = system ( cmdline );
-  if ( status != 0 )
-    fprintf (stderr, "Something failed trying to remove temporary directory '%s'\n", tmpdir );
-    error ("Error message was '%s'\n", out );
+  %% cleanup:
+  if ( !nocleanup )
+    cmdline = sprintf ("rm -rf %s", tmpdir );
+    [status, out] = system ( cmdline );
+    if ( status != 0 )
+      fprintf (stderr, "Something failed trying to remove temporary directory '%s'\n", tmpdir );
+      error ("Error message was '%s'\n", out );
+    endif
   endif
 
   return;
