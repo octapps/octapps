@@ -1,6 +1,27 @@
 // -*- mode: c++; -*-
 
-%include "typemaps.i"
+//
+//  Copyright (C) 2010 Karl Wette
+//
+//  This program is free software; you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation; either version 2 of the License, or
+//  (at your option) any later version.
+//
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with with program; see the file COPYING. If not, write to the
+//  Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+//  MA  02111-1307  USA
+//
+
+// Common code for Octave bindings to GSL
+
+%include "typemaps.i"   // SWIG typemaps
 %header %{
 #  ifdef DEBUG
 #    include <iostream>
@@ -8,11 +29,17 @@
 #  endif
 #  include <octave/oct.h>
 #  include <octave/ov.h>
+  // import GSL symbols in wrap:: namespace to
+  // prevent naming conflicts with wrapped symbols
   namespace wrap {
 #    include <gsl/gsl_vector.h>
   }
 %}
 
+// This class provides a base class for wrapping a gsl struct.
+// It is used to bind GSL gsl_*_alloc / gsl_*_free functions
+// to C++ constructor / destructors, which are then wrapped 
+// correctly by SWIG/Octave so there are no memory leaks.
 %header %{
   template<class T>
     class GSLStruct {
@@ -38,11 +65,17 @@
   };
 %}
 
+// These are typemaps for converting GSL/C types to native Octave types.
+// More will be added as needed.
+
+// Wraps a gsl_vector which is designated as output.
+// The wrapping function receives a null pointer and
+// should assign it to a new gsl_vector, which is then
+// coverted to an Octave column vector on output.
 %typemap(in,numinputs=0) wrap::gsl_vector* *OUTPUT (wrap::gsl_vector *temp) {
   temp = 0;
   $1 = &temp;
 }
-
 %typemap(argout) wrap::gsl_vector* *OUTPUT {
   if (*$1 == 0) {
     SWIG_fail;
