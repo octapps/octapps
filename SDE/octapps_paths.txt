@@ -4,4 +4,4 @@ src/searches/periodic/statistics
 src/searches/periodic/utilities
 src/searches/periodic/templateBanks
 src/misc
-
+src/swig/lib
