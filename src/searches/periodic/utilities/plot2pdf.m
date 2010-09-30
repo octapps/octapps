@@ -2,7 +2,8 @@
 %% output a figure with given handle to a pdf plot named '<bname>.pdf'
 %%
 %% nocleanup=true: don't delete by-products at the end (used for debugging)
-%% preamble: allows specifying a LaTeX command to be added before \begin{document},
+%% print_options = a single-option string or cell-array of option-strings to pass to the 'print()' command
+%% latex_preamble: allows specifying LaTeX commands to be added before \begin{document},
 %%           this can typically be used to input a LaTeX-defines file for use in the figure
 
 
@@ -25,7 +26,7 @@
 %%  MA  02111-1307  USA
 %%
 
-function plot2pdf ( handle, bname, nocleanup=false, preamble=[] )
+function plot2pdf ( handle, bname, print_options=[], latex_preamble=[], nocleanup=false )
 
   %% check input
   if ( ! isfigure ( handle ) )
@@ -44,13 +45,22 @@ function plot2pdf ( handle, bname, nocleanup=false, preamble=[] )
   chdir (tmpdir );
 
   texname = sprintf ("%s.tex", bname);
-  print (handle, texname, '-dashed', '-depslatexstandalone' );
+  cmd = sprintf ("print (handle, texname, '-depslatexstandalone'" );
+  if ( isstr ( print_options ) )
+    cmd = strcat ( cmd, ", '", print_options, "'" );
+  elseif ( iscell( print_options ) )
+    for i = 1:length(print_options)
+      cmd = strcat ( cmd, ", '", print_options{i}, "'" );
+    endfor
+  endif
+  cmd = strcat ( cmd, " );" );
+  eval ( cmd );
 
-  %% prepare a gnuplot.cfg file containing preamble, if any given
-  if ( !isempty ( preamble )  )
+  %% prepare a gnuplot.cfg file containing latex_preamble, if any given
+  if ( !isempty ( latex_preamble )  )
     fid = fopen ("gnuplot.cfg", "wb" );
     if ( fid == -1 ) error ("Failed to open 'gnuplot.cfg' for writing.\n"); endif
-    fprintf ( fid, "%s\n", preamble );
+    fprintf ( fid, "%s\n", latex_preamble );
     fclose ( fid );
   endif
 
