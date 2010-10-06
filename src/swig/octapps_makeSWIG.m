@@ -1,4 +1,8 @@
 %% Compiles SWIG wrappings in OCTAPPS
+%% Syntax:
+%%   octapps_makeSWIG [-force]
+%% where:
+%%   -force = disregard timestamps
 
 %%
 %%  Copyright (C) 2010 Karl Wette
@@ -19,20 +23,16 @@
 %%  MA  02111-1307  USA
 %%
 
-function octapps_makeSWIG
+function octapps_makeSWIG(arg)
+
+  %% check input arguments
+  force = nargin > 0 && strcmp(arg, "-force");
 
   %% turn of paging for this function
   pso = page_screen_output(0);
 
   %% find SWIG binary in PATH, fail if none is found
-  PATH = strsplit(getenv("PATH"), pathsep, true);
-  for i = 1:length(PATH)
-    swig_bin = fullfile(PATH{i}, "swig");
-    if exist(swig_bin, "file")
-      break
-    endif
-    swig_bin = [];
-  endfor
+  swig_bin = file_in_path(getenv("PATH"), "swig");
   if isempty(swig_bin)
     error("Could not find SWIG executable in PATH");
   endif
@@ -48,16 +48,14 @@ function octapps_makeSWIG
   base_path = fileparts(mfilename("fullpathext"));
 
   %% list of SWIG interfaces to compile
-  sources = {
-	     glob(fullfile(base_path, "gsl", "*.i")){:}
-	     };
+  sources =  glob(fullfile(base_path, "*", "*.i"));
 
   %% directory for the compiled .oct files,
   %% make it if is doesn't exist
   lib_path = fullfile(base_path, "lib");
   if !exist(lib_path, "dir")
-    err = mkdir(lib_path);
-    if err != 0
+    status = mkdir(lib_path);
+    if status != 1
       error(["Error: mkdir('" lib_path "')"]);
     endif
   endif
@@ -82,8 +80,8 @@ function octapps_makeSWIG
       octstat = struct("mtime", -inf);
     endif
     
-    %% if source is newer than output, compile it
-    if srcstat.mtime > octstat.mtime
+    %% if source is newer than output (or -force), compile it
+    if force || srcstat.mtime > octstat.mtime
 
       %% run SWIG
       cmd = sprintf("'%s' -c++ -octave -o '%s' '%s'", swig_bin, wrapc, src);
