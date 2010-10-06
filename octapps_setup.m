@@ -31,7 +31,7 @@
 
 ## put everything in an internal function, so workspace
 ## isn't contaminated when run from within Octave
-function octapps_setup_function
+function octapps_setup_function(my_path)
 
   ## this must match the name of this file!
   my_name = "octapps_setup.m";
@@ -55,11 +55,6 @@ function octapps_setup_function
   endif
 
   ## get the absolute path to this file
-  if run_as_script
-    my_path = program_invocation_name;
-  else
-    my_path = which(my_name);
-  endif
   if my_path(1) == filesep
     my_path = canonicalize_file_name(my_path);
   else
@@ -145,5 +140,7 @@ function octapps_setup_function
   
 endfunction
 
-## do it!
-octapps_setup_function
+## call the internal setup function, giving it
+## the full path of this file (which is not
+## available within the function itself)
+octapps_setup_function(mfilename("fullpathext"));
