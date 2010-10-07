@@ -57,7 +57,9 @@ function hgrm = resampleHist(hgrm, arg)
     %% lookup old bins which intersect
     %% this bew bin and loop over them
     jrng = lookup(hgrm.xb, [newxb(i), newxb(i+1)]);
-    for j = min(jrng):max(jrng)
+    jmin = max(min(jrng), 1);
+    jmax = min(max(jrng), length(hgrm.px));
+    for j = jmin:jmax
 
       %% overlap of old/new histograms bins
       overlap = min(hgrm.xb(j+1), newxb(i+1)) - max(hgrm.xb(j), newxb(i));
