@@ -44,7 +44,7 @@ function hgrm = resampleHist(hgrm, arg)
   endif
   if hgrm.xb(end) != newxb(end)
     hgrm.xb = [hgrm.xb, max(hgrm.xb(end), newxb(end))];
-    hgrm.px = [0,       hgrm.px                      ];
+    hgrm.px = [hgrm.px, 0                            ];
   endif
 
   %% loop over new probability densities
