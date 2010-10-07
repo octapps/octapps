@@ -2,12 +2,12 @@
 %% contain some given input data. If the histogram is too
 %% small, more bins are added as needed.
 %% Syntax:
-%%   [hist, ii, nn] = findHistBins(hist, data, dx)
+%%   [hgrm, ii, nn] = findHistBins(hgrm, data, dx)
 %% where:
-%%   hist = histogram
+%%   hgrm = histogram struct
 %%   data = input histogram data
 %%   ii   = indices of histogram bins
-%%   dx   = (optional) size of new bins (otherwise use hist.dx)
+%%   dx   = size of any new bins
 %%   nn   = (optional) multiplicities of each index
 
 %%
@@ -29,47 +29,42 @@
 %%  MA  02111-1307  USA
 %%
 
-function [hist, ii, nn] = findHistBins(hist, data, dx)
+function [hgrm, ii, nn] = findHistBins(hgrm, data, dx)
 
-  %% bin size to use  
-  if nargin < 3
-    dx = hist.dx;
-  endif
-  
   %% range of data
   data = data(:);
   dmin = min(data);
   dmax = max(data);
   
   %% if histogram is empty, create appropriate bins
-  if isempty(hist.xb)
-    hist.xb = (floor(dmin / dx):ceil(dmax / dx)) * dx;
-    hist.px = zeros(1, length(hist.xb) - 1);
+  if isempty(hgrm.xb)
+    hgrm.xb = (floor(dmin / dx):ceil(dmax / dx)) * dx;
+    hgrm.px = zeros(1, length(hgrm.xb) - 1);
   else
 
     %% expand histogram to lower bin values needed
-    if dmin < hist.xb(1)
-      newxb = hist.xb(1) - (ceil((hist.xb(1) - dmin) / dx):-1:1) * dx;
-      hist.xb = [newxb,              hist.xb];
-      hist.px = [zeros(size(newxb)), hist.px];
+    if dmin < hgrm.xb(1)
+      newxb = hgrm.xb(1) - (ceil((hgrm.xb(1) - dmin) / dx):-1:1) * dx;
+      hgrm.xb = [newxb,              hgrm.xb];
+      hgrm.px = [zeros(size(newxb)), hgrm.px];
     endif
 
     %% expand histogram to higher bin values needed
-    if dmax > hist.xb(end)
-      newxb = hist.xb(end) + (1:ceil((dmax - hist.xb(end)) / dx)) * dx;
-      hist.xb = [hist.xb, newxb,            ];
-      hist.px = [hist.px, zeros(size(newxb))];
+    if dmax > hgrm.xb(end)
+      newxb = hgrm.xb(end) + (1:ceil((dmax - hgrm.xb(end)) / dx)) * dx;
+      hgrm.xb = [hgrm.xb, newxb,            ];
+      hgrm.px = [hgrm.px, zeros(size(newxb))];
     endif
     
   endif
 
   %% bin indices
-  ii = lookup(hist.xb, data);
+  ii = lookup(hgrm.xb, data);
 
   %% multiplicities of each bin index
   if nargout > 2
     iiu = unique(ii);
-    nn = zeros(size(hist.px));
+    nn = zeros(size(hgrm.px));
     for i = 1:length(iiu)
       nn(iiu(i)) += length(find(ii == iiu(i)));
     endfor
