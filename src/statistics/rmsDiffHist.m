@@ -1,5 +1,5 @@
 %% Compute the root-mean-square difference
-%% between two histograms.
+%% between two (normalised) histograms.
 %% Syntax:
 %%   rmsd = rmsDiffHist(hgrm1, hgrm2)
 %% where:
@@ -26,18 +26,26 @@
 
 function rmsd = rmsDiffHist(hgrm1, hgrm2)
 
-  %% create a common set of bins to
-  %% re-sample histograms to
-  xmin = min(min(hgrm1.xb), min(hgrm2.xb));
-  xmax = max(max(hgrm1.xb), max(hgrm2.xb));
-  dx = min([diff(hgrm1.xb), diff(hgrm2.xb)]);
-  newxb = (floor(xmin / dx):ceil(xmax / dx)) * dx
+  %% if bin sets are different
+  if length(hgrm1.xb) != length(hgrm2.xb) || hgrm1.xb != hgrm2.xb
 
-  %% re-sample histograms
-  hgrm1 = resampleHist(hgrm1, newxb)
-  hgrm2 = resampleHist(hgrm2, newxb)
+    %% create a common bin set
+    xmin = min([min(hgrm1.xb), min(hgrm2.xb)]);
+    xmax = max([max(hgrm1.xb), max(hgrm2.xb)]);
+    dx = min([diff(hgrm1.xb), diff(hgrm2.xb)]);
+    xb = (floor(xmin / dx):ceil(xmax / dx)) * dx;
+    
+    %% re-sample histograms
+    hgrm1 = resampleHist(hgrm1, xb);
+    hgrm2 = resampleHist(hgrm2, xb);
 
+  endif
+  
+  %% normalise histograms
+  hgrm1 = normaliseHist(hgrm1);
+  hgrm2 = normaliseHist(hgrm2);
+  
   %% return rms difference
   rmsd = sqrt(mean((hgrm1.px - hgrm2.px) .^ 2));
-
+  
 endfunction
