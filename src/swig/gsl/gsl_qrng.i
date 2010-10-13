@@ -43,22 +43,10 @@ class gsl_qrng_type;
 
 // different quasi-random number generators
 %inline %{
-  const gsl_qrng_type* gsl_qrng_niederreiter_2() {
-    static const gsl_qrng_type x(wrap::gsl_qrng_niederreiter_2);
-    return &x;
-  }
-  const gsl_qrng_type* gsl_qrng_sobol() {
-    static const gsl_qrng_type x(wrap::gsl_qrng_sobol);
-    return &x;
-  }
-  const gsl_qrng_type* gsl_qrng_halton() {
-    static const gsl_qrng_type x(wrap::gsl_qrng_halton);
-    return &x;
-  }
-  const gsl_qrng_type* gsl_qrng_reversehalton() {
-    static const gsl_qrng_type x(wrap::gsl_qrng_reversehalton);
-    return &x;
-  }
+  const gsl_qrng_type gsl_qrng_niederreiter_2 = gsl_qrng_type(wrap::gsl_qrng_niederreiter_2);
+  const gsl_qrng_type gsl_qrng_sobol          = gsl_qrng_type(wrap::gsl_qrng_sobol);
+  const gsl_qrng_type gsl_qrng_halton         = gsl_qrng_type(wrap::gsl_qrng_halton);
+  const gsl_qrng_type gsl_qrng_reversehalton  = gsl_qrng_type(wrap::gsl_qrng_reversehalton);
 %}
 
 // struct gsl_qrng
