@@ -1,12 +1,10 @@
 %% Creates a new struct representing a histogram.
 %% Syntax:
-%%   hgrm = newHist
-%%   hgrm = newHist(N)
-%%   hgrm = newHist(N, M)
-%%   hgrm = newHist(N, M, ...)
-%%          ...
+%%   [hgrm1, hgrm2, ...] = newHist
+%%   [hgrm1, hgrm2, ...] = newHist(N1, N2, ...)
 %% where:
-%%   N, M, ... = array dimensions
+%%   hgrm{1,2,...} = histogram (array) structs
+%%   N{1,2,...}    = array dimensions
 
 %%
 %%  Copyright (C) 2010 Karl Wette
@@ -27,7 +25,7 @@
 %%  MA  02111-1307  USA
 %%
 
-function hgrm = newHist(varargin)
+function varargout = newHist(varargin)
 
   %% create struct (array)
   if length(varargin) == 0
@@ -37,5 +35,6 @@ function hgrm = newHist(varargin)
   endif
   hgrm = struct("xb", [], "px", []);
   hgrm = hgrm(ones(varargin{:}));
+  [varargout{1:nargout}] = deal(hgrm);
 
 endfunction
