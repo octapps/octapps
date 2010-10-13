@@ -28,11 +28,21 @@
 
 function hgrm = resampleHist(hgrm, arg)
 
-  %% parse input argument and get/generate bins
+  %% parse input argument and get/generate
+  %% new bins and new probability density array
   if isscalar(arg)
-    newxb = min(hgrm.xb):arg:max(hgrm.xb);
+    newxb = (floor(min(hgrm.xb) / arg):ceil(max(hgrm.xb) / arg)) * arg;
   else
     newxb = sort(arg(:)');
+  endif
+  newpx = zeros(1, length(newxb) - 1);
+
+  %% if histogram is empty, return an
+  %% empty histogram with new bins
+  if isempty(hgrm.xb) && isempty(hgrm.px)
+    hgrm.xb = newxb;
+    hgrm.px = newpx;
+    return;
   endif
 
   %% enlarge old histogram by up to one
@@ -47,8 +57,7 @@ function hgrm = resampleHist(hgrm, arg)
     hgrm.px = [hgrm.px, 0                            ];
   endif
 
-  %% loop over new probability densities
-  newpx = zeros(1, length(newxb) - 1);
+  %% calculate new probability densities
   for i = 1:length(newpx)
 
     %% width of current new bin
