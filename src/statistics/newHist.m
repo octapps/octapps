@@ -28,13 +28,13 @@
 function varargout = newHist(varargin)
 
   %% create struct (array)
-  if length(varargin) == 0
+  if nargin == 0
     varargin = {1};
-  elseif length(varargin) == 1
+  elseif nargin == 1
     varargin{end+1} = 1;
   endif
   hgrm = struct("xb", [], "px", []);
   hgrm = hgrm(ones(varargin{:}));
-  [varargout{1:nargout}] = deal(hgrm);
+  [varargout{1:max(nargout,1)}] = deal(hgrm);
 
 endfunction
