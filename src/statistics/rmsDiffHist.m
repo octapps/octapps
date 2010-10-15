@@ -26,6 +26,9 @@
 
 function rmsd = rmsDiffHist(hgrm1, hgrm2)
 
+  %% check input
+  assert(isHist(hgrm1, hgrm2));
+
   %% if bin sets are different
   if length(hgrm1.xb) != length(hgrm2.xb) || hgrm1.xb != hgrm2.xb
 

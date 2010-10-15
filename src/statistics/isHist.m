@@ -1,11 +1,11 @@
-%% Adds the given input data to the histogram.
-%% If the histogram is too small, more bins are added.
+%% Checks whether the input arguments are
+%% valid histogram structs.
 %% Syntax:
-%%   hgrm = addSamplesToHist(hgrm, data, dx)
+%%   ishgrm = isHist(hgrm, hgrm, ...)
 %% where:
-%%   hgrm = histogram struct
-%%   data = input histogram data
-%%   dx   = size of any new bins
+%%   hgrm   = maybe a histogram struct
+%%   ishgrm = true if all hgrm are valid 
+%%            histogram structs, false otherwise
 
 %%
 %%  Copyright (C) 2010 Karl Wette
@@ -26,13 +26,22 @@
 %%  MA  02111-1307  USA
 %%
 
-function hgrm = addDataToHist(hgrm, data, dx)
+function ishgrm = isHist(varargin)
 
-  %% check input
-  assert(isHist(hgrm));
-
-  %% all the work is done in findHistBins
-  [hgrm, ii, nn] = findHistBins(hgrm, data, dx);
-  hgrm.px += nn;
+  ishgrm = 1;
+  for hgrm = varargin
+    hgrm = hgrm{:};
+    ishgrm = ishgrm && ...
+	isstruct(hgrm) && ...
+	isfield(hgrm, "xb") && ...
+	isfield(hgrm, "px") && ...
+	( ...
+	 ( isempty(hgrm.xb) && isempty(hgrm.px) ) ...
+	 || ( ...
+	     isvector(hgrm.xb) && isvector(hgrm.px) && ...
+	     length(hgrm.xb) == length(hgrm.px) + 1    ...
+	     ) ...
+	 );
+  endfor
 
 endfunction

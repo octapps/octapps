@@ -25,6 +25,10 @@
 
 function area = areaUnderHist(hgrm)
 
+  %% check input
+  assert(isHist(hgrm));
+
+  %% calculate area
   area = sum(hgrm.px .* diff(hgrm.xb));
 
 endfunction

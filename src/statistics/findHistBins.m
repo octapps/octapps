@@ -31,6 +31,9 @@
 
 function [hgrm, ii, nn] = findHistBins(hgrm, data, dx)
 
+  %% check input
+  assert(isHist(hgrm));
+
   %% range of data
   data = data(:);
   dmin = min(data);

@@ -25,6 +25,10 @@
 
 function hgrm = normaliseHist(hgrm)
 
+  %% check input
+  assert(isHist(hgrm));
+
+  %% normalise histogram
   area = areaUnderHist(hgrm);
   if area > 0
     hgrm.px /= area;

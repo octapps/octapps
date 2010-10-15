@@ -29,6 +29,9 @@
 
 function [x, hgrm] = drawFromHist(hgrm, N)
 
+  %% check input
+  assert(isHist(hgrm));
+
   %% store some variables for re-use
   if ~isfield(hgrm, "P")
     hgrm = normaliseHist(hgrm);    % normalise histogram
