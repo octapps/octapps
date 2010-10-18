@@ -68,7 +68,7 @@ function octapps_setup_function(my_path)
   ## look at all subdirectories of the
   ## source directory for *.{m,oct} files
   dirs = strsplit(genpath(fullfile(my_path, "src")), pathsep, true);
-  octapps_path = {};
+  octapps_path = {my_path};
   for i = 1:length(dirs)
     octfiles = 0;
     for patt = {"*.m", "*.oct"}
