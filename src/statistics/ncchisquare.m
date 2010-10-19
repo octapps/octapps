@@ -28,7 +28,7 @@
 %%  MA  02111-1307  USA
 %%
 
-function p = ncchisquare(name, k, halflamb, x)
+function p = ncchisquare(name, k, lambda, x)
 
   %% check distribution name
   switch name
@@ -38,52 +38,65 @@ function p = ncchisquare(name, k, halflamb, x)
       error(["Invalid distribution type'" name "'!"]);
   endswitch
 
-  %% divide lambda (input argument) by 2 to get "half of lambda"
-  halflamb /= 2;
-
   %% check for common size input
-  [errcode, k, halflamb, x] = common_size(k, halflamb, x);
+  [errcode, k, lambda, x] = common_size(k, lambda, x);
   if errcode > 0
-    error("Input arguments must be either of common size or scalars");
+    error("All input arguments must be either of common size or scalars");
   endif
 
   %% flatten input after saving sizes
   siz = size(k);
-  nel = prod(siz);
   k = k(:)';
-  halflamb = halflamb(:)';
+  lambda = lambda(:)';
   x = x(:)';
 
-  %% compute 10 series elements at a time
-  Nstep = 10;
+  %% allocate result matrix
+  p = zeros(1, prod(siz));
 
-  %% set up matrices to compute series of non-central chi-squared distribution
-  %% rows are elements of the series, columns map to (flattened) input values
-  N = (0:Nstep-1)'(:, ones(nel, 1));
-  k = k(ones(Nstep,1), :);
-  halflamb = halflamb(ones(Nstep,1), :);
-  x = x(ones(Nstep,1), :);
+  %% if lambda = 0, return value of central chi-squared distribution
+  ii = (lambda > 0);
+  if any(!ii)
+    p(!ii) = feval(chi2, x(!ii), k(!ii));
+  endif
 
-  %% add up series
-  p = zeros(1, size(N, 2));
-  err = inf;
-  do
+  %% if lambda > 0, return value of non-central chi-squared distribution
+  if any(ii)
 
-    %% compute element of series of non-central chi-squared distribution
-    pN = sum(poisspdf(N, halflamb) .* feval(chi2, x, k + 2*N), 1);
+    %% half of lambda
+    hlamb = lambda / 2;
 
-    %% if this is not the first iteration, see if we should stop
-    if N(1,1) > 0
-      Nmax = N(end,1);
-      err = max(reshape(abs(pN) ./ abs(p), 1, []));
-    endif
+    %% compute 10 series elements at a time
+    Nstep = 10;
 
-    %% add computed elements to total, and increment element indices
-    p += pN;
-    N += Nstep;
+    %% set up matrices to compute series of non-central chi-squared distribution
+    %% rows are elements of the series, columns map to input values where ii==1
+    N = (0:Nstep-1)'(:, ones(size(find(ii))));
+    k = k(ones(Nstep,1), ii);
+    hlamb = hlamb(ones(Nstep,1), ii);
+    x = x(ones(Nstep,1), ii);
+    pN = zeros(1, size(N, 2));
 
-    %% loop until maximum error is small enough
-  until err <= 1e-4
+    %% add up series
+    err = inf;
+    do
+
+      %% compute element of series of non-central chi-squared distribution
+      pN = sum(poisspdf(N, hlamb) .* feval(chi2, x, k + 2*N), 1);
+
+      %% if this is not the first iteration, see if we should stop
+      if N(1,1) > 0
+	Nmax = N(end,1);
+	err = max(reshape(abs(pN) ./ abs(p(ii)), 1, []));
+      endif
+
+      %% add computed elements to total, and increment element indices
+      p(ii) += pN;
+      N += Nstep;
+
+      %% loop until maximum error is small enough
+    until err <= 1e-4
+
+  endif
 
   %% reshape output to original size of input
   p = reshape(p, siz);
