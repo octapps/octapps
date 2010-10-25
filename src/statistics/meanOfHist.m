@@ -1,6 +1,6 @@
-%% Returns the area under a histogram.
+%% Returns the mean of a histogram.
 %% Syntax:
-%%   area = areaUnderHist(hgrm)
+%%   mean = meanOfHist(hgrm)
 %% where:
 %%   hgrm = histogram struct
 
@@ -23,12 +23,12 @@
 %%  MA  02111-1307  USA
 %%
 
-function area = areaUnderHist(hgrm)
+function mean = meanOfHist(hgrm)
 
   %% check input
   assert(isHist(hgrm));
 
-  %% calculate area
-  area = momentsOfHist(hgrm, 0, 0);
+  %% calculate mean
+  mean = momentsOfHist(hgrm, 0, 1);
 
 endfunction
