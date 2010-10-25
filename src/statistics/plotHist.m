@@ -41,7 +41,7 @@
 %%  MA  02111-1307  USA
 %%
 
-function hh = plotHist(varargin)
+function varargout = plotHist(varargin)
 
   %% check input
   if nargin == 0
@@ -88,7 +88,11 @@ function hh = plotHist(varargin)
     endif
     ++i;
     if ischar(colour)
-      colour = {colour(1), colour(2)};
+      strcolour = colour;
+      colour = {};
+      for j = 1:length(strcolour)
+	colour{j} = strcolour(j);
+      endfor
     endif
 
     %% check for additional property values
@@ -129,5 +133,10 @@ function hh = plotHist(varargin)
     endif
 
   endwhile
+
+  %% return handles
+  if nargout == 1
+    varargout = {hh};
+  endif
 
 endfunction
