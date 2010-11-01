@@ -1,8 +1,10 @@
-%% Returns the area under a histogram.
+%% Round given histogram bins boundaries to within a small
+%% fraction of the smallest overall bin size, so that one
+%% can compare floating-point precision bin boundaries robustly.
 %% Syntax:
-%%   area = areaUnderHist(hgrm)
+%%   [xb, xb, ...] = roundHistBinBounds(xb, xb, ...)
 %% where:
-%%   hgrm = histogram struct
+%%   xb = bin boundaries
 
 %%
 %%  Copyright (C) 2010 Karl Wette
@@ -23,13 +25,17 @@
 %%  MA  02111-1307  USA
 %%
 
-function area = areaUnderHist(hgrm)
+function varargout = roundHistBinBounds(varargin)
 
-  %% check input
-  assert(isHist(hgrm));
-  dim = length(hgrm.xb);
+  assert(nargin == nargout);
 
-  %% calculate area
-  area = momentOfHist(hgrm, zeros(dim, 1), zeros(dim, 1));
+  dx = inf;
+  for i = 1:length(varargin)
+    dx = min([dx, diff(varargin{i})]);
+  endfor
+  dx = 10^(floor(log10(dx)) - 3);
+  for i = 1:length(varargin)
+    varargout{i} = round(varargin{i} / dx) * dx;
+  endfor
 
 endfunction

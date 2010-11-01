@@ -33,44 +33,45 @@ function [hgrm, ii, nn] = findHistBins(hgrm, data, dx)
 
   %% check input
   assert(isHist(hgrm));
+  dim = length(hgrm.xb);
+  assert(ismatrix(data) && size(data, 2) == dim);
+  assert(isscalar(dx) || (isvector(dx) && length(dx) == dim));
+  if isscalar(dx)
+    dx = dx(ones(dim, 1));
+  endif    
 
-  %% range of data
-  data = data(:);
-  dmin = min(data);
-  dmax = max(data);
-  
-  %% if histogram is empty, create appropriate bins
-  if isempty(hgrm.xb)
-    hgrm.xb = (floor(dmin / dx):ceil(dmax / dx)) * dx;
-    hgrm.px = zeros(1, length(hgrm.xb) - 1);
-  else
+  %% expand histogram to include new bins, if needed
+  for k = 1:dim
+      
+    %% range of data
+    dmin = min(data(:,k));
+    dmax = max(data(:,k));
 
-    %% expand histogram to lower bin values needed
-    if dmin < hgrm.xb(1)
-      newxb = hgrm.xb(1) - (ceil((hgrm.xb(1) - dmin) / dx):-1:1) * dx;
-      hgrm.xb = [newxb,              hgrm.xb];
-      hgrm.px = [zeros(size(newxb)), hgrm.px];
+    %% create new bins
+    if isempty(hgrm.xb{k})
+      nxb = (floor(dmin / dx(k)):ceil(dmax / dx(k))) * dx(k);
+    else
+      nxblo = hgrm.xb{k}(1) - (ceil((hgrm.xb{k}(1) - dmin) / dx(k)):-1:1) * dx(k);
+      nxbhi = hgrm.xb{k}(end) + (1:ceil((dmax - hgrm.xb{k}(end)) / dx(k))) * dx(k);
+      nxb = [nxblo, hgrm.xb{k}, nxbhi];
     endif
 
-    %% expand histogram to higher bin values needed
-    if dmax > hgrm.xb(end)
-      newxb = hgrm.xb(end) + (1:ceil((dmax - hgrm.xb(end)) / dx)) * dx;
-      hgrm.xb = [hgrm.xb, newxb,            ];
-      hgrm.px = [hgrm.px, zeros(size(newxb))];
-    endif
-    
-  endif
+    %% resize histogram
+    hgrm = resampleHist(hgrm, k, nxb);
+      
+  endfor
 
   %% bin indices
-  ii = lookup(hgrm.xb, data);
-
+  ii = zeros(size(data));
+  for k = 1:dim
+    ii(:,k) = lookup(hgrm.xb{k}, data(:,k));
+  endfor
+  
   %% multiplicities of each bin index
   if nargout > 2
-    iiu = unique(ii);
-    nn = zeros(size(hgrm.px));
-    for i = 1:length(iiu)
-      nn(iiu(i)) += length(find(ii == iiu(i)));
-    endfor
+    ii = sortrows(ii);
+    [ii, nnii] = unique(ii, "rows", "last");
+    nn = diff([0; nnii]);
   endif
-
+  
 endfunction

@@ -31,8 +31,11 @@ function hgrm = addDataToHist(hgrm, data, dx)
   %% check input
   assert(isHist(hgrm));
 
-  %% all the work is done in findHistBins
+  %% get bin multiplicities from findHistBins, resize as needed
   [hgrm, ii, nn] = findHistBins(hgrm, data, dx);
-  hgrm.px += nn;
+
+  %% add bin multiplicities to correct bins
+  jj = mat2cell(ii, size(ii, 1), ones(length(hgrm.xb), 1));
+  hgrm.px(sub2ind(size(hgrm.px), jj{:})) += nn;
 
 endfunction

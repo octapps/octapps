@@ -1,11 +1,11 @@
-%% Resamples a histogram to a new bin set.
+%% Resamples a histogram to a new set of bins
 %% Syntax:
-%%   hgrm = resampleHist(hgrm, newdx)
-%%   hgrm = resampleHist(hgrm, newbins)
+%%   hgrm = resampleHist(hgrm, k, newbins_k)
+%%   hgrm = resampleHist(hgrm, newbins_1, ..., newbins_dim)
 %% where:
-%%   hgrm    = histogram struct
-%%   newdx   = new bin width (bins are generated)
-%%   newbins = new bin set
+%%   hgrm      = histogram struct
+%%   k         = dimension along which to resample
+%%   newbins_k = new bins in dimension k (dim = number of dimensions)
 
 %%
 %%  Copyright (C) 2010 Karl Wette
@@ -26,64 +26,125 @@
 %%  MA  02111-1307  USA
 %%
 
-function hgrm = resampleHist(hgrm, arg)
+function hgrm = resampleHist(hgrm, varargin)
 
   %% check input
   assert(isHist(hgrm));
+  dim = length(hgrm.xb);
 
-  %% get/generate new bins from input
-  if isscalar(arg)
-    newxb = (floor(min(hgrm.xb) / arg):ceil(max(hgrm.xb) / arg)) * arg;
-  else
-    newxb = sort(arg(:)');
-  endif
-  newpx = zeros(1, length(newxb) - 1);
-
-  %% if histogram is empty, return an
-  %% empty histogram with new bins
-  if isempty(hgrm.px)
-    hgrm.xb = newxb;
-    hgrm.px = newpx;
-    return;
-  endif
-
-  %% enlarge old histogram by up to one
-  %% bin either side, if needed, so that
-  %% old/new histograms have the same range
-  if hgrm.xb(1) != newxb(1)
-    hgrm.xb = [min(hgrm.xb(1), newxb(1)), hgrm.xb];
-    hgrm.px = [0,                         hgrm.px];
-  endif
-  if hgrm.xb(end) != newxb(end)
-    hgrm.xb = [hgrm.xb, max(hgrm.xb(end), newxb(end))];
-    hgrm.px = [hgrm.px, 0                            ];
-  endif
-
-  %% calculate new probability densities
-  for i = 1:length(newpx)
-
-    %% width of current new bin
-    newxbwidth = newxb(i+1) - newxb(i);
-
-    %% lookup old bins which intersect
-    %% this bew bin and loop over them
-    jrng = lookup(hgrm.xb, [newxb(i), newxb(i+1)]);
-    jmin = max(min(jrng), 1);
-    jmax = min(max(jrng), length(hgrm.px));
-    for j = jmin:jmax
-
-      %% overlap of old/new histograms bins
-      overlap = min(hgrm.xb(j+1), newxb(i+1)) - max(hgrm.xb(j), newxb(i));
-      
-      %% add to new probability density
-      newpx(i) += hgrm.px(j) * overlap / newxbwidth;
-
+  %% if all arguments are not scalars, and
+  %% number of arguments equal to number of dimensions,
+  %% take each arguments as new bins in k dimensions
+  allnotscalar = eval(strcat(sprintf("!isscalar(varargin{%i}) && ", 1:length(varargin)), " 1"));
+  if allnotscalar
+    if length(varargin) != dim
+      error("Number of new bin vectors must match number of dimensions");
+    endif
+    
+    %% loop over dimensions
+    for k = 1:dim
+      hgrm = resampleHist(hgrm, k, varargin{k});
     endfor
 
-  endfor
+  else
 
-  %% return new histogram
-  hgrm.xb = newxb;
-  hgrm.px = newpx;
+    %% otherwise intepret arguments as [k, nxb]
+    if length(varargin) != 2
+      error("Invalid input arguments!");
+    endif
+    [k, nxb] = deal(varargin{:});
+    assert(isscalar(k));
+    assert(isvector(nxb) && length(nxb) > 1);
+    nxb = sort(nxb(:)');
+    
+    %% get old bin boundaries and probability array
+    xb = hgrm.xb{k};
+    px = hgrm.px;
+
+    %% if either old bin boundaries or probability array are empty
+    if isempty(xb)
+
+      hgrm.xb{k} = nxb;
+      siz = size(hgrm.px);
+      siz(k) = length(nxb) - 1;
+      if dim == 1
+	siz(2) = 1;
+      endif
+      hgrm.px = zeros(siz);
+
+    else
+    
+      %% round bin boundaries
+      [xb, nxb] = roundHistBinBounds(xb, nxb);
+      
+      %% check that new bins cover the range of old bins
+      if !(min(nxb) <= min(xb)) || !(max(nxb) >= max(xb))
+	error("Range of new bins (%g to %g) does not include old bins (%g to %g)!",
+	      min(nxb), max(nxb), min(xb), max(xb));
+      endif
+      
+      %% permute dimension k to beginning of array,
+      %% then flatten other dimensions
+      perm = [k 1:(k-1) (k+1):dim];
+      px = permute(px, perm);
+      siz = size(px);
+      px = reshape(px, siz(1), []);
+      
+      %% if new bins are a superset of old bins, no
+      %% resampling is required - just need to extend
+      %% probability array with zeros
+      nxbss = nxb(min(xb) <= nxb & nxb <= max(xb));
+      if length(nxbss) == length(xb) && nxbss  == xb
+	nloz = length(nxb(nxb < min(xb)));
+	nhiz = length(nxb(nxb > max(xb)));
+	npx = [zeros(nloz, size(px, 2));
+	       px;
+	       zeros(nhiz, size(px, 2))];
+      else
+	%% otherwise, need to interpolate
+	%% probabilities to new bins
+	xbl = xb(1:end-1);
+	dxb = diff(xb);
+	dnxb = diff(nxb);
+	
+	%% calculate probabilities along dimension k
+	Px = px .* dxb(:)(:,ones(size(px, 2), 1));
+	
+	%% create cumulative probability array resampled over new bins
+	Cx = zeros(length(nxb), size(px, 2));
+	for i = 1:length(nxb)
+	  
+	  %% decide what fraction of each old bin
+	  %% should contribute to new bin
+	  fr = (nxb(i) - xbl) ./ dxb;
+	  fr(fr < 0) = 0;
+	  fr(fr > 1) = 1;
+	  
+	  %% assign cumulative probability to new bin
+	  Cx(i,:) = sum(Px .* fr(:)(:,ones(size(px, 2), 1)), 1);
+	  
+	endfor
+	
+	%% calculate new probability array from cumulative probabilities
+	npx = (Cx(2:end,:) - Cx(1:end-1,:)) ./ dnxb(:)(:,ones(size(px, 2), 1));
+	
+      endif
+      
+      %% unflatten other dimensions, then
+      %% restore original dimension order
+      siz(1) = size(npx, 1);
+      npx = reshape(npx, siz);
+      %% octave-3.2.3 bug : ipermute doesn't work!
+      iperm = zeros(size(perm));
+      iperm(perm) = 1:length(perm);
+      npx = permute(npx, iperm);
+      
+      %% resampled histogram
+      hgrm.xb{k} = nxb;
+      hgrm.px = npx;
+
+      endif
+      
+  endif
 
 endfunction

@@ -1,13 +1,12 @@
-%% Returns the moments of a histogram,
+%% Returns the moment of a histogram,
 %% taken with respect to a given position.
 %% Syntax:
-%%   mu            = momentsOfHist(hgrm, x0, [n, n, ...])
-%%   [mu, mu, ...] = momentsOfHist(hgrm, x0, [n, n, ...])
+%%   mu   = momentOfHist(hgrm, x0, n)
 %% where:
 %%   hgrm = histogram struct
-%%   x0   = a given position
-%%   n    = moment orders
-%%   mu   = moments
+%%   x0   = a given position in each dimension
+%%   n    = moment orders in each dimension
+%%   mu   = moment
 
 %%
 %%  Copyright (C) 2010 Karl Wette
@@ -28,32 +27,36 @@
 %%  MA  02111-1307  USA
 %%
 
-function varargout = momentsOfHist(hgrm, x0, n)
+function mu = momentOfHist(hgrm, x0, n)
 
   %% check input
   assert(isHist(hgrm));
-  assert(isscalar(x0));
-  assert(isvector(n));
-  assert(all(n >= 0))';
+  dim = length(hgrm.xb);
+  assert(isvector(x0) && length(x0) == dim);
+  assert(isvector(n)  && length(x0) == dim && all(n >= 0));
 
-  %% take moments with respect to x0
-  hgrm.xb -= x0;
+  shape = size(hgrm.px);
 
   %% calculate moments:
-  %%   mu(n) = sum over all bins k of
-  %%           px(k) * (integral of x^n, x from xb(k) to xb(k+1))
-  mu = cell(size(n));
-  for i = 1:length(n)
-    mu{i} = sum((hgrm.xb(2:end).^(n(i)+1) - hgrm.xb(1:end-1).^(n(i)+1)) ./ (n(i)+1) .* hgrm.px);
-  endfor
+  %%   mu(n) = integrate over x{1} to x{dim} : 
+  %%              px(x{1},...,x{dim}) * x{1}^n{1} * ... * x{dim}^n{dim} dx{1} ... dx{dim}
+  
+  %% start with probability array
+  muint = hgrm.px;
 
-  %% output moments
-  if nargout <= 1
-    varargout = {[mu{:}]};
-  elseif nargin == length(n)
-    varargout = mu;
-  else
-    error("Invalid number of output arguments!");
-  endif
+  %% loop over dimensions
+  for k = 1:dim
+
+    %% get lower and upper bin boundaries
+    [xl, xh] = histBinGrids(hgrm, k, "xl", "xh");
+
+    %% integral term for kth dimension:
+    %%    integrate x{k}^n dx{k}, x{k} over all bins in kth dimension
+    muint .*= ((xh.^(n(k)+1) - xl.^(n(k)+1)) ./ (n(k)+1));
+    
+  endfor
+  
+  %% sum up integral to get final moment
+  mu = sum(muint(:));
 
 endfunction

@@ -1,11 +1,11 @@
 %% Checks whether the input arguments are
 %% valid histogram structs.
 %% Syntax:
-%%   ishgrm = isHist(hgrm, hgrm, ...)
+%%   ishgrm = isHist(hgrm)
 %% where:
 %%   hgrm   = maybe a histogram struct
-%%   ishgrm = true if all hgrm are valid 
-%%            histogram structs, false otherwise
+%%   ishgrm = true if hgrm is a valid histogram struct,
+%%            false otherwise
 
 %%
 %%  Copyright (C) 2010 Karl Wette
@@ -26,22 +26,16 @@
 %%  MA  02111-1307  USA
 %%
 
-function ishgrm = isHist(varargin)
+function ishgrm = isHist(hgrm)
 
-  ishgrm = 1;
-  for hgrm = varargin
-    hgrm = hgrm{:};
-    ishgrm = ishgrm && ...
-	isstruct(hgrm) && ...
-	isfield(hgrm, "xb") && ...
-	isfield(hgrm, "px") && ...
-	( ...
-	 ( isempty(hgrm.xb) && isempty(hgrm.px) ) ...
-	 || ( ...
-	     isvector(hgrm.xb) && isvector(hgrm.px) && ...
-	     length(hgrm.xb) == length(hgrm.px) + 1    ...
-	     ) ...
-	 );
-  endfor
+  ishgrm = isstruct(hgrm) && isfield(hgrm, "xb") && isfield(hgrm, "px") && ...
+      iscell(hgrm.xb) && isvector(hgrm.xb) && length(hgrm.xb) > 0;
+  if !isempty(hgrm.px)
+    ishgrm = ishgrm && ismatrix(hgrm.px);
+    for k = 1:length(hgrm.xb)
+      ishgrm = ishgrm && isvector(hgrm.xb{k}) && ...
+	  length(hgrm.xb{k}) == size(hgrm.px, k) + 1;
+    endfor
+  endif
 
 endfunction

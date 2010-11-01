@@ -1,10 +1,12 @@
-%% Creates a new struct representing a histogram.
+%% Creates a new struct representing a (multi-dimensional) histogram.
 %% Syntax:
 %%   [hgrm1, hgrm2, ...] = newHist
 %%   [hgrm1, hgrm2, ...] = newHist(N1, N2, ...)
+%%   [hgrm1, hgrm2, ...] = newHist({dim}, ...)
 %% where:
 %%   hgrm{1,2,...} = histogram (array) structs
 %%   N{1,2,...}    = array dimensions
+%%   dim           = dimensionality of the histogram
 
 %%
 %%  Copyright (C) 2010 Karl Wette
@@ -28,12 +30,20 @@
 function varargout = newHist(varargin)
 
   %% create struct (array)
-  if nargin == 0
+  if length(varargin) > 0 && iscell(varargin{1})
+    dim = varargin{1}{1};
+    varargin = varargin(2:end);
+  else
+    dim = 1;
+  endif
+  if length(varargin) == 0
     varargin = {1};
-  elseif nargin == 1
+  elseif length(varargin) == 1
     varargin{end+1} = 1;
   endif
-  hgrm = struct("xb", [], "px", []);
+  clear hgrm;
+  hgrm.xb = cell(dim,1); 
+  hgrm.px = [];
   hgrm = hgrm(ones(varargin{:}));
   [varargout{1:max(nargout,1)}] = deal(hgrm);
 

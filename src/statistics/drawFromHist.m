@@ -27,26 +27,40 @@
 %%  MA  02111-1307  USA
 %%
 
-function [x, hgrm] = drawFromHist(hgrm, N)
+function [x, wksp] = drawFromHist(hgrm, N, wksp)
 
   %% check input
   assert(isHist(hgrm));
+  dim = length(hgrm.xb);
 
   %% store some variables for re-use
-  if ~isfield(hgrm, "P")
-    hgrm = normaliseHist(hgrm);    % normalise histogram
-    hgrm.ii = 1:length(hgrm.px);   % indices to histogram bins
-    hgrm.dx = diff(hgrm.xb);       % width of each bin
-    hgrm.P = hgrm.px .* hgrm.dx;   % probability of each bin
+  if isempty(wksp)
+
+    %% normalise histogram
+    hgrm = normaliseHist(hgrm);
+
+    %% probability of each bin
+    P = hgrm.px;
+    for k = 1:dim
+      P .*= histBinGrids(hgrm, k, "dx");
+    endfor
+
+    %% indices to all histogram bins, and their probabilities
+    wksp = struct("ii", 1:numel(hgrm.px), "P", P(:)');
+
   endif
 
   %% generate random indices to histogram bins,
   %% with appropriate probabilities
-  ii = discrete_rnd(N, hgrm.ii, hgrm.P);
+  [ii{1:dim}] = ind2sub(size(hgrm.px), discrete_rnd(N, wksp.ii, wksp.P));
   
   %% start with the lower bound of each randomly
   %% chosen bin and add a uniformly-distributed
   %% offset within that bin
-  x = hgrm.xb(ii) + rand(size(ii)).*hgrm.dx(ii);
+  x = zeros(N, dim);
+  for k = 1:dim
+    dx = hgrm.xb{k}(ii{k}+1) - hgrm.xb{k}(ii{k});
+    x(:,k) = hgrm.xb{k}(ii{k}) + rand(size(ii{k})).*dx;
+  endfor
 
 endfunction

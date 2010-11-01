@@ -77,14 +77,14 @@ function varargout = plotHist(varargin)
     %% next argument should be a histogram
     hgrm  = varargin{i};
     if !isHist(hgrm)
-      error(sprint("Input argument #%i must be a histogram struct!", i));
+      error("Input argument #%i must be a histogram struct!", i);
     endif
     ++i;
 
     %% next arguments should be a colour spec (string or cell)
     colour = varargin{i};
     if !(ischar(colour) || iscell(colour)) || length(colour) > 2
-      error(sprint("Input argument #%i must be a string or cell (length <= 2)!", i));
+      error("Input argument #%i must be a string or cell (length <= 2)!", i);
     endif
     ++i;
     if ischar(colour)

@@ -27,8 +27,14 @@ function mean = meanOfHist(hgrm)
 
   %% check input
   assert(isHist(hgrm));
+  dim = length(hgrm.xb);
 
   %% calculate mean
-  mean = momentsOfHist(hgrm, 0, 1);
+  mean = zeros(dim, 1);
+  for k = 1:dim
+    n = zeros(dim, 1);
+    n(k) = 1;
+    mean(k) = momentOfHist(hgrm, zeros(dim, 1), n);
+  endfor
 
 endfunction
