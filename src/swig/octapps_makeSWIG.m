@@ -26,7 +26,7 @@
 function octapps_makeSWIG(arg)
 
   %% check input arguments
-  force = nargin > 0 && strcmp(arg, "-force");
+  debug = nargin > 0 && strcmp(arg, "-debug");
 
   %% turn of paging for this function
   pso = page_screen_output(0);
@@ -80,8 +80,8 @@ function octapps_makeSWIG(arg)
       octstat = struct("mtime", -inf);
     endif
     
-    %% if source is newer than output (or -force), compile it
-    if force || srcstat.mtime > octstat.mtime
+    %% if source is newer than output (or -debug), compile it
+    if debug || srcstat.mtime > octstat.mtime
 
       %% run SWIG
       cmd = sprintf("'%s' -c++ -octave -o '%s' '%s'", swig_bin, wrapc, src);
@@ -97,9 +97,11 @@ function octapps_makeSWIG(arg)
 	error(["Error executing: " cmd]);
       endif
 
-      %% delete intermediate files
-      delete(wrapc);
-      delete(wrapo);
+      %% delete intermediate files (unless -debug)
+      if !debug
+	delete(wrapc);
+	delete(wrapo);
+      endif
 
       printf("Made '%s' from '%s'\n", oct, src);
 

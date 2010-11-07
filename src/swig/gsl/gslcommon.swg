@@ -33,6 +33,7 @@
   // prevent naming conflicts with wrapped symbols
   namespace wrap {
 #    include <gsl/gsl_vector.h>
+#    include <gsl/gsl_matrix.h>
   }
 %}
 
@@ -68,10 +69,7 @@
 // These are typemaps for converting GSL/C types to native Octave types.
 // More will be added as needed.
 
-// Wraps a gsl_vector which is designated as output.
-// The wrapping function receives a null pointer and
-// should assign it to a new gsl_vector, which is then
-// coverted to an Octave column vector on output.
+// Wraps an output gsl_vector.
 %typemap(in,numinputs=0) wrap::gsl_vector* *OUTPUT (wrap::gsl_vector *temp) {
   temp = 0;
   $1 = &temp;
@@ -87,4 +85,25 @@
   }
   $result = SWIG_Octave_AppendOutput($result, octave_value($1_cv));
   wrap::gsl_vector_free(*$1);
+}
+
+// Wraps an output gsl_matrix.
+%typemap(in,numinputs=0) wrap::gsl_matrix* *OUTPUT (wrap::gsl_matrix *temp) {
+  temp = 0;
+  $1 = &temp;
+}
+%typemap(out) wrap::gsl_matrix* {
+  if ($1 == 0) {
+    SWIG_fail;
+  }    
+  const int $1_n = $1->size1;
+  const int $1_m = $1->size2;
+  Matrix $1_mat($1_n, $1_m);
+  for (int $1_i = 0; $1_i < $1_n; ++$1_i) {
+    for (int $1_j = 0; $1_j < $1_m; ++$1_j) {
+      $1_mat($1_i, $1_j) = wrap::gsl_matrix_get($1, $1_i, $1_j);
+    }
+  }
+  $result = octave_value($1_mat);
+  wrap::gsl_matrix_free($1);
 }

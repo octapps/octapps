@@ -79,13 +79,21 @@ public:
   }
 %}
 
-// function gsl_qrng_get
-// (last two arguments become Octave output arguments)
-void gsl_qrng_get(gsl_qrng*, wrap::gsl_vector* *OUTPUT, int *OUTPUT);
-%header %{
-  void gsl_qrng_get(gsl_qrng* q, wrap::gsl_vector* *v, int *retn) {
-    *v = wrap::gsl_vector_alloc(q->ptr->dimension);
-    *retn = wrap::gsl_qrng_get(q->ptr, (*v)->data);
+// function gsl_qrng_get, extended to return multiple values
+%inline %{
+  wrap::gsl_matrix* gsl_qrng_get(const gsl_qrng* q, int n = 1) {
+    wrap::gsl_matrix *m = wrap::gsl_matrix_alloc(q->ptr->dimension, n);
+    wrap::gsl_vector *v = wrap::gsl_vector_alloc(q->ptr->dimension);
+    for (int i = 0; i < n; ++i) {
+      wrap::gsl_vector_view vv = wrap::gsl_matrix_column(m, i);
+      if (wrap::gsl_qrng_get(q->ptr, v->data) != 0) {
+	wrap::gsl_matrix_free(m);
+	wrap::gsl_vector_free(v);
+	return wrap::gsl_matrix_alloc(0, 0);
+      }
+      wrap::gsl_vector_memcpy(&vv.vector, v);
+    }
+    return m;
   }
 %}
 
