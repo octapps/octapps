@@ -85,7 +85,7 @@ function hgrm = resampleHist(hgrm, varargin)
       
       %% permute dimension k to beginning of array,
       %% then flatten other dimensions
-      perm = [k 1:(k-1) (k+1):dim];
+      perm = [k 1:(k-1) (k+1):max(dim,length(size(px)))];
       px = permute(px, perm);
       siz = size(px);
       px = reshape(px, siz(1), []);

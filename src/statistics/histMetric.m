@@ -26,7 +26,7 @@
 %%  MA  02111-1307  USA
 %%
 
-function d = rmsDiffHist(hgrm1, hgrm2)
+function d = histMetric(hgrm1, hgrm2)
 
   %% check input
   assert(isHist(hgrm1) && isHist(hgrm2));
@@ -61,6 +61,6 @@ function d = rmsDiffHist(hgrm1, hgrm2)
   assert(isHist(hgrmd));
 
   %% return distance
-  rmsd = areaUnderHist(hgrmd);
+  d = areaUnderHist(hgrmd);
   
 endfunction

@@ -110,8 +110,8 @@ function varargout = plotHist(varargin)
     subplot(rows, cols, index);
 
     %% x-y outline of histogram
-    x = hgrm.xb(reshape([1:length(hgrm.xb); 1:length(hgrm.xb)], 1, []));
-    y = [0 hgrm.px(reshape([1:length(hgrm.px); 1:length(hgrm.px)], 1, [])) 0];
+    x = hgrm.xb{1}(reshape([1:length(hgrm.xb{1}); 1:length(hgrm.xb{1})], 1, []));
+    y = [0, hgrm.px(reshape([1:length(hgrm.px); 1:length(hgrm.px)], 1, []))', 0];
     
     if length(colour) == 1
     

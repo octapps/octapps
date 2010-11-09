@@ -2,10 +2,11 @@
 %% probability distribution given by the histogram.
 %% Syntax:
 %%   x         = drawFromHist(hgrm, N)
-%%   [x, hgrm] = drawFromHist(hgrm, N)
+%%   [x, wksp] = drawFromHist(hgrm, N, wksp)
 %% where:
 %%   hgrm = histogram struct
 %%   N    = number of random values to generate
+%%   wksp = working variables for drawFromHist
 %%   x    = generated random values
 
 %%
