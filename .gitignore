@@ -1,1 +1,3 @@
-src/swig/lib
+*.oct
+*_wrap.C
+*.o
