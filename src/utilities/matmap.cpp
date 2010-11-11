@@ -1,3 +1,4 @@
+#include <iostream>
 #include <string>
 #include <list>
 
@@ -72,33 +73,47 @@ public:
 };
 
 // mapping functions for matrix multiplication
+const int Trans = 1;
+const int Conj  = 2;
 template<class C> class MapMatrixMultiply;
 template<>
 class MapMatrixMultiply<FloatComplex> {
+private:
+  const int opa, opb;
 public:
+  MapMatrixMultiply(const int opa0, const int opb0) : opa(opa0), opb(opb0) {}
   FloatComplexMatrix operator()(const FloatComplexMatrix& a, const FloatComplexMatrix& b) const {
-    return xgemm(false, false, a, false, false, b);
+    return xgemm(opa & Trans, opa & Conj, a, opb & Trans, opb & Conj, b);
   }
 };
 template<>
 class MapMatrixMultiply<Complex> {
+private:
+  const int opa, opb;
 public:
+  MapMatrixMultiply(const int opa0, const int opb0) : opa(opa0), opb(opb0) {}
   ComplexMatrix operator()(const ComplexMatrix& a, const ComplexMatrix& b) const {
-    return xgemm(false, false, a, false, false, b);
+    return xgemm(opa & Trans, opa & Conj, a, opb & Trans, opb & Conj, b);
   }
 };
 template<>
 class MapMatrixMultiply<float> {
+private:
+  const int opa, opb;
 public:
+  MapMatrixMultiply(const int opa0, const int opb0) : opa(opa0), opb(opb0) {}
   FloatMatrix operator()(const FloatMatrix& a, const FloatMatrix& b) const {
-    return xgemm(false, a, false, b);
+    return xgemm(opa & Trans, a, opb & Trans, b);
   }
 };
 template<>
 class MapMatrixMultiply<double> {
+private:
+  const int opa, opb;
 public:
+  MapMatrixMultiply(const int opa0, const int opb0) : opa(opa0), opb(opb0) {}
   Matrix operator()(const Matrix& a, const Matrix& b) const {
-    return xgemm(false, a, false, b);
+    return xgemm(opa & Trans, a, opb & Trans, b);
   }
 };
 
@@ -107,22 +122,60 @@ template<class C, class T, class A, class B>
 ArrayN<C> do_matmap_2(const T& func, const ArrayN<A>& arrA, const ArrayN<B>& arrB) {
 
   // length of the 3rd dimension
-  const int n = arrA.dims()(2);
+  const int nA = arrA.dims()(2);
+  const int nB = arrB.dims()(2);
+  const int nC = nA > nB ? nA : nB;
 
-  // create an index vector to extract matrices in the first 2 dimensions 
+  // create an index vector to extract input matrices, which
+  // are slices of the arrays in the 1st and 2nd dimensions
   Array<idx_vector> idx(3);
   idx(0) = idx_vector::colon;
   idx(1) = idx_vector::colon;
-  idx(2) = idx_vector(0);
 
-  // extract the matrices
+  // extract first input matrices and compute return matrix
+  idx(2) = idx_vector(0);
   Array2<A> matA = FromValue<Array2<A> >(octave_value(arrA.index(idx)));
   Array2<B> matB = FromValue<Array2<B> >(octave_value(arrB.index(idx)));
-
   Array2<C> matC = func(matA, matB);
 
-  return FromValue<ArrayN<C> >(ToValue(matC));
+  // create an output array of the correct size, and store first return matrix
+  ArrayN<C> arrC(dim_vector(matC.dims()(0), matC.dims()(1), nC));
+  arrC.assign(idx, matC, C());
 
+  // compute and store the remaining result matrices
+  for (int i = 1; i < nC; ++i) {
+
+    // extract the next input matrices, unless they are singletons
+    idx(2) = idx_vector(i);
+    if (nA != 1)
+      matA = FromValue<Array2<A> >(octave_value(arrA.index(idx)));
+    if (nB != 1)
+      matB = FromValue<Array2<B> >(octave_value(arrB.index(idx)));
+
+    // compute and store return matrix
+    matC = func(matA, matB);
+    arrC.assign(idx, matC, C());
+
+  }
+
+  // remove any trailing singletons
+  arrC.chop_trailing_singletons();
+
+  // return result array
+  return arrC;
+
+}
+
+// decipher matrix multiplication transpose/conjugate operators
+int trans_conj_op(const std::string& op) {
+  if (op.compare("") == 0)
+    return 0;
+  else if (op.compare(".'") == 0)
+    return Trans;
+  else if (op.compare("'") == 0)
+    return Conj | Trans;
+  else
+    return -1;
 }
 
 // templated worker function
@@ -133,14 +186,45 @@ octave_value do_matmap_1(const octave_value_list& args) {
   ArrayN<A> arrA = FromValue<ArrayN<A> >(args(1));
   ArrayN<B> arrB = FromValue<ArrayN<B> >(args(2));
 
+  // arrays must have at must 3 non-singleton dimensions
+  arrA.chop_trailing_singletons();
+  arrB.chop_trailing_singletons();
+  if (arrA.ndims() > 3 || arrB.ndims() > 3) {
+    error("matmap: arguments #2 and #3 must be 3-D arrays!");
+    return octave_value();
+  }
+
+  // reshape arrays to be at least 3 dimensions
+  dim_vector dimA = arrA.dims();
+  dim_vector dimB = arrB.dims();
+  dimA.resize(3, 1);
+  dimB.resize(3, 1);
+  arrA = arrA.reshape(dimA);
+  arrB = arrB.reshape(dimB);
+
+  // check that 3rd dimensions are the same length, allowing singletons
+  const int nA = arrA.dims()(2);
+  const int nB = arrB.dims()(2);
+  if (nA != nB && nA != 1 && nB != 1) {
+    error("matmap: arguments #2 and #3 must have the same 3rd dimension size!");
+    return octave_value();
+  }
+
   // first argument must be function handle/name or operator
   if (args(0).is_function_handle() || args(0).is_inline_function()) {
     return octave_value(do_matmap_2<C>(MapFunction<octave_function*,C,A,B>(args(0).function_value()), arrA, arrB));
   }
   else if (args(0).is_string()) {
     const std::string s = args(0).string_value();
-    if (s.compare("*") == 0) {
-      return octave_value(do_matmap_2<C>(MapMatrixMultiply<C>(), arrA, arrB));
+    size_t i = s.find_first_of("*"); 
+    if (i != std::string::npos && s.find_first_not_of("*.'") == std::string::npos) {
+      const int opA = trans_conj_op(s.substr(0, i));
+      const int opB = trans_conj_op(s.substr(i + 1, std::string::npos));
+      if (opA < 0 || opB < 0) {
+	error("matmap: invalid operator '%s'!", s.c_str());
+	return octave_value();
+      }
+      return octave_value(do_matmap_2<C>(MapMatrixMultiply<C>(opA, opB), arrA, arrB));
     }
     else {
       return octave_value(do_matmap_2<C>(MapFunction<std::string,C,A,B>(s), arrA, arrB));
@@ -161,7 +245,15 @@ const char helpstr[] = "\
  where:\n\
    A, B = 3-D arrays (3rd dimensions must agree)\n\
    f    = @function or \"function name\"\n\
-        = \"*\" for matrix multiplication\n\
+        = \"*\"     for f(a,b) = a  *b  \n\
+        = \"*'\"    for f(a,b) = a  *b' \n\
+        = \"*.'\"   for f(a,b) = a  *b.'\n\
+        = \"'*\"    for f(a,b) = a' *b  \n\
+        = \".'*\"   for f(a,b) = a.'*b  \n\
+        = \"'*'\"   for f(a,b) = a' *b' \n\
+        = \"'*.'\"  for f(a,b) = a' *b.'\n\
+        = \".'*'\"  for f(a,b) = a.'*b' \n\
+        = \".'*.'\" for f(a,b) = a.'*b.'\n\
    C    = 3-D result array\n\
 ";
 
@@ -181,14 +273,6 @@ DEFUN_DLD (matmap, args, nargout, helpstr) {
   // 2nd and 3rd arguments must be arrays
   if (!args(1).is_matrix_type() || !args(1).is_matrix_type()) {
     error("matmap: arguments #2 and #3 must be arrays!");
-    return octave_value();
-  }
-  if (args(1).ndims() < 3 || args(2).ndims() < 3) {
-    error("matmap: arguments #2 and #3 must be 3-D arrays!");
-    return octave_value();
-  }
-  if (args(1).size()(2) != args(2).size()(2)) {
-    error("matmap: argumsnts #2 and #3 must have the same 3rd dimension size!");
     return octave_value();
   }
 
