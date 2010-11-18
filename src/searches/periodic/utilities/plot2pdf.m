@@ -1,5 +1,5 @@
-%% plot2pdf ( handle, bname )
-%% output a figure with given handle to a pdf plot named '<bname>.pdf'
+%% plot2pdf ( bname )
+%% output the current figure to a pdf file named '<bname>.pdf'
 %%
 %% nocleanup=true: don't delete by-products at the end (used for debugging)
 %% print_options = a single-option string or cell-array of option-strings to pass to the 'print()' command
@@ -26,12 +26,7 @@
 %%  MA  02111-1307  USA
 %%
 
-function plot2pdf ( handle, bname, print_options=[], latex_preamble=[], nocleanup=false )
-
-  %% check input
-  if ( ! isfigure ( handle ) )
-    error ("Input handle must be a figure! Use gcf() to obtain figure handles.\n");
-  endif
+function plot2pdf ( bname, print_options=[], latex_preamble=[], nocleanup=false )
 
   curdir = pwd ();
 
@@ -45,8 +40,8 @@ function plot2pdf ( handle, bname, print_options=[], latex_preamble=[], nocleanu
   chdir (tmpdir );
 
   texname = sprintf ("%s.tex", bname);
-  cmd = sprintf ("print (handle, texname, '-depslatexstandalone'" );
-  if ( isstr ( print_options ) )
+  cmd = sprintf ("print (texname, '-depslatexstandalone'" );
+  if ( ischar ( print_options ) )
     cmd = strcat ( cmd, ", '", print_options, "'" );
   elseif ( iscell( print_options ) )
     for i = 1:length(print_options)
