@@ -43,12 +43,14 @@ function ret = addCmdlineOption ( cmdline, params, option, isRequired )
 
   val = getfield ( params, option );
 
-  if ( !isnumeric ( val ) )
+  if ( ischar ( val ) )
     valstr = sprintf ("'%s'", val );
   elseif ( isscalar (val) && isreal (val) )
     valstr = sprintf ("%.16g", val );
+  elseif ( islogical ( val ) )
+    valstr = sprintf ("%d", val );
   else
-    error ("Field '%s' is neither a string nor a real scalar!\n", option );
+    error ("Field '%s' is neither a string, bool or real scalar!\n", option );
   endif
 
   ret = strcat ( cmdline, " --", option, "=", valstr );
