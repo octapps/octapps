@@ -90,7 +90,7 @@ t_star=fzero(@(t)fixed_point(t,N,I,a2),[0,.1]);
 % smooth the discrete cosine transform of initial data using t_star
 a_t=a.*exp(-[0:n-1]'.^2*pi^2*t_star/2);
 % now apply the inverse discrete cosine transform
-if (nargout>1)|(nargout==0)
+if ( (nargout>1) || (nargout==0) )
     density=idct1d(a_t)/R;
 end
 % take the rescaling of the data into account
