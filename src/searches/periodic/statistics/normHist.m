@@ -1,7 +1,18 @@
-%% [NN, XX] = normHist ( data, numBins )
+%% [NN, XX] = normHist ( data, bins )
 %%
 %% compute a pdf-normalized histogram (i.e. the *integral* is 1)
 %%
+%% With one vector input argument, plot a histogram of the values with
+%% 10 bins.  The range of the histogram bins is determined by the
+%% range of the data.  With one matrix input argument, plot a
+%% histogram where each bin contains a bar per input column.
+%%
+%% Given a second scalar argument, use that as the number of bins.
+%%
+%% Given a second vector argument, use that as the centers of the
+%% bins, with the width of the bins determined from the adjacent
+%% values in the vector.
+
 
 %%
 %% Copyright (C) 2006 Reinhard Prix
@@ -22,17 +33,23 @@
 %%  MA  02111-1307  USA
 %%
 
-function [NN, XX] = normHist ( data, numBins, plotStyle )
+function [NN, XX] = normHist ( data, bins )
 
-  [NN, XX] = hist ( data, numBins, 1 );
-
-  df = (max(XX) - min(XX)) / numBins;
-
-  NN /= df;
-
-  %% plot only if 'plotStyle' has been specified
-  if ( exist("plotStyle") )
-    bar ( XX, NN, plotStyle );
+  if ( nargin == 1 )
+    bins = 10;
   endif
+
+  [NN, XX] = hist ( data, bins, 1 );
+
+  %% normalize as a "pdf", i.e. such that 1 = sum_i NN_i * dXX_i
+  if ( isscalar ( bins ) )
+    dx = (max(XX) - min(XX)) / bins;
+  else
+    mids = (bins(1:end-1) + bins(2:end)) / 2;
+    boundaries = [ bins(1), mids, bins(end) ];
+    dx = diff ( boundaries );
+  endif
+
+  NN ./= dx;
 
 endfunction
