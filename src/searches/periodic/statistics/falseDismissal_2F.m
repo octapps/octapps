@@ -3,6 +3,7 @@
 %% compute the false-dismissal rate for given threshold 'thresh' = 2F* and
 %% non-centrality parameter lambda = rho^2, for 2F being Chi-square
 %% distributed with 'dof' degrees of freedom (default = 4)
+%% new version 2011/01: use anonymous functions instead of obsolete inline/formula commands
 %%
 
 %%
@@ -35,13 +36,13 @@ function beta = falseDismissal_2F ( thresh, rho2, dof )
   beta = zeros ( M, N);
 
   for jj = 1:M
-    integrand = inline ( sprintf("ChiSquare_pdf(x, %d, %f)", dof, rho2(jj)) );
 
     for ii = 1:N
       if ( thresh(ii) == 0 )
 	beta(jj, ii) = 0;
       else
-	beta(jj, ii) = quad ( formula ( integrand ), 0, thresh(ii) );
+	beta(jj, ii) = quad (@(x) ChiSquare_pdf (x, dof, rho2(jj)), 0, thresh(ii));
+
       endif
     endfor %% ii
 
