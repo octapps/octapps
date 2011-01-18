@@ -8,7 +8,7 @@ function thresh_root = falseAlarm_2F_num_root ( fA, thresh_low, thresh_high, thr
  x = thresh_low:thresh_step:thresh_high;
  y = ( 1 + x/2 ) .* e.^(-x/2);
  
- thresh_root = zeros(length(fA),1);
+ thresh_root = zeros(1,length(fA));
  
  for fA_count = 1:1:length(fA)
   

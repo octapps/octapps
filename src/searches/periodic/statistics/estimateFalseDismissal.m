@@ -12,7 +12,7 @@ function [fDEst, dfDEst] = estimateFalseDismissal ( fA, stat_0, stat_s )
   fDEst       = empirical_cdf ( stat_thresh, stat_s );
 
   if ( length(stat_0) < 100 || length(stat_s) < 100 )
-    dfDEst = zeros(length(fDEst),1);
+    dfDEst = zeros(1,length(fDEst));
     printf("Warning: In function estimateFalseDismissal: Cannot reshape sample array because length=%d smaller than 100. No errors have been computed.\n", length(stat_0));
   
   else
