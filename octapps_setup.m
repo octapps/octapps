@@ -4,7 +4,7 @@
 ## It can be run in a shell:
 ##    eval `/path/to/octapps_setup.m <name of shell>`
 ## or within Octave:
-##    octave_setup
+##    octapps_setup
 ##
 
 ##
@@ -47,7 +47,7 @@ function octapps_setup_function(my_path)
       printf("Usage: %s <name of shell>", my_name);
       return;
     endif
-    
+
     ## get the filename component
     [shell{1:2}] = fileparts(argv(){1});
     shell = shell{2};
@@ -78,7 +78,7 @@ function octapps_setup_function(my_path)
       octapps_path{end+1} = dirs{i};
     endif
   endfor
-  
+
   ## get the full Octave path
   octave_path = strsplit(path, pathsep, true);
 
@@ -110,14 +110,14 @@ function octapps_setup_function(my_path)
   ## if run as a script, also print
   ## commands to be eval'd within a shell
   if run_as_script
-    
+
     ## build the shell environment string
     octave_path_env = {octapps_path{:}, octave_path_env{:}};
     octave_path_env_str = "";
     for i = 1:length(octave_path_env)
       octave_path_env_str = strcat(octave_path_env_str, pathsep, octave_path_env{i});
     endfor
-    
+
     ## print the shell-appropriate command
     switch shell
       case {"bash"}
@@ -127,9 +127,9 @@ function octapps_setup_function(my_path)
       otherwise
 	error(["Unrecognised shell '" shell "'"]);
     endswitch
-    
+
   endif
-  
+
 endfunction
 
 ## call the internal setup function, giving it
