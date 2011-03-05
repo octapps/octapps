@@ -1,10 +1,13 @@
-%% plot2pdf ( bname )
+%% plot2pdf ( bname, print_options=[], latex_preamble=[], nocleanup=false )
 %% output the current figure to a pdf file named '<bname>.pdf'
 %%
-%% nocleanup=true: don't delete by-products at the end (used for debugging)
-%% print_options = a single-option string or cell-array of option-strings to pass to the 'print()' command
 %% latex_preamble: allows specifying LaTeX commands to be added before \begin{document},
 %%           this can typically be used to input a LaTeX-defines file for use in the figure
+%%
+%% print_options = a single-option string or cell-array of option-strings to pass to the 'print()' command
+%%
+%% nocleanup = true: don't delete by-products at the end (useful for debugging)
+%%
 
 
 %%
