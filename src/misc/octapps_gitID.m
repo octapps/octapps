@@ -21,7 +21,7 @@
 %% returns struct with fields {fullID, commitID, commitDate, commitAuthor, commitTitle, gitStatus}
 %% where 'fullID' is a nicely-formatted concatenation of the individual fields
 %%
-%%
+
 %% Copyright (C) 2008 Reinhard Prix, John Whelan
 %%
 %%  This program is free software; you can redistribute it and/or modify
