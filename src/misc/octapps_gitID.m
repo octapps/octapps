@@ -65,7 +65,7 @@ function ret = octapps_gitID ( directory, prefix )
     prefix = "";
   endif
 
-  cdcmd = strcat ( "cd ", directory, " && " );
+  cdcmd = cstrcat ( "cd ", directory, " && " );
 
   ## ---------- read out git-log of last commit --------------------
   ## This method matches what's used in lal/lalapps, but could fall
@@ -79,7 +79,7 @@ function ret = octapps_gitID ( directory, prefix )
   fmt_title="format:%s";
   logcmd_title = sprintf( "%sgit log -1 --pretty='%s'", cdcmd, fmt_title );
 
-  [ err, git_id ] = system29 ( logcmd_id );
+  [ err, git_id ] = system ( logcmd_id );
   if ( err )
     ## we seem to be unable to run git; presumably we were not checked
     ## out of a repo
@@ -89,11 +89,11 @@ function ret = octapps_gitID ( directory, prefix )
 ## If date unknown, use GPS 0 so it can still be parsed
     git_date_utc = "1980-01-06 00:00:00 UTC";
   else
-    [ err, git_id ] = system29 ( logcmd_id );
+    [ err, git_id ] = system ( logcmd_id );
     if ( err )
       error ("Unexpectedly failed to get git-ID, error was %d\n", err );
     endif
-    [ err, git_udate ] = system29 ( logcmd_udate );
+    [ err, git_udate ] = system ( logcmd_udate );
     if ( err )
       error ("Unexpectedly failed to get git-date, error was %d\n", err );
     endif
@@ -101,32 +101,28 @@ function ret = octapps_gitID ( directory, prefix )
     git_date_utc = sprintf("%04d-%02d-%02d %02d:%02d:%02d UTC",
 			   1900 + mytime.year, 1 + mytime.mon, mytime.mday,
 			   mytime.hour, mytime.min, mytime.sec);
-    [ err, git_author ] = system29 ( logcmd_author );
+    [ err, git_author ] = system ( logcmd_author );
     if ( err )
       error ("Unexpectedly failed to get git-author, error was %d\n", err );
     endif
-    [ err, git_title ] = system29 ( logcmd_title );
+    [ err, git_title ] = system ( logcmd_title );
     if ( err )
       error ("Unexpectedly failed to get git-title, error was %d\n", err );
     endif
   endif
 
-  statuscmd = sprintf( "%sgit status -a", cdcmd );
-  [ err, msg ] = system29 ( statuscmd );
-
+  statuscmd = sprintf( "%sgit diff-files --quiet", cdcmd );
+  [ err, msg ] = system ( statuscmd );
   ## Three possibilities:
-  if ( err )
-    if ( length(msg) )
-      ## non-zero error code, with output: no changes to be committed
+  switch ( err )
+    case 0
       git_status = "CLEAN. All modifications commited.";
-    else
-      ## non-zero error code, empty output: call to git status failed
+    case 1
+      git_status = "UNCLEAN: some modifications were not commited!";
+    otherwise
+      ## non-zero non-1 error code: call probably failed failed
       git_status = "unknown.";
-    endif
-  else
-    ## zero error code: changes to be committed
-    git_status = "UNCLEAN: some modifications were not commited!";
- endif
+  endswitch
 
   ret.commitID = sprintf("$%sCommitID: %s$", prefix, git_id);
   ret.commitDate = sprintf("$%sCommitDate: %s$", prefix, git_date_utc);
