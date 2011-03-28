@@ -116,9 +116,9 @@ function ret = octapps_gitID ( directory, prefix )
   ## Three possibilities:
   switch ( err )
     case 0
-      git_status = "CLEAN. All modifications commited.";
+      git_status = "CLEAN";
     case 1
-      git_status = "UNCLEAN: some modifications were not commited!";
+      git_status = "UNCLEAN";
     otherwise
       ## non-zero non-1 error code: call probably failed failed
       git_status = "unknown.";
