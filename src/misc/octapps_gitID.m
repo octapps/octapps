@@ -124,13 +124,19 @@ function ret = octapps_gitID ( directory, prefix )
       git_status = "unknown.";
   endswitch
 
-  ret.commitID = sprintf("$%sCommitID: %s$", prefix, git_id);
-  ret.commitDate = sprintf("$%sCommitDate: %s$", prefix, git_date_utc);
-  ret.commitAuthor = sprintf("$%sCommitAuthor: %s$", prefix, git_author);
+  ret.commitID = git_id;
+  ret.commitDate = git_date_utc;
+  ret.commitAuthor = git_author;
+  ret.commitTitle = git_title;
+  ret.gitStatus = git_status;
+
+  commitID_str = sprintf("$%sCommitID: %s $", prefix, git_id);
+  commitDate_str = sprintf("$%sCommitDate: %s $", prefix, git_date_utc);
+  commitAuthor_str = sprintf("$%sCommitAuthor: %s $", prefix, git_author);
   ## Should clean up the title in case it has a $ or something
-  ret.commitTitle = sprintf("$%sCommitTitle: %s$", prefix, git_title);
-  ret.gitStatus = sprintf("$%sGitStatus: %s$", prefix, git_status);
+  commitTitle_str = sprintf("$%sCommitTitle: %s $", prefix, git_title);
+  gitStatus_str = sprintf("$%sGitStatus: %s $", prefix, git_status);
   ret.fullID = sprintf("     %s\n     %s\n     %s\n     %s\n     %s\n",
-		       ret.commitID, ret.commitDate, ret.commitAuthor,
-		       ret.commitTitle, ret.gitStatus);
+		       commitID_str, commitDate_str, commitAuthor_str,
+		       commitTitle_str, gitStatus_str);
 endfunction
