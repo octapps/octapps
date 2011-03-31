@@ -21,12 +21,6 @@
 
 // Common code for Octave bindings to GSL
 
-// Octave_map is renamed to octave_map
-// in later Octave versions
-%header %{
-  #define Octave_map octave_map
-%}
-
 %include "typemaps.i"   // SWIG typemaps
 %header %{
 #  ifdef DEBUG
