@@ -1,3 +1,6 @@
+%%
+%% NOTE: This function is DEPRECATED, use ChiSquare_cdf() instead, which is about 2 orders of magnitude faster!
+%%
 %% beta = falseDismissal_2F ( thresh, rho2, dof )
 %%
 %% compute the false-dismissal rate for given threshold 'thresh' = 2F* and
@@ -26,6 +29,8 @@
 %%
 
 function beta = falseDismissal_2F ( thresh, rho2, dof )
+
+  printf ("WARNING: falseDismissal_2F() is DEPRECATED. Use ChiSquare_cdf(), which is about 2 orders of magnitude faster!\n");
 
   if ( !exist("dof") )
     dof = 4;
