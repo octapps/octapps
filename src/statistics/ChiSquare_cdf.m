@@ -1,13 +1,12 @@
-%% Compute the probability/cumulative density functions
-%% of the non-central chi-squared distribution.
+%% Compute the cumulative density of the
+%% non-central chi-squared distribution.
 %% Syntax:
-%%   pdf = ncchisquare("pdf", k, lambda, x)
-%%   cdf = ncchisquare("cdf", k, lambda, x)
+%%   cdf = ChiSquare_cdf(x, k, lambda)
 %% where:
-%%   k      = number of degrees of freedom
-%%   lambda = non-centrality parameter
 %%   x      = value of the non-central 
 %%            chi-squared variable
+%%   k      = number of degrees of freedom
+%%   lambda = non-centrality parameter
 
 %%
 %%  Copyright (C) 2010 Karl Wette
@@ -28,15 +27,7 @@
 %%  MA  02111-1307  USA
 %%
 
-function p = ncchisquare(name, k, lambda, x)
-
-  %% check distribution name
-  switch name
-    case {"pdf", "cdf"}
-      chi2 = ["chi2" name];
-    otherwise
-      error(["Invalid distribution type'" name "'!"]);
-  endswitch
+function p = ChiSquare_cdf(x, k, lambda)
 
   %% check for common size input
   [errcode, k, lambda, x] = common_size(k, lambda, x);
@@ -56,7 +47,7 @@ function p = ncchisquare(name, k, lambda, x)
   %% if lambda = 0, return value of central chi-squared distribution
   ii = (lambda > 0);
   if any(!ii)
-    p(!ii) = feval(chi2, x(!ii), k(!ii));
+    p(!ii) = chi2cdf(x(!ii), k(!ii));
   endif
 
   %% if lambda > 0, return value of non-central chi-squared distribution
@@ -81,7 +72,7 @@ function p = ncchisquare(name, k, lambda, x)
     do
 
       %% compute element of series of non-central chi-squared distribution
-      pN = sum(poisspdf(N, hlamb) .* feval(chi2, x, k + 2*N), 1);
+      pN = sum(poisspdf(N, hlamb) .* chi2cdf(x, k + 2*N), 1);
 
       %% if this is not the first iteration, see if we should stop
       if N(1,1) > 0

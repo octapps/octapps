@@ -163,7 +163,7 @@ endfunction
 %% calculate the false dismissal rate using the
 %% exact non-central chi-squared distribution
 function fdr = NonChiSquareFDR(ii, jj, k, Qsqr, Rsqrx, Rsqrw, sa)
-  cdf = ncchisquare('cdf', k(ii,:), Qsqr(ii,jj).*Rsqrx(ii,:), sa(ii,:));
+  cdf = ChiSquare_cdf(sa(ii,:), k(ii,:), Qsqr(ii,jj).*Rsqrx(ii,:));
   fdr = sum(cdf .* Rsqrw(ii,:), 2);
 endfunction
 
