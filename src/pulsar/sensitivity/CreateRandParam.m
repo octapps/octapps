@@ -7,7 +7,7 @@
 %%   rng = random parameter generator
 %%   p   = random parameter spec
 function rng = CreateRandParam(varargin)
-  
+
   %% load quasi-random number generator
   gsl_qrng;
   global cvar;
@@ -36,5 +36,5 @@ function rng = CreateRandParam(varargin)
     rng.q = new_gsl_qrng(cvar.gsl_qrng_halton, length(rng.rii));
   endif
   rng.allconst = (length(rng.rii) == 0);
-  
+
 endfunction

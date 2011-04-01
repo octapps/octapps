@@ -3,7 +3,7 @@
 %% Syntax:
 %%   Rsqr = SignalToNoiseRsqr(apxsqr, Fpxsqr)
 %% where:
-%%   apxsqr = joint histogram of normalised signal amplitudes 
+%%   apxsqr = joint histogram of normalised signal amplitudes
 %%   Fpxsqr = joint histogram of time-averaged beam patterns
 %%   Rsqr   = histogram of "R^2" component of the optimal SNR
 function hRsqr = SignalToNoiseRsqr(hapxsqr, hFpxsqr)
@@ -16,7 +16,7 @@ function hRsqr = SignalToNoiseRsqr(hapxsqr, hFpxsqr)
   if (isempty(hapxsqr.px) && isempty(hFpxsqr.px))
     hRsqr.xb{1} = hapxsqr.xb{1}*hFpxsqr.xb{1} + hapxsqr.xb{2}*hFpxsqr.xb{2};
   else
-    
+
     %% otherwise, build up histogram
     N = 20000;
     dx = 0.01;
@@ -27,7 +27,7 @@ function hRsqr = SignalToNoiseRsqr(hapxsqr, hFpxsqr)
       %% generate values of ap, ax, Fp, and Fx
       [apxsqr, apxsqrwksp] = drawFromHist(hapxsqr, N, apxsqrwksp);
       [Fpxsqr, Fpxsqrwksp] = drawFromHist(hFpxsqr, N, Fpxsqrwksp);
-      
+
       %% calculate R^2 = ap^2*Fp^2 + ax^2*Fx^2
       Rsqr = sum(apxsqr.*Fpxsqr, 2);
 

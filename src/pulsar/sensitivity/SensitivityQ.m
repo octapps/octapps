@@ -33,7 +33,7 @@ function Q = SensitivityQ(pd, N, k, sa, Rsqr, varargin)
   %% check for optional arguments
   for i = 1:length(varargin)
     switch varargin{i}
-  
+
       case "norm"
         %% use normal approximation to non-central chi^2 c.d.f
         FDR = @NormalApproxFDR;
@@ -50,7 +50,7 @@ function Q = SensitivityQ(pd, N, k, sa, Rsqr, varargin)
         error("Invalid optional argument '%s'", varargin{1});
     endswitch
   endfor
-  
+
   %% flatten to vectors
   siz = size(pd);
   N = N(:);
@@ -79,7 +79,7 @@ function Q = SensitivityQ(pd, N, k, sa, Rsqr, varargin)
   %% initialise some variables
   fdrQsqrm = fdrQsqrM = DfdrDQsqr = fdr = zeros(size(k, 1), 1);
 
-  %% calculate the f.d.r. for Q^2=0; if it's less than 
+  %% calculate the f.d.r. for Q^2=0; if it's less than
   %% the target f.d.r, return NaN to indicate the
   %% corresponding values of k and sa are invalid
   %% (f.d.r. always decreases with increasing Q^2)
@@ -119,7 +119,7 @@ function Q = SensitivityQ(pd, N, k, sa, Rsqr, varargin)
     %% change the upper bounds if f.d.r. is on the same side of pd
     iiM = (fdrQsqrM <  pd & fdr <  pd);
     QsqrM(iiM) = Qsqr(iiM);
-    
+
     %% deduce which rows to keep looping over
     %% exit when there are none left
     ii = (QsqrM - Qsqrm > 10);
@@ -158,10 +158,10 @@ function Q = SensitivityQ(pd, N, k, sa, Rsqr, varargin)
     %% exit when there are none left
     ii = (isnan(err) | err >= 1e-4);
   until !any(ii)
-  
+
   %% return Q
   Q = sqrt(reshape(Qsqr, siz));
-  
+
 endfunction
 
 %% calculate the false dismissal rate using the

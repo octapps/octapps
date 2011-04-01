@@ -11,7 +11,7 @@ function [slat, long, gamm, zeta] = DetectorInfo(name)
 
   %% references:
   %%   Bruce Allen, "Gravitational Wave Detector Sites", arXiv:gr-qc/9607075v1
-  
+
   switch name
 
     %% the limit of a large number of interferometers
@@ -32,7 +32,7 @@ function [slat, long, gamm, zeta] = DetectorInfo(name)
 
       gamm = pi/2 + (arm1 + arm2)/2;
       zeta = arm2 - arm1;
-      
+
     %% LIGO Livingston (source: Allen)
     case "LLO"
       slat = sin( 30.56 * pi/180);
@@ -49,7 +49,7 @@ function [slat, long, gamm, zeta] = DetectorInfo(name)
       long =      10.5        * pi/180;   % Allen gives longitude in deg. West
       arm1 =    (341.5 - 360) * pi/180;   % Reverse order of arms, since when measuring gamma from
       arm2 =      71.5        * pi/180;   % local East, it is Allen's "arm 2" that comes first
-      
+
       gamm = pi/2 + (arm1 + arm2)/2;
       zeta = arm2 - arm1;
 

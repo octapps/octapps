@@ -11,7 +11,7 @@
 %%   RcRc   = common coefficients of "F{p,x}^2"
 %%   Tc     = coherent integration time
 %%   Ws     = sidereal period
-%%   phis   = angle between zero meridian and the vernal 
+%%   phis   = angle between zero meridian and the vernal
 %%            point at the *centre* of integration span
 %%   slat   = sin of latitude of interferometer location (in rad. North)
 %%   long   = longitude of interferometer location (in rad. East)
@@ -107,13 +107,13 @@ function RcRc = DetectorRespKron(Tc, Ws, phis, varargin)
   RcRc = zeros(9,9);
   for ifo = 1:length(IFOs)
     IFO = IFOs{ifo};
-    
+
     %% detector response matrix w.r.t. the detector frame
     %% (for interferometer, x axis is along arm bisector)
     Rd = zeros(3,3);
     Rd(1,2) = Rd(2,1) = -sin(IFO.zeta) / 2;
     RdRd = kron(Rd, Rd);
-      
+
     %% create random parameter generator
     rng = CreateRandParam(IFO.slat, IFO.long, IFO.gamm);
 
@@ -123,10 +123,10 @@ function RcRc = DetectorRespKron(Tc, Ws, phis, varargin)
     M = 0;
     RcRcdet = RcRcdetsqr = err = zeros(9,9);
     do
-      
+
       %% next values of parameters
       [slat, long, gamm] = NextRandParam(rng, N);
-      
+
       %% derived values
       clat  = sqrt(1 - slat.^2);
       cgamm = cos(gamm);
@@ -150,7 +150,7 @@ function RcRc = DetectorRespKron(Tc, Ws, phis, varargin)
       Mcdn(:,:,:,2) = eulr(:,:,:,1+1) - eulr(:,:,:,3+1);
       Mcdn(:,:,:,3) = eulr(:,:,:,1+1) + eulr(:,:,:,3+1);
 
-      %% calculate the Kronecker products of the components of 
+      %% calculate the Kronecker products of the components of
       %% the transformation from the celestial frame
       McdnMcdn = zeros(9,9,N,3,3);
       for i = 1:3
@@ -178,14 +178,14 @@ function RcRc = DetectorRespKron(Tc, Ws, phis, varargin)
       %% add to running total of RcRcdet and RcRcdet.^2
       RcRcdet    += sum  (RcRcdetN, 3);
       RcRcdetsqr += sumsq(RcRcdetN, 3);
-      
+
       %% advance number of Monte Carlo integration points
       M += N;
- 
+
       %% calculate Monte Carlo integration error
       err = sqrt((RcRcdetsqr / M) - (RcRcdet / M).^2) / sqrt(M);
       maxerr = max(err(:));
-      
+
       %% continue until error is small enough
       %% (exit after 1 iteration if all parameters are constant)
     until (rng.allconst || maxerr < 1e-3)
@@ -203,5 +203,5 @@ function RcRc = DetectorRespKron(Tc, Ws, phis, varargin)
 
   %% average over detectors
   RcRc /= length(IFOs);
-    
+
 endfunction

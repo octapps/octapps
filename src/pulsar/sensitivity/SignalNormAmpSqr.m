@@ -18,14 +18,14 @@ function hapxsqr = SignalNormAmpSqr(name, varargin)
   %% create random parameter generator
   rng = CreateRandParam(varargin{:});
   par = cell(size(varargin));
-  
+
   %% build up histogram
   N = !!rng.allconst + !rng.allconst*1000;
   dx = 0.005;
   hapxsqr = newHist({2});
   apsqrN = axsqrN = zeros(N,1);
   do
-    
+
     %% next values of parameters
     [par{:}] = NextRandParam(rng, N);
 

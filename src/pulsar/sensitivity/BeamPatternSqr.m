@@ -26,7 +26,7 @@ function hFpxsqr = BeamPatternSqr(RcRc, alpha, sdelt, psi)
 
     %% next values of parameters
     [alpha, sdelt, psi] = NextRandParam(rng, N);
-    
+
     %% transform from wave to celestial frame
     Mwc = EulerRotation(
 			cos(psi),  -sin(psi),            % c/s of (-psi)

@@ -27,5 +27,5 @@ function Q0 = RoughScalingQ(pd, N, k, sa, Rsqr)
   %% calculate scaling of Q, assuming normal approximation to non-central chi^2 c.d.f
   c = sqrt(8) .* erfinv(2.*pd - 1) ./ sqrt(N);
   Q0 = (sqrt(c.^2 + 4.*(sa - k)) - c) ./ (2 .* sqrt(mRsqr));
-  
+
 endfunction
