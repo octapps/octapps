@@ -17,7 +17,7 @@ function fAH = falseAlarm_HoughF ( nth, Nseg, Fth )
            fn, length(nth), length(Nseg), length(Fth) );
   endif
 
-  alpha = falseAlarm_2F ( 2 * Fth );
+  alpha = falseAlarm_chi2 ( 2 * Fth, 4 );
 
   ni  = [nth:Nseg];
   bci = bincoeff (Nseg, ni);
