@@ -1,3 +1,6 @@
+%% NOTE: This function is DEPRECATED, use invFalseAlarm_chi2() instead,
+%% which is more general and applies to any degrees of freedom.
+%%
 %% thresh_root = falseAlarm_2F_num_root ( fA, thresh_low, thresh_high, thresh_step )
 %%
 %% numerically compute a root of the transcendental equation for the false alarm rate inside interval [thres_low,thresh_high]

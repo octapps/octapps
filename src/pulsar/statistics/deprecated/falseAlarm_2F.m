@@ -1,3 +1,6 @@
+%% NOTE: This function is DEPRECATED, use falseAlarm_chi2() instead,
+%% which is more general and applies to any degrees of freedom.
+%%
 %% alpha = falseAlarm_2F ( thresh )
 %%
 %% compute the false-alarm rate for given threshold 'thresh' = 2F*
