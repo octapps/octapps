@@ -10,6 +10,7 @@
 %%   sa     = false alarm threshold on statistic per segment
 %%   Rsqr   = histogram of "R^2" component of the optimal SNR
 %%   "norm" = use normal approximation to non-central chi^2 c.d.f
+%%   "HoughF" = use Hough-on-Fstat statistic
 %%   "mR^2" = use the mean value of "R^2" instead of its distribution
 function Q = SensitivityQ(pd, N, k, sa, Rsqr, varargin)
 
@@ -36,7 +37,10 @@ function Q = SensitivityQ(pd, N, k, sa, Rsqr, varargin)
       case "norm"
         %% use normal approximation to non-central chi^2 c.d.f
         FDR = @NormalApproxFDR;
-        
+
+      case "HoughF"
+        FDR = @HoughFstatFDR;
+
       case "mR^2"
         %% use the mean value of "R^2" instead of its distribution
         Rsqrx = meanOfHist(Rsqr);
@@ -174,4 +178,19 @@ function fdr = NormalApproxFDR(ii, jj, k, Qsqr, Rsqrx, Rsqrw, sa)
   stdv = sqrt(2.*(k(ii,:) + 2.*Qsqr(ii,jj).*Rsqrx(ii,:)));
   cdf = normcdf(sa(ii,:), mean, stdv);
   fdr = sum(cdf .* Rsqrw(ii,:), 2);
+endfunction
+
+%% calculate the false dismissal probability using the
+%% exact distribution for the Hough-on-Fstat statistic
+function fd = HoughFstatFDR (ii, jj, k, Qsqr, Rsqrx, Rsqrw, sa )
+
+  Fth = 5.2/2;	%% fixed Fstat-threshold
+  Nseg = k(1) / 4;	%% FIXME: hardcoded dof for now
+
+  fct = @(rho2) falseDismissal_HoughF ( sa(1), Nseg, Fth, rho2 );
+
+  SNR0sq = Qsqr(ii,jj).*Rsqrx(ii,:) / Nseg;
+  cdf = arrayfun ( fct, SNR0sq );
+
+  fd = sum(cdf .* Rsqrw(ii,:), 2);
 endfunction
