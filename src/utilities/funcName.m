@@ -25,11 +25,13 @@ function name = funcName
 
   %% uses dbstack() to get the name of the
   %% calling function - see print_usage()
-  stack = dbstack ();
+  stack = dbstack();
   if numel(stack) > 1
     name = stack(2).name;
   else
-    error("funcName(): invalid function");
+    %% funcName must have been called
+    %% from the Octave workspace
+    name = "<workspace>";
   endif
 
 endfunction
