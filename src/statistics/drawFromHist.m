@@ -36,8 +36,8 @@ function [x, wksp] = drawFromHist(hgrm, N, wksp)
 
   %% special case for 'singular' histograms: return that single value
   if ( isempty ( hgrm.px ) )
-    x = hgrm.xb{1} * ones(N, 1);
-    return;
+    x = ones(N,1) * [hgrm.xb{:}];
+    return
   endif
 
   %% store some variables for re-use
