@@ -62,5 +62,5 @@ function d = histMetric(hgrm1, hgrm2)
 
   %% return distance
   d = areaUnderHist(hgrmd);
-  
+
 endfunction

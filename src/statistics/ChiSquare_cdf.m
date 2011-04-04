@@ -3,7 +3,7 @@
 %% Syntax:
 %%   cdf = ChiSquare_cdf(x, k, lambda)
 %% where:
-%%   x      = value of the non-central 
+%%   x      = value of the non-central
 %%            chi-squared variable
 %%   k      = number of degrees of freedom
 %%   lambda = non-centrality parameter

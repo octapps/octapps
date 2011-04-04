@@ -38,9 +38,9 @@ function mu = momentOfHist(hgrm, x0, n)
   shape = size(hgrm.px);
 
   %% calculate moments:
-  %%   mu(n) = integrate over x{1} to x{dim} : 
+  %%   mu(n) = integrate over x{1} to x{dim} :
   %%              px(x{1},...,x{dim}) * x{1}^n{1} * ... * x{dim}^n{dim} dx{1} ... dx{dim}
-  
+
   %% start with probability array
   muint = hgrm.px;
 
@@ -53,9 +53,9 @@ function mu = momentOfHist(hgrm, x0, n)
     %% integral term for kth dimension:
     %%    integrate x{k}^n dx{k}, x{k} over all bins in kth dimension
     muint .*= ((xh.^(n(k)+1) - xl.^(n(k)+1)) ./ (n(k)+1));
-    
+
   endfor
-  
+
   %% sum up integral to get final moment
   mu = sum(muint(:));
 

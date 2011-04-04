@@ -38,11 +38,11 @@ function [hgrm, ii, nn] = findHistBins(hgrm, data, dx)
   assert(isscalar(dx) || (isvector(dx) && length(dx) == dim));
   if isscalar(dx)
     dx = dx(ones(dim, 1));
-  endif    
+  endif
 
   %% expand histogram to include new bins, if needed
   for k = 1:dim
-      
+
     %% range of data
     dmin = min(data(:,k));
     dmax = max(data(:,k));
@@ -58,7 +58,7 @@ function [hgrm, ii, nn] = findHistBins(hgrm, data, dx)
 
     %% resize histogram
     hgrm = resampleHist(hgrm, k, nxb);
-      
+
   endfor
 
   %% bin indices
@@ -66,12 +66,12 @@ function [hgrm, ii, nn] = findHistBins(hgrm, data, dx)
   for k = 1:dim
     ii(:,k) = lookup(hgrm.xb{k}, data(:,k));
   endfor
-  
+
   %% multiplicities of each bin index
   if nargout > 2
     ii = sortrows(ii);
     [ii, nnii] = unique(ii, "rows", "last");
     nn = diff([0; nnii]);
   endif
-  
+
 endfunction

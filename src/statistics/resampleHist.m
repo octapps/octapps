@@ -40,7 +40,7 @@ function hgrm = resampleHist(hgrm, varargin)
     if length(varargin) != dim
       error("Number of new bin vectors must match number of dimensions");
     endif
-    
+
     %% loop over dimensions
     for k = 1:dim
       hgrm = resampleHist(hgrm, k, varargin{k});
@@ -56,7 +56,7 @@ function hgrm = resampleHist(hgrm, varargin)
     assert(isscalar(k));
     assert(isvector(nxb) && length(nxb) > 1);
     nxb = sort(nxb(:)');
-    
+
     %% get old bin boundaries and probability array
     xb = hgrm.xb{k};
     px = hgrm.px;
@@ -73,23 +73,23 @@ function hgrm = resampleHist(hgrm, varargin)
       hgrm.px = zeros(siz);
 
     else
-    
+
       %% round bin boundaries
       [xb, nxb] = roundHistBinBounds(xb, nxb);
-      
+
       %% check that new bins cover the range of old bins
       if !(min(nxb) <= min(xb)) || !(max(nxb) >= max(xb))
 	error("Range of new bins (%g to %g) does not include old bins (%g to %g)!",
 	      min(nxb), max(nxb), min(xb), max(xb));
       endif
-      
+
       %% permute dimension k to beginning of array,
       %% then flatten other dimensions
       perm = [k 1:(k-1) (k+1):max(dim,length(size(px)))];
       px = permute(px, perm);
       siz = size(px);
       px = reshape(px, siz(1), []);
-      
+
       %% if new bins are a superset of old bins, no
       %% resampling is required - just need to extend
       %% probability array with zeros
@@ -106,30 +106,30 @@ function hgrm = resampleHist(hgrm, varargin)
 	xbl = xb(1:end-1);
 	dxb = diff(xb);
 	dnxb = diff(nxb);
-	
+
 	%% calculate probabilities along dimension k
 	Px = px .* dxb(:)(:,ones(size(px, 2), 1));
-	
+
 	%% create cumulative probability array resampled over new bins
 	Cx = zeros(length(nxb), size(px, 2));
 	for i = 1:length(nxb)
-	  
+
 	  %% decide what fraction of each old bin
 	  %% should contribute to new bin
 	  fr = (nxb(i) - xbl) ./ dxb;
 	  fr(fr < 0) = 0;
 	  fr(fr > 1) = 1;
-	  
+
 	  %% assign cumulative probability to new bin
 	  Cx(i,:) = sum(Px .* fr(:)(:,ones(size(px, 2), 1)), 1);
-	  
+
 	endfor
-	
+
 	%% calculate new probability array from cumulative probabilities
 	npx = (Cx(2:end,:) - Cx(1:end-1,:)) ./ dnxb(:)(:,ones(size(px, 2), 1));
-	
+
       endif
-      
+
       %% unflatten other dimensions, then
       %% restore original dimension order
       siz(1) = size(npx, 1);
@@ -138,13 +138,13 @@ function hgrm = resampleHist(hgrm, varargin)
       iperm = zeros(size(perm));
       iperm(perm) = 1:length(perm);
       npx = permute(npx, iperm);
-      
+
       %% resampled histogram
       hgrm.xb{k} = nxb;
       hgrm.px = npx;
 
       endif
-      
+
   endif
 
 endfunction

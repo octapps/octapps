@@ -63,7 +63,7 @@ function varargout = histBinGrids(hgrm, k, varargin)
     s = shape;
     s(k) = 1;
     varargout{i} = repmat(reshape(x, r), s);
-    
+
   endfor
-  
+
 endfunction

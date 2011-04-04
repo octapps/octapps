@@ -61,7 +61,7 @@ function varargout = plotHist(varargin)
 
   %% check for global properties before first histogram
   allprops = [];
-  while nargin-i+1 >= 2 && ischar(varargin{i}) 
+  while nargin-i+1 >= 2 && ischar(varargin{i})
     allprops = [allprops, i, i + 1];
     i += 2;
   endwhile
@@ -97,7 +97,7 @@ function varargout = plotHist(varargin)
 
     %% check for additional property values
     props = allprops;
-    while nargin-i+1 >= 2 && ischar(varargin{i}) 
+    while nargin-i+1 >= 2 && ischar(varargin{i})
       props = [props, i, i + 1];
       i += 2;
     endwhile
@@ -112,9 +112,9 @@ function varargout = plotHist(varargin)
     %% x-y outline of histogram
     x = hgrm.xb{1}(reshape([1:length(hgrm.xb{1}); 1:length(hgrm.xb{1})], 1, []));
     y = [0, hgrm.px(reshape([1:length(hgrm.px); 1:length(hgrm.px)], 1, []))', 0];
-    
+
     if length(colour) == 1
-    
+
       %% if given one colour, plot an outline
       hh{index}(1) = plot(x, y, colour{1}, varargin{props});
 
