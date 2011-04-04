@@ -13,7 +13,7 @@ function hRsqr = SignalToNoiseRsqr(hapxsqr, hFpxsqr, hmis )
   assert(isHist(hapxsqr) && isHist(hFpxsqr));
 
   if ( !exist("hmis") )
-    hmis = newHist({1});
+    hmis = newHist(1);
     hmis.xb{1} = 0;
   endif
   assert ( isHist(hmis) );

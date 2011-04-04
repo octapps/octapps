@@ -22,7 +22,7 @@ function hapxsqr = SignalNormAmpSqr(name, varargin)
   %% build up histogram
   N = !!rng.allconst + !rng.allconst*1000;
   dx = 0.005;
-  hapxsqr = newHist({2});
+  hapxsqr = newHist(2);
   apsqrN = axsqrN = zeros(N,1);
   do
 
@@ -50,7 +50,7 @@ function hapxsqr = SignalNormAmpSqr(name, varargin)
 
   %% output histogram
   if rng.allconst
-    hapxsqr = newHist({2});
+    hapxsqr = newHist(2);
     hapxsqr.xb{1} = apsqrN(1);
     hapxsqr.xb{2} = axsqrN(1);
   else

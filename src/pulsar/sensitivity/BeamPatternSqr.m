@@ -20,7 +20,7 @@ function hFpxsqr = BeamPatternSqr(RcRc, alpha, sdelt, psi)
   %% build up histogram over alpha, sdelt, psi
   N = !!rng.allconst + !rng.allconst*2000;
   dx = 0.005;
-  hFpxsqr = newHist({2});
+  hFpxsqr = newHist(2);
   RcRcN = RcRc(:,:,ones(N,1));
   do
 
@@ -56,7 +56,7 @@ function hFpxsqr = BeamPatternSqr(RcRc, alpha, sdelt, psi)
 
   %% output histogram
   if rng.allconst
-    hFpxsqr = newHist({2});
+    hFpxsqr = newHist(2);
     hFpxsqr.xb{1} = FpsqrN(1);
     hFpxsqr.xb{2} = FxsqrN(1);
   else
