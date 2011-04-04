@@ -1,22 +1,35 @@
 %% Calculates a histogram of the "R^2" component of the
 %% optimal signal-to-noise ratio
 %% Syntax:
-%%   Rsqr = SignalToNoiseRsqr(apxsqr, Fpxsqr)
+%%   Rsqr = SignalToNoiseRsqr(apxsqr, Fpxsqr, mis, "property", value, ...)
 %% where:
+%%   Rsqr   = returned histogram of "R^2" component of the optimal SNR
+%%
 %%   apxsqr = joint histogram of normalised signal amplitudes
 %%   Fpxsqr = joint histogram of time-averaged beam patterns
-%%   mis    = histogram of mismatches
-%%   Rsqr   = histogram of "R^2" component of the optimal SNR
-function hRsqr = SignalToNoiseRsqr(hapxsqr, hFpxsqr, hmis )
+%%
+%%   optional allowed property-value pairs are
+%%   "mismatchHist" = mismatch histogram [defaults to mismatch=0]
+%%   "err"          = convergence requirement on histogram [default = 1e-2]
+%%   "binsize"      = bin-size of resulting histogram [default = 0.01]
+
+function hRsqr = SignalToNoiseRsqr(hapxsqr, hFpxsqr, varargin )
 
   %% check input
   assert(isHist(hapxsqr) && isHist(hFpxsqr));
 
-  if ( !exist("hmis") )
-    hmis = newHist(1);
-    hmis.xb{1} = 0;
+  %% parse optional keywords, set defaults if not specified
+  dx0 = 0.01;
+  err0 = 1e-2;
+  hmis0 = newHist(1);
+  hmis0.xb{1} = 0;
+  kv = keyWords ( varargin, "err", err0, "binsize", dx0, "mismatchHist", hmis0 );
+
+  if ( !isHist ( kv.mismatchHist ) )
+    error ("%s: mismatchHist must be a histogram struct!\n", funcName );
   endif
-  assert ( isHist(hmis) );
+  hmis = kv.mismatchHist;
+  %% ----------
 
   hRsqr = newHist;
 
@@ -27,8 +40,8 @@ function hRsqr = SignalToNoiseRsqr(hapxsqr, hFpxsqr, hmis )
   else
 
     %% otherwise, build up histogram
-    N = 20000;
-    dx = 0.01;
+    N = 20000;	%% number of random draws in each loop-iteration
+
     hRsqr = newHist;
     apxsqrwksp = Fpxsqrwksp = miswksp = [];
     do
@@ -43,14 +56,14 @@ function hRsqr = SignalToNoiseRsqr(hapxsqr, hFpxsqr, hmis )
 
       %% add new values to histogram
       oldhRsqr = hRsqr;
-      hRsqr = addDataToHist(hRsqr, Rsqr, dx);
+      hRsqr = addDataToHist(hRsqr, Rsqr, kv.binsize);
 
       %% calculate difference between old and new histograms
       err = histMetric(hRsqr, oldhRsqr);
 
       %% continue until error is small enough
       %% (exit after 1 iteration if all parameters are constant)
-    until err < 1e-2
+    until err < kv.err
 
     %% output histogram
     hRsqr = normaliseHist(hRsqr);
