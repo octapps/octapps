@@ -1,4 +1,4 @@
-%% Parse keyword arguments
+%% Parse optional arguments given as keyword-value pairs
 %% Syntax:
 %%   keys = keyWords(args, "key1", defval1, "key2", defval2, ...)
 %% where:
@@ -11,6 +11,14 @@
 %%   defvalN = default values, i.e. "keyN" will be assigned the value
 %%             defvalN if it is not present in args
 %%   keys    = output struct of keyword-value pairs
+%% Usage:
+%%   function out = someFunc(req1,req2,varargin)
+%%      kv = keyWords(varargin, "key1", defval1, "key2", defval2)
+%%      % do stuff with req1, req2, kv.key1, kv.key2
+%%   endfunction
+%%   out = someFunc(req1,req2,"key1",val1);
+%%   keys = struct("key2",val2);
+%%   out = someFunc(req1,req2,keys);
 
 %%
 %%  Copyright (C) 2010 Karl Wette
