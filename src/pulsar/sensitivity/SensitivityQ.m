@@ -192,15 +192,15 @@ endfunction
 
 %% calculate the false dismissal probability using the
 %% exact distribution for the Hough-on-Fstat statistic
-function fd = HoughFstatFDR (ii, jj, k, Qsqr, Rsqrx, Rsqrw, sa )
+function fd = HoughFstatFDR (ii, jj, k, Qsqr, Rsqrx, Rsqrw, nthresh )
 
   Fth = 5.2/2;	%% fixed Fstat-threshold
   Nseg = k / 4;	%% FIXME: hardcoded dof for now
 
-  fct = @(nth, N, rho2) falseDismissal_HoughF ( nth, N, Fth, rho2 );
+  fct = @(nt, N, rho2) falseDismissal_HoughF ( nt, N, Fth, rho2 );
 
-  SNR0sq = Qsqr(ii,jj).*Rsqrx(ii,:) ./ Nseg;
-  cdf = arrayfun ( fct, sa, Nseg, SNR0sq );
+  SNR0sq = Qsqr(ii,jj).*Rsqrx(ii,:) ./ Nseg(ii,:);
+  cdf = arrayfun ( fct, nthresh(ii,:), Nseg(ii,:), SNR0sq );
 
   fd = sum(cdf .* Rsqrw(ii,:), 2);
 endfunction
