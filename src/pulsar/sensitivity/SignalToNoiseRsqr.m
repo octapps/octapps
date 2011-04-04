@@ -1,7 +1,7 @@
 %% Calculates a histogram of the "R^2" component of the
 %% optimal signal-to-noise ratio
 %% Syntax:
-%%   Rsqr = SignalToNoiseRsqr(apxsqr, Fpxsqr, mis, "property", value, ...)
+%%   Rsqr = SignalToNoiseRsqr(apxsqr, Fpxsqr, "property", value, ...)
 %% where:
 %%   Rsqr   = returned histogram of "R^2" component of the optimal SNR
 %%
