@@ -47,7 +47,7 @@ function keys = keyWords(args, varargin)
   elseif iscell(args)
     keys = struct(args{:});
   else
-    error("Invalid input type '%s' to variable 'args'", typeinfo(args));
+    error("%s(): invalid input type '%s' to variable 'args'", funcName, typeinfo(args));
   endif
 
   %% create valid keyword-default value struct
@@ -57,7 +57,7 @@ function keys = keyWords(args, varargin)
   names = fieldnames(keys);
   for i = 1:length(names)
     if !isfield(refkeys, names{i})
-      error("Invalid keyword '%s'", names{i});
+      error("%s(): invalid keyword '%s'", funcName, names{i});
     endif
   endfor
 
