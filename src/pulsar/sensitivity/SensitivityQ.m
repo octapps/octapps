@@ -9,9 +9,14 @@
 %%   k      = statistical degrees of freedom per segment
 %%   sa     = false alarm threshold on statistic per segment
 %%   Rsqr   = histogram of "R^2" component of the optimal SNR
+%%
 %%   "norm" = use normal approximation to non-central chi^2 c.d.f
 %%   "HoughF" = use Hough-on-Fstat statistic
+%%   "HoughFZero" = zeroth-order analytic approximation for Hough-on-F statistic
+%%      NOTE: in this case 'sa' is actually used as the false-alarm probabiltiy
+%%
 %%   "mR^2" = use the mean value of "R^2" instead of its distribution
+%%
 function Q = SensitivityQ(pd, N, k, sa, Rsqr, varargin)
 
   %% check input
@@ -40,6 +45,11 @@ function Q = SensitivityQ(pd, N, k, sa, Rsqr, varargin)
 
       case "HoughF"
         FDR = @HoughFstatFDR;
+
+      case "HoughFZero"
+        # zeroth order approximation of Hough false-dismissal, assuming N>>1, SNR<<1
+        # and replacing correct fdr by Gaussian-fdr
+        FDR = @HoughFstatZeroFDR;
 
       case "mR^2"
         %% use the mean value of "R^2" instead of its distribution
@@ -194,3 +204,29 @@ function fd = HoughFstatFDR (ii, jj, k, Qsqr, Rsqrx, Rsqrw, sa )
 
   fd = sum(cdf .* Rsqrw(ii,:), 2);
 endfunction
+
+
+%% calculate the false dismissal probability using the
+%% zeroth-order approximation for the Hough-on-Fstat statistic
+%% valid in the limit of N>>1 and rho<<1
+%% this is based on Eq.(6.39) in KrishnanEtAl2004 Hough paper
+function fd = HoughFstatZeroFDR (ii, jj, k, Qsqr, Rsqrx, Rsqrw, fAH )
+
+  Fth = 5.2/2;	%% fixed Fstat-threshold
+  alpha = falseAlarm_chi2 ( 2*Fth, 4 );
+
+  Nseg = k / 4;	%% FIXME: hardcoded dof for now
+
+  sa = erfcinv(2*fAH(ii,:));
+
+  %% Theta from Eq.(5.28) in Hough paper, dropping second term in "large N limit" (s Eq.(6.40))
+  Theta = sqrt ( Nseg(ii,:) ./ ( 2*alpha.*(1-alpha)) );  %% + (1 - 2*alpha)./(1-alpha) .* (sa ./(2*alpha))
+
+  SNR0sq = Qsqr(ii,jj).*Rsqrx(ii,:) ./ Nseg(ii,:);
+
+  cdf = 0.5 * erfc ( - sa + 0.25 * Theta .* e^(-Fth) .* Fth.^2 .* SNR0sq );
+
+  fd = sum(cdf .* Rsqrw(ii,:), 2);
+
+endfunction
+
