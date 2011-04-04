@@ -34,6 +34,12 @@ function [x, wksp] = drawFromHist(hgrm, N, wksp)
   assert(isHist(hgrm));
   dim = length(hgrm.xb);
 
+  %% special case for 'singular' histograms: return that single value
+  if ( isempty ( hgrm.px ) )
+    x = hgrm.xb{1} * ones(N, 1);
+    return;
+  endif
+
   %% store some variables for re-use
   if isempty(wksp)
 
