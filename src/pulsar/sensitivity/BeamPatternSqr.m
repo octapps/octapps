@@ -1,14 +1,24 @@
 %% Calculates a joint histogram of the squared
 %% time-averaged beam patterns for a given detector network
 %% Syntax:
-%%   Fpxsqr = BeamPatternSqr(RcRc, alpha, sdelt, psi)
+%%   Fpxsqr = BeamPatternSqr(RcRc, alpha, sdelt, psi, "property", value, ...)
 %% where:
 %%   Rc     = Kronecker product of the detector network response
 %%   alpha  = right ascension of source
 %%   sdelt  = sine of declination of source
 %%   psi    = polarisation angle of source
 %%   Fpxsqr = joint histogram
-function hFpxsqr = BeamPatternSqr(RcRc, alpha, sdelt, psi)
+%%
+%%   optional allowed property-value pairs are
+%%   "err"          = convergence requirement on histogram [default = 1e-2]
+%%   "binsize"      = bin-size of resulting histogram [default = 0.01]
+
+function hFpxsqr = BeamPatternSqr(RcRc, alpha, sdelt, psi, varargin)
+
+  %% parse optional keywords, set defaults if not specified
+  dx0 = 0.005;
+  err0 = 1e-2;
+  kv = keyWords ( varargin, "err", err0, "binsize", dx0 );
 
   %% plus and cross polarisation tensors in wave frame
   Hwp = [[1, 0, 0]; [0, -1, 0]; [0, 0, 0]];
@@ -19,7 +29,6 @@ function hFpxsqr = BeamPatternSqr(RcRc, alpha, sdelt, psi)
 
   %% build up histogram over alpha, sdelt, psi
   N = !!rng.allconst + !rng.allconst*2000;
-  dx = 0.005;
   hFpxsqr = newHist(2);
   RcRcN = RcRc(:,:,ones(N,1));
   do
@@ -45,14 +54,14 @@ function hFpxsqr = BeamPatternSqr(RcRc, alpha, sdelt, psi)
 
     %% add new values to histogram
     oldhFpxsqr = hFpxsqr;
-    hFpxsqr = addDataToHist(hFpxsqr, [FpsqrN, FxsqrN], dx);
+    hFpxsqr = addDataToHist(hFpxsqr, [FpsqrN, FxsqrN], kv.binsize);
 
     %% calculate difference between old and new histograms
     err = histMetric(hFpxsqr, oldhFpxsqr);
 
     %% continue until error is small enough
     %% (exit after 1 iteration if all parameters are constant)
-  until (rng.allconst || err < 1e-2)
+  until (rng.allconst || err < kv.err )
 
   %% output histogram
   if rng.allconst
