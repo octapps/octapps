@@ -185,12 +185,12 @@ endfunction
 function fd = HoughFstatFDR (ii, jj, k, Qsqr, Rsqrx, Rsqrw, sa )
 
   Fth = 5.2/2;	%% fixed Fstat-threshold
-  Nseg = k(1) / 4;	%% FIXME: hardcoded dof for now
+  Nseg = k / 4;	%% FIXME: hardcoded dof for now
 
-  fct = @(rho2) falseDismissal_HoughF ( sa(1), Nseg, Fth, rho2 );
+  fct = @(nth, N, rho2) falseDismissal_HoughF ( nth, N, Fth, rho2 );
 
-  SNR0sq = Qsqr(ii,jj).*Rsqrx(ii,:) / Nseg;
-  cdf = arrayfun ( fct, SNR0sq );
+  SNR0sq = Qsqr(ii,jj).*Rsqrx(ii,:) ./ Nseg;
+  cdf = arrayfun ( fct, sa, Nseg, SNR0sq );
 
   fd = sum(cdf .* Rsqrw(ii,:), 2);
 endfunction
