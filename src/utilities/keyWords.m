@@ -21,7 +21,7 @@
 %%   out = someFunc(req1,req2,keys);
 
 %%
-%%  Copyright (C) 2010 Karl Wette
+%%  Copyright (C) 2011 Karl Wette
 %%
 %%  This program is free software; you can redistribute it and/or modify
 %%  it under the terms of the GNU General Public License as published by
