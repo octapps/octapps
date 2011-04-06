@@ -194,7 +194,7 @@ endfunction
 %% exact distribution for the Hough-on-Fstat statistic
 function fd = HoughFstatFDR (ii, jj, k, Qsqr, Rsqrx, Rsqrw, nthresh )
 
-  Fth = 5.2/2;	%% fixed Fstat-threshold
+  global Fth;	%% Fstat-threshold
   Nseg = k / 4;	%% FIXME: hardcoded dof for now
 
   fct = @(nt, N, rho2) falseDismissal_HoughF ( nt, N, Fth, rho2 );
@@ -212,7 +212,7 @@ endfunction
 %% this is based on Eq.(6.39) in KrishnanEtAl2004 Hough paper
 function fd = HoughFstatZeroFDR (ii, jj, k, Qsqr, Rsqrx, Rsqrw, fAH )
 
-  Fth = 5.2/2;	%% fixed Fstat-threshold
+  global Fth;	%% Fstat-threshold
   alpha = falseAlarm_chi2 ( 2*Fth, 4 );
 
   Nseg = k / 4;	%% FIXME: hardcoded dof for now
