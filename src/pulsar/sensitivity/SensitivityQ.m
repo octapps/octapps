@@ -7,7 +7,7 @@
 %%   pd     = false dismissal probability / rate
 %%   N      = number of segments
 %%   k      = statistical degrees of freedom per segment
-%%   sa     = false alarm threshold on statistic per segment
+%%   sa     = false alarm threshold on statistic
 %%   Rsqr   = histogram of "R^2" component of the optimal SNR
 %%
 %%   "norm" = use normal approximation to non-central chi^2 c.d.f
