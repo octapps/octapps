@@ -28,7 +28,8 @@
 
 function ishgrm = isHist(hgrm)
 
-  ishgrm = isstruct(hgrm) && isfield(hgrm, "xb") && isfield(hgrm, "px") && ...
+  ishgrm = isstruct(hgrm) && length(hgrm) == 1 && ...
+      isfield(hgrm, "xb") && isfield(hgrm, "px") && ...
       iscell(hgrm.xb) && isvector(hgrm.xb) && length(hgrm.xb) > 0;
   if ishgrm && !isempty(hgrm.px)
     ishgrm = ishgrm && ismatrix(hgrm.px);
