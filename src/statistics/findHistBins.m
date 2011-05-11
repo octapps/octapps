@@ -46,6 +46,9 @@ function [hgrm, ii, nn] = findHistBins(hgrm, data, dx)
     %% range of data
     dmin = min(data(:,k));
     dmax = max(data(:,k));
+    if !(isfinite(dmin) && isfinite(dmax))
+      error("%s: Input data has non-finite range", funcName);
+    endif
 
     %% create new bins
     if isempty(hgrm.xb{k})
