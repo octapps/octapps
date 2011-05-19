@@ -1,4 +1,3 @@
-%%
 %%  Copyright (C) 2011 Karl Wette
 %%
 %%  This program is free software; you can redistribute it and/or modify
@@ -15,7 +14,6 @@
 %%  along with with program; see the file COPYING. If not, write to the
 %%  Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 %%  MA  02111-1307  USA
-%%
 
 %% -*- texinfo -*-
 %% @deftypefn {Function File} {} randu([@var{min} @var{max}])
