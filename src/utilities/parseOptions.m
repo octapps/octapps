@@ -57,7 +57,7 @@
 %%  MA  02111-1307  USA
 %%
 
-function parseOptions(opts, varargin)
+function parsedopts = parseOptions(opts, varargin)
 
   %% check for option specifications
   if length(varargin) == 0
@@ -86,7 +86,7 @@ function parseOptions(opts, varargin)
 
     %% store option type functions
     opttypes = optspec{2};
-    typefuncstr = sprintf("&&is%s(x)", strsplit(opttypes, ",", true){:})(3:end);
+    typefuncstr = sprintf("&&is%s(x)", strtrim(strsplit(opttypes, ",", true)){:})(3:end);
     typefunc.(optname) = inline(typefuncstr, "x");
     try
       feval(typefunc.(optname), []);
@@ -99,10 +99,10 @@ function parseOptions(opts, varargin)
 
       %% assign default value, if it's the right type
       optvalue = optspec{3};
-      if !feval(typefunc.(optname), optvalue)
-        error("%s: Default value of '%s' must satisfy: %s", funcName, optname, formula(typefunc.(optname)));
+      if !(isempty(optvalue) || feval(typefunc.(optname), optvalue))
+        error("%s: Default value of '%s' must be empty or satisfy: %s", funcName, optname, formula(typefunc.(optname)));
       endif
-      assignin("caller", optname, optvalue);
+      parsedopts.(optname) = optvalue;
 
     else
       
@@ -220,7 +220,7 @@ function parseOptions(opts, varargin)
       if !feval(typefunc.(optname), optvalue)
         error("%s: Value of '%s' must satisfy: %s", funcName, optcmdname, formula(typefunc.(optname)));
       endif
-      assignin("caller", optname, optvalue);
+      parsedopts.(optname) = optvalue;
 
       %% mark that this option has been used
       --allowed.(optname);
@@ -247,7 +247,7 @@ function parseOptions(opts, varargin)
       if !feval(typefunc.(reqnames{n}), regopts{n})
         error("%s: Value of '%s' must satisfy: %s", funcName, reqnames{n}, formula(typefunc.(reqnames{n})));
       endif
-      assignin("caller", reqnames{n}, regopts{n});
+      parsedopts.(reqnames{n}) = regopts{n};
 
       %% mark that this option has been used
       --allowed.(reqnames{n});
@@ -272,7 +272,7 @@ function parseOptions(opts, varargin)
       if !feval(typefunc.(kvopts{n}), kvopts{n+1})
         error("%s: Value of '%s' must satisfy: %s", funcName, kvopts{n}, formula(typefunc.(kvopts{n})));
       endif
-      assignin("caller", kvopts{n}, kvopts{n+1});
+      parsedopts.(kvopts{n}) = kvopts{n+1};
 
       %% mark that this option has been used
       --allowed.(kvopts{n});
@@ -308,5 +308,11 @@ function parseOptions(opts, varargin)
     endif
 
   endfor
+
+  %% assign values to option variables in caller namespace
+  parsedoptnames = fieldnames(parsedopts);
+  for n = 1:length(parsedoptnames)
+    assignin("caller", parsedoptnames{n}, parsedopts.(parsedoptnames{n}));
+  endfor  
 
 endfunction
