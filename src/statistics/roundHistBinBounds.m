@@ -29,13 +29,21 @@ function varargout = roundHistBinBounds(varargin)
 
   assert(nargin == nargout);
 
-  dx = inf;
-  for i = 1:length(varargin)
-    dx = min([dx, diff(varargin{i})]);
-  endfor
-  dx = 10^(floor(log10(dx)) - 3);
-  for i = 1:length(varargin)
-    varargout{i} = round(varargin{i} / dx) * dx;
-  endfor
+  if all(cellfun(@(x) length(x) == 1, varargin))
+
+    [varargout{1:nargout}] = deal(mean(cell2mat(varargin)));
+
+  else
+
+    dx = inf;
+    for i = 1:length(varargin)
+      dx = min([dx, diff(varargin{i})]);
+    endfor
+    dx = 10^(floor(log10(dx)) - 3);
+    for i = 1:length(varargin)
+      varargout{i} = round(varargin{i} / dx) * dx;
+    endfor
+
+  endif
 
 endfunction

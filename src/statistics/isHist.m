@@ -29,14 +29,14 @@
 function ishgrm = isHist(hgrm)
 
   ishgrm = isstruct(hgrm) && length(hgrm) == 1 && ...
-      isfield(hgrm, "xb") && isfield(hgrm, "px") && ...
-      iscell(hgrm.xb) && isvector(hgrm.xb) && length(hgrm.xb) > 0;
-  if ishgrm && !isempty(hgrm.px)
-    ishgrm = ishgrm && ismatrix(hgrm.px);
+      isfield(hgrm, "xb") && iscell(hgrm.xb) && isvector(hgrm.xb) && length(hgrm.xb) > 0 && ...
+      isfield(hgrm, "px") && ismatrix(hgrm.px);
+  if ishgrm
     for k = 1:length(hgrm.xb)
-      ishgrm = ishgrm && isvector(hgrm.xb{k}) && ...
-	  length(hgrm.xb{k}) == size(hgrm.px, k) + 1;
+      ishgrm = ishgrm && isvector(hgrm.xb{k}) && length(hgrm.xb{k}) >= 2 && ...
+          hgrm.xb{k}(1) == -inf && all(isfinite(hgrm.xb{k}(2:end-1))) && hgrm.xb{k}(end) == inf && ...
+          length(hgrm.xb{k}) == size(hgrm.px, k) + 1;
     endfor
   endif
-
+  
 endfunction

@@ -1,12 +1,10 @@
-%% Adds the given input data to the histogram.
-%% If the histogram is too small, more bins are added.
+%% Return the finite bins and probabilities of a histogram
 %% Syntax:
-%%   hgrm = addDataToHist(hgrm, data, dx, x0)
+%%   [xb, px] = finiteHist(hgrm)
 %% where:
-%%   hgrm = histogram struct
-%%   data = input histogram data
-%%   dx   = size of any new bins
-%%   x0   = (optional) initial bin when adding inf. data
+%%   hgrm  = histogram struct
+%%   xb    = finite bins
+%%   px    = finite probabilities
 
 %%
 %%  Copyright (C) 2010 Karl Wette
@@ -27,19 +25,13 @@
 %%  MA  02111-1307  USA
 %%
 
-function hgrm = addDataToHist(hgrm, data, dx, x0)
+function [xb, px] = finiteHist(hgrm)
 
-  %% check input
   assert(isHist(hgrm));
-  if nargin < 4
-    x0 = [];
-  endif
+  dim = length(hgrm.xb);
 
-  %% get bin multiplicities from findHistBins, resize as needed
-  [hgrm, ii, nn] = findHistBins(hgrm, data, dx, x0);
-
-  %% add bin multiplicities to correct bins
-  jj = mat2cell(ii, size(ii, 1), ones(length(hgrm.xb), 1));
-  hgrm.px(sub2ind(size(hgrm.px), jj{:})) += nn;
+  xb = cellfun(@(x) x(2:end-1), hgrm.xb, "UniformOutput", false);
+  ii = cellfun(@(x) 2:length(x)-2, hgrm.xb, "UniformOutput", false);
+  px = hgrm.px(ii{:});
 
 endfunction

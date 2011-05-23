@@ -36,12 +36,15 @@ function varargout = histBinGrids(hgrm, k, varargin)
   assert(isHist(hgrm));
   assert(1 <= k && k <= length(hgrm.xb));
 
+  %% get finite bins and probabilities
+  [xb, px] = finiteHist(hgrm);
+
   %% loop over requested output
   for i = 1:length(varargin)
 
     %% what do you want?
-    xl = hgrm.xb{k}(1:end-1);
-    xh = hgrm.xb{k}(2:end);
+    xl = xb{k}(1:end-1);
+    xh = xb{k}(2:end);
     switch varargin{i}
       case "xl"
 	x = xl;
@@ -57,7 +60,7 @@ function varargout = histBinGrids(hgrm, k, varargin)
 
     %% duplicate over all dimensions != k
     %% taken from ndgrid.m
-    shape = size(hgrm.px);
+    shape = size(px);
     r = ones(size(shape));
     r(k) = shape(k);
     s = shape;

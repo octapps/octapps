@@ -35,14 +35,15 @@ function mu = momentOfHist(hgrm, x0, n)
   assert(isvector(x0) && length(x0) == dim);
   assert(isvector(n)  && length(x0) == dim && all(n >= 0));
 
-  shape = size(hgrm.px);
+  %% get finite bins and probabilities
+  [xb, px] = finiteHist(hgrm);
 
   %% calculate moments:
   %%   mu(n) = integrate over x{1} to x{dim} :
   %%              px(x{1},...,x{dim}) * x{1}^n{1} * ... * x{dim}^n{dim} dx{1} ... dx{dim}
 
   %% start with probability array
-  muint = hgrm.px;
+  muint = px;
 
   %% loop over dimensions
   for k = 1:dim

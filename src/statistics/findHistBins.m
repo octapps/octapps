@@ -2,12 +2,13 @@
 %% contain some given input data. If the histogram is too
 %% small, more bins are added as needed.
 %% Syntax:
-%%   [hgrm, ii, nn] = findHistBins(hgrm, data, dx)
+%%   [hgrm, ii, nn] = findHistBins(hgrm, data, dx, x0)
 %% where:
 %%   hgrm = histogram struct
 %%   data = input histogram data
 %%   ii   = indices of histogram bins
 %%   dx   = size of any new bins
+%%   x0   = (optional) initial bin when adding inf. data
 %%   nn   = (optional) multiplicities of each index
 
 %%
@@ -29,7 +30,7 @@
 %%  MA  02111-1307  USA
 %%
 
-function [hgrm, ii, nn] = findHistBins(hgrm, data, dx)
+function [hgrm, ii, nn] = findHistBins(hgrm, data, dx, x0)
 
   %% check input
   assert(isHist(hgrm));
@@ -39,35 +40,64 @@ function [hgrm, ii, nn] = findHistBins(hgrm, data, dx)
   if isscalar(dx)
     dx = dx(ones(dim, 1));
   endif
+  if nargin < 4 || isempty(x0)
+    x0 = 0;
+  endif
+  if isscalar(x0)
+    x0 = x0(ones(dim, 1));
+  endif
+
+  %% check for non-numeric data
+  if any(isnan(data(:)))
+    error("%s: Input data contains NaNs", funcName);
+  endif
 
   %% expand histogram to include new bins, if needed
   for k = 1:dim
+    
+    %% if data is all infinite
+    finii = find(isfinite(data(:,k)));
+    if !any(finii)
 
-    %% range of data
-    dmin = min(data(:,k));
-    dmax = max(data(:,k));
-    if !(isfinite(dmin) && isfinite(dmax))
-      error("%s: Input data has non-finite range", funcName);
-    endif
+      %% make sure there's at least one non-infinite bin
+      if length(hgrm.xb{k}) == 2
+        hgrm = resampleHist(hgrm, k, x0);
+      endif
 
-    %% create new bins
-    if isempty(hgrm.xb{k})
-      nxb = (floor(dmin / dx(k)):ceil(dmax / dx(k))) * dx(k);
     else
-      nxblo = hgrm.xb{k}(1) - (ceil((hgrm.xb{k}(1) - dmin) / dx(k)):-1:1) * dx(k);
-      nxbhi = hgrm.xb{k}(end) + (1:ceil((dmax - hgrm.xb{k}(end)) / dx(k))) * dx(k);
-      nxb = [nxblo, hgrm.xb{k}, nxbhi];
-    endif
 
-    %% resize histogram
-    hgrm = resampleHist(hgrm, k, nxb);
+      %% range of finite data
+      dmin = min(data(finii,k));
+      dmax = max(data(finii,k));
+      
+      %% create new bins
+      if length(hgrm.xb{k}) == 2
+        nxb = (floor(dmin / dx(k)):ceil(dmax / dx(k))) * dx(k);
+        if length(nxb) == 1
+          nxb = [nxb, nxb + dx(k)];
+        endif
+      else
+        nxblo = hgrm.xb{k}(2) - (ceil((hgrm.xb{k}(2) - dmin) / dx(k)):-1:1) * dx(k);
+        nxbhi = hgrm.xb{k}(end-1) + (1:ceil((dmax - hgrm.xb{k}(end-1)) / dx(k))) * dx(k);
+        nxb = [nxblo, hgrm.xb{k}(2:end-1), nxbhi];
+      endif
+      
+      %% resize histogram
+      hgrm = resampleHist(hgrm, k, nxb);
+
+    endif
 
   endfor
 
   %% bin indices
   ii = zeros(size(data));
   for k = 1:dim
-    ii(:,k) = lookup(hgrm.xb{k}, data(:,k));
+    datak = data(:,k);
+    %% so that last (finite) bin is treated as <=
+    if length(hgrm.xb{k}) >= 4
+      datak(datak == hgrm.xb{k}(end-1)) = hgrm.xb{k}(end-2);
+    endif
+    ii(:,k) = lookup(hgrm.xb{k}, datak, "lr");
   endfor
 
   %% multiplicities of each bin index

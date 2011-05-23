@@ -31,8 +31,8 @@ function varargout = newHist(dim)
     dim = 1;
   endif
   clear hgrm;
-  hgrm.xb = cell(dim,1);
-  hgrm.px = [];
+  [hgrm.xb{1:dim,1}] = deal([-inf inf]);
+  hgrm.px = 0;
   [varargout{1:max(nargout,1)}] = deal(hgrm);
 
 endfunction
