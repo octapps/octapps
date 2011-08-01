@@ -155,7 +155,7 @@ function parsedopts = parseOptions(opts, varargin)
       endif
 
       %% print help text and exit
-      fprintf("%s\n", helptext);
+      fprintf("\n%s\n", helptext);
       error("Exiting %s after displaying help\n", program_invocation_name);
 
     endif
