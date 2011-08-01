@@ -53,8 +53,7 @@ function hgrm = resampleHist(hgrm, varargin)
     endif
     [k, nxb] = deal(varargin{:});
     assert(isscalar(k));
-    %assert(isvector(nxb) && length(nxb) > 1);
-    nxb = sort(nxb(:)');
+    nxb = reshape(sort(nxb(isfinite(nxb))), 1, []);
 
     %% get old (finite) bin boundaries
     xb = hgrm.xb{k}(2:end-1);
