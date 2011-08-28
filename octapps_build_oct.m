@@ -1,8 +1,6 @@
-%% Compiles all oct-files in OCTAPPS
+%% Compiles all .oct modules in OCTAPPS
 %% Syntax:
-%%   octapps_build_oct [-debug]
-%% where:
-%%   -debug = debugging mode
+%%   octapps_build_oct [srcfile...]
 
 %%
 %%  Copyright (C) 2010 Karl Wette
@@ -28,9 +26,6 @@ function octapps_build_oct(varargin)
   %% C++ compiler flags
   cflags = "-lgsl";
 
-  %% check input arguments
-  debug = any(strcmp(varargin, "-debug"));
-
   %% turn of paging for this function
   pso = page_screen_output(0);
 
@@ -44,16 +39,21 @@ function octapps_build_oct(varargin)
   %% using the location of this script
   my_path = fileparts(mfilename("fullpathext"));
 
-  ## look at all subdirectories of the
-  ## source directory for C++ and SWIG interface files
-  dirs = strsplit(genpath(fullfile(my_path, "src")), pathsep, true);
-  sources = {};
-  for i = 1:length(dirs)
-    sources = {sources{:}, ...
-	       glob(fullfile(dirs{i}, "*.i")){:}, ...
-	       glob(fullfile(dirs{i}, "*.cpp")){:} ...
-	       };
-  endfor
+  if length(varargin) > 0
+    %% compile C++ and SWIG interface given on the command line
+    sources = cellfun(@(x) fullfile(my_path, "src", x), varargin, "UniformOutput", false);
+  else
+    %% look at all subdirectories of the
+    %% source directory for C++ and SWIG interface files
+    dirs = strsplit(genpath(fullfile(my_path, "src")), pathsep, true);
+    sources = {};
+    for i = 1:length(dirs)
+      sources = {sources{:}, ...
+	         glob(fullfile(dirs{i}, "*.i")){:}, ...
+	         glob(fullfile(dirs{i}, "*.cpp")){:} ...
+	         };
+    endfor
+  endif
   
   for i = 1:length(sources)
     
@@ -61,22 +61,6 @@ function octapps_build_oct(varargin)
     srcfile = sources{i};
     [srcdir, srcname, srcext] = fileparts(srcfile);
     octfile = fullfile(srcdir, [srcname, ".oct"]);
-
-    %% compare timestamps
-    [stt, err] = stat(srcfile);
-    if err != 0
-      error("Error: stat('%s')", srcfile);
-    endif
-    srcmtime = stt.mtime;
-    [stt, err] = stat(octfile);
-    if err != 0
-      octmtime = -inf;
-    else
-      octmtime = stt.mtime;
-    endif
-    if !debug && srcmtime <= octmtime
-      continue
-    endif
 
     %% compile SWIG interface
     if strcmp(srcext, ".i")
