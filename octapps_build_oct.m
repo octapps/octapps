@@ -75,7 +75,7 @@ function octapps_build_oct(varargin)
 
       %% compile SWIG interface file
       srccpp = fullfile(srcdir, [srcname, "_wrap.C"]);
-      cmd = sprintf("'%s' -c++ -octave '-I%s' -o '%s' '%s'", swig_bin, srcdir, srccpp, srcfile);
+      cmd = sprintf("'%s' -c++ -octave -globals '%s_cvar' '-I%s' -o '%s' '%s'", swig_bin, srcname, srcdir, srccpp, srcfile);
       err = system(cmd);
       if err != 0
 	error("Error executing %s", cmd);
