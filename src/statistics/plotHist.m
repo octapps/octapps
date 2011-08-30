@@ -109,17 +109,20 @@ function varargout = plotHist(varargin)
     endif
     subplot(rows, cols, index);
 
-    %% special treatement of 'singular' histogram: plot 'unit stem'
-    if ( length(hgrm.xb)==1 && isempty(hgrm.px) )
+    %% get finite bins and probabilities
+    [xb, px] = finiteHist(hgrm);
 
-      stem ( hgrm.xb{1}, 1, colour{1} );
+    %% special treatement of 'singular' histogram: plot 'unit stem'
+    if ( length(xb)==1 && isempty(px) )
+
+      stem ( xb{1}, 1, colour{1} );
       continue;
 
     endif
 
     %% OTHERWISE: non-singular histogram => get x-y outline of histogram
-    x = hgrm.xb{1}(reshape([1:length(hgrm.xb{1}); 1:length(hgrm.xb{1})], 1, []));
-    y = [0, hgrm.px(reshape([1:length(hgrm.px); 1:length(hgrm.px)], 1, []))', 0];
+    x = xb{1}(reshape([1:length(xb{1}); 1:length(xb{1})], 1, []));
+    y = [0, reshape(px(reshape([1:length(px); 1:length(px)], 1, [])), 1, []), 0];
 
     if length(colour) == 1
 
