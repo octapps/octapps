@@ -1,6 +1,6 @@
 %% Kitchen-sink options parser.
 %% Syntax:
-%%   parseOptions(opts, optspec, optspec)
+%%   paropts = parseOptions(opts, optspec, optspec)
 %% where:
 %%   opts    = command-line / function options
 %%   optspec = option specification, one of:
@@ -11,9 +11,10 @@
 %%         types    = datatype specification of option:
 %%                    'type,type,...'
 %%         defvalue = default value given to <name>
+%%   paropts = parsed command-line / function options (optional)
 %% Notes:
 %%   * <name> will be assigned values in the context of
-%%     the calling function.
+%%     the calling function, unless paropts is given
 %%   * each 'type' in <types> must correspond to a function
 %%     'istype': each function will be called to check that
 %%     a value is valid. For example, if
@@ -57,7 +58,7 @@
 %%  MA  02111-1307  USA
 %%
 
-function parsedopts = parseOptions(opts, varargin)
+function paropts = parseOptions(opts, varargin)
 
   %% check for option specifications
   if length(varargin) == 0
@@ -102,10 +103,10 @@ function parsedopts = parseOptions(opts, varargin)
       if !(isempty(optvalue) || feval(typefunc.(optname), optvalue))
         error("%s: Default value of '%s' must be empty or satisfy: %s", funcName, optname, formula(typefunc.(optname)));
       endif
-      parsedopts.(optname) = optvalue;
+      paropts.(optname) = optvalue;
 
     else
-      
+
       %% mark this option as being required, and store its name
       required.(optname) = 1;
       reqnames{end+1} = optname;
@@ -116,7 +117,7 @@ function parsedopts = parseOptions(opts, varargin)
 
   %% if running as a script
   if runningAsScript
-    
+
     %% stupid Octave; if no command-line options are given to script, argv()
     %% will contain the entire Octave command-line, instead of simply the
     %% options after the script name! so we have to check for this
@@ -220,7 +221,7 @@ function parsedopts = parseOptions(opts, varargin)
       if !feval(typefunc.(optname), optvalue)
         error("%s: Value of '%s' must satisfy: %s", funcName, optcmdname, formula(typefunc.(optname)));
       endif
-      parsedopts.(optname) = optvalue;
+      paropts.(optname) = optvalue;
 
       %% mark that this option has been used
       --allowed.(optname);
@@ -239,7 +240,7 @@ function parsedopts = parseOptions(opts, varargin)
     if length(regopts) > length(reqnames)
       error("%s: Too many regular arguments; maximum is %i", funcName, length(reqnames))
     endif
-    
+
     %% assign regular options in order given by 'reqnames'
     for n = 1:length(regopts)
 
@@ -247,7 +248,7 @@ function parsedopts = parseOptions(opts, varargin)
       if !feval(typefunc.(reqnames{n}), regopts{n})
         error("%s: Value of '%s' must satisfy: %s", funcName, reqnames{n}, formula(typefunc.(reqnames{n})));
       endif
-      parsedopts.(reqnames{n}) = regopts{n};
+      paropts.(reqnames{n}) = regopts{n};
 
       %% mark that this option has been used
       --allowed.(reqnames{n});
@@ -272,7 +273,7 @@ function parsedopts = parseOptions(opts, varargin)
       if !feval(typefunc.(kvopts{n}), kvopts{n+1})
         error("%s: Value of '%s' must satisfy: %s", funcName, kvopts{n}, formula(typefunc.(kvopts{n})));
       endif
-      parsedopts.(kvopts{n}) = kvopts{n+1};
+      paropts.(kvopts{n}) = kvopts{n+1};
 
       %% mark that this option has been used
       --allowed.(kvopts{n});
@@ -281,7 +282,7 @@ function parsedopts = parseOptions(opts, varargin)
       endif
 
     endfor
-    
+
   endif
 
   %% check that options have been used correctly
@@ -304,15 +305,17 @@ function parsedopts = parseOptions(opts, varargin)
       if required.(allnames{n}) < 0
         error("%s: Option '%s' used multiple times", funcName, allnames{n});
       endif
-      
+
     endif
 
   endfor
 
   %% assign values to option variables in caller namespace
-  parsedoptnames = fieldnames(parsedopts);
-  for n = 1:length(parsedoptnames)
-    assignin("caller", parsedoptnames{n}, parsedopts.(parsedoptnames{n}));
-  endfor  
+  if nargout == 0
+    paroptnames = fieldnames(paropts);
+    for n = 1:length(paroptnames)
+      assignin("caller", paroptnames{n}, paropts.(paroptnames{n}));
+    endfor
+  endif
 
 endfunction
