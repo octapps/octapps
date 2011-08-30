@@ -34,11 +34,8 @@ function [x, wksp] = drawFromHist(hgrm, N, wksp)
   assert(isHist(hgrm));
   dim = length(hgrm.xb);
 
-  %% special case for 'singular' histograms: return that single value
-  if ( isempty ( hgrm.px ) )
-    x = ones(N,1) * [hgrm.xb{:}];
-    return
-  endif
+  %% get finite bins and probabilities
+  [xb, px] = finiteHist(hgrm);
 
   %% store some variables for re-use
   if isempty(wksp)
@@ -47,27 +44,31 @@ function [x, wksp] = drawFromHist(hgrm, N, wksp)
     hgrm = normaliseHist(hgrm);
 
     %% probability of each bin
-    P = hgrm.px;
+    P = px;
     for k = 1:dim
-      P .*= histBinGrids(hgrm, k, "dx");
+      dx = histBinGrids(hgrm, k, "dx");
+      %% give singular bins some probability
+      dx(dx == 0) = eps;
+      P .*= dx;
     endfor
+    P /= sum(P(:));
 
     %% indices to all histogram bins, and their probabilities
-    wksp = struct("ii", 1:numel(hgrm.px), "P", P(:)');
+    wksp = struct("ii", 1:numel(px), "P", P(:)');
 
   endif
 
   %% generate random indices to histogram bins,
   %% with appropriate probabilities
-  [ii{1:dim}] = ind2sub(size(hgrm.px), discrete_rnd(N, wksp.ii, wksp.P));
+  [ii{1:dim}] = ind2sub(size(px), discrete_rnd(N, wksp.ii, wksp.P));
 
   %% start with the lower bound of each randomly
   %% chosen bin and add a uniformly-distributed
   %% offset within that bin
   x = zeros(N, dim);
   for k = 1:dim
-    dx = hgrm.xb{k}(ii{k}+1) - hgrm.xb{k}(ii{k});
-    x(:,k) = hgrm.xb{k}(ii{k}) + rand(size(ii{k})).*dx;
+    dx = xb{k}(ii{k}+1) - xb{k}(ii{k});
+    x(:,k) = xb{k}(ii{k}) + rand(size(ii{k})).*dx;
   endfor
 
 endfunction
