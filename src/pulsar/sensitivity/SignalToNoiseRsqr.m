@@ -21,12 +21,11 @@ function hRsqr = SignalToNoiseRsqr(hapxsqr, hFpxsqr, varargin )
   %% parse optional keywords, set defaults if not specified
   dx0 = 0.01;
   err0 = 1e-2;
-  hmis0 = newHist(1);
-  hmis0.xb{1} = 0;
+  hmis0 = newHist(1, 0.0);
   kv = keyWords ( varargin, "err", err0, "binsize", dx0, "mismatchHist", hmis0 );
 
   if ( !isHist ( kv.mismatchHist ) )
-    error ("%s: mismatchHist must be a histogram struct!\n", funcName );
+    error ("%s: mismatchHist must be a histogram struct!", funcName );
   endif
   hmis = kv.mismatchHist;
   %% ----------

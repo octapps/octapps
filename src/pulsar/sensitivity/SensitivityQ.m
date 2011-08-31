@@ -29,8 +29,9 @@ function Q = SensitivityQ(pd, N, k, sa, Rsqr, varargin)
   endif
 
   %% get values and weights of Rsqr from histogram
+  [Rsqr_xb, Rsqr_px] = finiteHist(Rsqr);
   [Rsqrx, Rsqrdx] = histBinGrids(Rsqr, 1, "xc", "dx");
-  Rsqrw = Rsqr.px .* Rsqrdx;
+  Rsqrw = Rsqr_px .* Rsqrdx;
 
   %% use non-central chi^2 distribution
   FDR = @NonChiSquareFDR;
