@@ -1,7 +1,6 @@
-%% ret = erfcinv_octave ( x )
+%% ret = erfcinv ( x )
 %%
-%% octave-dropin for inverse complementary error-function (matlab has this one,
-%% so I named it differently to avoid namespace-conflict)
+%% inverse complementary error-function
 %% trivial implementation of erfc^-1(x), which is simply erf^-1(1 - x)
 %%
 
@@ -24,6 +23,6 @@
 %%  MA  02111-1307  USA
 %%
 
-function ret = erfcinv_octave ( x )
+function ret = erfcinv ( x )
   ret = erfinv ( 1 - x );
 endfunction
