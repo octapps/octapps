@@ -27,6 +27,9 @@
 function p = ChiSquare_cdf(x, k, lambda)
 
   ## check for common size input
+  if !exist("lambda")
+    lambda = 0;
+  endif
   [cserr, x, k, lambda] = common_size(x, k, lambda);
   if cserr > 0
     error("All input arguments must be either of common size or scalars");
