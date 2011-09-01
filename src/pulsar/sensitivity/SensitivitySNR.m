@@ -48,9 +48,8 @@ function rho = SensitivitySNR(pa, pd, Ns, Rsqr_H, detstat, varargin)
   ## select a detection statistic
   fdp_vars = {};
   switch detstat
-    case "ChiSqr"
-      ## chi-squared statistic (e.g. Fstat)
-      [FDP, fdp_vars, fdp_opts] = InitChiSqrFDP(pa, pd, Ns, varargin);
+    case "ChiSqr"   ## chi^2 statistic
+      [FDP, fdp_vars, fdp_opts] = SensitivityChiSqrFDP(pa, pd, Ns, varargin);
     otherwise
       error("%s: invalid detection statistic '%s'", funcName, detstat);
   endswitch
@@ -198,48 +197,4 @@ function pd_rhosqr = callFDP(rhosqr,
                                 "UniformOutput", false),
                         fdp_opts
                         ) .* Rsqr_w(ii,:), 2);
-endfunction
-
-##### detection statistic functions #####
-
-## initialise chi-squared statistic (e.g. Fstat)
-function [FDP, fdp_vars, fdp_opts] = InitChiSqrFDP(pa, pd, Ns, args)
-
-  FDP = @ChiSqrFDP;
-
-  ## options
-  fdp_opts = parseOptions(args,
-                          {"deg_freedom", "numeric,scalar", 4},
-                          {"normal_approx", "logical,scalar", false}
-                          );
-  
-  ## degrees of freedom of the statistic
-  nu = fdp_opts.deg_freedom;
-
-  ## false alarm threshold
-  sa = invFalseAlarm_chi2_asym(pa, Ns .* nu);
-  fdp_vars{1} = sa;
-  
-endfunction
-
-## false dismissal probability for a chi-squared statistic (e.g. Fstat)
-function pd_rhosqr = ChiSqrFDP(pa, pd, Ns, rhosqr, fdp_vars, fdp_opts)
-  
-  ## degrees of freedom of the statistic
-  nu = fdp_opts.deg_freedom;
-
-  ## false alarm threshold
-  sa = fdp_vars{1};
-
-  ## false dismissal probability
-  if fdp_opts.normal_approx
-    ## use normal approximation
-    mean = Ns .* ( nu + rhosqr );
-    stdv = sqrt( 2.*Ns .* ( nu + 2.*rhosqr ) );
-    pd_rhosqr = normcdf(sa, mean, stdv);
-  else
-    ## use non-central chi-sqr distribution
-    pd_rhosqr = ChiSquare_cdf(sa, Ns .* nu, Ns .* rhosqr);
-  endif
-
 endfunction
