@@ -30,6 +30,16 @@
 
 function rho = SensitivitySNR(paNt, pd, Ns, Rsqr_H, detstat, varargin)
 
+  ## display progress updates?
+  global sensitivity_progress;
+  if isempty(sensitivity_progress)
+    sensitivity_progress = false;
+  endif
+  if sensitivity_progress
+    page_screen_output(0);
+    fprintf("%s: starting up\n", funcName);
+  endif
+
   ## check input
   assert(isHist(Rsqr_H) || isempty(Rsqr_H));
 
@@ -101,6 +111,11 @@ function rho = SensitivitySNR(paNt, pd, Ns, Rsqr_H, detstat, varargin)
   ii = ii0;
   do
 
+    ## display progress updates?
+    if sensitivity_progress
+      fprintf("%s: finding rhosqr_max (%i values left)\n", funcName, sum(ii));
+    endif
+
     ## increment upper bound on rhosqr
     rhosqr_max *= 3;
 
@@ -117,6 +132,11 @@ function rho = SensitivitySNR(paNt, pd, Ns, Rsqr_H, detstat, varargin)
   ## do a bifurcation search to reduce the range of rhosqr
   ii = ii0;
   do
+
+    ## display progress updates?
+    if sensitivity_progress
+      fprintf("%s: bifurcation search (%i values left)\n", funcName, sum(ii));
+    endif
 
     ## pick mid-point of range as new rhosqr
     rhosqr(ii) = 0.5 * (rhosqr_min(ii) + rhosqr_max(ii));
@@ -143,6 +163,14 @@ function rho = SensitivitySNR(paNt, pd, Ns, Rsqr_H, detstat, varargin)
   rhosqr(ii) = 0.5 * (rhosqr_min(ii) + rhosqr_max(ii));
   D_rhosqr = err = zeros(size(rhosqr));
   do
+
+    ## display progress updates?
+    if sensitivity_progress
+      fprintf("%s: Newton-Raphson root-finding (%i values left)\n", funcName, sum(ii));
+      [rhosqr_min(ii)';
+       rhosqr(ii)';
+       rhosqr_max(ii)']
+    endif
 
     ## calculate false dismissal probability at
     ## current and bounding values of rhosqr
