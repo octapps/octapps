@@ -22,7 +22,7 @@
 ##   "deg_freedom"   = number of degrees of freedom (default: 4)
 ##   "normal_approx" = use normal approximation to chi^2 (default: false)
 
-function [FDP, fdp_vars, fdp_opts] = SensitivityChiSqrFDP(pa, pd, Ns, args)
+function [FDP, fdp_vars, fdp_opts] = SensitivityChiSqrFDP(paNt, pd, Ns, args)
 
   FDP = @ChiSqrFDP;
 
@@ -36,13 +36,13 @@ function [FDP, fdp_vars, fdp_opts] = SensitivityChiSqrFDP(pa, pd, Ns, args)
   nu = fdp_opts.deg_freedom;
 
   ## false alarm threshold
-  sa = invFalseAlarm_chi2_asym(pa, Ns .* nu);
+  sa = invFalseAlarm_chi2_asym(paNt, Ns .* nu);
   fdp_vars{1} = sa;
   
 endfunction
 
 ## calculate false dismissal probability
-function pd_rhosqr = ChiSqrFDP(pa, pd, Ns, rhosqr, fdp_vars, fdp_opts)
+function pd_rhosqr = ChiSqrFDP(paNt, pd, Ns, rhosqr, fdp_vars, fdp_opts)
   
   ## degrees of freedom of the statistic
   nu = fdp_opts.deg_freedom;
