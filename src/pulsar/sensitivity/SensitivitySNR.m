@@ -15,6 +15,19 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
+## Calculate sensitivity in terms of the root-mean-square SNR
+## Syntax:
+##   rho = SensitivitySNR(pa, pd, Ns, Rsqr_H, detstat, ...)
+## where:
+##   rho     = detectable r.m.s. SNR (per segment)
+##   pa      = false alarm probability
+##   pd      = false dismissal probability
+##   Ns      = number of segments
+##   Rsqr_H  = histogram of SNR "geometric factor" R^2
+##   detstat = detection statistic, one of:
+##      "ChiSqr": chi^2 statistic, e.g. the F-statistic
+##                see SensitivityChiSqrFDP for possible options
+
 function rho = SensitivitySNR(pa, pd, Ns, Rsqr_H, detstat, varargin)
 
   ## check input

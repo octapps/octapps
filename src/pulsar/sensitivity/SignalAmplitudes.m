@@ -17,7 +17,7 @@
 
 ## Calculate the amplitudes of each polarisation from a signal
 ## emitted by a particular emission mechanism:
-##   nonax: nonaxisymmetric distortion at 2f
+##   "nonax": nonaxisymmetric distortion at 2f
 ## Syntax:
 ##   [ap, ax] = SignalAmplitudes("nonax", cosi)
 ## where:
