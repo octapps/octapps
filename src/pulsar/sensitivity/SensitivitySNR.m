@@ -133,127 +133,48 @@ function [rho, pd_rho] = SensitivitySNR(paNt, pd, Ns, Rsqr_H, detstat, varargin)
     ## exit when there are none left
     ii = (pd_rho_max >= pd);
   until !any(ii)
-
-  ## pick mid-point of range as starting rhosqr
-  rhosqr(ii0) = 0.5 * (rhosqr_min(ii0) + rhosqr_max(ii0));
-
-  ## find rhosqr using a combined bifurcation search / Newton-Raphson root-finding
-  d_pd_d_rhosqr = D_rhosqr = err = zeros(size(rhosqr));
-  rhosqr_Dmin = rhosqr_min;
-  rhosqr_Dmax = rhosqr_max;
-  pd_rho_Dmin = pd_rho_min;
-  pd_rho_Dmax = pd_rho_max;
+  
+  ## find rhosqr using a bifurcation search
+  err1 = inf(size(rhosqr));
+  err2 = inf(size(rhosqr));
   ii = ii0;
-  sumiibf = sumiinr = 0;
+  sumii = 0;
   do
 
-    ## do bifurcation if rhosqr bouding range is still large, or
-    ## if rhosqr has strayed outside of bounding range in NR step
-    ii_bifurc = (
-                 ((rhosqr_max - rhosqr_min) ./ rhosqr_max > 0.1)
-                 |
-                 !(rhosqr_min <= rhosqr & rhosqr <= rhosqr_max)
-                 );
-    iibf = ii & ii_bifurc;
-    iinr = ii & !ii_bifurc;
-
     ## display progress updates?
-    if sensitivity_progress && (sum(iibf) != sumiibf | sum(iinr) != sumiinr)
-      sumiibf = sum(iibf);
-      sumiinr = sum(iinr);
-      fprintf("%s: bifurcation (%i left) & Newton-Raphson (%i left)\n", funcName, sumiibf, sumiinr);
-      ##disp([rhosqr_min(ii)';rhosqr_Dmin(ii)';rhosqr(ii)';rhosqr_Dmax(ii)';rhosqr_max(ii)']);
+    if sensitivity_progress && sum(ii) != sumii
+      sumii = sum(ii);
+      fprintf("%s: bifurcation search (%i left)\n", funcName, sumii);
     endif
 
-    ## do bifurcation search
-    if any(iibf)
-
-      ## pick mid-point of range as new rhosqr
-      rhosqr(iibf) = 0.5 * (rhosqr_min(iibf) + rhosqr_max(iibf));
-
-      ## calculate false dismissal probability
-      pd_rho(iibf) = callFDP(rhosqr,iibf,
-                             jj,paNt,pd,Ns,Rsqr_x,Rsqr_w,
-                             FDP,fdp_vars,fdp_opts);
+    ## pick random point within range as new rhosqr
+    u = rand(size(rhosqr));
+    rhosqr(ii) = rhosqr_min(ii) .* u(ii) + rhosqr_max(ii) .* (1-u(ii));
       
-      ## replace bounds with mid-point as required
-      iimin = iibf & (pd_rho_min >= pd & pd_rho >= pd);
-      iimax = iibf & (pd_rho_max <  pd & pd_rho <  pd);
-      rhosqr_min(iimin) = rhosqr(iimin);
-      rhosqr_max(iimax) = rhosqr(iimax);
+    ## calculate new false dismissal probability
+    pd_rho(ii) = callFDP(rhosqr,ii,
+                         jj,paNt,pd,Ns,Rsqr_x,Rsqr_w,
+                         FDP,fdp_vars,fdp_opts);
+    
+    ## replace bounds with mid-point as required
+    iimin = ii & (pd_rho_min > pd & pd_rho > pd);
+    iimax = ii & (pd_rho_max < pd & pd_rho < pd);
+    rhosqr_min(iimin) = rhosqr(iimin);
+    pd_rho_min(iimin) = pd_rho(iimin);
+    rhosqr_max(iimax) = rhosqr(iimax);
+    pd_rho_max(iimax) = pd_rho(iimax);
+     
+    ## fractional error in false dismissal rate
+    err1(ii) = abs(pd_rho(ii) - pd(ii)) ./ pd(ii);
 
-      ## re-compute false dismissal probabilities
-      pd_rho_min(iimin) = callFDP(rhosqr_min,iimin,
-                                  jj,paNt,pd,Ns,Rsqr_x,Rsqr_w,
-                                  FDP,fdp_vars,fdp_opts);
-      pd_rho_max(iimax) = callFDP(rhosqr_max,iimax,
-                                  jj,paNt,pd,Ns,Rsqr_x,Rsqr_w,
-                                  FDP,fdp_vars,fdp_opts);
+    ## fractional range of rhosqr
+    err2(ii) = (rhosqr_max(ii) - rhosqr_min(ii)) ./ rhosqr(ii);
 
-      ## reset bounds used to calculate derivatives
-      rhosqr_Dmin(iimin) = rhosqr_min(iimin);
-      rhosqr_Dmax(iimax) = rhosqr_max(iimax);
-      pd_rho_Dmin(iimin) = pd_rho_min(iimin);
-      pd_rho_Dmax(iimax) = pd_rho_max(iimax);
-
-      ## prevent existing on bifurcation search alone
-      err(iibf) = inf;
-
-    endif
-
-    ## do Newton-Raphson root-finding to converge
-    if any(iinr)
-
-      ## calculate false dismissal probability
-      pd_rho(iinr) = callFDP(rhosqr,iinr,
-                             jj,paNt,pd,Ns,Rsqr_x,Rsqr_w,
-                             FDP,fdp_vars,fdp_opts);
-
-      ## calculate approx. derivative of false dismissal probability
-      ## with respect to rhosqr
-      d_pd_d_rhosqr(iinr) = (pd_rho_Dmax(iinr) - pd_rho_Dmin(iinr)) ./ (rhosqr_Dmax(iinr) - rhosqr_Dmin(iinr));
-      
-      ## adjustment to rhosqr given by Newton-Raphson method
-      D_rhosqr(iinr) = (pd_rho(iinr) - pd(iinr)) ./ d_pd_d_rhosqr(iinr);
-      
-      ## fractional error implied by adjustment
-      err(iinr) = abs(D_rhosqr(iinr)) ./ rhosqr(iinr);
-
-      ## make adjustment
-      rhosqr(iinr) -= D_rhosqr(iinr);
-
-      ## check if rhosqr is still within bounding range
-      iir = iinr & (rhosqr_min < rhosqr && rhosqr < rhosqr_max);
-      if any(iir)
-
-        ## use adjustment to make new bounds for calculating derivative
-        D_rhosqr(iir) = min(abs(rhosqr(iir) - rhosqr_Dmin(iir)),
-                            abs(rhosqr(iir) - rhosqr_Dmax(iir)));
-        rhosqr_Dmin(iir) = rhosqr(iir) - D_rhosqr(iir);
-        rhosqr_Dmax(iir) = rhosqr(iir) + D_rhosqr(iir);
-        
-        ## re-compute false dismissal probabilities
-        pd_rho_Dmin(iir) = callFDP(rhosqr_Dmin,iir,
-                                   jj,paNt,pd,Ns,Rsqr_x,Rsqr_w,
-                                   FDP,fdp_vars,fdp_opts);
-        pd_rho_Dmax(iir) = callFDP(rhosqr_Dmax,iir,
-                                   jj,paNt,pd,Ns,Rsqr_x,Rsqr_w,
-                                   FDP,fdp_vars,fdp_opts);
-        
-      endif
-
-    endif
-      
     ## determine which rhosqr to keep calculating for
     ## exit when there are none left
-    ii = (isnan(err) | err > 1e-3);
+    ii = (isfinite(err1) & err1 > 1e-3) & (isfinite(err2) & err2 > 1e-8);
   until !any(ii)
 
-  ## calculate final false dismissal probability
-  pd_rho(ii0) = callFDP(rhosqr,ii0,
-                        jj,paNt,pd,Ns,Rsqr_x,Rsqr_w,
-                        FDP,fdp_vars,fdp_opts);
-  
   ## return detectable SNR
   rho = sqrt(rhosqr);
   rho = reshape(rho, siz);
