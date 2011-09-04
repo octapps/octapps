@@ -39,7 +39,7 @@ function Rsqr_H = SqrSNRGeometricFactorHist(varargin)
   ## parse options
   parseOptions(varargin,
                {"T", "numeric,scalar", inf},
-               {"detectors", "cell", {"LLO"}},
+               {"detectors", "char", "L"},
                {"mismatch_hist", "Hist", newHist(1, 0.0)},
                {"alpha", "numeric,vector", [0, 2*pi]},
                {"sdelta", "numeric,vector", [-1, 1]},
@@ -64,7 +64,7 @@ function Rsqr_H = SqrSNRGeometricFactorHist(varargin)
   for n = 1:length(detectors)
 
     ## detector null vectors for nth detector
-    [L, slambda, gamma, det(n).zeta] = DetectorLocations(detectors{n});
+    [L, slambda, gamma, det(n).zeta] = DetectorLocations(detectors(n));
 
     ## calculate local sidereal time at detector
     Phis = L + zmstime;

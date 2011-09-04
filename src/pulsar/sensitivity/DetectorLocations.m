@@ -17,38 +17,41 @@
 
 ## Return parameters of various gravitational wave interferometers
 ## Syntax:
-##   [L, slambda, gamma, zeta] = DetectorLocations(name)
+##   [L, slambda, gamma, zeta] = DetectorLocations(id)
 ## where:
 ##   L       = detector's longitude in radians
 ##   slambda = sine of the detector's latitude
 ##   gamma   = detector orientation in radians
 ##   zeta    = angle between interferometer arms in radians
-##   name    = name of a gravitational wave interferometer
+##   id      = identifier of a gravitational wave interferometer
 
-function [L, slambda, gamma, zeta] = DetectorLocations(name)
+function [L, slambda, gamma, zeta] = DetectorLocations(id)
+
+  ## check input
+  assert(ischar(id) && length(id) == 1);
   
   ## select an interferometer
   ## reference:
   ##   B. F. Schutz, "Networks of gravitational wave detectors and three figures of merit", arXiv:1102.5421v2
-  switch name
+  switch id
       
-    case "LHO"    # LIGO Hanford
+    case "H"      # LIGO Hanford
       longitude   = -[119 24 27.6];
       latitude    =  [46 27 18.5];
       orientation = 279;
       
-    case "LLO"    # LIGO Livingston
+    case "L"      # LIGO Livingston
       longitude   = -[90 46 27.3];
       latitude    =  [30 33 46.4];
       orientation = 208;
       
-    case "VIRGO"  # VIRGO
+    case "V"      # VIRGO
       longitude   = [10 30 16];
       latitude    = [43 37 53];
       orientation = 333.5;
       
     otherwise
-      error("%s: unknown interferometer '%s'", funcName, name);
+      error("%s: unknown interferometer identifier '%s'", funcName, id);
       
   endswitch
   
