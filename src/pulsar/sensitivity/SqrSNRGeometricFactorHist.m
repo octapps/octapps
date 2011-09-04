@@ -49,7 +49,7 @@ function Rsqr_H = SqrSNRGeometricFactorHist(varargin)
                {"zmstime", "numeric,scalar", 0},
                {"hist_dx", "numeric,scalar", 1e-3},
                {"hist_N", "numeric,scalar", 20000},
-               {"hist_err", "numeric,scalar", 5e-4}
+               {"hist_err", "numeric,scalar", 1e-4}
                );
 
   ## product of angular sidereal frequency and observation time
