@@ -36,7 +36,7 @@ function [FDP, fdp_vars, fdp_opts] = SensitivityChiSqrFDP(paNt, pd, Ns, args)
   nu = fdp_opts.deg_freedom;
 
   ## false alarm threshold
-  sa = invFalseAlarm_chi2_asym(paNt, Ns .* nu);
+  sa = invFalseAlarm_chi2_asym(paNt, Ns*nu);
   fdp_vars{1} = sa;
   
 endfunction
@@ -53,12 +53,12 @@ function pd_rhosqr = ChiSqrFDP(paNt, pd, Ns, rhosqr, fdp_vars, fdp_opts)
   ## false dismissal probability
   if fdp_opts.normal_approx
     ## use normal approximation
-    mean = Ns .* ( nu + rhosqr );
+    mean = Ns.*( nu + rhosqr );
     stdv = sqrt( 2.*Ns .* ( nu + 2.*rhosqr ) );
     pd_rhosqr = normcdf(sa, mean, stdv);
   else
     ## use non-central chi-sqr distribution
-    pd_rhosqr = ChiSquare_cdf(sa, Ns .* nu, Ns .* rhosqr);
+    pd_rhosqr = ChiSquare_cdf(sa, Ns*nu, Ns.*rhosqr);
   endif
 
 endfunction
