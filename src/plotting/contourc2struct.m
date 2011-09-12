@@ -15,8 +15,8 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## Converts contour matrix C returned by contourc into a
-## more easily usable array struct S
+## Converts contour matrix C returned by contour
+## functions into a easier-to-use array struct S
 ## Syntax:
 ##   S = contourc2struct(C)
 

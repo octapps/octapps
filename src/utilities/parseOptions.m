@@ -17,7 +17,7 @@
 
 ## Kitchen-sink options parser.
 ## Syntax:
-##   paropts = parseOptions(opts, optspec, optspec)
+##   paropts = parseOptions(opts, optspec, optspec, ...)
 ## where:
 ##   opts    = command-line / function options
 ##   optspec = option specification, one of:
