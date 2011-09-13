@@ -19,6 +19,7 @@
 ## Syntax:
 ##   PlotAndLabelContour(C, ctropt, ctropt, ...)
 ##   PlotAndLabelContour(S, ctropt, ctropt, ...)
+##   S = PlotAndLabelContour(...)
 ## where:
 ##   C      = contour array returned by contourc, etc.
 ##   S      = contourc2struct(C)
@@ -31,7 +32,7 @@
 ##               "lbldim": size of area to clear for contour label
 ##               "lblminlen": don't label contours shorter than this
 
-function PlotAndLabelContours(S, varargin)
+function varargout = PlotAndLabelContours(S, varargin)
 
   ## parse options
   ctropt = struct;
@@ -41,6 +42,8 @@ function PlotAndLabelContours(S, varargin)
                              {"levprop", "cell"},
                              {"lbl", "logical,scalar", false},
                              {"lblpos", "numeric,scalar", 0.5},
+                             {"lblsize", "char", "\\scriptsize"},
+                             {"lblfmt", "char", "%0.2f"},
                              {"lbldim", "numeric,vector", [0,0]},
                              {"lblminlen", "numeric,scalar", 0});
     assert(ctropt(j).lbldim >= 0);
@@ -66,10 +69,6 @@ function PlotAndLabelContours(S, varargin)
     endif
     j = jj(end);
 
-    ## get contour data
-    x = S(i).x;
-    y = S(i).y;
-
     ## enclose label code in one-time loop,
     ## so that we can skip over it using 'break'
     do
@@ -87,18 +86,18 @@ function PlotAndLabelContours(S, varargin)
       endif
         
       ## find length of contour
-      dist = cumsum(sqrt(diff(x).^2 + diff(y).^2));
-      len = dist(end) / sqrt(Dx^2 + Dy^2);
+      dist = cumsum(sqrt(diff(S(i).x).^2 + diff(S(i).y).^2));
+      S(i).len = dist(end) / sqrt(Dx^2 + Dy^2);
       dist = [0 dist/dist(end)];
       
       ## skip contour label if not long enough
-      if len < ctropt(j).lblminlen
+      if S(i).len < ctropt(j).lblminlen
         break;
       endif
       
       ## find midpoint of contour
-      xm = interp1(dist, x, ctropt(j).lblpos);
-      ym = interp1(dist, y, ctropt(j).lblpos);
+      xm = interp1(dist, S(i).x, ctropt(j).lblpos);
+      ym = interp1(dist, S(i).y, ctropt(j).lblpos);
       
       ## label region corners
       plbl = cell(2,2);
@@ -108,12 +107,12 @@ function PlotAndLabelContours(S, varargin)
       plbl{2,2} = [xm+hdx;ym+hdy];
       
       ## loop over segments of contour
-      np = [x(1);y(1)];
-      for k = 1:length(x)-1
+      np = [S(i).x(1);S(i).y(1)];
+      for k = 1:length(S(i).x)-1
         
         ## segment points
-        p1 = [x(k  );y(k  )];
-        p2 = [x(k+1);y(k+1)];
+        p1 = [S(i).x(k  );S(i).y(k  )];
+        p2 = [S(i).x(k+1);S(i).y(k+1)];
         
         ## check which points are within label region
         p1in = all(plbl{1,1} <= p1) & all(p1 <= plbl{2,2});
@@ -159,19 +158,25 @@ function PlotAndLabelContours(S, varargin)
       endfor
       
       ## recreate contour x and y coordinates
-      x = np(1,:);
-      y = np(2,:);
+      S(i).x = np(1,:);
+      S(i).y = np(2,:);
 
       ## create label at contour midpoint
-      text(xm, ym, sprintf("\\scriptsize%0.2f", S(i).lev),
+      text(xm, ym, strcat(ctropt(j).lblsize,
+                          sprintf(ctropt(j).lblfmt, S(i).lev)),
            "horizontalalignment", "center",
            "verticalalignment", "middle");
 
     until true
 
     ## plot contour
-    plot(x, y, ctropt(j).levprop{:});
+    S(i).h = plot(S(i).x, S(i).y, ctropt(j).levprop{:});
 
   endfor
+
+  ## return contour structure
+  if nargout > 0
+    varargout = {S};
+  endif
 
 endfunction
