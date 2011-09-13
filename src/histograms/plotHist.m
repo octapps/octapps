@@ -15,137 +15,47 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## Plot histograms.
+## Plot a histogram as a stair graph
 ## Syntax:
-##   plotHist(hgrm, colour)
-##   plotHist([rows cols], hgrm, colour, hgrm, colour, ...)
-##   plotHist(..., 'PROP', val, ..., hgrm, colour, 'prop', val, ...)
+##   plotHist(hgrm, options, ...)
 ##   h = plotHist(...)
 ## where:
-##   hgrm   = histogram struct
-##   colour = a colour specification:
-##               either a cell array
-##                  {col, ...}, where col = [R G B] or 'string'
-##               or a string with one-letter colours
-##                  "c..."
-##            number of colours may be either 1 or 2:
-##               1 colour:  plots an outline of the histogram
-##               2 colours: plots a filled area in colour 1,
-##                               and an outline in colour 2
-##   rows,  = for multiple histogram, number of rows /columns
-##   cols        in the sub-plot matrix
-##   'PROP' = property which applies to all histograms
-##               (it must appear before all histograms in the input)
-##   'prop' = property applied to the previous histogram only
-##   h      = returns graphics handles
+##   hgrm    = histogram struct
+##   options = options to pass to graphics function
+##   h       = return graphics handle
 
-function varargout = plotHist(varargin)
+function varargout = plotHist(hgrm, varargin)
 
   ## check input
-  if nargin == 0
-    error("Need some input arguments!");
+  assert(isHist(hgrm));
+  
+  ## check histogram is 1D
+  if (length(hgrm.xb) > 1)
+    error("%s: can only plot 1D histogram", funcName);
   endif
 
-  ## check for subplot rows/columns in first argument
-  i = 1;
-  if ismatrix(varargin{1}) && numel(varargin{1}) == 2
-    rows = varargin{i}(1);
-    cols = varargin{i}(2);
-    ++i;
+  ## normalise histogram
+  hgrm = normaliseHist(hgrm);
+
+  ## get finite bins and probabilities
+  [xb, px] = finiteHist(hgrm);
+
+  ## if histogram is singular
+  if isempty(px)
+
+    ## plot a stem
+    h = stem(xb{1}, 1.0, varargin{:});
+
   else
-    rows = cols = 1;
+
+    ## otherwise plot stairs
+    h = stairs(xb{1}, px, varargin{:});
+
   endif
-  index = 0;
-
-  ## check for global properties before first histogram
-  allprops = [];
-  while nargin-i+1 >= 2 && ischar(varargin{i})
-    allprops = [allprops, i, i + 1];
-    i += 2;
-  endwhile
-
-  ## while arguments remain
-  while nargin-i+1 > 0
-
-    ## need at least two more arguments
-    if nargin-i+1 < 2
-      error("Missing arguments: expected a histogram-colour pair!");
-    endif
-
-    ## next argument should be a histogram
-    hgrm  = varargin{i};
-    if !isHist(hgrm)
-      error("Input argument #%i must be a histogram struct!", i);
-    endif
-    ++i;
-
-    ## next arguments should be a colour spec (string or cell)
-    colour = varargin{i};
-    if !(ischar(colour) || iscell(colour)) || length(colour) > 2
-      error("Input argument #%i must be a string or cell (length <= 2)!", i);
-    endif
-    ++i;
-    if ischar(colour)
-      strcolour = colour;
-      colour = {};
-      for j = 1:length(strcolour)
-	colour{j} = strcolour(j);
-      endfor
-    endif
-
-    ## check for additional property values
-    props = allprops;
-    while nargin-i+1 >= 2 && ischar(varargin{i})
-      props = [props, i, i + 1];
-      i += 2;
-    endwhile
-
-    ## advance subplot index
-    ++index;
-    if index > rows*cols
-      error("Insufficient number of sub-plots given in argument #1!");
-    endif
-    subplot(rows, cols, index);
-
-    ## get finite bins and probabilities
-    [xb, px] = finiteHist(hgrm);
-
-    ## special treatement of 'singular' histogram: plot 'unit stem'
-    if ( length(xb)==1 && isempty(px) )
-
-      stem ( xb{1}, 1, colour{1} );
-      continue;
-
-    endif
-
-    ## OTHERWISE: non-singular histogram => get x-y outline of histogram
-    x = xb{1}(reshape([1:length(xb{1}); 1:length(xb{1})], 1, []));
-    y = [0, reshape(px(reshape([1:length(px); 1:length(px)], 1, [])), 1, []), 0];
-
-    if length(colour) == 1
-
-      ## if given one colour, plot an outline
-      hh{index}(1) = plot(x, y, colour{1}, varargin{props});
-
-    else
-
-      ## if given two colours, plot a filled region
-      hh{index}(1) = patch(x, y, colour{1}, varargin{props});
-
-      ## if second colour is different, plot a separate outline
-      if colour{2} != colour{1}
-	set(gca, "nextplot", "add");
-	hh{index}(2) = plot(x, y, colour{2}, varargin{props});
-	set(gca, "nextplot", "replace");
-      endif
-
-    endif
-
-  endwhile
 
   ## return handles
   if nargout == 1
-    varargout = {hh};
+    varargout = {h};
   endif
 
 endfunction
