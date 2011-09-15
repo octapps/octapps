@@ -54,6 +54,12 @@ function octapps_build_oct(varargin)
   endif
   
   for i = 1:length(sources)
+
+    ## skip deprecated sources
+    if !isempty(strfind(sources{i}, [filesep,"deprecated",filesep]))
+      printf("Skipping deprecated source '%s'\n", sources{i});
+      continue
+    endif
     
     ## names of source file and oct-file
     srcfile = sources{i};
