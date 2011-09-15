@@ -62,19 +62,24 @@ function octapps_setup_function(my_path)
   ## is assumed to be the OCTAPPS root directory
   my_path = fileparts(my_path);
 
-  ## look at all subdirectories of the
-  ## source directory for *.{m,cpp,i} files
+  ## look at all subdirectories of src/ for *.m files
   dirs = strsplit(genpath(fullfile(my_path, "src")), pathsep, true);
   octapps_path = {my_path};
   for i = 1:length(dirs)
     octfiles = 0;
-    for patt = {"*.m", "*.cpp", "*.i"}
+    for patt = {"*.m"}
       octfiles += length(glob(fullfile(dirs{i}, patt{1})));
     endfor
     if octfiles > 0
       octapps_path{end+1} = dirs{i};
     endif
   endfor
+
+  ## add oct-directory to path
+  octdir = fullfile(my_path, "oct", OCTAVE_VERSION);
+  if exist(octdir, "dir")
+    octapps_path = {octdir, octapps_path{:}};
+  endif
 
   ## get the full Octave path
   octave_path = strsplit(path, pathsep, true);

@@ -28,7 +28,7 @@ function octapps_build_oct(varargin)
   pso = page_screen_output(0);
 
   ## find mkoctfile binary where it's supposed to be, fail if it is not there
-  mkoct_bin = fullfile(octave_config_info("bindir"), ["mkoctfile-" OCTAVE_VERSION]);
+  mkoct_bin = fullfile(octave_config_info("bindir"), strcat("mkoctfile-", OCTAVE_VERSION));
   if !exist(mkoct_bin, "file")
     error("Could not find mkoctfile in Octave binary directory");
   endif
@@ -36,6 +36,22 @@ function octapps_build_oct(varargin)
   ## find the path of the octapps base directory,
   ## using the location of this script
   my_path = fileparts(mfilename("fullpathext"));
+
+  ## create the directory where oct-files will be installed
+  octdir = fullfile(my_path, "oct");
+  [status, msg] = mkdir(octdir);
+  if status == 0
+    error("%s: error from mkdir: %s\n", funcName, msg);
+  endif
+  octdir = fullfile(octdir, OCTAVE_VERSION);
+  [status, msg] = mkdir(octdir);
+  if status == 0
+    error("%s: error from mkdir: %s\n", funcName, msg);
+  endif
+
+  ## change to oct-file directory
+  old_wd = pwd();
+  cd(octdir);
 
   if length(varargin) > 0
     ## compile C++ and SWIG interface given on the command line
@@ -64,7 +80,7 @@ function octapps_build_oct(varargin)
     ## names of source file and oct-file
     srcfile = sources{i};
     [srcdir, srcname, srcext] = fileparts(srcfile);
-    octfile = fullfile(srcdir, [srcname, ".oct"]);
+    octfile = fullfile(octdir, [srcname, ".oct"]);
 
     ## compile SWIG interface
     if strcmp(srcext, ".i")
@@ -78,7 +94,7 @@ function octapps_build_oct(varargin)
       endif
 
       ## compile SWIG interface file
-      srccpp = fullfile(srcdir, [srcname, "_wrap.C"]);
+      srccpp = fullfile(octdir, [srcname, "_wrap.cpp"]);
       cmd = sprintf("'%s' -c++ -octave -globals '%s_cvar' '-I%s' -o '%s' '%s'", swig_bin, srcname, srcdir, srccpp, srcfile);
       err = system(cmd);
       if err != 0
@@ -103,7 +119,12 @@ function octapps_build_oct(varargin)
     printf("Made '%s' from '%s'\n", octfile, srcfile);
     
   endfor
-  
+
+  ## refresh octapps path
+  octapps_setup;
+
+  ## restore working directory and paging
+  cd(old_wd);
   page_screen_output(pso);
 
 endfunction

@@ -1,3 +1,2 @@
-*.oct
-*_wrap.C
+oct/
 *.o
