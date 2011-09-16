@@ -95,7 +95,8 @@ function opts = parseCommandLine(varargin)
     arg = args{n++};
     argvalstr = [];
 
-    ## if argument is '--', add it to options
+    ## if argument is '--', just parse it along, since
+    ## it might be being used as an option separator
     if strcmp(arg, "--")
       opts{end+1} = arg;
       continue
