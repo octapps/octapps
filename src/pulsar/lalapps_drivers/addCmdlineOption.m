@@ -53,13 +53,7 @@ function ret = addCmdlineOption ( cmdline, params, option, isRequired )
     error ("Field '%s' is neither a string, bool or real scalar!\n", option );
   endif
 
-  if length(option) == 1
-    dashes = "-";
-  else
-    dashes = "--";
-  endif
-
-  ret = strcat ( cmdline, " ", dashes, option, "=", valstr );
+  ret = strcat ( cmdline, " --", option, "=", valstr );
 
   return;
 
