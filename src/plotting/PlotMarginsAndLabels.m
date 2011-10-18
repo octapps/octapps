@@ -24,7 +24,7 @@
 ##   xlbl  = x-axis label
 ##   ylbl  = y-axis label
 
-function PlotMarginsAndLabels(xl, yb, xr, yt, xlbl, ylbl, p=0.7)
+function PlotMarginsAndLabels(xl, yb, xr, yt, xlbl=[], ylbl=[], p=0.7)
 
   ## extend of axes in x and y directions
   xe = 1 - xl - xr;
@@ -35,14 +35,18 @@ function PlotMarginsAndLabels(xl, yb, xr, yt, xlbl, ylbl, p=0.7)
 
   ## create axes labels, centered on the appropriate axis,
   ## positioned within margins, and rotated (y-axis)
-  text(0.5, -p*yb/ye, xlbl,
-       "horizontalalignment", "center",
-       "verticalalignment", "middle",
-       "units", "normalized");
-  text(-p*xl/xe, 0.5, ylbl,
-       "horizontalalignment", "center",
-       "verticalalignment", "middle",
-       "units", "normalized",
-       "rotation", 90);
+  if !isempty(xlbl)
+    text(0.5, -p*yb/ye, xlbl,
+         "horizontalalignment", "center",
+         "verticalalignment", "middle",
+         "units", "normalized");
+  endif
+  if !isempty(ylbl)
+    text(-p*xl/xe, 0.5, ylbl,
+         "horizontalalignment", "center",
+         "verticalalignment", "middle",
+         "units", "normalized",
+         "rotation", 90);
+  endif
   
 endfunction
