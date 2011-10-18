@@ -26,7 +26,7 @@
 ##   wksp = working variables for drawFromHist
 ##   x    = generated random values
 
-function [x, wksp] = drawFromHist(hgrm, N, wksp)
+function [x, wksp] = drawFromHist(hgrm, N, wksp=[])
 
   ## check input
   assert(isHist(hgrm));
