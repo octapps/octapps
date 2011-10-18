@@ -6,7 +6,7 @@
 %% i.e. the solution 'noncent1' to the equations
 %%
 %% pFA = prob ( S > Sth | noncent=0 )
-%% pFD = prob ( S < Sth | noncent=noncent1 )
+%% pFD = prob ( S < Sth | noncent )
 %%
 %% at given {pFA, pFD}, and S ~ chi^2_dof ( noncent ) is chi^2-distributed with 'dof'
 %% degrees of freedrom and non-centrality 'noncent'.
@@ -35,17 +35,34 @@
 
 function noncent1 = Chi2CriticalNoncentrality ( pFA, pFD, dof, noncent0 = 3 )
 
-  %% first get F-stat threshold corresponding to pFA false-alarm probability
-  Sth = invFalseAlarm_chi2 ( pFA, dof );
-
-  %% numerically solve equation pFD = chi2_dof ( Sth; noncent )
-  fun = @(noncent) ChiSquare_cdf( Sth, dof, noncent) - pFD;
-
-  [noncent1, fun1, INFO, OUTPUT] = fzero (fun, noncent0);
-
-  if ( INFO != 1 || noncent1 <= 0 )
-    error ("fzero() failed to converge for pFA=%g, pFD=%g and trial value rho0 = %g: rho1 = %g, fun1 = %g\n", pFA, pFD, noncent0, noncent1, run1 );
+  %% handle vector-input on 'dof' and 'noncent0'
+  numVals  = length ( dof );
+  numVals1 = length ( noncent0 );
+  if ( numVals1 == 1 )
+    noncent0 *= ones(1,numVals);
+  elseif ( numVals != numVals1 )
+    error ("If vector-input for 'dof' (dim=%d), then noncent0 must be either scalar or have same dimension (dim=%d) as 'dof'\n", numVals, numVals1 );
   endif
+
+  %% ----- loop over input-vector values
+  noncent1 = zeros ( 1, numVals );
+  for i = 1:numVals
+
+    %% first get F-stat threshold corresponding to pFA false-alarm probability
+    Sth = invFalseAlarm_chi2 ( pFA, dof(i) );
+
+    %% numerically solve equation pFD = chi2_dof ( Sth; noncent )
+    fun = @(noncent) ChiSquare_cdf( Sth, dof(i), noncent) - pFD;
+
+    [noncent_i, fun1, INFO, OUTPUT] = fzero (fun, noncent0(i));
+
+    if ( INFO != 1 || noncent_i <= 0 )
+      OUTPUT
+      error ("fzero() failed to converge for pFA=%g, pFD=%g, dof=%.1f and trial value rho0 = %g: rho1 = %g, fun1 = %g\n", pFA, pFD, dof(i), noncent0(i), noncent_i, fun1 );
+    endif
+
+    noncent1(i) = noncent_i;
+  endfor ## loop over 'dof' vector
 
   return;
 
