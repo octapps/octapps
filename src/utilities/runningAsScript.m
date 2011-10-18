@@ -29,6 +29,8 @@ function isscript = runningAsScript
   else
     fname = [];
   endif
+  [fpath, fname, fext] = fileparts(fname);
+  fname = strcat(fname, fext);
 
   ## if filename equals program invocation name,
   ## we're running a script
