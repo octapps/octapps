@@ -39,17 +39,20 @@ function varargout = plotHist(hgrm, varargin)
 
   ## get finite bins and probabilities
   [xb, px] = finiteHist(hgrm);
+  xb = xb{1};
 
   ## if histogram is singular
   if isempty(px)
 
     ## plot a stem
-    h = stem(xb{1}, 1.0, varargin{:});
+    h = stem(xb, 1.0, varargin{:});
 
   else
 
     ## otherwise plot stairs
-    h = stairs(xb{1}, px, varargin{:});
+    x = [xb(1); xb(:); xb(end)];
+    y = [0; px(:); 0];
+    h = stairs(x, y, varargin{:});
 
   endif
 
