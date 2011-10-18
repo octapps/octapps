@@ -7,6 +7,10 @@
 
 function thresh = invFalseAlarm_chi2 ( fA, dof )
 
-  thresh = chi2inv ( 1 - fA, dof );
+  if ( dof < 1000 )
+    thresh = chi2inv ( 1 - fA, dof );
+  else	%% large N case better handled by asymptotic expression
+    thresh = invFalseAlarm_chi2_asym(fA, dof);
+  endif
 
 endfunction
