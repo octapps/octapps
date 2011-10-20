@@ -31,7 +31,7 @@ function ret = runSemiAnalyticF (params, safCode)
     error("Missing function argument 'params'\n");
   endif
   if ( !exist("safCode") )
-    cfsCode = "lalapps_SemiAnalyticF";
+    safCode = "lalapps_SemiAnalyticF";
   endif
 
   cmdline = safCode;
