@@ -68,7 +68,7 @@ function p = ChiSquare_cdf(x, k, lambda)
 
     ## initial values of Poisson term in series sum
     Pp = Pm = zeros(size(x));
-    Pp(ii) = Pm(ii) = poisspdf(j0(ii), hlambda(ii));
+    Pp(ii) = Pm(ii) = real_poisspdf(j0(ii), hlambda(ii));
     
     ## initial values of chi^2 term in series sum
     Xp = Xm = zeros(size(x));
@@ -76,7 +76,7 @@ function p = ChiSquare_cdf(x, k, lambda)
 
     ## initial values of Poisson adjustments to chi^2 terms
     XPm = XPp = zeros(size(x));
-    XPp(ii) = poisspdf(hk(ii) + j0(ii), hx(ii));
+    XPp(ii) = real_poisspdf(hk(ii) + j0(ii), hx(ii));
     XPm(ii) = XPp(ii) .* (hk(ii) + j0(ii)) ./ hx(ii);
 
     ## initial series value
@@ -132,6 +132,12 @@ function p = ChiSquare_cdf(x, k, lambda)
   ## reshape result to original size of input
   p = reshape(p, siz);
 
+endfunction
+
+## compute the Poisson distribution extended
+## to a real-valued number of events
+function p = real_poisspdf(x, lambda)
+  p = exp( x.*log(lambda) - lambda - gammaln(x + 1) );
 endfunction
 
 ## try to use first GSL to compute the central chi^2 CDF:
