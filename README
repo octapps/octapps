@@ -19,3 +19,12 @@ octave> source ("<path-to-your-octapps-dir>/octapps_setup.m")
 If you also use matapps, it's probably important to add the octapps
 activation above AFTER any matapps activation in your .bashrc or
 .cshrc
+
+Some scripts require .oct files to be built, which you can do
+by running
+
+octave> octapps_build_oct
+
+You may need to refresh your path setup (see above) after doing this.
+The .oct modules require you to install SWIG (http://www.swig.org/),
+version 2.0.4 or greater is recommended.
