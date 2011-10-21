@@ -35,7 +35,7 @@
 %%  MA  02111-1307  USA
 %%
 
-function w = SensivitiyScalingDeviationN ( pFA, pFD, Nseg, approx = "none" )
+function w = SensitivityScalingDeviationN ( pFA, pFD, Nseg, approx = "none" )
 
   if ( (length(pFA) != 1) || (length(pFD) != 1))
     error ("Sorry: can only deal with single input-values for 'pFA' and 'pFD'\n");
