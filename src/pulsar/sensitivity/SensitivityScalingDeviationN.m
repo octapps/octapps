@@ -48,9 +48,9 @@ function w = SensitivityScalingDeviationN ( pFA, pFD, Nseg, approx = "none" )
   endif
 
   %% ----- Gaussian or NO approximations
-  fun_rhoS2 = @(logNseg) log( CriticalNoncentralityStackSlide ( pFA, pFD, exp(logNseg), approx ) );
+  fun_rhoS2 = @(Nseg0) log( CriticalNoncentralityStackSlide ( pFA, pFD, Nseg0, approx ) );
 
-  deriv = gradient ( fun_rhoS2, log(Nseg) );
+  deriv = Nseg .* gradient ( fun_rhoS2, Nseg, 1 );
 
   w = 1 ./ ( 2 * deriv);
 
