@@ -51,14 +51,13 @@ function noncent1 = CriticalNoncentralityStackSlide ( pFA, pFD, Nseg, approx = "
     error ("Input value 'approx' = '%s': allowed values are { \"none\", \"Gauss\" or \"WSG\" }\n", approx );
   endif
 
-  %% ----- loop over input-vector values
   switch ( alevel )
 
       %% ----- no approximations, fully numerical solution
     case 0
-      %% handle vector-input on 'Nseg'
       numVals  = length ( Nseg );
       noncent1 = zeros ( 1, numVals );
+      %% ----- loop over input-vector values
       for i = 1:numVals
 
         dof = 4 * Nseg(i);	%% degrees of freedom
