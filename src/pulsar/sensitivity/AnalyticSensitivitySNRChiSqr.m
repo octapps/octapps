@@ -19,15 +19,16 @@
 ## a population of isotropically distributed and oriented signals,
 ## and for a chi^2 detection statistic
 ## Syntax:
-##   rhoh = AnalyticSensitivitySNRChiSqr(paNt, pd, Ns, nu)
+##   [rhoh,iter] = AnalyticSensitivitySNRChiSqr(paNt, pd, Ns, nu)
 ## where:
 ##   rhoh = detectable r.m.s. SNR (per segment)
+##   iter = number of iterations needed to solve for rhoh
 ##   paNt = false alarm probability (per template)
 ##   pd   = false dismissal probability
 ##   Ns   = number of segments
 ##   nu   = degrees of freedom of the chi^2 statistic
 
-function rhoh = AnalyticSensitivitySNRChiSqr(paNt, pd, Ns, nu)
+function [rhoh,iter] = AnalyticSensitivitySNRChiSqr(paNt, pd, Ns, nu)
   
   ## check input
   assert(all(paNt > 0));
@@ -70,6 +71,7 @@ function rhoh = AnalyticSensitivitySNRChiSqr(paNt, pd, Ns, nu)
   ## iteratively compute next estimate of sensitivity SNR
   ii = true(size(rhohA));
   rhohAB = zeros(size(rhohA));
+  iter = zeros(size(rhohA));
   do
 
     ## next estimate from mean of previous two estimates
@@ -81,6 +83,7 @@ function rhoh = AnalyticSensitivitySNRChiSqr(paNt, pd, Ns, nu)
     ## next estimate of sensitivity SNR
     rhohB(ii) = NextSNR(R0, zap(ii), pd(ii), Nsp(ii),
                         nu, Delta(ii), rhob(ii), rhohAB(ii));
+    iter(ii) += 1;
 
     ## fractional error between last two estimates
     err(ii) = abs(rhohA(ii) - rhohB(ii)) ./ rhohB(ii);
@@ -98,7 +101,7 @@ endfunction
 function rhoh = NextSNR(R0, zap, pd, Nsp, nu, Delta, rhob, rhoh)
 
   ## factor for calculating effective quantities
-  xi1 = sqrt( 2.*sqrt( 2 + 0.8.*(rhoh./rhob).^(-2) ) - 3 );
+  xi1 = sqrt( 2.*sqrt( 2 + 0.8.*(rhob./rhoh).^2 ) - 3 );
   Xi = 2 ./ xi1 .* sqrt( abs(log(2*pd)) ./ pi );
 
   ## effective false dismissal probability
