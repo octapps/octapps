@@ -18,15 +18,16 @@
 ## Implements an expression used in analytic sensitivity estimation
 ## for a chi^2 detection statistic
 ## Syntax:
-##   rho = AnalyticSensitivitySNRExpr(za, pd, Ns, nu)
+##   [rho,tms] = AnalyticSensitivitySNRExpr(za, pd, Ns, nu)
 ## where:
 ##   rho = detectable r.m.s. SNR (per segment)
+##   tms = terms of the second factor of the expression
 ##   za  = normalised false alarm threshold
 ##   pd  = false dismissal probability
 ##   Ns  = number of segments
 ##   nu  = degrees of freedom of the chi^2 statistic
 
-function rho = AnalyticSensitivitySNRExpr(za, pd, Ns, nu)
+function [rho,tms] = AnalyticSensitivitySNRExpr(za, pd, Ns, nu)
   
   ## check input
   assert(all(pd > 0));
@@ -42,11 +43,13 @@ function rho = AnalyticSensitivitySNRExpr(za, pd, Ns, nu)
   ## quantile of false dismissal probability
   q = sqrt(2).*erfcinv(2.*pd);
 
+  ## terms of the second factor of the expression
+  tms = cell(1,3);
+  tms{1} = za;
+  tms{2} = q .* sqrt(1 + za.*sqrt(8./(Ns*nu)));
+  tms{3} = q.^2 .* sqrt(2./(Ns*nu));
+
   ## sensitivity SNR
-  rho = (2*nu./Ns).^0.25 .* sqrt(
-                                 za + 
-                                 q .* sqrt(1 + za.*sqrt(8./(Ns*nu))) + 
-                                 q.^2 .* sqrt(2./(Ns*nu))
-                                 );
+  rho = (2*nu./Ns).^0.25 .* sqrt(tms{1}+tms{2}+tms{3});
   
 endfunction

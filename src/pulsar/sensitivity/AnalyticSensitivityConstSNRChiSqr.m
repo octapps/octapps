@@ -19,15 +19,16 @@
 ## a population of constant-SNR signals, and for a chi^2 detection
 ## statistic
 ## Syntax:
-##   rhob = AnalyticSensitivityConstSNRChiSqr(paNt, pd, Ns, nu)
+##   [rhob,tms] = AnalyticSensitivityConstSNRChiSqr(paNt, pd, Ns, nu)
 ## where:
 ##   rhob = detectable r.m.s. SNR (per segment)
+##   tms  = terms of the second factor of the expression
 ##   paNt = false alarm probability (per template)
 ##   pd   = false dismissal probability
 ##   Ns   = number of segments
 ##   nu   = degrees of freedom of the chi^2 statistic
 
-function rhob = AnalyticSensitivityConstSNRChiSqr(paNt, pd, Ns, nu)
+function [rhob,tms] = AnalyticSensitivityConstSNRChiSqr(paNt, pd, Ns, nu)
   
   ## check input
   assert(all(paNt > 0));
@@ -46,6 +47,6 @@ function rhob = AnalyticSensitivityConstSNRChiSqr(paNt, pd, Ns, nu)
   za = (sa - Ns*nu) ./ sqrt(2*Ns*nu);
 
   ## sensitivity SNR
-  rhob = AnalyticSensitivitySNRExpr(za, pd, Ns, nu);
+  [rhob,tms] = AnalyticSensitivitySNRExpr(za, pd, Ns, nu);
 
 endfunction
