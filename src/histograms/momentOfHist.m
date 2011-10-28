@@ -16,12 +16,15 @@
 ## MA  02111-1307  USA
 
 ## Returns the moment of a histogram,
+##   mu(n) = integrate over x{1} to x{dim} :
+##              px(x{1},...,x{dim}) * (x{1}-x0{1})^n{1} * ...
+##                 * (x{dim}-x0{dim})^n{dim} dx{1} ... dx{dim}
 ## taken with respect to a given position.
 ## Syntax:
 ##   mu   = momentOfHist(hgrm, x0, n)
 ## where:
 ##   hgrm = histogram struct
-##   x0   = a given position in each dimension
+##   x0   = relative offset in each dimension
 ##   n    = moment orders in each dimension
 ##   mu   = moment
 
@@ -36,10 +39,6 @@ function mu = momentOfHist(hgrm, x0, n)
   ## get finite bins and probabilities
   [xb, px] = finiteHist(hgrm);
 
-  ## calculate moments:
-  ##   mu(n) = integrate over x{1} to x{dim} :
-  ##              px(x{1},...,x{dim}) * x{1}^n{1} * ... * x{dim}^n{dim} dx{1} ... dx{dim}
-
   ## start with probability array
   muint = px;
 
@@ -51,7 +50,7 @@ function mu = momentOfHist(hgrm, x0, n)
 
     ## integral term for kth dimension:
     ##    integrate x{k}^n dx{k}, x{k} over all bins in kth dimension
-    muint .*= ((xh.^(n(k)+1) - xl.^(n(k)+1)) ./ (n(k)+1));
+    muint .*= (((xh - x0(k)).^(n(k)+1) - (xl - x0(k)).^(n(k)+1)) ./ (n(k)+1));
 
   endfor
 
