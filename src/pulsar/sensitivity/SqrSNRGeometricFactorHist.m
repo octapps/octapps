@@ -17,9 +17,8 @@
 
 ## Calculate a histogram of the squared SNR "geometric factor", R^2
 ## Syntax:
-##   [Rsqr_mism_H, Rsqr_H] = SqrSNRGeometricFactorHist(options...)
+##   Rsqr_H      = SqrSNRGeometricFactorHist(options...)
 ## where:
-##   Rsqr_mism_H = mismatched histogram of R^2
 ##   Rsqr_H      = histogram of R^2
 ## and where options are:
 ##   "T"         = observation time in sidereal days (default: inf)
@@ -35,7 +34,7 @@
 ##   "hist_N"    = number of histogram points to calculate at a time
 ##   "hist_err"  = histogram error target
 
-function [Rsqr_mism_H, Rsqr_H] = SqrSNRGeometricFactorHist(varargin)
+function Rsqr_H = SqrSNRGeometricFactorHist(varargin)
 
   ## parse options
   parseOptions(varargin,
@@ -115,12 +114,15 @@ function [Rsqr_mism_H, Rsqr_H] = SqrSNRGeometricFactorHist(varargin)
   avg_Fpsqr_t = meanOfHist(Fpsqr_t_H);
   avg_Fxsqr_t = meanOfHist(Fxsqr_t_H);
 
+  ## get signal amplitude normalisation
+  apxnorm = SignalAmplitudes(emission);
+
   ## create random parameter generator for source amplitude parameters
   rng = CreateRandParam(cosi);
   N = !!rng.allconst + !rng.allconst*hist_N;
 
   ## calculate histogram of squared SNR geometric factor
-  Rsqr_H = Rsqr_mism_H = newHist;
+  Rsqr_H = newHist;
   mism_hgrm_wksp = [];
   err_mism = 0;
   do
@@ -133,6 +135,12 @@ function [Rsqr_mism_H, Rsqr_H] = SqrSNRGeometricFactorHist(varargin)
 
     ## calculate squared SNR geometric factor
     Rsqr = (ap.^2 .* avg_Fpsqr_t) + (ax.^2 .* avg_Fxsqr_t);
+    
+    ## if using mismatch histogram, reduce R^2 by randomly-chosen mismatch
+    if ~isempty(mism_hgrm)
+      [mismatch, mism_hgrm_wksp] = drawFromHist(mism_hgrm, N, mism_hgrm_wksp);
+      Rsqr .*= ( 1 - mismatch' );
+    endif
 
     ## add new values to histogram
     Rsqr_H_old = Rsqr_H;
@@ -141,38 +149,14 @@ function [Rsqr_mism_H, Rsqr_H] = SqrSNRGeometricFactorHist(varargin)
     ## calculate difference between old and new histograms
     err = histMetric(Rsqr_H, Rsqr_H_old);
 
-    ## if using mismatch histogram
-    if ~isempty(mism_hgrm)
-
-      ## reduce R^2 by randomly-chosen mismatch
-      [mismatch, mism_hgrm_wksp] = drawFromHist(mism_hgrm, N, mism_hgrm_wksp);
-      Rsqr_mism = Rsqr .* ( 1 - mismatch' );
-
-      ## add new values to histogram
-      Rsqr_mism_H_old = Rsqr_mism_H;
-      Rsqr_mism_H = addDataToHist(Rsqr_mism_H, Rsqr_mism(:), hist_dx);
-
-      ## calculate difference between old and new histograms
-      err_mism = histMetric(Rsqr_mism_H, Rsqr_mism_H_old);
-
-    endif
-    
     ## continue until error is small enough
     ## (exit after 1 iteration if all parameters are constant)
   until (rng.allconst || (err < hist_err && err_mism < hist_err))
 
-  ## if no mismatch, mismatched R^2 histogram equals un-mismatched R^2
-  if isempty(mism_hgrm)
-    Rsqr_mism_H = Rsqr_H;
-  endif
-
-  ## reduce scale of R^2 histogram by mean of un-mismatched R^2
-  Rsqr_mean = meanOfHist(Rsqr_H);
-  Rsqr_mism_H = transformHistBins(Rsqr_mism_H, 1, @(x) x / Rsqr_mean);
-  Rsqr_H = transformHistBins(Rsqr_H, 1, @(x) x / Rsqr_mean);
+  ## reduce scale of R^2 histogram so that <R^2> = 1
+  Rsqr_H = transformHistBins(Rsqr_H, 1, @(x) x / apxnorm);
 
   ## normalise histograms
-  Rsqr_mism_H = normaliseHist(Rsqr_mism_H);
   Rsqr_H = normaliseHist(Rsqr_H);
 
 endfunction

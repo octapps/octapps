@@ -20,17 +20,25 @@
 ##   "nonax": nonaxisymmetric distortion at 2f
 ## Syntax:
 ##   [ap, ax] = SignalAmplitudes("nonax", cosi)
+##   apxnorm  = SignalAmplitudes("nonax")
 ## where:
 ##   ap,ax   = signal polarisation amplitudes
+##   apxnorm = normalisation constant for R^2
 ##   cosi    = cosine of the inclination angle
 
-function [ap, ax] = SignalAmplitudes(emission, cosi)
+function varargout = SignalAmplitudes(emission, cosi)
 
   ## select an emission mechanism
   switch emission
     case "nonax"
-      ap = 0.5.*(1 + cosi.^2);
-      ax = cosi;
+      if nargout == 1
+        apxnorm = 4/25;
+        varargout = {apxnorm};
+      else
+        ap = 0.5.*(1 + cosi.^2);
+        ax = cosi;
+        varargout = {ap, ax};
+      endif
     otherwise
       error("%s: invalid emission mechanism '%s'", funcName, emission)
   endswitch
