@@ -124,7 +124,6 @@ function Rsqr_H = SqrSNRGeometricFactorHist(varargin)
   ## calculate histogram of squared SNR geometric factor
   Rsqr_H = newHist;
   mism_hgrm_wksp = [];
-  err_mism = 0;
   do
 
     ## new random source amplitude parameters
@@ -151,7 +150,7 @@ function Rsqr_H = SqrSNRGeometricFactorHist(varargin)
 
     ## continue until error is small enough
     ## (exit after 1 iteration if all parameters are constant)
-  until (rng.allconst || (err < hist_err && err_mism < hist_err))
+  until (rng.allconst || err < hist_err)
 
   ## reduce scale of R^2 histogram so that <R^2> = 1
   Rsqr_H = transformHistBins(Rsqr_H, 1, @(x) x / apxnorm);
