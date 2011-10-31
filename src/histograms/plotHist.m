@@ -50,8 +50,10 @@ function varargout = plotHist(hgrm, varargin)
   else
 
     ## otherwise plot stairs
-    x = [xb(1); xb(:); xb(end)];
-    y = [0; px(:); 0];
+    ii = find(px > 0);
+    ii = min(ii):max(ii);
+    x = [xb(ii(1)); xb(ii)(:); xb(ii(end))];
+    y = [0; px(ii)(:); 0];
     h = stairs(x, y, varargin{:});
 
   endif
