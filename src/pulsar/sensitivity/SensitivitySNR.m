@@ -38,7 +38,7 @@ function [rho, pd_rho] = SensitivitySNR(paNt, pd, Ns, Rsqr_H, detstat, varargin)
   endif
   if sensitivity_progress
     old_pso = page_screen_output(0);
-    fprintf("%s: starting\n", funcName);
+    printf("%s: starting\n", funcName);
   endif
 
   ## check input
@@ -118,7 +118,7 @@ function [rho, pd_rho] = SensitivitySNR(paNt, pd, Ns, Rsqr_H, detstat, varargin)
     ## display progress updates?
     if sensitivity_progress && sum(ii) != sumii
       sumii = sum(ii);
-      fprintf("%s: finding rhosqr_max (%i left)\n", funcName, sumii);
+      printf("%s: finding rhosqr_max (%i left)\n", funcName, sumii);
     endif
 
     ## increment upper bound on rhosqr
@@ -144,7 +144,7 @@ function [rho, pd_rho] = SensitivitySNR(paNt, pd, Ns, Rsqr_H, detstat, varargin)
     ## display progress updates?
     if sensitivity_progress && sum(ii) != sumii
       sumii = sum(ii);
-      fprintf("%s: bifurcation search (%i left)\n", funcName, sumii);
+      printf("%s: bifurcation search (%i left)\n", funcName, sumii);
     endif
 
     ## pick random point within range as new rhosqr
@@ -182,7 +182,7 @@ function [rho, pd_rho] = SensitivitySNR(paNt, pd, Ns, Rsqr_H, detstat, varargin)
   
   ## display progress updates?
   if sensitivity_progress
-    fprintf("%s: done\n", funcName);
+    printf("%s: done\n", funcName);
     page_screen_output(old_pso);
   endif
 

@@ -83,7 +83,7 @@ function opts = parseCommandLine(varargin)
     endif
     
     ## print help text and exit
-    fprintf("\n%s\n", helptext);
+    printf("\n%s\n", helptext);
     error("Exiting %s after displaying help\n", program_invocation_name);
     
   endif
