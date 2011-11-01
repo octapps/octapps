@@ -32,8 +32,8 @@ function isscript = runningAsScript
   [fpath, fname, fext] = fileparts(fname);
   fname = strcat(fname, fext);
 
-  ## if filename equals program invocation name,
+  ## if filename equals program name,
   ## we're running a script
-  isscript = strcmp(fname, program_invocation_name);
+  isscript = strcmp(fname, program_name);
 
 endfunction
