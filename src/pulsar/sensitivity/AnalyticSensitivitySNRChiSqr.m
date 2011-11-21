@@ -28,7 +28,7 @@
 ##   Ns   = number of segments
 ##   nu   = degrees of freedom of the chi^2 statistic
 
-function [rhoh,iter] = AnalyticSensitivitySNRChiSqr(paNt, pd, Ns, nu)
+function [rhoh,iter] = AnalyticSensitivitySNRChiSqr(paNt, pd, Ns, nu, errmax = 1e-10)
   
   ## check input
   assert(all(paNt > 0));
@@ -90,7 +90,7 @@ function [rhoh,iter] = AnalyticSensitivitySNRChiSqr(paNt, pd, Ns, nu)
 
     ## determine which rhoh to keep calculating for
     ## exit when there are none left
-    ii = (isfinite(err) & err > 1e-5);
+    ii = (isfinite(err) & err > errmax);
   until !any(ii)
 
   ## final estimate of sensitivity SNR
