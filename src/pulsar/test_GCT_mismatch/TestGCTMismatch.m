@@ -8,8 +8,8 @@ function TestGCTMismatch(varargin)
                {"end_time", "numeric,scalar"},
                {"Sh", "numeric,scalar"},
                {"h0", "numeric,scalar"},
-               {"f1dot-band", "numeric,scalar"},
-               {"f2dot-band", "numeric,scalar"},
+               {"f1dot_band", "numeric,scalar"},
+               {"f2dot_band", "numeric,scalar"},
                {"result_file", "char"}
                );
   IFOs = fieldnames(SFT_timestamps);
