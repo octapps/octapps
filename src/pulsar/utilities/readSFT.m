@@ -42,76 +42,77 @@
 
 function ret = readSFT(fname)
 
-  if ( (fid = fopen (fname, "rb")) == -1 )
-    error ("Could not open SFT-file '%s'.", fname )
-  endif
+  fid = fopen(fname, 'rb');
+  if ( fid == -1 )
+    error ('Could not open SFT-file ''%s''.', fname )
+  end
+  
+  [header.version, count] = fread (fid, 1, 'real*8');
+  if ( count ~= 1 )
+    error ('Error reading version-info from SFT!');
+  elseif ( (header.version ~= 1.0) && (header.version ~= 2.0) )
+    error ('Only SFTs v1 or v2 are supported right now! Version was: %f!', header.version);
+  end
 
-  [header.version, count] = fread (fid, 1, "real*8");
-  if ( count != 1 )
-    error ("Error reading version-info from SFT!");
-  elseif ( (header.version != 1.0) && (header.version != 2.0) )
-    error ("Only SFTs v1 or v2 are supported right now! Version was: %f!", header.version);
-  endif
+  [ header.epoch.gpsSeconds, count ] = fread ( fid, 1, 'int32' );
+  if ( count ~= 1 ) error ('Error reading header-info ''gpsSeconds'' from SFT-file ''%s''', fname); end
 
-  [ header.epoch.gpsSeconds, count ] = fread ( fid, 1, "int32" );
-  if ( count != 1 ) error ("Error reading header-info 'gpsSeconds' from SFT-file '%s'", fname); endif
+  [ header.epoch.gpsNanoSeconds, count ] = fread ( fid, 1, 'int32' );
+  if ( count ~= 1 ) error ('Error reading header-info ''gpsNanoSeconds'' from SFT-file ''%s''', fname); end
 
-  [ header.epoch.gpsNanoSeconds, count ] = fread ( fid, 1, "int32" );
-  if ( count != 1 ) error ("Error reading header-info 'gpsNanoSeconds' from SFT-file '%s'", fname); endif
+  [ header.Tsft, count ] = fread ( fid, 1, 'real*8' );
+  if ( count ~= 1 ) error ('Error reading header-info ''Tsft'' from SFT-file ''%s''', fname); end
 
-  [ header.Tsft, count ] = fread ( fid, 1, "real*8" );
-  if ( count != 1 ) error ("Error reading header-info 'Tsft' from SFT-file '%s'", fname); endif
+  [ fminBinIndex, count ] = fread ( fid, 1, 'int32' );
+  if ( count ~= 1 ) error ('Error reading header-info ''fminBinIndex'' from SFT-file ''%s''', fname); end
 
-  [ fminBinIndex, count ] = fread ( fid, 1, "int32" );
-  if ( count != 1 ) error ("Error reading header-info 'fminBinIndex' from SFT-file '%s'", fname); endif
-
-  [ SFTlen, count ] = fread ( fid, 1, "int32" );
-  if ( count != 1 ) error ("Error reading header-info 'length' from SFT-file '%s'", fname); endif
+  [ SFTlen, count ] = fread ( fid, 1, 'int32' );
+  if ( count ~= 1 ) error ('Error reading header-info ''length'' from SFT-file ''%s''', fname); end
 
   if ( header.version == 2 )
-    [ crc64, count ] = fread ( fid, 1, "int64" );
-    if ( count != 1 ) error ("Error reading header-info 'crc64' from SFTv2-file '%s'", fname); endif
+    [ crc64, count ] = fread ( fid, 1, 'int64' );
+    if ( count ~= 1 ) error ('Error reading header-info ''crc64'' from SFTv2-file ''%s''', fname); end
 
-    [ IFO, count ] = fread ( fid, 2, "uchar" );
-    if ( count != 2 ) error ("Error reading header-info 'IFO' from SFTv2-file '%s'", fname); endif
+    [ IFO, count ] = fread ( fid, 2, 'uchar' );
+    if ( count ~= 2 ) error ('Error reading header-info ''IFO'' from SFTv2-file ''%s''', fname); end
     header.IFO = char ( IFO' );
 
-    [ padding, count ] = fread ( fid, 2, "uchar" );
-    if ( count != 2 ) error ("Error reading header-info 'padding' from SFTv2-file '%s'", fname); endif
+    [ padding, count ] = fread ( fid, 2, 'uchar' );
+    if ( count ~= 2 ) error ('Error reading header-info ''padding'' from SFTv2-file ''%s''', fname); end
 
-    [ commentLen, count ] = fread ( fid, 1, "int32" );
-    if ( count != 1 ) error ("Error reading header-info 'comment-len' from SFTv2-file '%s'", fname); endif
+    [ commentLen, count ] = fread ( fid, 1, 'int32' );
+    if ( count ~= 1 ) error ('Error reading header-info ''comment-len'' from SFTv2-file ''%s''', fname); end
 
-    [ comment, count ] = fread ( fid, commentLen, "uchar" );
-    if ( count != commentLen ) error ("Error reading comment-string from SFTv2-file '%s'", fname); endif
+    [ comment, count ] = fread ( fid, commentLen, 'uchar' );
+    if ( count ~= commentLen ) error ('Error reading comment-string from SFTv2-file ''%s''', fname); end
     header.comment = char ( comment' );
-  endif %% if version 2
+  end %% if version 2
 
   dfreq = 1.0 / header.Tsft;
   header.f0 = fminBinIndex * dfreq;
   header.Band = (SFTlen-1) * dfreq;
 
-  [ rawdata, count ] = fread ( fid, [2, SFTlen], "real*4" );
-  if ( count != SFTlen*2 )
-    error ("Inconsistent data-length (%d) and length-info (%d) in header in '%s'.", count, SFTlen, fname );
-  endif
+  [ rawdata, count ] = fread ( fid, [2, SFTlen], 'real*4' );
+  if ( count ~= SFTlen*2 )
+    error ('Inconsistent data-length (%d) and length-info (%d) in header in ''%s\''.', count, SFTlen, fname );
+  end
   fclose(fid);
 
   %% SFT normalization
   dt = header.Tsft / (2 * SFTlen );
   if ( header.version == 1.0 )
-    rawdata *= dt;
-  endif
+    rawdata = rawdata * dt;
+  end
 
   ret.header = header;
   ret.SFTdata = rawdata';
 
   %% now estimate psd of SFT-data
-  periodo = sqrt ( ret.SFTdata(:,1).^2 .+ ret.SFTdata(:,2).^2 );
+  periodo = sqrt ( ret.SFTdata(:,1).^2 + ret.SFTdata(:,2).^2 );
 
   ret.psd = sqrt(2 * dfreq) * periodo;
 
   fE = header.f0 + header.Band;
   ret.freqs = header.f0:dfreq:fE;
 
-endfunction
+end
