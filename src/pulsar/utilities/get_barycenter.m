@@ -39,6 +39,9 @@ function [emitdt, emitte, emitdd, emitR, emitER, emitE, emitS] = ...
 % derivatives (emitdd), and the individual elements making up the time
 % delay - the Roemer delay (emitR), the Earth rotation delay (emitER), the
 % Einstein delay (emitE) and the Shapiro delay (emitS).
+%
+% These have been tested against the equivalent LAL functions and the
+% results are given at https://wiki.ligo.org/CW/MatlabBarycentring
 
 % set speed of light in vacuum (m/s)
 C_SI = 299792458;
