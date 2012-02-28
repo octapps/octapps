@@ -146,7 +146,7 @@ function paropts = parseOptions(opts, varargin)
       try
         eval(sprintf("optval=[%s];", optval));
       catch
-        error("%s: Could not create a value from '%s'", funcName, optvalstr);
+        error("%s: Could not create a value from '%s'", funcName, optval);
       end_try_catch
     endif
 
