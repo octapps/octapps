@@ -41,6 +41,18 @@ function makeCondorDAG(dagfile, dagnodes)
     if !isfield(dagnode, "jobfile")
       error("%s: missing DAG field 'jobfile'", funcName);
     endif
+    if isfield(dagnode, "vars")
+      if !isstruct(dagnode.vars)
+        error("%s: DAG field 'vars' must be a struct", funcName);
+      endif
+      vars = fieldnames(dagnode.vars);
+      for i = 1:length(vars)
+        value = dagnode.vars.(vars{i});
+        if !ischar(value)
+          error("%s: value of DAG variable '%s' must be a string", funcName, vars{i});
+        endif
+      endfor
+    endif
 
     ## check node children
     if isfield(dagnode, "child")
@@ -66,6 +78,18 @@ function makeCondorDAG(dagfile, dagnodes)
 
     ## print node
     fprintf(fdag, "JOB %s %s\n", dagnode.jobname, dagnode.jobfile);
+
+    ## print node variables
+    if isfield(dagnode, "vars")
+      fprintf(fdag, "VARS %s", dagnode.jobname);
+      vars = fieldnames(dagnode.vars);
+      for i = 1:length(vars)
+        value = dagnode.vars.(vars{i});
+        value = strrep(strrep(value, "\\", "\\\\"), "\"", "\\\"");
+        fprintf(fdag, " %s=\"%s\"", vars{i}, value);
+      endfor
+      fprintf(fdag, "\n");
+    endif
 
     ## print node retries
     if isfield(dagnode, "retry")
