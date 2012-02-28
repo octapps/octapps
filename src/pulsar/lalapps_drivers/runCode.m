@@ -46,7 +46,11 @@ function runCode (params, code)
   endfor
 
   %% ----- debug
-  if ( isfield(params, "lalDebugLevel" ) && params.lalDebugLevel )
+  if ( isfield(params, "v") )
+    lalDebugLevel = params.v;
+  elseif ( isfield(params, "d") )
+    lalDebugLevel = params.d;
+  elseif ( isfield(params, "lalDebugLevel" ) && params.lalDebugLevel )
     lalDebugLevel = params.lalDebugLevel;
     cmdline = sprintf ( "%s -v%d", cmdline, params.lalDebugLevel )
   else
@@ -58,11 +62,12 @@ function runCode (params, code)
   endif
 
   %% ----- and run it:
-  [status, out] = system(cmdline);
+  unmanglePATH;
+  status = system(cmdline);
   if ( status != 0 )
-    fprintf (stderr, "\nSomething failed in running '%s'\n\n", code);
-    fprintf (stderr, "Commandline was: %s\n", cmdline);
-    error ("Error was: %s", out);
+    printf ( "\nSomething failed in running '%s'\n\n", code);
+    printf ( "Commandline was: %s\n", cmdline);
+    error ("'%s' failed with exit status %i", code, status);
   endif
 
   return;
