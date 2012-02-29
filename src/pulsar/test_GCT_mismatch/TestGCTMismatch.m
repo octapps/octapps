@@ -25,6 +25,7 @@ function TestGCTMismatch(varargin)
                {"end_time", "numeric,scalar"},
                {"Sh", "numeric,scalar"},
                {"h0", "numeric,scalar"},
+               {"Tseg", "numeric,scalar"},
                {"freq", "numeric,scalar"},
                {"f1dot_band", "numeric,scalar"},
                {"f2dot_band", "numeric,scalar"},
@@ -130,20 +131,23 @@ function TestGCTMismatch(varargin)
   Fstats = load(HSGCT.fnameout);
   result.no_mismatch = Fstats;
 
+  ## fiducial ratio for mismatch search box
+  box_ratio = (2.5 / Tseg);
+
   ## create sky position grid for mismatch search
-  GM.AlphaBand = 2*pi * 1e-5;
-  GM.DeltaBand =   pi * 1e-5;
+  GM.AlphaBand = 2*pi * 1e-5 * box_ratio;
+  GM.DeltaBand =   pi * 1e-5 * box_ratio;
   GM.Alpha = MFD.Alpha - 0.5 * GM.AlphaBand;
   GM.Delta = MFD.Delta - 0.5 * GM.DeltaBand;
   runCode(GM, "lalapps_getMesh");
 
   ## run HierarchSearchGCT (with mismatch)
-  HSGCT.Freq = MFD.Freq - 1e-6;
-  HSGCT.FreqBand = 2e-5;
-  HSGCT.f1dot = MFD.f1dot - 0.01*f1dot_band;
-  HSGCT.f1dotBand = 0.02*f1dot_band;
-  HSGCT.f2dot = MFD.f2dot - 0.01*f2dot_band;
-  HSGCT.f2dotBand = 0.02*f2dot_band;
+  HSGCT.FreqBand = 1e-6 * box_ratio;
+  HSGCT.f1dotBand = 0.02 * f1dot_band * box_ratio;
+  HSGCT.f2dotBand = 0.02 * f2dot_band * box_ratio^2;
+  HSGCT.Freq = MFD.Freq - 0.5 * HSGCT.FreqBand;
+  HSGCT.f1dot = MFD.f1dot - 0.5 * HSGCT.f1dotBand;
+  HSGCT.f2dot = MFD.f2dot - 0.5 * HSGCT.f2dotBand;
   runCode(HSGCT, "lalapps_HierarchSearchGCT");
 
   ## save with-mismatch Fstat result

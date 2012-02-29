@@ -124,10 +124,11 @@ function MakeGCTMismatchTestDAG(varargin)
   ## create job description
   job = struct;
   job.universe = "vanilla";
+  job.request_memory = "250"; # MB
   job.initialdir = rundir;
   job.executable = fullfile(octave_config_info("bindir"), "octave");
-  job.output = "stdout.$(jobindex)";
-  job.error = "stderr.$(jobindex)";
+  job.output = "condor.out.$(jobindex)";
+  job.error = "condor.err.$(jobindex)";
   job.log = fullfile(logs_directory, sprintf("GCTMismatchTest_%s.log", run_ID));
   job.environment = {"OCTAVE_PATH", "PATH", "LD_LIBRARY_PATH", "LAL_DATA_PATH"};
   job.queue = 1;
@@ -149,6 +150,7 @@ function MakeGCTMismatchTestDAG(varargin)
   job.arguments.end_time = endTime;
   job.arguments.Sh = Sh;
   job.arguments.h0 = h0;
+  job.arguments.Tseg = Tseg;
   job.arguments.freq = freq;
   job.arguments.f1dot_band = f1dot_band;
   job.arguments.f2dot_band = f2dot_band;
