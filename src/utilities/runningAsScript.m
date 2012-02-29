@@ -15,15 +15,24 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## Returns whether Octave is currently executing
-## a script, as opposed to an interactive session
+## Returns whether the calling Octave script is being
+## run directly from the command line, as opposed to from
+## an interactive session or from another script.
 ## Syntax:
 ##   isscript = runningAsScript
 
 function isscript = runningAsScript
 
-  ## get filename of function at top of stack
+  ## get stack
   stack = dbstack();
+
+  ## first, stack length must be exactly 2
+  if length(stack) != 2
+    isscript = false;
+    return;
+  endif
+
+  ## next, get filename of calling script
   if length(stack) > 0
     fname = stack(end).file;
   else
@@ -33,7 +42,7 @@ function isscript = runningAsScript
   fname = strcat(fname, fext);
 
   ## if filename equals program name,
-  ## we're running a script
+  ## script is running from command line
   isscript = strcmp(fname, program_name);
 
 endfunction
