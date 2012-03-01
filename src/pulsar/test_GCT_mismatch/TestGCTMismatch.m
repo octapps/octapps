@@ -61,7 +61,7 @@ function TestGCTMismatch(varargin)
   MFD.f1dot = -f1dot_band * rand;
   MFD.f2dot =  f2dot_band * rand;
   MFD.h0 = h0;
-  MFD.noiseSqrtSh = Sh;
+  MFD.noiseSqrtSh = sqrt(Sh);
   MFD.outSingleSFT = true;
   MFD.phi0 = 2*pi*rand;
   MFD.psi = 2*pi*rand;
@@ -129,10 +129,10 @@ function TestGCTMismatch(varargin)
 
   ## save no-mismatch Fstat result
   Fstats = load(HSGCT.fnameout);
-  result.no_mismatch = Fstats;
+  Fstats_no_mismatch = Fstats;
 
   ## fiducial ratio for mismatch search box
-  box_ratio = (2.5 / Tseg);
+  box_ratio = 60*3600 / Tseg;
 
   ## create sky position grid for mismatch search
   GM.AlphaBand = 2*pi * 1e-5 * box_ratio;
@@ -152,10 +152,10 @@ function TestGCTMismatch(varargin)
 
   ## save with-mismatch Fstat result
   Fstats = load(HSGCT.fnameout);
-  result.with_mismatch = Fstats;
+  Fstats_with_mismatch = Fstats;
 
   ## save results to file
-  save(result_file, "result");
+  save(result_file);
 
 endfunction
 

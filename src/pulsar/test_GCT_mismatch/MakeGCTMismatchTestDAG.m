@@ -101,7 +101,7 @@ function MakeGCTMismatchTestDAG(varargin)
   ## get number and average segment duration
   ## assume equal amount of data from each IFO
   segs = load(GCT_segments);
-  Tsegs = segs(:,3) / 24;  # convert from hours to days
+  Tsegs = segs(:,3) * 3600;  # convert from hours to seconds
   Tseg = mean(Tsegs);
   Nseg = length(Tsegs) * length(IFOs);
 
@@ -182,6 +182,9 @@ function MakeGCTMismatchTestDAG(varargin)
   ## create DAG file
   dagfile = fullfile(rundir, "condor.dag");
   makeCondorDAG(dagfile, DAG);
+
+  ## save all variables used in creating the DAG
+  save(strcat(run_ID, "_dag.dat"));
 
 endfunction
 
