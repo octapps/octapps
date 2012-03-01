@@ -29,6 +29,7 @@ function TestGCTMismatch(varargin)
                {"freq", "numeric,scalar"},
                {"f1dot_band", "numeric,scalar"},
                {"f2dot_band", "numeric,scalar"},
+               {"f2dot_refine", "numeric,scalar"},
                {"debug_level", "numeric,scalar"},
                {"result_file", "char"}
                );
@@ -148,6 +149,7 @@ function TestGCTMismatch(varargin)
   HSGCT.Freq = MFD.Freq - 0.5 * HSGCT.FreqBand;
   HSGCT.f1dot = MFD.f1dot - 0.5 * HSGCT.f1dotBand;
   HSGCT.f2dot = MFD.f2dot - 0.5 * HSGCT.f2dotBand;
+  HSGCT.gamma2Refine = f2dot_refine;
   runCode(HSGCT, "lalapps_HierarchSearchGCT");
 
   ## save with-mismatch Fstat result

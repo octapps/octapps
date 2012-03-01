@@ -49,6 +49,7 @@ function MakeGCTMismatchTestDAG(varargin)
                {"freq", "numeric,scalar"},
                {"f1dot_band", "numeric,scalar"},
                {"f2dot_band", "numeric,scalar"},
+               {"f2dot_refine", "numeric,scalar"},
                {"debug_level", "numeric,scalar", 0},
                {"jobs_directory", "char", pwd},
                {"logs_directory", "char", getenv("LOCALHOME")},
@@ -154,6 +155,7 @@ function MakeGCTMismatchTestDAG(varargin)
   job.arguments.freq = freq;
   job.arguments.f1dot_band = f1dot_band;
   job.arguments.f2dot_band = f2dot_band;
+  job.arguments.f2dot_refine = f2dot_refine;
   job.arguments.debug_level = debug_level;
   job.arguments.result_file = "results.$(jobindex)";
 
