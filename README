@@ -6,15 +6,13 @@ git clone git://git.aei.uni-hannover.de/shared/octapps.git
 
 To use these any octapps functions within octave, you can either
 
-*) add the following to your .bashrc
+*) add the following to your .bashrc, .cshrc, etc.
 
-export OCTAPPS_TOP=<path-to-your-octapps-dir>
-eval `${OCTAPPS_TOP}/octapps_setup.m bash`
+eval `/path/to/octapps/octapps_setup.m`
 
-(adjust correspondingly for different shells).
+*) execute the following from within octave:
 
-or execute the following from within octave:
-octave> source ("<path-to-your-octapps-dir>/octapps_setup.m")
+octave> source /path/to/octapps/octapps_setup.m
 
 If you also use matapps, it's probably important to add the octapps
 activation above AFTER any matapps activation in your .bashrc or

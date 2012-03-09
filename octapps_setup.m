@@ -1,8 +1,6 @@
-#!/usr/bin/octave -qf
-##
 ## Setup script for OCTAPPS paths.
 ## It can be run in a shell:
-##    eval `/path/to/octapps_setup.m <name of shell>`
+##    eval `/path/to/octapps_setup.m`
 ## or within Octave:
 ##    octapps_setup
 
@@ -23,8 +21,24 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## this is a script
-1;
+## Since this file is marked executable, and has no she-bang, it will
+## be executed by the user's choice of shell, e.g. bash, csh. When the
+## shell encounters the following line, it will concatenate the two
+## strings together, and execute the resulting shell command, which
+## replaces the current process with octave (whichever version is first
+## in the current PATH), which in turn executes this same script! But,
+## when octave encounters the following line, it interprets it as a call
+## to the function eval(TRY,CATCH) with string arguments TRY and CATCH.
+## Since the TRY string is empty, eval() does nothing, and the CATCH 
+## string containing the shell commands is never evaluated by octave.
+##
+## The back-quoted argument passed to this script tests which shell
+## is being used by the user. A C shell will recognise the 'setenv'
+## command, set the environment variable CSH, and print its value;
+## thus the script receives the argument 'csh'. A Bourne shell will
+## not recognise the 'setenv' command, thus the environment variable
+## CSH has no value, and the script received no argument.
+eval '' 'exec octave -qfH $0 `unset CSH; setenv CSH csh >&/dev/null; echo ${CSH}`'
 
 ## put everything in an internal function, so workspace
 ## isn't contaminated when run from within Octave
@@ -40,14 +54,11 @@ function octapps_setup_function(my_path)
   if run_as_script
 
     ## check for name of shell on command line
-    if length(argv) != 1
-      printf("Usage: %s <name of shell>", my_name);
-      return;
+    if length(argv) > 0 && strcmp(argv(){1}, "csh")
+      csh_shell = true;
+    else
+      csh_shell = false;
     endif
-
-    ## get the filename component
-    [shell{1:2}] = fileparts(argv(){1});
-    shell = shell{2};
 
   endif
 
@@ -115,20 +126,17 @@ function octapps_setup_function(my_path)
 
     ## build the shell environment string
     octave_path_env = {octapps_path{:}, octave_path_env{:}};
-    octave_path_env_str = "";
-    for i = 1:length(octave_path_env)
+    octave_path_env_str = octave_path_env{i};
+    for i = 2:length(octave_path_env)
       octave_path_env_str = strcat(octave_path_env_str, pathsep, octave_path_env{i});
     endfor
 
     ## print the shell-appropriate command
-    switch shell
-      case {"bash"}
-	printf("export OCTAVE_PATH=%s", octave_path_env_str);
-      case {"csh" "tcsh"}
-	printf("setenv OCTAVE_PATH %s", octave_path_env_str);
-      otherwise
-	error(["Unrecognised shell '" shell "'"]);
-    endswitch
+    if csh_shell
+      printf("setenv OCTAVE_PATH %s", octave_path_env_str);
+    else
+      printf("export OCTAVE_PATH=%s", octave_path_env_str);
+    endif
 
   endif
 
