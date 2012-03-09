@@ -23,8 +23,10 @@
 
 function octapps_install(octapps_prefix)
 
-  ## make absolute file name
+  ## make absolute file name and strip trailing /s
   octapps_prefix = make_absolute_filename(octapps_prefix);
+  [octapps_prefix_d, octapps_prefix_n] = fileparts(octapps_prefix);
+  octapps_prefix = fullfile(octapps_prefix_d, octapps_prefix_n);
 
   ## octave install locations
   octave_prefix = octave_config_info("prefix");
@@ -95,6 +97,7 @@ function octapps_install(octapps_prefix)
     if fid < 0
       error("%s: failed to open %s", funcName, userenvfile);
     endif
+    fprintf(fid, "# source this file to access OCTAPPS\n");
     if strcmp(exts{i}, "csh")
       fprintf(fid, "if ( ! ${?OCTAVE_PATH} ) setenv OCTAVE_PATH\n")
       fprintf(fid, "setenv OCTAVE_PATH \"%s:${OCTAVE_PATH}\"\n", userenvpath);
