@@ -23,11 +23,8 @@
 
 function octapps_install(octapps_prefix)
 
-  ## canonicalize octapps prefix
-  octapps_prefix = canonicalize_file_name(octapps_prefix);
-  if length(octapps_prefix) == 0
-    error("%s: could not make canonical name from '%s'", funcName, octapps_prefix);
-  endif
+  ## make absolute file name
+  octapps_prefix = make_absolute_filename(octapps_prefix);
 
   ## octave install locations
   octave_prefix = octave_config_info("prefix");
@@ -49,6 +46,7 @@ function octapps_install(octapps_prefix)
   ## make directories
   system(cstrcat("mkdir -p ", octapps_mfiledir));
   system(cstrcat("mkdir -p ", octapps_octfiledir));
+  system(cstrcat("mkdir -p ", fullfile(octapps_prefix, "etc")));
   
   ## get the directory containing this file, which
   ## is assumed to be the OCTAPPS root directory
@@ -57,6 +55,10 @@ function octapps_install(octapps_prefix)
   ## copy *.m files in all subdirectories to m-file install directory
   dirs = strsplit(genpath(fullfile(my_path, "src")), pathsep, true);
   for i = 1:length(dirs)
+    [dir_base, dir_name] = fileparts(dirs{i});
+    if strcmp(dir_name, "deprecated")
+      continue
+    endif
     for patt = {"*.m"}
       octfiles = glob(fullfile(dirs{i}, patt{1}));
       for j = 1:length(octfiles)

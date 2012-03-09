@@ -77,6 +77,10 @@ function octapps_setup_function(my_path)
   dirs = strsplit(genpath(fullfile(my_path, "src")), pathsep, true);
   octapps_path = {my_path};
   for i = 1:length(dirs)
+    [dir_base, dir_name] = fileparts(dirs{i});
+    if strcmp(dir_name, "deprecated")
+      continue
+    endif
     octfiles = 0;
     for patt = {"*.m"}
       octfiles += length(glob(fullfile(dirs{i}, patt{1})));
@@ -126,7 +130,7 @@ function octapps_setup_function(my_path)
 
     ## build the shell environment string
     octave_path_env = {octapps_path{:}, octave_path_env{:}};
-    octave_path_env_str = octave_path_env{i};
+    octave_path_env_str = octave_path_env{1};
     for i = 2:length(octave_path_env)
       octave_path_env_str = strcat(octave_path_env_str, pathsep, octave_path_env{i});
     endfor
