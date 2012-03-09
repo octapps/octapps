@@ -120,11 +120,11 @@ function octapps_build_oct(varargin)
     
   endfor
 
-  ## refresh octapps path
-  octapps_setup;
-
   ## restore working directory and paging
   cd(old_wd);
   page_screen_output(pso);
+
+  ## refresh octapps path
+  octapps_setup;
 
 endfunction
