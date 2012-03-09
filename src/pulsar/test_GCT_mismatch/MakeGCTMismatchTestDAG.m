@@ -53,6 +53,7 @@ function MakeGCTMismatchTestDAG(varargin)
                {"debug_level", "numeric,scalar", 0},
                {"jobs_directory", "char", pwd},
                {"logs_directory", "char", getenv("LOCALHOME")},
+               {"local_directory", "char", fullfile(pwd, "local")},
                {"job_retries", "numeric,scalar", 5}
                );
   SFT_timestamps = struct;
@@ -68,6 +69,9 @@ function MakeGCTMismatchTestDAG(varargin)
   if !exist(logs_directory, "dir")
     error("%s: directory '%s' does not exist", funcName, logs_directory);
   endif    
+  if !exist(local_directory, "dir")
+    error("%s: directory '%s' does not exist", funcName, local_directory);
+  endif    
   if exist(rundir, "dir")
     error("%s: directory '%s' already exists", funcName, rundir);
   endif    
@@ -78,25 +82,6 @@ function MakeGCTMismatchTestDAG(varargin)
   endfor
   if !exist(GCT_segments, "file")
     error("%s: file '%s' does not exist", funcName, GCT_segments);
-  endif
-
-  ## check environment
-  if isempty(getenv("LAL_DATA_PATH"))
-    error("%s: set $LAL_DATA_PATH to LAL data search path", funcName);
-  endif
-
-  ## find required lalapps programs
-  progs = {"Makefakedata_v4", "getMesh", "HierarchSearchGCT"};
-  for i = 1:length(progs)
-    if isempty(file_in_path(getenv("PATH"), strcat("lalapps_", progs{i})))
-      error("%s: could not find 'lalapps_%s'", funcName, progs{i});
-    endif
-  endfor
-
-  ## find injection script
-  injection_script = file_in_loadpath("TestGCTMismatch.m");
-  if isempty(injection_script)
-    error("%s: cannot find injection script 'TestGCTMismatch.m'", funcName);
   endif
 
   ## get number and average segment duration
@@ -122,16 +107,30 @@ function MakeGCTMismatchTestDAG(varargin)
   mkdir(jobs_directory);
   mkdir(rundir);
 
+  ## write bootscript
+  bootscript_name = "octave_bootstrap.sh";
+  bootscript_path = fullfile(jobs_directory, bootscript_name);
+  fid = fopen(bootscript_path, "w");
+  if fid < 0
+    error("%s: failed to open %s", funcName, bootscript_path);
+  endif
+  fprintf(fid, "#!/bin/bash\n");
+  fprintf(fid, "source %s/etc/lalpulsar-user-env.sh\n", local_directory);
+  fprintf(fid, "source %s/etc/lalapps-user-env.sh\n", local_directory);
+  fprintf(fid, "source %s/etc/octapps-user-env.sh\n", local_directory);
+  fprintf(fid, "exec /usr/bin/octave \"$@\"\n");
+  fclose(fid);
+
   ## create job description
   job = struct;
   job.universe = "vanilla";
   job.request_memory = "250"; # MB
   job.initialdir = rundir;
-  job.executable = fullfile(octave_config_info("bindir"), "octave");
+  job.executable = bootscript_path;
   job.output = "condor.out.$(jobindex)";
   job.error = "condor.err.$(jobindex)";
   job.log = fullfile(logs_directory, sprintf("GCTMismatchTest_%s.log", run_ID));
-  job.environment = {"OCTAVE_PATH", "PATH", "LD_LIBRARY_PATH", "LAL_DATA_PATH"};
+  jobs.getenv = false;
   job.queue = 1;
 
   ## create job arguments

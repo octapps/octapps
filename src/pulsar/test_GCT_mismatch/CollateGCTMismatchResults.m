@@ -44,6 +44,8 @@ function CollateGCTMismatchResults(run_ID)
   printf("Number of injection results collated: %i\n", injection);
 
   ## save injection results file
-  save("-zip", strcat(run_ID, "_results.dat.gz"), "injection_results");
+  if injection > 0
+    save("-zip", strcat(run_ID, "_results.dat.gz"), "injection_results");
+  endif
 
 endfunction
