@@ -1,4 +1,4 @@
-## Copyright (C) 2011 Karl Wette
+## Copyright (C) 2012 Karl Wette
 ##
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -15,35 +15,25 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## Command line argument pre-parser: use with parseOptions to
-## call Octave functions from the command line.
-## Usage:
-##
-##   function MyScript(varargin)
-##     parseOptions(varargin, ...);
-##     ...
-##   endfunction
-##
-##   if runningAsScript
-##     MyScript(parseCommandLine(){:});
-##   endif
-##
-## Command-line options may be given either as
-##   '--name' 'value'
-## or as
-##   '--name=value'
-## is <name> does not accept a 'char' value (as determined by
-## parseOptions), <value> will be treated as an Octave expression
-## and eval()uated, surrounded by []s.
+## Run script from command line. This function is used by ./octapps_run
+## to parse the command line and call the script. Command-line options
+## are given as either
+##   --name <value>   or   --name=<value>
+## and are designed to be parsed further by parseOptions().
 
-function opts = parseCommandLine(varargin)
+function octapps_run(octapps_run_script, function_name)
 
-  ## get command-line arguments
-  if length(varargin) > 0
-    args = varargin;   # for debugging purposes
-  else
-    args = argv();
-  endif
+  ## check that function_name exists in Octave path
+  try
+    function_handle = str2func(function_name);
+  catch
+    error("%s: no function '%s'", octapps_run_script, function_name);
+  end_try_catch
+
+  ## get command line arguments passed to script, which start
+  ## after the command-line argument '/dev/null'
+  args = argv();
+  args = args((strmatch("/dev/null", args)(1)+1):end);
 
   ## stupid Octave; if no command-line arguments are given to script, argv()
   ## will contain the entire Octave command-line, instead of simply the
@@ -53,41 +43,11 @@ function opts = parseCommandLine(varargin)
   endif
 
   ## print caller's usage if --help is given
-  if any(cellfun(@(x) strcmp(x, "--help"), args))
-    
-    ## get name of calling function
-    stack = dbstack();
-    if numel(stack) > 1
-      callername = stack(2).name;
-    else
-      error("No help information for %s\n", program_invocation_name);
-    endif
-    
-    ## get plain help text of calling function
-    [helptext, helpfmt] = get_help_text(callername);
-    if !strcmp(helpfmt, "plain text")
-      [helptext, helpstat] = __makeinfo__(helptext, "plain text");
-      if !helpstat
-        error("No plain-text help information for %s\n", program_invocation_name);
-      endif
-    endif
-    
-    ## remove shebang from help text
-    if strncmp(helptext, "!", 1)
-      i = min(strfind(helptext, "\n"));
-      if isempty(i)
-        error("No help information for %s\n", program_invocation_name);
-      else
-        helptext = helptext(i+1:end);
-      endif
-    endif
-    
-    ## print help text and exit
-    printf("\n%s\n", helptext);
-    error("Exiting %s after displaying help\n", program_invocation_name);
-    
+  if length(strmatch("--help", args)) > 0
+    feval("help", function_name);
+    exit(1);
   endif
-  
+
   ## parse command-line arguments
   opts = {};
   n = 1;
@@ -138,5 +98,8 @@ function opts = parseCommandLine(varargin)
     opts = {opts{:}, argname, argvalstr};
 
   endwhile
+
+  ## run script
+  feval(function_handle, opts{:});
 
 endfunction

@@ -188,8 +188,3 @@ function MakeGCTMismatchTestDAG(varargin)
   save(strcat(run_ID, "_dag.dat"));
 
 endfunction
-
-## if running as a script
-if runningAsScript
-  MakeGCTMismatchTestDAG(parseCommandLine(){:});
-endif

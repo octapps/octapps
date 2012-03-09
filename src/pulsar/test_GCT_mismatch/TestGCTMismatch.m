@@ -160,8 +160,3 @@ function TestGCTMismatch(varargin)
   save(result_file);
 
 endfunction
-
-## if running as a script
-if runningAsScript
-  TestGCTMismatch(parseCommandLine(){:});
-endif

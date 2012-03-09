@@ -45,10 +45,14 @@ function octapps_install(octapps_prefix)
     error("%s: '%s' does not begin with '%s'", funcName, octave_octfiledir, octave_prefix);
   endif
 
+  ## octapps FHS install locations
+  octapps_bindir = fullfile(octapps_prefix, "bin");
+  octapps_etcdir = fullfile(octapps_prefix, "etc");
+
   ## make directories
   system(cstrcat("mkdir -p ", octapps_mfiledir));
   system(cstrcat("mkdir -p ", octapps_octfiledir));
-  system(cstrcat("mkdir -p ", fullfile(octapps_prefix, "etc")));
+  system(cstrcat("mkdir -p ", octapps_etcdir));
   
   ## get the directory containing this file, which
   ## is assumed to be the OCTAPPS root directory
@@ -88,11 +92,24 @@ function octapps_install(octapps_prefix)
   endif
   printf("Installed oct-files to %s\n", octapps_octfiledir);
 
+  ## copy all files in bin/ directory to bin/ install directory
+  bindir = fullfile(my_path, "bin");
+  if exist(bindir, "dir")
+    binfiles = glob(fullfile(bindir, "*"));
+    for j = 1:length(binfiles)
+      [status, msg] = copyfile(binfiles{j}, octapps_bindir, "f");
+      if status == 0
+        error("%s: failed to copy '%s' to '%s': %s", funcName, binfiles{j}, octapps_bindir, msg);
+      endif
+    endfor
+  endif
+  printf("Installed files to %s\n", octapps_bindir);
+
   ## write user environment setup scripts
   userenvpath = strcat(octapps_mfiledir, ":", octapps_octfiledir);
   exts = {"csh", "sh"};
   for i = 1:length(exts)
-    userenvfile = fullfile(octapps_prefix, "etc", strcat("octapps-user-env.", exts{i}));
+    userenvfile = fullfile(octapps_etcdir, strcat("octapps-user-env.", exts{i}));
     fid = fopen(userenvfile, "w");
     if fid < 0
       error("%s: failed to open %s", funcName, userenvfile);
