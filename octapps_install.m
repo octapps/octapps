@@ -35,12 +35,12 @@ function octapps_install(octapps_prefix)
 
   ## octapps install locations, deduced from octave ones
   if strncmp(octave_mfiledir, octave_prefix, length(octave_prefix))
-    octapps_mfiledir = strcat(octapps_prefix, octave_mfiledir(length(octave_prefix)+1:end));
+    octapps_mfiledir = fullfile(octapps_prefix, octave_mfiledir(length(octave_prefix)+2:end), "octapps");
   else
     error("%s: '%s' does not begin with '%s'", funcName, octave_mfiledir, octave_prefix);
   endif
   if strncmp(octave_octfiledir, octave_prefix, length(octave_prefix))
-    octapps_octfiledir = strcat(octapps_prefix, octave_octfiledir(length(octave_prefix)+1:end));
+    octapps_octfiledir = fullfile(octapps_prefix, octave_octfiledir(length(octave_prefix)+2:end), "octapps");
   else
     error("%s: '%s' does not begin with '%s'", funcName, octave_octfiledir, octave_prefix);
   endif
