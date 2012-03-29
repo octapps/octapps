@@ -53,7 +53,7 @@ function MakeGCTMismatchTestDAG(varargin)
                {"debug_level", "numeric,scalar", 0},
                {"jobs_directory", "char", pwd},
                {"logs_directory", "char", getenv("LOCALHOME")},
-               {"local_directory", "char", fullfile(pwd, "local")},
+               {"install_directory", "char"},
                {"job_retries", "numeric,scalar", 5}
                );
   SFT_timestamps = struct;
@@ -69,8 +69,8 @@ function MakeGCTMismatchTestDAG(varargin)
   if !exist(logs_directory, "dir")
     error("%s: directory '%s' does not exist", funcName, logs_directory);
   endif    
-  if !exist(local_directory, "dir")
-    error("%s: directory '%s' does not exist", funcName, local_directory);
+  if !exist(install_directory, "dir")
+    error("%s: directory '%s' does not exist", funcName, install_directory);
   endif    
   if exist(rundir, "dir")
     error("%s: directory '%s' already exists", funcName, rundir);
@@ -83,6 +83,9 @@ function MakeGCTMismatchTestDAG(varargin)
   if !exist(GCT_segments, "file")
     error("%s: file '%s' does not exist", funcName, GCT_segments);
   endif
+
+  ## make install directory absolute
+  install_directory = make_absolute_filename(install_directory);
 
   ## get number and average segment duration
   ## assume equal amount of data from each IFO
@@ -108,18 +111,22 @@ function MakeGCTMismatchTestDAG(varargin)
   mkdir(rundir);
 
   ## write bootscript
-  bootscript_name = "octave_bootstrap.sh";
-  bootscript_path = fullfile(jobs_directory, bootscript_name);
+  bootscript_name = "TestGCTMismatch.sh";
+  bootscript_path = fullfile(rundir, bootscript_name);
   fid = fopen(bootscript_path, "w");
   if fid < 0
     error("%s: failed to open %s", funcName, bootscript_path);
   endif
   fprintf(fid, "#!/bin/bash\n");
-  fprintf(fid, "source %s/etc/lalpulsar-user-env.sh\n", local_directory);
-  fprintf(fid, "source %s/etc/lalapps-user-env.sh\n", local_directory);
-  fprintf(fid, "source %s/etc/octapps-user-env.sh\n", local_directory);
-  fprintf(fid, "exec /usr/bin/octave \"$@\"\n");
+  fprintf(fid, "source %s/etc/lalpulsar-user-env.sh\n", install_directory);
+  fprintf(fid, "source %s/etc/lalapps-user-env.sh\n", install_directory);
+  fprintf(fid, "source %s/etc/octapps-user-env.sh\n", install_directory);
+  fprintf(fid, "exec octapps_run TestGCTMismatch \"$@\"\n");
   fclose(fid);
+  status = system(cstrcat("chmod +x ", bootscript_path));
+  if status != 0
+    error("%s: failed to make %s executable", funcName, bootscript_path);
+  endif
 
   ## create job description
   job = struct;
@@ -130,12 +137,10 @@ function MakeGCTMismatchTestDAG(varargin)
   job.output = "condor.out.$(jobindex)";
   job.error = "condor.err.$(jobindex)";
   job.log = fullfile(logs_directory, sprintf("GCTMismatchTest_%s.log", run_ID));
-  jobs.getenv = false;
   job.queue = 1;
 
   ## create job arguments
   job.arguments = struct;
-  job.arguments.__preamble = cstrcat("-qfH ", injection_script);
   SFT_timestamps_str = "struct(";
   for i = 1:length(IFOs)
     if i > 1

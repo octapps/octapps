@@ -66,6 +66,7 @@ function TestGCTMismatch(varargin)
   MFD.outSingleSFT = true;
   MFD.phi0 = 2*pi*rand;
   MFD.psi = 2*pi*rand;
+  MFD.refTime = start_time;
   sft_files = "";
   for i = 1:length(IFOs)
     
@@ -73,7 +74,6 @@ function TestGCTMismatch(varargin)
     MFD.IFO = IFOs{i};
     MFD.outSFTbname = strcat(IFOs{i}, ".sft");
     MFD.timestampsFile = fullfile(".", SFT_timestamps.(IFOs{i}));
-    MFD.refTime = start_time;
     runCode(MFD, "lalapps_Makefakedata_v4");
 
     ## list of SFTs
@@ -93,7 +93,7 @@ function TestGCTMismatch(varargin)
   GM.AlphaBand = 0.0;
   GM.DeltaBand = 0.0;
   GM.Freq = MFD.Freq;
-  GM.startTime = start_time;
+  GM.startTime = MFD.refTime;
   GM.endTime = end_time;
   GM.ephemYear = MFD.ephemYear;
   GM.gridType = 2;
@@ -119,42 +119,40 @@ function TestGCTMismatch(varargin)
   HSGCT.f2dot = MFD.f2dot;
   HSGCT.f2dotBand = 0.0;
   HSGCT.segmentList = fullfile(".", GCT_segments);
-  HSGCT.refTime = start_time;
+  HSGCT.refTime = MFD.refTime;
   HSGCT.peakThrF = 0.0;
   HSGCT.SignalOnly = (Sh == 0.0);
   HSGCT.printCand1 = true;
   HSGCT.semiCohToplist = true;
   HSGCT.fnameout = "HSGCT_Fstats";
   HSGCT.nCand1 = 1;
+  HSGCT.gamma2Refine = f2dot_refine;
   runCode(HSGCT, "lalapps_HierarchSearchGCT");
 
   ## save no-mismatch Fstat result
-  Fstats = load(HSGCT.fnameout);
-  Fstats_no_mismatch = Fstats;
+  Fstats_no_mismatch = load(HSGCT.fnameout);
 
   ## fiducial ratio for mismatch search box
   box_ratio = 60*3600 / Tseg;
 
   ## create sky position grid for mismatch search
-  GM.AlphaBand = 2*pi * 1e-5 * box_ratio;
-  GM.DeltaBand =   pi * 1e-5 * box_ratio;
+  GM.AlphaBand = 2*pi * 2e-5 * box_ratio;
+  GM.DeltaBand =   pi * 2e-5 * box_ratio;
   GM.Alpha = MFD.Alpha - 0.5 * GM.AlphaBand;
   GM.Delta = MFD.Delta - 0.5 * GM.DeltaBand;
   runCode(GM, "lalapps_getMesh");
 
   ## run HierarchSearchGCT (with mismatch)
   HSGCT.FreqBand = 1e-6 * box_ratio;
-  HSGCT.f1dotBand = 0.02 * f1dot_band * box_ratio;
-  HSGCT.f2dotBand = 0.02 * f2dot_band * box_ratio^2;
+  HSGCT.f1dotBand = 0.04 * f1dot_band * box_ratio;
+  HSGCT.f2dotBand = 0.04 * f2dot_band * box_ratio^2;
   HSGCT.Freq = MFD.Freq - 0.5 * HSGCT.FreqBand;
   HSGCT.f1dot = MFD.f1dot - 0.5 * HSGCT.f1dotBand;
   HSGCT.f2dot = MFD.f2dot - 0.5 * HSGCT.f2dotBand;
-  HSGCT.gamma2Refine = f2dot_refine;
   runCode(HSGCT, "lalapps_HierarchSearchGCT");
 
   ## save with-mismatch Fstat result
-  Fstats = load(HSGCT.fnameout);
-  Fstats_with_mismatch = Fstats;
+  Fstats_with_mismatch = load(HSGCT.fnameout);
 
   ## save results to file
   save(result_file);
