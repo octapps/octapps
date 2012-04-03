@@ -60,7 +60,10 @@ function makeCondorJob(jobfile, jobopts)
           error("%s: 'arguments' must be a struct", funcName);
         endif
         argnames = fieldnames(joboptval);
-        job = cstrcat(job, sprintf("arguments = \"%s", joboptval.__preamble));
+        job = cstrcat(job, sprintf("arguments = \""));
+        if isfield(joboptval, "__preamble")
+          job = cstrcat(job, joboptval.__preamble);
+        endif
         for i = 1:length(argnames)
           argname = argnames{i};
           if strncmp(argname, "__", 2)
