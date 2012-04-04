@@ -138,17 +138,17 @@ function TestGCTMismatch(varargin)
   ## create sky position grid for mismatch search
   GM.AlphaBand = 2*pi * 2e-5 * box_ratio;
   GM.DeltaBand =   pi * 2e-5 * box_ratio;
-  GM.Alpha = MFD.Alpha - 0.5 * GM.AlphaBand;
-  GM.Delta = MFD.Delta - 0.5 * GM.DeltaBand;
+  GM.Alpha = MFD.Alpha - (0.45+0.1*rand) * GM.AlphaBand;
+  GM.Delta = MFD.Delta - (0.45+0.1*rand) * GM.DeltaBand;
   runCode(GM, "lalapps_getMesh");
 
   ## run HierarchSearchGCT (with mismatch)
   HSGCT.FreqBand = 1e-6 * box_ratio;
   HSGCT.f1dotBand = 0.04 * f1dot_band * box_ratio;
   HSGCT.f2dotBand = 0.04 * f2dot_band * box_ratio^2;
-  HSGCT.Freq = MFD.Freq - 0.5 * HSGCT.FreqBand;
-  HSGCT.f1dot = MFD.f1dot - 0.5 * HSGCT.f1dotBand;
-  HSGCT.f2dot = MFD.f2dot - 0.5 * HSGCT.f2dotBand;
+  HSGCT.Freq = MFD.Freq - (0.45+0.1*rand) * HSGCT.FreqBand;
+  HSGCT.f1dot = MFD.f1dot - (0.45+0.1*rand) * HSGCT.f1dotBand;
+  HSGCT.f2dot = MFD.f2dot - (0.45+0.1*rand) * HSGCT.f2dotBand;
   runCode(HSGCT, "lalapps_HierarchSearchGCT");
 
   ## save with-mismatch Fstat result

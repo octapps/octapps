@@ -131,7 +131,7 @@ function MakeGCTMismatchTestDAG(varargin)
   ## create job description
   job = struct;
   job.universe = "vanilla";
-  job.request_memory = "250"; # MB
+  job.request_memory = "400"; # MB
   job.initialdir = rundir;
   job.executable = bootscript_path;
   job.output = "condor.out.$(jobindex)";
