@@ -28,7 +28,8 @@
 ## - signal_only: do not add noise to SFTs
 ## - freq: frequency at which to inject/search over
 ## - f1dot_band: 1st spindown band to inject/search over
-## - f2dot_band: 2nd spindown band to inject/search over
+## - f2dot_inj_band: 2nd spindown band to inject over
+## - f2dot_sch_band: 2nd spindown band to search over
 ## - debug_level: set debug level of LAL codes
 ## - jobs_directory: base directory where DAG directory is created
 ## - logs_directory: base directory where DAG logs are created
@@ -48,7 +49,8 @@ function MakeGCTMismatchTestDAG(varargin)
                {"signal_only", "logical,scalar", true},
                {"freq", "numeric,scalar"},
                {"f1dot_band", "numeric,scalar"},
-               {"f2dot_band", "numeric,scalar"},
+               {"f2dot_inj_band", "numeric,scalar"},
+               {"f2dot_sch_band", "numeric,scalar"},
                {"f2dot_refine", "numeric,scalar"},
                {"debug_level", "numeric,scalar", 0},
                {"jobs_directory", "char", pwd},
@@ -158,7 +160,8 @@ function MakeGCTMismatchTestDAG(varargin)
   job.arguments.Tseg = Tseg;
   job.arguments.freq = freq;
   job.arguments.f1dot_band = f1dot_band;
-  job.arguments.f2dot_band = f2dot_band;
+  job.arguments.f2dot_inj_band = f2dot_inj_band;
+  job.arguments.f2dot_sch_band = f2dot_sch_band;
   job.arguments.f2dot_refine = f2dot_refine;
   job.arguments.debug_level = debug_level;
   job.arguments.result_file = "results.$(jobindex)";

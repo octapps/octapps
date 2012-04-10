@@ -28,7 +28,8 @@ function TestGCTMismatch(varargin)
                {"Tseg", "numeric,scalar"},
                {"freq", "numeric,scalar"},
                {"f1dot_band", "numeric,scalar"},
-               {"f2dot_band", "numeric,scalar"},
+               {"f2dot_inj_band", "numeric,scalar"},
+               {"f2dot_sch_band", "numeric,scalar"},
                {"f2dot_refine", "numeric,scalar"},
                {"debug_level", "numeric,scalar"},
                {"result_file", "char"}
@@ -60,7 +61,7 @@ function TestGCTMismatch(varargin)
   MFD.cosi = -1 + 2*rand;
   MFD.ephemYear = "09-11";
   MFD.f1dot = -f1dot_band * rand;
-  MFD.f2dot =  f2dot_band * rand;
+  MFD.f2dot =  f2dot_inj_band * rand;
   MFD.h0 = h0;
   MFD.noiseSqrtSh = sqrt(Sh);
   MFD.outSingleSFT = true;
@@ -143,9 +144,9 @@ function TestGCTMismatch(varargin)
   runCode(GM, "lalapps_getMesh");
 
   ## run HierarchSearchGCT (with mismatch)
-  HSGCT.FreqBand = 1e-6 * box_ratio;
-  HSGCT.f1dotBand = 0.04 * f1dot_band * box_ratio;
-  HSGCT.f2dotBand = 0.04 * f2dot_band * box_ratio^2;
+  HSGCT.FreqBand = 1e-7 * box_ratio;
+  HSGCT.f1dotBand = 0.05 * f1dot_band * box_ratio;
+  HSGCT.f2dotBand = 0.05 * f2dot_sch_band * box_ratio^2;
   HSGCT.Freq = MFD.Freq - (0.45+0.1*rand) * HSGCT.FreqBand;
   HSGCT.f1dot = MFD.f1dot - (0.45+0.1*rand) * HSGCT.f1dotBand;
   HSGCT.f2dot = MFD.f2dot - (0.45+0.1*rand) * HSGCT.f2dotBand;
