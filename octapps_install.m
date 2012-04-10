@@ -52,6 +52,7 @@ function octapps_install(octapps_prefix)
   ## make directories
   system(cstrcat("mkdir -p ", octapps_mfiledir));
   system(cstrcat("mkdir -p ", octapps_octfiledir));
+  system(cstrcat("mkdir -p ", octapps_bindir));
   system(cstrcat("mkdir -p ", octapps_etcdir));
   
   ## get the directory containing this file, which
