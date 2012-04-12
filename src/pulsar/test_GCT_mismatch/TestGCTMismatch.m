@@ -149,7 +149,11 @@ function TestGCTMismatch(varargin)
   HSGCT.f2dotBand = 0.05 * f2dot_sch_band * box_ratio^2;
   HSGCT.Freq = MFD.Freq - (0.45+0.1*rand) * HSGCT.FreqBand;
   HSGCT.f1dot = MFD.f1dot - (0.45+0.1*rand) * HSGCT.f1dotBand;
-  HSGCT.f2dot = MFD.f2dot - (0.45+0.1*rand) * HSGCT.f2dotBand;
+  if HSGCT.f2dotBand > 0
+    HSGCT.f2dot = MFD.f2dot - (0.45+0.1*rand) * HSGCT.f2dotBand;
+  else
+    HSGCT.f2dot = 0;
+  endif
   runCode(HSGCT, "lalapps_HierarchSearchGCT");
 
   ## save with-mismatch Fstat result
