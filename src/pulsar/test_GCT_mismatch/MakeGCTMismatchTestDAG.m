@@ -55,7 +55,6 @@ function MakeGCTMismatchTestDAG(varargin)
                {"debug_level", "numeric,scalar", 0},
                {"jobs_directory", "char", pwd},
                {"logs_directory", "char", getenv("LOCALHOME")},
-               {"install_directory", "char"},
                {"job_retries", "numeric,scalar", 5}
                );
   SFT_timestamps = struct;
@@ -71,9 +70,6 @@ function MakeGCTMismatchTestDAG(varargin)
   if !exist(logs_directory, "dir")
     error("%s: directory '%s' does not exist", funcName, logs_directory);
   endif    
-  if !exist(install_directory, "dir")
-    error("%s: directory '%s' does not exist", funcName, install_directory);
-  endif    
   if exist(rundir, "dir")
     error("%s: directory '%s' already exists", funcName, rundir);
   endif    
@@ -85,9 +81,6 @@ function MakeGCTMismatchTestDAG(varargin)
   if !exist(GCT_segments, "file")
     error("%s: file '%s' does not exist", funcName, GCT_segments);
   endif
-
-  ## make install directory absolute
-  install_directory = make_absolute_filename(install_directory);
 
   ## get number and average segment duration
   ## assume equal amount of data from each IFO
@@ -111,6 +104,10 @@ function MakeGCTMismatchTestDAG(varargin)
   ## make directories
   mkdir(jobs_directory);
   mkdir(rundir);
+
+  ## install octapps
+  install_directory = make_absolute_filename(fullfile(rundir, "local"));
+  octapps_install(install_directory);
 
   ## write bootscript
   bootscript_name = "TestGCTMismatch.sh";
