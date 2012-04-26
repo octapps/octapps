@@ -23,6 +23,7 @@ function TestGCTMismatch(varargin)
                {"GCT_segments", "char"},
                {"start_time", "numeric,scalar"},
                {"end_time", "numeric,scalar"},
+               {"ephem_year", "char"},
                {"Sh", "numeric,scalar"},
                {"h0", "numeric,scalar"},
                {"Tseg", "numeric,scalar"},
@@ -59,7 +60,7 @@ function TestGCTMismatch(varargin)
   MFD.Band = 1.0;
   MFD.fmin = MFD.Freq - 0.5*MFD.Band;
   MFD.cosi = -1 + 2*rand;
-  MFD.ephemYear = "09-11";
+  MFD.ephemYear = ephem_year;
   MFD.f1dot = -f1dot_band * rand;
   MFD.f2dot =  f2dot_inj_band * rand;
   MFD.h0 = h0;

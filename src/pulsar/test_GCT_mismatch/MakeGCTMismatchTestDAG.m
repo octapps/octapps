@@ -44,6 +44,7 @@ function MakeGCTMismatchTestDAG(varargin)
                {"SFT_timestamps_H1", "char"},
                {"SFT_timestamps_L1", "char"},
                {"GCT_segments", "char"},
+               {"ephem_year", "char"},
                {"false_alarm", "numeric,scalar", 0.01},
                {"false_dismissal", "numeric,scalar", 0.1},
                {"signal_only", "logical,scalar", true},
@@ -150,6 +151,7 @@ function MakeGCTMismatchTestDAG(varargin)
   SFT_timestamps_str = strcat(SFT_timestamps_str, ")");
   job.arguments.SFT_timestamps = SFT_timestamps_str;
   job.arguments.GCT_segments = GCT_segments;
+  job.arguments.ephem_year = ephem_year;
   job.arguments.start_time = startTime;
   job.arguments.end_time = endTime;
   job.arguments.Sh = Sh;
