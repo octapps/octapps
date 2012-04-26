@@ -85,7 +85,7 @@ function MakeGCTMismatchTestDAG(varargin)
   ## get number and average segment duration
   ## assume equal amount of data from each IFO
   segs = load(GCT_segments);
-  Tsegs = segs(:,3) * 3600;  # convert from hours to seconds
+  Tsegs = segs(:,2) - segs(:,1);
   Tseg = mean(Tsegs);
   Nseg = length(Tsegs) * length(IFOs);
 
