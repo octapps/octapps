@@ -32,21 +32,19 @@
 %%
 
 function hgrm = createGaussianHist ( M, S, varargin )
-  fn = "createGaussianHist()";
 
   %% check input arguments
   if ( !exist("M") || !exist("S") )
-    error ("%s: Need to provide arguments mean 'M' and standard deviation 'S'\n", fn );
+    error ("%s: Need to provide arguments mean 'M' and standard deviation 'S'\n", funcName );
   endif
   if ( !isscalar(M) || !isscalar(S) )
-    error ("%s: Input arguments for mean and standard deviation must be scalars!\n", fn );
+    error ("%s: Input arguments for mean and standard deviation must be scalars!\n", funcName );
   endif
 
-  %% default bin-size is 10 bins per std-dev
-  dx0 = S / 10.0;
-
-  %% parse optional keywords, set defaults if not specified
-  kv = keyWords ( varargin, "err", 1e-2, "binsize", dx0 );
+  %% parse optional keywords
+  parseOptions(varargin,
+               {"err", "numeric,scalar", 1e-2},
+               {"binsize", "numeric,scalar", S / 10.0});
 
   %% create 1D histogram struct
   hgrm = newHist ( 1 );
@@ -60,14 +58,14 @@ function hgrm = createGaussianHist ( M, S, varargin )
 
     %% add new values to histogram
     oldhgrm = hgrm;
-    hgrm = addDataToHist ( hgrm, newsamples, kv.binsize );
+    hgrm = addDataToHist ( hgrm, newsamples, binsize );
 
     %% calculate difference between old and new histograms
-    err = histMetric ( hgrm, oldhgrm );
+    histerr = histMetric ( hgrm, oldhgrm );
 
     %% continue until error is small enough
     %% (exit after 1 iteration if all parameters are constant)
-  until err < kv.err
+  until histerr < err
 
   %% output final histogram
   hgrm = normaliseHist ( hgrm );
