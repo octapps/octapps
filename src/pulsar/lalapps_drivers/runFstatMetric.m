@@ -76,7 +76,7 @@ function runFstatMetric (params, fmCode)
   endif
 
   %% ----- and run it:
-  [status, out] = system29(cmdline);
+  [status, out] = system(cmdline);
   if ( status != 0 )
     fprintf (stderr, "\nSomething failed in running '%s'\n\n", fmCode);
     error ("Commandline was: %s", cmdline);
