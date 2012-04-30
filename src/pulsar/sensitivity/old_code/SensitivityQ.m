@@ -1,6 +1,6 @@
 %% Calculates the sensitivity constant "Q"
 %% Syntax:
-%%   Q = SensitivityQ(pd, k, sa, Rsqr)
+%%   Q = SensitivityQ(pd, N, k, sa, Rsqr)
 %%   Q = SensitivityQ(..., "norm", "mR^2")
 %% where:
 %%   Q      = sensitivity constant
