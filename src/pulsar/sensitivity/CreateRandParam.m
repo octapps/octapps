@@ -19,7 +19,7 @@
 ##   <constant>,     denoting a single value, or
 ##   [<min>, <max>], denoting a range of values
 ## Syntax:
-##   rng = CreateQandParam(p, p, ...)
+##   rng = CreateRandParam(p, p, ...)
 ## where
 ##   rng = random parameter generator
 ##   p   = random parameter spec
