@@ -27,12 +27,6 @@ function octapps_build_oct(varargin)
   ## turn of paging for this function
   pso = page_screen_output(0);
 
-  ## find mkoctfile binary where it's supposed to be, fail if it is not there
-  mkoct_bin = fullfile(octave_config_info("bindir"), strcat("mkoctfile-", OCTAVE_VERSION));
-  if !exist(mkoct_bin, "file")
-    error("Could not find mkoctfile in Octave binary directory");
-  endif
-
   ## find the path of the octapps base directory,
   ## using the location of this script
   my_path = fileparts(mfilename("fullpathext"));
@@ -77,9 +71,10 @@ function octapps_build_oct(varargin)
       continue
     endif
     
-    ## names of source file and oct-file
+    ## names of source file, object file, and oct-file
     srcfile = sources{i};
     [srcdir, srcname, srcext] = fileparts(srcfile);
+    ofile = fullfile(octdir, [srcname, ".o"]);
     octfile = fullfile(octdir, [srcname, ".oct"]);
 
     ## compile SWIG interface
@@ -87,9 +82,12 @@ function octapps_build_oct(varargin)
 
       ## find SWIG binary in PATH, fail if none is found
       if !exist("swig_bin", "var")
-	swig_bin = file_in_path(getenv("PATH"), "swig");
+	swig_bin = file_in_path(getenv("PATH"), "swig2.0");
 	if isempty(swig_bin)
-	  error("Could not find SWIG executable in PATH");
+	  swig_bin = file_in_path(getenv("PATH"), "swig");
+	  if isempty(swig_bin)
+	    error("Could not find SWIG executable in PATH");
+	  endif
 	endif
       endif
 
@@ -110,12 +108,9 @@ function octapps_build_oct(varargin)
     endif
 
     ## compile oct-file
-    cmd = sprintf("'%s' '-I%s' %s -o '%s' '%s'", mkoct_bin, srcdir, cflags, octfile, srccpp);
-    err = system(cmd);
-    if err != 0
-      error("Error executing %s", cmd);
-      return
-    endif
+    mkoctargs = {strcat("-I", srcdir), cflags};
+    mkoctfile(mkoctargs{:}, "-c", "-o", ofile, srccpp);
+    mkoctfile(mkoctargs{:}, "-o", octfile, ofile);
     printf("Made '%s' from '%s'\n", octfile, srcfile);
     
   endfor
