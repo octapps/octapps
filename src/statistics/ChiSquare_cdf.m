@@ -147,7 +147,7 @@ endfunction
 ## the GSL module is unavailable.
 function p = gsl_chi2cdf(x, k)
   try
-    gsl_sf_gamma;
+    gsl;
     p = gsl_sf_gamma_inc_P(k/2, x/2);
   catch
     p = chi2cdf(x, k);
