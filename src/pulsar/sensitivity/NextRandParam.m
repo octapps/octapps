@@ -25,8 +25,8 @@
 
 function varargout = NextRandParam(rng, N)
 
-  ## load quasi-random number generator
-  gsl_qrng;
+  ## load GSL wrappers
+  gsl;
 
   ## check input arguments
   if !exist("N")
@@ -38,7 +38,7 @@ function varargout = NextRandParam(rng, N)
 
   ## fill random parameters with next quasi-random vector
   if length(rng.rii) > 0
-    r = gsl_qrng_get(rng.q, N);
+    r = rng.q.get(N);
     [varargout{rng.rii}] = deal(mat2cell(rng.rm(:,ones(N,1)) .* r + ...
 					 rng.rc(:,ones(N,1)),ones(length(rng.rii),1),N){:});
   endif

@@ -1,7 +1,5 @@
 clear all;
 
-gsl_qrng;
-
 RcRc = DetectorRespKron(inf, [], [], "LHO", "LLO");
 apxsqr = SignalNormAmpSqr("nonax", [-1 1]);
 Fpxsqr = BeamPatternSqr(RcRc, [0 2*pi], [-1 1], [-pi/4 pi/4]);

@@ -26,8 +26,8 @@
 
 function rng = CreateRandParam(varargin)
 
-  ## load quasi-random number generator
-  gsl_qrng;
+  ## load GSL wrappers
+  gsl;
 
   ## initial indexes of random and constant parameters
   rng.rii = rng.rm = rng.rc = rng.cii = rng.cc = [];
@@ -50,7 +50,7 @@ function rng = CreateRandParam(varargin)
 
   ## create quasi-random number generator if needed
   if length(rng.rii) > 0
-    rng.q = gsl_qrng_alloc(gsl_qrng.gsl_qrng_halton, length(rng.rii));
+    rng.q = new_gsl_qrng("halton", length(rng.rii));
   endif
   rng.allconst = (length(rng.rii) == 0);
 
