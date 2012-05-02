@@ -17,12 +17,9 @@
 
 ## Compiles all .oct modules in OCTAPPS
 ## Syntax:
-##   octapps_build_oct [srcfile...]
+##   octapps_build_oct [-clean]
 
 function octapps_build_oct(varargin)
-
-  ## C++ compiler flags
-  cflags = "-lgsl";
 
   ## turn of paging for this function
   pso = page_screen_output(0);
@@ -31,13 +28,26 @@ function octapps_build_oct(varargin)
   ## using the location of this script
   my_path = fileparts(mfilename("fullpathext"));
 
-  ## create the directory where oct-files will be installed
+  ## directory where oct-files will be installed
   octdir = fullfile(my_path, "oct");
   [status, msg] = mkdir(octdir);
   if status == 0
     error("%s: error from mkdir: %s\n", funcName, msg);
   endif
   octdir = fullfile(octdir, OCTAVE_VERSION);
+
+  ## do cleanup if asked for
+  if length(varargin) == 1 && strcmp(varargin{1}, "clean") == 0
+    if exist(octdir, "dir")
+      [status, msg] = rmdir(octdir, "s");
+      if status == 0
+        error("%s: error from rmdir: %s\n", funcName, msg);
+      endif
+    endif
+    return;
+  endif
+
+  ## create the oct-file directory
   [status, msg] = mkdir(octdir);
   if status == 0
     error("%s: error from mkdir: %s\n", funcName, msg);
@@ -47,72 +57,59 @@ function octapps_build_oct(varargin)
   old_wd = pwd();
   cd(octdir);
 
-  if length(varargin) > 0
-    ## compile C++ and SWIG interface given on the command line
-    sources = cellfun(@(x) fullfile(my_path, "src", x), varargin, "UniformOutput", false);
-  else
-    ## look at all subdirectories of the
-    ## source directory for C++ and SWIG interface files
-    dirs = strsplit(genpath(fullfile(my_path, "src")), pathsep, true);
-    sources = {};
-    for i = 1:length(dirs)
-      sources = {sources{:}, ...
-	         glob(fullfile(dirs{i}, "*.i")){:}, ...
-	         glob(fullfile(dirs{i}, "*.cpp")){:} ...
-	         };
-    endfor
-  endif
-  
-  for i = 1:length(sources)
+  ## look at all subdirectories of src/ for C++ and SWIG interface files
+  dirs = strsplit(genpath(fullfile(my_path, "src")), pathsep, true);
+  sources = {};
+  for i = 1:length(dirs)
+    sources = {sources{:}, ...
+               glob(fullfile(dirs{i}, "*.i")){:}, ...
+               glob(fullfile(dirs{i}, "*.cpp")){:} ...
+               };
+  endfor
 
-    ## skip deprecated sources
+  ## loop over sources
+  for i = 1:length(sources)
     if !isempty(strfind(sources{i}, [filesep,"deprecated",filesep]))
       printf("Skipping deprecated source '%s'\n", sources{i});
       continue
     endif
-    
+
     ## names of source file, object file, and oct-file
     srcfile = sources{i};
     [srcdir, srcname, srcext] = fileparts(srcfile);
     ofile = fullfile(octdir, [srcname, ".o"]);
     octfile = fullfile(octdir, [srcname, ".oct"]);
+    printf("Making '%s' from '%s'\n", octfile, srcfile);
 
     ## compile SWIG interface
     if strcmp(srcext, ".i")
 
       ## find SWIG binary in PATH, fail if none is found
       if !exist("swig_bin", "var")
-	swig_bin = file_in_path(getenv("PATH"), "swig2.0");
-	if isempty(swig_bin)
-	  swig_bin = file_in_path(getenv("PATH"), "swig");
-	  if isempty(swig_bin)
-	    error("Could not find SWIG executable in PATH");
-	  endif
-	endif
+        swig_bin = file_in_path(getenv("PATH"), "swig2.0");
+        if isempty(swig_bin)
+          swig_bin = file_in_path(getenv("PATH"), "swig");
+          if isempty(swig_bin)
+            error("Could not find SWIG executable in PATH");
+          endif
+        endif
       endif
 
       ## compile SWIG interface file
       srccpp = fullfile(octdir, [srcname, "_wrap.cpp"]);
-      cmd = sprintf("'%s' -c++ -octave -globals '%s_cvar' '-I%s' -o '%s' '%s'", swig_bin, srcname, srcdir, srccpp, srcfile);
-      err = system(cmd);
-      if err != 0
-	error("Error executing %s", cmd);
-	return;
-      endif
+      runCommand(sprintf("'%s' -c++ -octave -globals '%s_cvar' '-I%s' -o '%s' '%s'", swig_bin, srcname, srcdir, srccpp, srcfile));
 
     else
-      
+
       ## otherwise compile C++ code
       srccpp = srcfile;
 
     endif
 
     ## compile oct-file
-    mkoctargs = {strcat("-I", srcdir), cflags};
-    mkoctfile(mkoctargs{:}, "-c", "-o", ofile, srccpp);
-    mkoctfile(mkoctargs{:}, "-o", octfile, ofile);
-    printf("Made '%s' from '%s'\n", octfile, srcfile);
-    
+    runCommand(sprintf("g++ -fpic -c -o '%s' '%s' '-I%s'", ofile, srccpp, octave_config_info("includedir")));
+    runCommand(sprintf("g++ -shared -o '%s' '%s' -lgsl", octfile, ofile));
+
   endfor
 
   ## restore working directory and paging
@@ -122,4 +119,12 @@ function octapps_build_oct(varargin)
   ## refresh octapps path
   octapps_setup;
 
+endfunction
+
+function runCommand(cmd)
+  printf("%s\n", cmd);
+  err = system(cmd);
+  if err != 0
+    error("Error executing %s", cmd);
+  endif
 endfunction
