@@ -20,6 +20,7 @@
 ## statistic, such as the F-statistic
 ## Options:
 ##   "paNt" = false alarm probability per template
+##   "sa"   = false alarm threshold
 ##   "dof"  = number of degrees of freedom (default: 4)
 ##   "norm" = use normal approximation to chi^2 (default: false)
 
@@ -29,7 +30,8 @@ function [FDP, fdp_vars, fdp_opts] = SensitivityChiSqrFDP(pd, Ns, args)
 
   ## options
   parseOptions(args,
-               {"paNt", "numeric,matrix"},
+               {"paNt", "numeric,matrix", []},
+               {"sa", "numeric,matrix", []},
                {"dof", "numeric,scalar", 4},
                {"norm", "logical,scalar", false}
                );
@@ -40,7 +42,12 @@ function [FDP, fdp_vars, fdp_opts] = SensitivityChiSqrFDP(pd, Ns, args)
   nu = fdp_opts.dof;
 
   ## false alarm threshold
-  sa = invFalseAlarm_chi2_asym(paNt, Ns*nu);
+  if sum([isempty(paNt),isempty(sa)]) != 1
+    error("%s: 'paNt' and 'sa' are mutually exclusive options", funcName);
+  endif
+  if !isempty(paNt)
+    sa = invFalseAlarm_chi2_asym(paNt, Ns*nu);
+  endif
   fdp_vars{1} = sa;
   
 endfunction
@@ -56,13 +63,17 @@ function pd_rhosqr = ChiSqrFDP(pd, Ns, rhosqr, fdp_vars, fdp_opts)
 
   ## false dismissal probability
   if fdp_opts.norm
+
     ## use normal approximation
     mean = Ns.*( nu + rhosqr );
     stdv = sqrt( 2.*Ns .* ( nu + 2.*rhosqr ) );
     pd_rhosqr = normcdf(sa, mean, stdv);
+
   else
+
     ## use non-central chi-sqr distribution
     pd_rhosqr = ChiSquare_cdf(sa, Ns*nu, Ns.*rhosqr);
+
   endif
 
 endfunction
