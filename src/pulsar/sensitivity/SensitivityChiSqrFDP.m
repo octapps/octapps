@@ -19,21 +19,25 @@
 ## Calculate the false dismissal probability of a chi^2 detection
 ## statistic, such as the F-statistic
 ## Options:
-##   "deg_freedom"   = number of degrees of freedom (default: 4)
-##   "normal_approx" = use normal approximation to chi^2 (default: false)
+##   "paNt" = false alarm probability per template
+##   "dof"  = number of degrees of freedom (default: 4)
+##   "norm" = use normal approximation to chi^2 (default: false)
 
-function [FDP, fdp_vars, fdp_opts] = SensitivityChiSqrFDP(paNt, pd, Ns, args)
+function [FDP, fdp_vars, fdp_opts] = SensitivityChiSqrFDP(pd, Ns, args)
 
   FDP = @ChiSqrFDP;
 
   ## options
-  fdp_opts = parseOptions(args,
-                          {"deg_freedom", "numeric,scalar", 4},
-                          {"normal_approx", "logical,scalar", false}
-                          );
-  
+  parseOptions(args,
+               {"paNt", "numeric,matrix"},
+               {"dof", "numeric,scalar", 4},
+               {"norm", "logical,scalar", false}
+               );
+  fdp_opts.dof = dof;
+  fdp_opts.norm = norm;
+
   ## degrees of freedom of the statistic
-  nu = fdp_opts.deg_freedom;
+  nu = fdp_opts.dof;
 
   ## false alarm threshold
   sa = invFalseAlarm_chi2_asym(paNt, Ns*nu);
@@ -42,16 +46,16 @@ function [FDP, fdp_vars, fdp_opts] = SensitivityChiSqrFDP(paNt, pd, Ns, args)
 endfunction
 
 ## calculate false dismissal probability
-function pd_rhosqr = ChiSqrFDP(paNt, pd, Ns, rhosqr, fdp_vars, fdp_opts)
+function pd_rhosqr = ChiSqrFDP(pd, Ns, rhosqr, fdp_vars, fdp_opts)
   
   ## degrees of freedom of the statistic
-  nu = fdp_opts.deg_freedom;
+  nu = fdp_opts.dof;
 
   ## false alarm threshold
   sa = fdp_vars{1};
 
   ## false dismissal probability
-  if fdp_opts.normal_approx
+  if fdp_opts.norm
     ## use normal approximation
     mean = Ns.*( nu + rhosqr );
     stdv = sqrt( 2.*Ns .* ( nu + 2.*rhosqr ) );
@@ -72,7 +76,7 @@ endfunction
 
 ## test SNR rho against reference value rho0
 %!function __test_sens(Rsqr_H,paNt,pd,nu,Ns,rho0)
-%! rho = SensitivitySNR(paNt,pd,Ns,Rsqr_H,"ChiSqr","deg_freedom",nu);
+%! rho = SensitivitySNR(pd,Ns,Rsqr_H,"ChiSqr","paNt",paNt,"dof",nu);
 %! assert(abs(rho - rho0) < 5e-3 * abs(rho0));
 
 ## tests

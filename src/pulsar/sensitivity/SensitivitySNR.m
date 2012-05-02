@@ -17,11 +17,10 @@
 
 ## Calculate sensitivity in terms of the root-mean-square SNR
 ## Syntax:
-##   [rho, pd_rho] = SensitivitySNR(paNt, pd, Ns, Rsqr_H, detstat, ...)
+##   [rho, pd_rho] = SensitivitySNR(pd, Ns, Rsqr_H, detstat, ...)
 ## where:
 ##   rho     = detectable r.m.s. SNR (per segment)
 ##   pd_rho  = calculated false dismissal probability
-##   paNt    = false alarm probability (per template)
 ##   pd      = false dismissal probability
 ##   Ns      = number of segments
 ##   Rsqr_H  = histogram of SNR "geometric factor" R^2
@@ -29,7 +28,7 @@
 ##      "ChiSqr": chi^2 statistic, e.g. the F-statistic
 ##                see SensitivityChiSqrFDP for possible options
 
-function [rho, pd_rho] = SensitivitySNR(paNt, pd, Ns, Rsqr_H, detstat, varargin)
+function [rho, pd_rho] = SensitivitySNR(pd, Ns, Rsqr_H, detstat, varargin)
 
   ## display progress updates?
   global sensitivity_progress;
@@ -42,20 +41,18 @@ function [rho, pd_rho] = SensitivitySNR(paNt, pd, Ns, Rsqr_H, detstat, varargin)
   endif
 
   ## check input
-  assert(all(paNt > 0));
   assert(all(pd > 0));
   assert(all(Ns > 0));
   assert(isHist(Rsqr_H) || isempty(Rsqr_H));
 
-  ## make sure paNt, pd, and Ns are the same size
-  [cserr, paNt, pd, Ns] = common_size(paNt, pd, Ns);
+  ## make sure pd and Ns are the same size
+  [cserr, pd, Ns] = common_size(pd, Ns);
   if cserr > 0
-    error("%s: paNt, pd, and Ns are not of common size", funcName);
+    error("%s: pd, and Ns are not of common size", funcName);
   endif
   
   ## make inputs column vectors
-  siz = size(paNt);
-  paNt = paNt(:);
+  siz = size(pd);
   pd = pd(:);
   Ns = Ns(:);
 
@@ -63,7 +60,7 @@ function [rho, pd_rho] = SensitivitySNR(paNt, pd, Ns, Rsqr_H, detstat, varargin)
   fdp_vars = {};
   switch detstat
     case "ChiSqr"   ## chi^2 statistic
-      [FDP, fdp_vars, fdp_opts] = SensitivityChiSqrFDP(paNt, pd, Ns, varargin);
+      [FDP, fdp_vars, fdp_opts] = SensitivityChiSqrFDP(pd, Ns, varargin);
     otherwise
       error("%s: invalid detection statistic '%s'", funcName, detstat);
   endswitch
@@ -83,19 +80,19 @@ function [rho, pd_rho] = SensitivitySNR(paNt, pd, Ns, Rsqr_H, detstat, varargin)
   Rsqr_w = Rsqr_w(:)';
   
   ## make row indexes logical, to select rows
-  ii = true(length(paNt), 1);
+  ii = true(length(pd), 1);
 
   ## make column indexes ones, to duplicate columns
   jj = ones(length(Rsqr_x), 1);
 
-  ## rho is computed for each paNt, pd, Ns (dim. 1) by summing
+  ## rho is computed for each pd and Ns (dim. 1) by summing
   ## false dismissal probability for fixed Rsqr_x, weighted
   ## by Rsqr_w (dim. 2)
   Rsqr_x = Rsqr_x(ones(size(ii)), :);
   Rsqr_w = Rsqr_w(ones(size(ii)), :);
 
   ## initialise variables
-  pd_rho = rhosqr = nan(size(paNt, 1), 1);
+  pd_rho = rhosqr = nan(size(pd, 1), 1);
   pd_rho_min = pd_rho_max = zeros(size(rhosqr));
 
   ## calculate the false dismissal probability for rhosqr=0,
@@ -103,7 +100,7 @@ function [rho, pd_rho] = SensitivitySNR(paNt, pd, Ns, Rsqr_H, detstat, varargin)
   ## probability
   rhosqr_min = zeros(size(rhosqr));
   pd_rho_min(ii) = callFDP(rhosqr_min,ii,
-                           jj,paNt,pd,Ns,Rsqr_x,Rsqr_w,
+                           jj,pd,Ns,Rsqr_x,Rsqr_w,
                            FDP,fdp_vars,fdp_opts);
   ii0 = (pd_rho_min >= pd);
 
@@ -126,7 +123,7 @@ function [rho, pd_rho] = SensitivitySNR(paNt, pd, Ns, Rsqr_H, detstat, varargin)
 
     ## calculate false dismissal probability
     pd_rho_max(ii) = callFDP(rhosqr_max,ii,
-                             jj,paNt,pd,Ns,Rsqr_x,Rsqr_w,
+                             jj,pd,Ns,Rsqr_x,Rsqr_w,
                              FDP,fdp_vars,fdp_opts);
     
     ## determine which rhosqr to keep calculating for
@@ -153,7 +150,7 @@ function [rho, pd_rho] = SensitivitySNR(paNt, pd, Ns, Rsqr_H, detstat, varargin)
       
     ## calculate new false dismissal probability
     pd_rho(ii) = callFDP(rhosqr,ii,
-                         jj,paNt,pd,Ns,Rsqr_x,Rsqr_w,
+                         jj,pd,Ns,Rsqr_x,Rsqr_w,
                          FDP,fdp_vars,fdp_opts);
     
     ## replace bounds with mid-point as required
@@ -190,11 +187,11 @@ endfunction
 
 ## call a false dismissal probability calculation equation
 function pd_rho = callFDP(rhosqr,ii,
-                          jj,paNt,pd,Ns,Rsqr_x,Rsqr_w,
+                          jj,pd,Ns,Rsqr_x,Rsqr_w,
                           FDP,fdp_vars,fdp_opts)
   if any(ii)
     pd_rho = sum(feval(FDP,
-                       paNt(ii,jj), pd(ii,jj), Ns(ii,jj),
+                       pd(ii,jj), Ns(ii,jj),
                        rhosqr(ii,jj).*Rsqr_x(ii,:),
                        cellfun(@(x) x(ii,jj), fdp_vars,
                                "UniformOutput", false),
