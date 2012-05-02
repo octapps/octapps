@@ -22,7 +22,7 @@
 ##   Rsqr_H      = histogram of R^2
 ## and where options are:
 ##   "T"         = observation time in sidereal days (default: inf)
-##   "detectors" = detectors to use (default: LLO)
+##   "detectors" = detectors to use (default: L)
 ##   "mism_hgrm" = mismatch histogram (default: no mismatch)
 ##   "alpha"     = source right ascension in radians (default: all-sky)
 ##   "sdelta"    = sine of source declination (default: all-sky)
