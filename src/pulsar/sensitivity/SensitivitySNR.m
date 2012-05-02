@@ -23,7 +23,8 @@
 ##   pd_rho  = calculated false dismissal probability
 ##   pd      = false dismissal probability
 ##   Ns      = number of segments
-##   Rsqr_H  = histogram of SNR "geometric factor" R^2
+##   Rsqr_H  = histogram of SNR "geometric factor" R^2,
+##             or scalar giving mean value of R^2
 ##   detstat = detection statistic, one of:
 ##      "ChiSqr": chi^2 statistic, e.g. the F-statistic
 ##                see SensitivityChiSqrFDP for possible options
@@ -43,7 +44,7 @@ function [rho, pd_rho] = SensitivitySNR(pd, Ns, Rsqr_H, detstat, varargin)
   ## check input
   assert(all(pd > 0));
   assert(all(Ns > 0));
-  assert(isHist(Rsqr_H) || isempty(Rsqr_H));
+  assert(isHist(Rsqr_H) || isscalar(Rsqr_H));
 
   ## make sure pd and Ns are the same size
   [cserr, pd, Ns] = common_size(pd, Ns);
@@ -66,15 +67,15 @@ function [rho, pd_rho] = SensitivitySNR(pd, Ns, Rsqr_H, detstat, varargin)
   endswitch
 
   ## get values and weights of R^2 as row vectors
-  if isempty(Rsqr_H)
-    ## singular case: R^2 = 1
-    Rsqr_x = 1.0;
-    Rsqr_w = 1.0;
-  else
-    ## from histogram
+  if isHist(Rsqr_H)
+    ## R^2 = histogram
     [Rsqr_xb, Rsqr_px] = finiteHist(Rsqr_H);
     [Rsqr_x, Rsqr_dx] = histBinGrids(Rsqr_H, 1, "xc", "dx");
     Rsqr_w = Rsqr_px .* Rsqr_dx;
+  elseif isscalar(Rsqr_H) && isnumeric(Rsqr_H)
+    ## R^2 = singular value
+    Rsqr_x = Rsqr_H;
+    Rsqr_w = 1.0;
   endif
   Rsqr_x = Rsqr_x(:)';
   Rsqr_w = Rsqr_w(:)';
