@@ -27,7 +27,9 @@
 ##             or scalar giving mean value of R^2
 ##   detstat = detection statistic, one of:
 ##      "ChiSqr": chi^2 statistic, e.g. the F-statistic
-##                see SensitivityChiSqrFDP for possible options
+##         see SensitivityChiSqrFDP for possible options
+##      "HoughFstat: Hough on the F-statistic
+##         see SensitivityHoughFstatFDP for possible options
 
 function [rho, pd_rho] = SensitivitySNR(pd, Ns, Rsqr_H, detstat, varargin)
 
@@ -62,6 +64,8 @@ function [rho, pd_rho] = SensitivitySNR(pd, Ns, Rsqr_H, detstat, varargin)
   switch detstat
     case "ChiSqr"   ## chi^2 statistic
       [FDP, fdp_vars, fdp_opts] = SensitivityChiSqrFDP(pd, Ns, varargin);
+    case "HoughFstat"   ## Hough on F-statistic
+      [FDP, fdp_vars, fdp_opts] = SensitivityHoughFstatFDP(pd, Ns, varargin);
     otherwise
       error("%s: invalid detection statistic '%s'", funcName, detstat);
   endswitch
