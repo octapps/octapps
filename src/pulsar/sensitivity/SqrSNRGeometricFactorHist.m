@@ -47,7 +47,7 @@ function Rsqr_H = SqrSNRGeometricFactorHist(varargin)
                {"cosi", "numeric,vector", [-1, 1]},
                {"emission", "char", "nonax"},
                {"zmstime", "numeric,scalar", 0},
-               {"hist_dx", "numeric,scalar", 1e-3},
+               {"hist_dx", "numeric,scalar", 5e-3},
                {"hist_N", "numeric,scalar", 20000},
                {"hist_err", "numeric,scalar", 1e-4}
                );
