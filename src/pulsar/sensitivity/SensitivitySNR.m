@@ -28,7 +28,7 @@
 ##   detstat = detection statistic, one of:
 ##      "ChiSqr": chi^2 statistic, e.g. the F-statistic
 ##         see SensitivityChiSqrFDP for possible options
-##      "HoughFstat: Hough on the F-statistic
+##      "HoughFstat": Hough on the F-statistic
 ##         see SensitivityHoughFstatFDP for possible options
 
 function [rho, pd_rho] = SensitivitySNR(pd, Ns, Rsqr_H, detstat, varargin)
