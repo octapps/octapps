@@ -48,27 +48,21 @@ function [rho, pd_rho] = SensitivitySNR(pd, Ns, Rsqr_H, detstat, varargin)
   assert(all(Ns > 0));
   assert(isHist(Rsqr_H) || isscalar(Rsqr_H));
 
-  ## make sure pd and Ns are the same size
-  [cserr, pd, Ns] = common_size(pd, Ns);
-  if cserr > 0
-    error("%s: pd, and Ns are not of common size", funcName);
-  endif
-  
+  ## select a detection statistic
+  switch detstat
+    case "ChiSqr"   ## chi^2 statistic
+      [pd, Ns, FDP, fdp_vars, fdp_opts] = SensitivityChiSqrFDP(pd, Ns, varargin);
+    case "HoughFstat"   ## Hough on F-statistic
+      [pd, Ns, FDP, fdp_vars, fdp_opts] = SensitivityHoughFstatFDP(pd, Ns, varargin);
+    otherwise
+      error("%s: invalid detection statistic '%s'", funcName, detstat);
+  endswitch
+
   ## make inputs column vectors
   siz = size(pd);
   pd = pd(:);
   Ns = Ns(:);
-
-  ## select a detection statistic
-  fdp_vars = {};
-  switch detstat
-    case "ChiSqr"   ## chi^2 statistic
-      [FDP, fdp_vars, fdp_opts] = SensitivityChiSqrFDP(pd, Ns, varargin);
-    case "HoughFstat"   ## Hough on F-statistic
-      [FDP, fdp_vars, fdp_opts] = SensitivityHoughFstatFDP(pd, Ns, varargin);
-    otherwise
-      error("%s: invalid detection statistic '%s'", funcName, detstat);
-  endswitch
+  fdp_vars = cellfun(@(x) x(:), fdp_vars, "UniformOutput", false);
 
   ## get values and weights of R^2 as row vectors
   if isHist(Rsqr_H)

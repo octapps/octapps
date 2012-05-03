@@ -23,7 +23,7 @@
 ##   "nth"  = number count false alarm threshold
 ##   "Fth"  = F-statistic threshold per segment
 ##   "zero" = use zeroth-order approximation (default: false)
-function [FDP, fdp_vars, fdp_opts] = SensitivityHoughFstatFDP(pd, Ns, args)
+function [pd, Ns, FDP, fdp_vars, fdp_opts] = SensitivityHoughFstatFDP(pd, Ns, args)
 
   FDP = @HoughFstatFDP;
 
@@ -42,12 +42,22 @@ function [FDP, fdp_vars, fdp_opts] = SensitivityHoughFstatFDP(pd, Ns, args)
     error("%s: 'paNt' and 'nth' are mutually exclusive options", funcName);
   endif
   if !isempty(paNt)
+    [cserr, paNt, pd, Ns] = common_size(paNt, pd, Ns);
+    if cserr > 0
+      error("%s: paNt, pd, and Ns are not of common size", funcName);
+    endif
     NTH = @(paNt, Ns) invFalseAlarm_HoughF(paNt, Ns, Fth);
     nth = arrayfun(NTH, paNt, Ns);
   else
+    [cserr, nth, pd, Ns] = common_size(nth, pd, Ns);
+    if cserr > 0
+      error("%s: nth, pd, and Ns are not of common size", funcName);
+    endif
     FAP = @(nth, Ns) falseAlarm_HoughF(nth, Ns, Fth);
-    paNt = arrayfun(FAP, nth, Ns);
+    nth = arrayfun(FAP, nth, Ns);
   endif
+
+  ## variables
   fdp_vars{1} = paNt;
   fdp_vars{2} = nth;
   
@@ -61,7 +71,7 @@ function pd_rhosqr = HoughFstatFDP(pd, Ns, rhosqr, fdp_vars, fdp_opts)
 
   ## false alarm probability per template, and number count false alarm threshold
   paNt = fdp_vars{1};
-  nth = fdp_vars{2};  
+  nth = fdp_vars{2};
 
   ## false dismissal probability
   if fdp_opts.zero

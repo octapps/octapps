@@ -24,7 +24,7 @@
 ##   "dof"  = number of degrees of freedom (default: 4)
 ##   "norm" = use normal approximation to chi^2 (default: false)
 
-function [FDP, fdp_vars, fdp_opts] = SensitivityChiSqrFDP(pd, Ns, args)
+function [pd, Ns, FDP, fdp_vars, fdp_opts] = SensitivityChiSqrFDP(pd, Ns, args)
 
   FDP = @ChiSqrFDP;
 
@@ -38,16 +38,19 @@ function [FDP, fdp_vars, fdp_opts] = SensitivityChiSqrFDP(pd, Ns, args)
   fdp_opts.dof = dof;
   fdp_opts.norm = norm;
 
-  ## degrees of freedom of the statistic
-  nu = fdp_opts.dof;
-
   ## false alarm threshold
   if sum([isempty(paNt),isempty(sa)]) != 1
     error("%s: 'paNt' and 'sa' are mutually exclusive options", funcName);
   endif
   if !isempty(paNt)
-    sa = invFalseAlarm_chi2_asym(paNt, Ns*nu);
+    [cserr, paNt, pd, Ns] = common_size(paNt, pd, Ns);
+    if cserr > 0
+      error("%s: paNt, pd, and Ns are not of common size", funcName);
+    endif
+    sa = invFalseAlarm_chi2_asym(paNt, Ns*dof);
   endif
+
+  ## variables
   fdp_vars{1} = sa;
   
 endfunction
