@@ -1,12 +1,17 @@
 %% freqSeries = FourierTransform ( ti, xi, oversampleby )
 %%
-%% Computes Fourier-transform of input timeseries with timestamps ti
-%% and data-points xi. This function complies with the LSC convention
-%% for Fourier-transforms, i.e.
-%% xk(f) = dt * sum_{j=0}^{n-1} x_j * e^{-2pi i f t_j}
+%% Computes Fourier-transform of input timeseries with timestamps {t_j}
+%% and data-points {x_j}, where j = 0 ... N-1
+%% This function complies with the LSC convention for Fourier-transforms, i.e.
+%% xFT(f) = dt * sum_{j=0}^{N-1} x_j * e^{-2pi i f t_j}
 %%
 %% The optional argument 'oversampleby' specifies an INTEGER
-%% factor to oversample the FFT by
+%% factor to oversample the FFT by, using zero-padding of the time-series.
+%%
+%% The returned 'freqSeries' is a struct with two array-fields:
+%% freqSeries.fk = { f_k }, the frequency-bins, and
+%% freqSeries.xk = { x_k }, the (complex) Fourier bins,
+%% where k = 0 ... N-1, and DFT frequency-bins f_k = k / N
 %%
 
 %%
