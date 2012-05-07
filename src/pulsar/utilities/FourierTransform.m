@@ -13,6 +13,12 @@
 %% freqSeries.xk = { x_k }, the (complex) Fourier bins,
 %% where k = 0 ... N-1, and DFT frequency-bins f_k = k / N
 %%
+%% Note: Matrix inputs
+%% The input can contain several time-series data vectors xi over the same N time-samples,
+%% where each time-series is a row-vector, ie the dimension of xi must be Nseries x N,
+%% where 'Nseries' is the number of parallel time-series.
+%% The FFT is therefore performed along rows of xi, and the resulting x_k has the same arrangement.
+%%
 
 %%
 %% Copyright (C) 2008 Reinhard Prix
@@ -35,9 +41,17 @@
 
 function freqSeries = FourierTransform ( ti, xi, oversampleby )
 
+  %% ----- input sanity checks ----------
+  if ( ! isvector ( ti ) )
+    error ("Time-steps input 'ti' must be a 1D vector\n");
+  endif
+  N = length(ti);
   dt = ti(2) - ti(1);
 
-  N = length(ti);
+  [Nseries, Nsamp] = size ( xi );
+  if ( Nsamp != N )
+    error ("Number of time-steps 'ti' (%d) does not agree with samples in 'xi' (%d)!\n", N, Nsamp );
+  endif
 
   if ( !exist("oversampleby") )
     oversampleby = 1;
@@ -48,12 +62,12 @@ function freqSeries = FourierTransform ( ti, xi, oversampleby )
 
   N1 = oversampleby * N;
   Tobs1 = N1 * dt;
-  xi1 = [ xi, zeros(1, (N1 - N) ) ];	%% zero-padding
+  df1 = (1/Tobs1);
 
-  xFFT = dt * fft ( xi1 );
+  xFFT = dt * fft ( xi, N1, 2 );	%% FFT over columns, ie "along rows"
 
-  xk = [ xFFT(floor(N1/2)+2 : N1), xFFT(1:floor(N1/2)+1) ];
-  fk = [ - floor(N1/2)+1 : floor(N1/2) ] * (1/Tobs1);
+  xk = [ xFFT(:, floor(N1/2)+2 : N1), xFFT(:, 1:floor(N1/2)+1) ];
+  fk = df1 * [ - floor(N1/2)+1 : floor(N1/2) ];
 
   freqSeries.fk = fk;
   freqSeries.xk = xk;
