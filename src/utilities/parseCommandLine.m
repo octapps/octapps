@@ -75,7 +75,7 @@ function opts = parseCommandLine(varargin)
       endif
     endif
     if isempty(argvalstr)
-      error("%s: Could to determine the value of argument '%s'", funcName, argcmdname);
+      error("%s: Could not determine the value of argument '%s'", funcName, argcmdname);
     endif
 
     ## add argument and value to options
