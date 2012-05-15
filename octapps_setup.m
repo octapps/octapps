@@ -73,6 +73,9 @@ function octapps_setup_function(my_path)
   ## is assumed to be the OCTAPPS root directory
   my_path = fileparts(my_path);
 
+  ## get OCTAPPS bin directory
+  bindir = fullfile(my_path, "bin");
+
   ## look at all subdirectories of src/ for *.m files
   dirs = strsplit(genpath(fullfile(my_path, "src")), pathsep, true);
   octapps_path = {my_path};
@@ -137,9 +140,11 @@ function octapps_setup_function(my_path)
 
     ## print the shell-appropriate command
     if csh_shell
-      printf("setenv OCTAVE_PATH %s", octave_path_env_str);
+      printf("setenv OCTAVE_PATH %s\n", octave_path_env_str);
+      printf("setenv PATH %s:${PATH}\n", bindir);
     else
-      printf("export OCTAVE_PATH=%s", octave_path_env_str);
+      printf("export OCTAVE_PATH=%s\n", octave_path_env_str);
+      printf("export PATH=%s:${PATH}\n", bindir);
     endif
 
   endif
