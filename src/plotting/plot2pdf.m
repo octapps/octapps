@@ -33,6 +33,8 @@ function plot2pdf ( bname, print_options=[], latex_preamble=[], nocleanup=false 
 
   curdir = pwd ();
 
+  tmp_bname = "__tmp";	%% avoid file-name problems in LaTeX include, rename into '<bname>.pdf' at the end
+
   %% create temporary sudirectory
   tmpdir = tmpnam (".");
   [status, msg, msgid] = mkdir (tmpdir);
@@ -42,7 +44,7 @@ function plot2pdf ( bname, print_options=[], latex_preamble=[], nocleanup=false 
   %% ... and change into it
   chdir (tmpdir );
 
-  texname = sprintf ("%s.tex", bname);
+  texname = sprintf ("%s.tex", tmp_bname);
   cmd = sprintf ("print (texname, '-depslatexstandalone'" );
   if ( ischar ( print_options ) )
     cmd = strcat ( cmd, ", '", print_options, "'" );
@@ -63,7 +65,7 @@ function plot2pdf ( bname, print_options=[], latex_preamble=[], nocleanup=false 
   endif
 
   %% turn this tex+eps figure into a pdf endproduct
-  dviname = sprintf ("%s.dvi", bname);
+  dviname = sprintf ("%s.dvi", tmp_bname);
   pdfname = sprintf ("%s/%s.pdf", curdir, bname);
   cmdline = sprintf ("latex %s && dvipdf %s %s\n", texname, dviname, pdfname );
   [status, out] = system ( cmdline );
