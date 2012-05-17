@@ -52,6 +52,14 @@ function Rsqr_H = SqrSNRGeometricFactorHist(varargin)
                {"hist_err", "numeric,scalar", 1e-4}
                );
 
+  ## check mismatch histogram bins are positive
+  if ~isempty(mism_hgrm)
+    xl = histBinGrids(mism_hgrm, 1, "xl");
+    if xl(1) < 0
+      error("%s: mismatch histogram bins must be positive", funcName);
+    endif
+  endif
+
   ## product of angular sidereal frequency and observation time
   OmegaT = 2*pi*T;   # T is in sidereal days
 

@@ -68,8 +68,12 @@ function [rho, pd_rho] = SensitivitySNR(pd, Ns, Rsqr_H, detstat, varargin)
   if isHist(Rsqr_H)
     ## R^2 = histogram
     [Rsqr_xb, Rsqr_px] = finiteHist(Rsqr_H);
-    [Rsqr_x, Rsqr_dx] = histBinGrids(Rsqr_H, 1, "xc", "dx");
+    [xl, Rsqr_x, Rsqr_dx] = histBinGrids(Rsqr_H, 1, "xl", "xc", "dx");
     Rsqr_w = Rsqr_px .* Rsqr_dx;
+    ## check histogram bins are positive
+    if xl(1) < 0
+      error("%s: R^2 histogram bins must be positive", funcName);
+    endif
   elseif isscalar(Rsqr_H) && isnumeric(Rsqr_H)
     ## R^2 = singular value
     Rsqr_x = Rsqr_H;
