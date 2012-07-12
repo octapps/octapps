@@ -5,18 +5,18 @@ function sensFact = SensFactHoughF ( varargin )
   %% 'Tdata':   	total amount of data used, in seconds
   %% 'misHist': 	mismatch histogram, produced using addDataToHist()
   %% 'pFD':     	false-dismissal probability = 1 - pDet
-  %% 'pFA':     	false-alarm probability (-ies) to compute sensitivity factor for
-  %% 'detectors': 	string containing detector-network to use 'H'=Hanford, 'L'=LIGO, 'V'=Virgo
+  %% 'pFA':     	false-alarm probability (-ies) *per template* [can be a vector]
+  %% 'detectors': 	string containing detector-network to use 'H'=Hanford, 'L'=Livingston, 'V'=Virgo
   %% 'Fth': 	F-stat threshold (on F, not 2F!) in each segment for 'pixel' selection
 
   %% ----- parse commandline
   uvar = parseOptions ( varargin,
                        {'Nseg', 'scalar', 1 },		%% number of StackSlide segments
                        {'Tdata', 'scalar' },  		%% total amount of data used, in seconds
-                       {'misHist', 'struct' },		%% mismatch histogram, produced using addDataToHist()
+                       {'misHist', 'Hist' },		%% mismatch histogram, produced using addDataToHist()
                        {'pFD', 'scalar', 0.1},		%% false-dismissal probability = 1 - pDet
-                       {'pFA', 'vector', 0.01},		%% false-alarm probability (-ies) to compute sensitivity at
-                       {'detectors', 'char', "HL" },	%% string containing detector-network to use 'H'=Hanford, 'L'=LIGO, 'V'=Virgo
+                       {'pFA', 'vector'},		%% false-alarm probability (-ies) per template
+                       {'detectors', 'char', "HL" },	%% string containing detector-network to use 'H'=Hanford, 'L'=Livingston, 'V'=Virgo
                        {'Fth', 'scalar', 5.2 / 2 }	%% F-stat threshold (on F, not 2F!) in each segment for 'pixel' selection
                        );
 
