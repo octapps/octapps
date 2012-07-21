@@ -28,9 +28,10 @@
 function [s1, s2] = RandomSuperskyMismatch(mu, g_ss, f1)
 
   ## Check input.
-  mu = mu(:)';
-  assert(all(mu > 0));
+  assert(isscalar(mu));
+  assert(mu > 0);
   assert(size(g_ss, 1) == size(g_ss, 2));
+  assert(isvector(f1));
   assert(length(f1) == size(g_ss, 1) - 3);
 
   ## Split super-sky metric into sky-only, frequency-only, and cross metrics.
@@ -40,53 +41,50 @@ function [s1, s2] = RandomSuperskyMismatch(mu, g_ss, f1)
 
   ## Choose random mismatches for the sky; once sky positions are generated,
   ## frequency offsets are generated such that the total mismatch is mu.
-  mu_nn = rand(size(mu)) .* mu;
+  mu_nn = rand * mu;
 
-  ## Choose a random sky position unit vector.
-  n1 = randn(3, length(mu));
-  norms = norm(n1, "cols");
-  n1(1,:) ./= norms;
-  n1(2,:) ./= norms;
-  n1(3,:) ./= norms;
+  ## Generate a random rotation matrix using Rodrigues' formula:
+  ## a random rotation of th about a random unit vector k.
+  k = randn(3, 1);
+  k ./= norm(k);
+  kx = [0, -k(3), k(2); k(3), 0, -k(1); -k(2), k(1), 0];
+  th = rand * 2*pi;
+  R = eye(3) + kx * sin(th) + kx * kx * (1 - cos(th));
 
-  ii = true(size(mu));
-  dn = n2 = zeros(size(n1));
-  new_mu_nn = zeros(size(mu));
-  cycle = 0;
+  ## Choose first sky position unit vector to be the z
+  ## direction in the randomly-rotated coordinate frame
+  n1 = [0; 0; 1];
+
+  ## Rotate sky metric into the randomly-rotated coordinates
+  g_nn_z = R' * g_nn * R;
+
+  ## Eigen-decompose the metric of the 2D ellipse in the x-y
+  ## plane, perpendicular to n1, i.e. in the plane tangent to
+  ## n1 in physical coordinates, which is approximately the
+  ## intersection of the super-sky metric with the sky sphere.
+  [V_nn_z, D_nn_z] = eig(g_nn_z(1:2, 1:2));
+
+  ## Choose a random 2D offset in the tangent plane, scaled
+  ## to be isotropically distributed on the edge of the 2D
+  ## metric ellipse in the tangent plane, and with a mismatch
+  ## of mu_nn.
+  dn = inv(sqrt(D_nn_z)) * randn(2,1);
+  dn .*= sqrt(mu_nn / dot(dn, D_nn_z * dn));
+  dn = V_nn_z * dn;
+
+  ## Rotate first sky position vector and offset back to
+  ## physical, 3D coordinates.
+  n1 = R * n1;
+  dn = R * [dn; 0];
+
+  ## Iteratively ensure that n2 is a unit vector, and
+  ## that dn is of length mu_nn w.r.t. the sky metric.
   do
-
-    ## Create a random offset vector perpendicular to n1,
-    ## i.e. tangent to the sky sphere.
-    if cycle == 0
-      dn(:,ii) = randn(3, sum(ii));
-      dotratio = dot(dn(:,ii), n1(:,ii));
-      dn(1,ii) -= dotratio .* n1(1,ii);
-      dn(2,ii) -= dotratio .* n1(2,ii);
-      dn(3,ii) -= dotratio .* n1(3,ii);
-    endif
-
-    ## Rescale dn to get a sky mismatch of mu_nn.
-    rescale = sqrt(mu_nn(ii) ./ dot(dn(:,ii), g_nn * dn(:,ii)));
-    dn(1,ii) .*= rescale;
-    dn(2,ii) .*= rescale;
-    dn(3,ii) .*= rescale;
-
-    ## Create a second random sky position unit vector n2.
-    n2(:,ii) = n1(:,ii) + dn(:,ii);
-    norms = norm(n2(:,ii), "cols");
-    n2(1,ii) ./= norms;
-    n2(2,ii) ./= norms;
-    n2(3,ii) ./= norms;
-
-    ## Recompute the offset between n1 and n2, and the sky mismatch.
-    dn(:,ii) = n2(:,ii) - n1(:,ii);
-    new_mu_nn(ii) = dot(dn(:,ii), g_nn * dn(:,ii));
-
-    ## Loop until the mismatch is close enough to what was asked for.
-    ## If no convergence within 10 iterations, choose a new random dn.
-    ii = abs(mu_nn - new_mu_nn) > 1e-3 * mu_nn;
-    cycle = mod(cycle + 1, 10);
-  until !any(ii)
+    n2 = n1 + dn;
+    n2 ./= norm(n2);
+    dn = n2 - n1;
+    new_mu_nn = dot(dn, g_nn * dn);
+  until abs(mu_nn - new_mu_nn) < 1e-3 * mu_nn;
   mu_nn = new_mu_nn;
 
   ## Accounting for sky-frequency metric cross-terms:
@@ -105,33 +103,24 @@ function [s1, s2] = RandomSuperskyMismatch(mu, g_ss, f1)
   ## Thus if we choose df such that the frequency-only mismatch
   ## equals mu_ff, then subtract dfo, the overall sky-frequency
   ## mismatch will equal mu, as required.
-  df_offset = g_ff' \ (g_nf' * dn);
-  mu_ff = mu - mu_nn + dot(df_offset, g_ff * df_offset);
+  dfo = g_ff' \ (g_nf' * dn);
+  mu_ff = mu - mu_nn + dot(dfo, g_ff * dfo);
 
   ## Eigen-decompose frequency metric.
   [V_ff, D_ff] = eig(g_ff);
 
-  ## Create a random frequency offset isotropically distributed
-  ## on the surface of the frequency metric ellipsoid.
-  df = -1 + 2 * rand(size(g_ff, 1), length(mu));
-  for i = 1:size(df, 1)
-    df(i,:) ./= sqrt(g_ff(i,i));
-  endfor
+  ## Create a random frequency offset, scaled to be isotropically
+  ## distributed on the surface of the frequency metric ellipsoid,
+  ## and with a mismatch of mu_ff.
+  df = inv(sqrt(D_ff)) * randn(length(f1), 1);
+  df .*= sqrt(mu_ff ./ dot(df, D_ff * df));
   df = V_ff * df;
 
-  ## Rescale df to get a frequency mismatch of mu_ff.
-  rescale = sqrt(mu_ff ./ dot(df, g_ff * df));
-  for i = 1:size(df, 1)
-    df(i,:) .*= rescale;
-  endfor
-
   ## Correct for sky-frequency metric cross terms.
-  df = df - df_offset;
+  df = df - dfo;
 
   ## Create super-sky coordinate points.
-  f1 = f1(:);
-  f1 = f1(:,ones(length(mu),1));
-  s1 = [n1; f1];
-  s2 = [n2; f1 + df];
+  s1 = [n1; f1(:)];
+  s2 = [n2; f1(:) + df];
 
 endfunction
