@@ -52,8 +52,9 @@ function [s1, s2] = RandomSuperskyMismatch(mu, g_ss, f1)
   R = eye(3) + kx * sin(th) + kx * kx * (1 - cos(th));
 
   ## Choose first sky position unit vector to be the z
-  ## direction in the randomly-rotated coordinate frame
-  n1 = [0; 0; 1];
+  ## direction in the randomly-rotated coordinate frame,
+  ## i.e. R*[0;0;1] = R(:,3)
+  n1 = R(:,3);
 
   ## Rotate sky metric into the randomly-rotated coordinates
   g_nn_z = R' * g_nn * R;
@@ -64,26 +65,32 @@ function [s1, s2] = RandomSuperskyMismatch(mu, g_ss, f1)
   ## intersection of the super-sky metric with the sky sphere.
   [V_nn_z, D_nn_z] = eig(g_nn_z(1:2, 1:2));
 
-  ## Choose a random 2D offset in the tangent plane, scaled
-  ## to be isotropically distributed on the edge of the 2D
-  ## metric ellipse in the tangent plane, and with a mismatch
-  ## of mu_nn.
-  dn = inv(sqrt(D_nn_z)) * randn(2,1);
-  dn .*= sqrt(mu_nn / dot(dn, D_nn_z * dn));
-  dn = V_nn_z * dn;
-
-  ## Rotate first sky position vector and offset back to
-  ## physical, 3D coordinates.
-  n1 = R * n1;
-  dn = R * [dn; 0];
-
-  ## Iteratively ensure that n2 is a unit vector, and
-  ## that dn is of length mu_nn w.r.t. the sky metric.
+  ## Try to find second sky position unit vector
   do
-    n2 = n1 + dn;
-    n2 ./= norm(n2);
-    dn = n2 - n1;
-    new_mu_nn = dot(dn, g_nn * dn);
+
+    ## Choose a random 2D offset in the tangent plane, scaled
+    ## to be isotropically distributed on the edge of the 2D
+    ## metric ellipse in the tangent plane, and with a mismatch
+    ## of mu_nn.
+    dn = inv(sqrt(D_nn_z)) * randn(2,1);
+    dn .*= sqrt(mu_nn / dot(dn, D_nn_z * dn));
+    dn = V_nn_z * dn;
+
+    ## Rotate offset back to physical, 3D coordinates.
+    dn = R * [dn; 0];
+
+    ## Iteratively ensure that n2 is a unit vector, and
+    ## that dn is of length mu_nn w.r.t. the sky metric.
+    cycles = 9;
+    do
+      dn .*= sqrt(mu_nn / dot(dn, g_nn * dn));
+      n2 = n1 + dn;
+      n2 ./= norm(n2);
+      dn = n2 - n1;
+      new_mu_nn = dot(dn, g_nn * dn);
+    until --cycles < 0 || abs(mu_nn - new_mu_nn) < 1e-3 * mu_nn;
+
+    ## Try a new random 2D offset if no convergence.
   until abs(mu_nn - new_mu_nn) < 1e-3 * mu_nn;
   mu_nn = new_mu_nn;
 
