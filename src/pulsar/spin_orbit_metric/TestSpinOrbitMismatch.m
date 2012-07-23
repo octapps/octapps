@@ -24,8 +24,8 @@ function [relerr_wrt_ss, relerr_wrt_so] = TestSpinOrbitMismatch(varargin)
                {"ptolemaic", "logical", true},
                {"num_spindowns", "numeric,scalar", 1},
                {"max_frequency", "numeric,scalar", 100.0},
-               {"num_trials", "numeric,scalar", 100},
-               {"so_dist_bias", "numeric,vector", []},
+               {"num_trials", "numeric,scalar", 1000},
+               {"so_mismatch_frac", "numeric,scalar", -1},
                []);
 
   ## Load LAL libraries.
@@ -70,8 +70,15 @@ function [relerr_wrt_ss, relerr_wrt_so] = TestSpinOrbitMismatch(varargin)
   so_ret = CreateSpinOrbitMetric(so_type, Tspan, ref_time, edat, dets, max_frequency, num_spindowns);
   g_so = SpinOrbitGetMetric(so_ret).data(:,:);
 
+  ## Split spin-orbit metric into spin and remainder blocks
+  g_so_ss = g_so(1:2,1:2);
+  g_so_rs = g_so(3:end,1:2);
+  g_so_rr = g_so(3:end,3:end);
+
   ## Eigen-decompose spin-orbit metric.
   [V_so, D_so] = eig(g_so);
+  [V_so_s, D_so_s] = eig(g_so_ss);
+  [V_so_r, D_so_r] = eig(g_so_rr);
 
   ## Generate random offsets and calculate mismatches
   mu_ss_wrt_ss = mu_so_wrt_ss = zeros(num_trials, 1);
@@ -99,15 +106,45 @@ function [relerr_wrt_ss, relerr_wrt_so] = TestSpinOrbitMismatch(varargin)
     dso = so1.data - so2.data;
     mu_so_wrt_ss(i) = dot(dso, g_so * dso);
 
-    ## Generate random spin-orbit parameter space offset.
-    dso = V_so * inv(sqrt(D_so)) * randn(length(dso), 1);
-    if !isempty(so_dist_bias)
+    ## Generate random spin-orbit parameter space offset:
+    if so_mismatch_frac < 0
 
-      ## Bias distribution of random spin-orbit offsets.
-      dso = diag(so_dist_bias) * dso;
+      ## Generate unrestricted offsets.
+      dso = V_so * inv(sqrt(D_so)) * randn(length(dso), 1);
+      dso .*= sqrt(mismatch ./ dot(dso, g_so * dso));
+
+    else
+
+      ## Generate random mismatch for the spin part
+      if so_mismatch_frac == 0
+        mu_s = rand * mismatch;
+      else
+        mu_s = so_mismatch_frac * mismatch;
+      endif
+
+      ## Generate random spin parameter space offset,
+      ## with a mismatch of mu_s
+      dso_s = V_so_s * inv(sqrt(D_so_s)) * randn(2, 1);
+      dso_s .*= sqrt(mu_s ./ dot(dso_s, g_so_ss * dso_s));
+
+      ## Adjustment for remaining offsets so that overall
+      ## mismatch is correct, accounting for metric cross-terms.
+      ## See RandomSuperskyMismatch() for derivation.
+      dso_ro = g_so_rr \ (g_so_rs * dso_s);
+      mu_r = mismatch - mu_s + dot(dso_ro, g_so_rr * dso_ro);
+
+      ## Generate random remainder parameter space offset,
+      ## with a mismatch of mu_r
+      dso_r = V_so_r * inv(sqrt(D_so_r)) * randn(length(dso)-2, 1);
+      dso_r .*= sqrt(mu_r ./ dot(dso_r, g_so_rr * dso_r));
+
+      ## Adjust for metric cross-terms.
+      dso_r -= dso_ro;
+
+      ## Create final offset.
+      dso = [dso_s; dso_r];
 
     endif
-    dso .*= sqrt(mismatch ./ dot(dso, g_so * dso));
     so2.data = so1.data + dso;
 
     ## Calculate spin-orbit mismatch w.r.t spin-orbit offsets.
