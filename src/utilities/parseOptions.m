@@ -63,6 +63,11 @@ function paropts = parseOptions(opts, varargin)
   for n = 1:length(varargin)
     optspec = varargin{n};
 
+    ## allow an empty optspec as the last argument
+    if n == length(varargin) && isempty(optspec)
+      continue;
+    endif
+
     ## basic syntax checking
     if !iscell(optspec) || !ismember(length(optspec), 2:3) || !all(cellfun("ischar", optspec(1:2)))
       error("%s: Expected option specification {'name','type'[,defvalue]} at varargin{%i}", funcName, n);
