@@ -119,9 +119,13 @@ function octapps_install(octapps_prefix)
     if strcmp(exts{i}, "csh")
       fprintf(fid, "if ( ! ${?OCTAVE_PATH} ) setenv OCTAVE_PATH\n")
       fprintf(fid, "setenv OCTAVE_PATH \"%s:${OCTAVE_PATH}\"\n", userenvpath);
+      fprintf(fid, "if ( ! ${?PATH} ) setenv PATH\n")
+      fprintf(fid, "setenv PATH \"%s:${PATH}\"\n", octapps_bindir);
     else
       fprintf(fid, "OCTAVE_PATH=\"%s:${OCTAVE_PATH}\"\n", userenvpath);
       fprintf(fid, "export OCTAVE_PATH\n")
+      fprintf(fid, "PATH=\"%s:${PATH}\"\n", octapps_bindir);
+      fprintf(fid, "export PATH\n")
     endif      
     fclose(fid);
     printf("Wrote %s\n", userenvfile);
