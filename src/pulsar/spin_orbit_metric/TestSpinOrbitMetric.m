@@ -36,13 +36,13 @@ function [rms_errors, metrics, ptmetrics] = TestSpinOrbitMetric(Tdays)
   mp = new_DopplerMetricParams;
 
   ## create coordinate system
-  mp.coordSys.coordIDs(1) = DOPPLERCOORD_KAPPA_S;
-  mp.coordSys.coordIDs(2) = DOPPLERCOORD_SIGMA_S;
-  mp.coordSys.coordIDs(3) = DOPPLERCOORD_KAPPA_O;
-  mp.coordSys.coordIDs(4) = DOPPLERCOORD_SIGMA_O;
-  mp.coordSys.coordIDs(5) = DOPPLERCOORD_OMEGA_2;
-  mp.coordSys.coordIDs(6) = DOPPLERCOORD_OMEGA_1;
-  mp.coordSys.coordIDs(7) = DOPPLERCOORD_OMEGA_0;
+  mp.coordSys.coordIDs(1) = DOPPLERCOORD_KX;
+  mp.coordSys.coordIDs(2) = DOPPLERCOORD_KY;
+  mp.coordSys.coordIDs(3) = DOPPLERCOORD_MX;
+  mp.coordSys.coordIDs(4) = DOPPLERCOORD_MY;
+  mp.coordSys.coordIDs(5) = DOPPLERCOORD_W2;
+  mp.coordSys.coordIDs(6) = DOPPLERCOORD_W1;
+  mp.coordSys.coordIDs(7) = DOPPLERCOORD_W0;
   mp.coordSys.dim = dim = 7;
 
   ## set detectors
@@ -86,7 +86,7 @@ function [rms_errors, metrics, ptmetrics] = TestSpinOrbitMetric(Tdays)
     metrics(:,:,n) = DiagNormalizeMetric(mret.g_ij).data;
 
     ## calculate phase metric, Ptolemaic approx
-    ptmetrics(:,:,n) = SpinOrbitPtoleMetric(mp.coordSys.coordIDs(1:dim), mp.Tspan);
+    ptmetrics(:,:,n) = SpinOrbitPtoleMetric(mp.coordSys.coordIDs(1:dim), mp.detInfo.sites{1}, mp.signalParams.Doppler.refTime, mp.Tspan);
 
   endfor
   printf("\n");

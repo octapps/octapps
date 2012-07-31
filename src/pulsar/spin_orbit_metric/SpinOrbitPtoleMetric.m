@@ -17,12 +17,14 @@
 
 ## Calculate the spin-orbit phase metric with Ptolemaic detector motion
 ## Usage:
-##   g_so = SpinOrbitPtoleMetric(coordIDs, Tspan)
+##   g_so = SpinOrbitPtoleMetric(coordIDs, tref, Tspan)
 ## where
 ##   g_so     = spin-orbit metric (diag-normalised)
 ##   coordIDs = DOPPLERCOORD_ coordinate IDs
+##   site     = detector info (LALDetector)
+##   tref     = reference time (LIGOTimeGPS)
 ##   Tspan    = observation time (seconds)
-function g_so = SpinOrbitPtoleMetric(coordIDs, Tspan)
+function g_so = SpinOrbitPtoleMetric(coordIDs, site, tref, Tspan)
 
   ## check input
   assert(isvector(coordIDs));
@@ -36,6 +38,11 @@ function g_so = SpinOrbitPtoleMetric(coordIDs, Tspan)
   Omega_s = LAL_TWOPI / LAL_DAYSID_SI;
   Omega_o = LAL_TWOPI / LAL_YRSID_SI;
 
+  ## initial phase of spin motion
+  [tMidnight, tAutumn] = GetEarthTimes(tref);
+  phi_s = -2*pi * tMidnight / LAL_DAYSID_SI;
+  phi_s += site.frDetector.vertexLongitudeRadians;
+
   ## metric dimensions, number of spindowns
   dim = length(coordIDs);
 
@@ -44,21 +51,21 @@ function g_so = SpinOrbitPtoleMetric(coordIDs, Tspan)
   for i = 1:dim
     s = [];
     switch coordIDs(i)
-      case DOPPLERCOORD_KAPPA_S
-        phi{i} = @(t) cos(Omega_s .* t);
-      case DOPPLERCOORD_SIGMA_S
-        phi{i} = @(t) sin(Omega_s .* t);
-      case DOPPLERCOORD_KAPPA_O
+      case DOPPLERCOORD_KX
+        phi{i} = @(t) cos(phi_s + Omega_s .* t);
+      case DOPPLERCOORD_KY
+        phi{i} = @(t) sin(phi_s + Omega_s .* t);
+      case DOPPLERCOORD_MX
         phi{i} = @(t) cos(Omega_o .* t);
-      case DOPPLERCOORD_SIGMA_O
+      case DOPPLERCOORD_MY
         phi{i} = @(t) sin(Omega_o .* t);
-      case DOPPLERCOORD_OMEGA_0
+      case DOPPLERCOORD_W0
         s = 0;
-      case DOPPLERCOORD_OMEGA_1
+      case DOPPLERCOORD_W1
         s = 1;
-      case DOPPLERCOORD_OMEGA_2
+      case DOPPLERCOORD_W2
         s = 2;
-      case DOPPLERCOORD_OMEGA_3
+      case DOPPLERCOORD_W3
         s = 3;
       otherwise
         error("%s: unknown coordID=%i", funcName, coordIDs(i));
