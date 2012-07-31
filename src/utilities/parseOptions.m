@@ -31,7 +31,7 @@
 ##   paropts = parsed function options (optional)
 ## Notes:
 ##   * <name> will be assigned values in the context of
-##     the calling function, unless paropts is given
+##     the calling function
 ##   * each 'type' in <types> must correspond to a function
 ##     'istype': each function will be called to check that
 ##     a value is valid. For example, if
@@ -195,11 +195,9 @@ function paropts = parseOptions(opts, varargin)
   endfor
 
   ## assign values to option variables in caller namespace
-  if nargout == 0
-    paroptnames = fieldnames(paropts);
-    for n = 1:length(paroptnames)
-      assignin("caller", paroptnames{n}, paropts.(paroptnames{n}));
-    endfor
-  endif
+  paroptnames = fieldnames(paropts);
+  for n = 1:length(paroptnames)
+    assignin("caller", paroptnames{n}, paropts.(paroptnames{n}));
+  endfor
 
 endfunction
