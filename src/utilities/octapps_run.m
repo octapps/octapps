@@ -27,7 +27,7 @@ function octapps_run(octapps_run_script, function_name)
   try
     function_handle = str2func(function_name);
   catch
-    error("%s: no function '%s'", octapps_run_script, function_name);
+    error("%s: no function '%s', or function produces a parse error.", octapps_run_script, function_name);
   end_try_catch
 
   ## get command line arguments passed to script, which start
