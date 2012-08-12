@@ -51,13 +51,13 @@ function g_so = SpinOrbitPtoleMetric(coordIDs, site, tref, Tspan)
   for i = 1:dim
     s = [];
     switch coordIDs(i)
-      case DOPPLERCOORD_KX
+      case DOPPLERCOORD_KSX
         phi{i} = @(t) cos(phi_s + Omega_s .* t);
-      case DOPPLERCOORD_KY
+      case DOPPLERCOORD_KSY
         phi{i} = @(t) sin(phi_s + Omega_s .* t);
-      case DOPPLERCOORD_MX
+      case DOPPLERCOORD_KOU
         phi{i} = @(t) cos(Omega_o .* t);
-      case DOPPLERCOORD_MY
+      case DOPPLERCOORD_KOV
         phi{i} = @(t) sin(Omega_o .* t);
       case DOPPLERCOORD_W0
         s = 0;

@@ -15,6 +15,14 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
+## Test spin-orbit metric calculation.
+## Usage:
+##   [rms_errors, metrics, ptmetrics] = TestSpinOrbitMetric(Tdays)
+## where:
+##   Tdays      = coherent time spans (days)
+##   metrics    = metric calculated using UniversalDopplerMetric
+##   ptmetrics  = metric calculated using SpinOrbitPtoleMetric
+##   rms_errors = r.m.s. errors between metrics and ptmetrics
 function [rms_errors, metrics, ptmetrics] = TestSpinOrbitMetric(Tdays)
 
   ## check input
@@ -36,10 +44,10 @@ function [rms_errors, metrics, ptmetrics] = TestSpinOrbitMetric(Tdays)
   mp = new_DopplerMetricParams;
 
   ## create coordinate system
-  mp.coordSys.coordIDs(1) = DOPPLERCOORD_KX;
-  mp.coordSys.coordIDs(2) = DOPPLERCOORD_KY;
-  mp.coordSys.coordIDs(3) = DOPPLERCOORD_MX;
-  mp.coordSys.coordIDs(4) = DOPPLERCOORD_MY;
+  mp.coordSys.coordIDs(1) = DOPPLERCOORD_KSX;
+  mp.coordSys.coordIDs(2) = DOPPLERCOORD_KSY;
+  mp.coordSys.coordIDs(3) = DOPPLERCOORD_KOU;
+  mp.coordSys.coordIDs(4) = DOPPLERCOORD_KOV;
   mp.coordSys.coordIDs(5) = DOPPLERCOORD_W2;
   mp.coordSys.coordIDs(6) = DOPPLERCOORD_W1;
   mp.coordSys.coordIDs(7) = DOPPLERCOORD_W0;
