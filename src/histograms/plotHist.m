@@ -17,10 +17,12 @@
 
 ## Plot a histogram as a stair graph
 ## Syntax:
-##   plotHist(hgrm, options, ...)
+##   plotHist(hgrm, hgrmopt, options, ...)
 ##   h = plotHist(...)
 ## where:
 ##   hgrm    = histogram struct
+##   hgrmopt = optional histogram options:
+##             "nonorm" = do not normalise histogram
 ##   options = options to pass to graphics function
 ##   h       = return graphics handle
 
@@ -35,7 +37,11 @@ function varargout = plotHist(hgrm, varargin)
   endif
 
   ## normalise histogram
-  hgrm = normaliseHist(hgrm);
+  if strcmp(varargin{1}, "nonorm")
+    varargin = varargin(2:end);
+  else
+    hgrm = normaliseHist(hgrm);
+  endif
 
   ## get finite bins and probabilities
   [xb, px] = finiteHist(hgrm);
