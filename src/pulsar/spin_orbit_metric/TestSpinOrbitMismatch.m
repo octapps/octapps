@@ -242,7 +242,7 @@ function results = TestSpinOrbitMismatch(varargin)
 
   ## Save results.
   if !isempty(output_file)
-    save("-zip", output_file, "-struct", "results");
+    save("-hdf5", output_file, "-struct", "results");
   endif
 
 endfunction
