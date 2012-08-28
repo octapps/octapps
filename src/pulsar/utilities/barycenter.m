@@ -62,7 +62,12 @@ rd = sqrt( baryinput.site.location(1)*baryinput.site.location(1) ...
     + baryinput.site.location(2)*baryinput.site.location(2) ...
     + baryinput.site.location(3)*baryinput.site.location(3));
 
-latitude = pi/2 - acos(baryinput.site.location(3)/rd);
+if rd == 0.0
+    latitude = pi/2;
+else
+    latitude = pi/2 - acos(baryinput.site.location(3)/rd);
+end
+
 longitude = atan2(baryinput.site.location(2), baryinput.site.location(1));
 
 % ********************************************************************

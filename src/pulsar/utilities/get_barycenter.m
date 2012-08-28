@@ -26,6 +26,7 @@ function [emitdt, emitte, emitdd, emitR, emitER, emitE, emitS] = ...
 %   GEO 600 = 'GEO', 'G1'
 %   VIRGO = 'V1', 'VIRGO'
 %   TAMA = 'T1', 'TAMA'
+%   Earth geocentre = 'GEOCENTER'
 %
 % It also takes in a vector of GPS times (tGPS). Ephemeris files for the
 % Earth (efile) and Sun (sfile) also need to be specified - these should be
@@ -120,6 +121,10 @@ elseif strcmpi(detector, 'TAMA') || strcmpi(detector, 'T1') % TAMA300
     baryinput.site.location(1) = -3946408.99111000;
     baryinput.site.location(2) = 3366259.02802000;
     baryinput.site.location(3) = 3699150.69233000;
+elseif strcmpi(detector, 'GEOCENTER') || strcmpi(detector, 'GEOCENTRE') % the geocentre
+    baryinput.site.location(1) = 0.0;
+    baryinput.site.location(2) = 0.0;
+    baryinput.site.location(3) = 0.0;
 end
 
 % set positions in light seconds
