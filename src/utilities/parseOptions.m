@@ -78,13 +78,36 @@ function paropts = parseOptions(opts, varargin)
     allowed.(optname) = 1;
 
     ## store option type functions
-    opttypes = optspec{2};
-    typefuncstr = sprintf("&&is%s(x)", strtrim(strsplit(opttypes, ",", true)){:})(3:end);
+    typefuncstr = "";
+    opttypes = strtrim(strsplit(optspec{2}, ",", true));
+    for i = 1:length(opttypes)
+      if length(typefuncstr) > 0
+        typefuncstr = strcat(typefuncstr, "&&");
+      endif
+      if strncmp(opttypes{i}, "a:", 2)
+        typefuncstr = strcat(typefuncstr, "isa(x,\"", opttypes{i}(3:end), "\")");
+      else
+        switch opttypes{i}
+          case "integer"
+            typefuncstr = strcat(typefuncstr, "isnumeric(x)&&all(fix(x)==x)");
+          case "positive"
+            typefuncstr = strcat(typefuncstr, "isnumeric(x)&&all(x>=0)");
+          case "negative"
+            typefuncstr = strcat(typefuncstr, "isnumeric(x)&&all(x<=0)");
+          case "strictpos"
+            typefuncstr = strcat(typefuncstr, "isnumeric(x)&&all(x>0)");
+          case "strictneg"
+            typefuncstr = strcat(typefuncstr, "isnumeric(x)&&all(x<0)");
+          otherwise
+            typefuncstr = strcat(typefuncstr, "is", opttypes{i}, "(x)");
+        endswitch
+      endif
+    endfor
     typefunc.(optname) = inline(typefuncstr, "x");
     try
       feval(typefunc.(optname), []);
     catch
-      error("%s: Error parsing types specification '%s' for option", opttypes, optname);
+      error("%s: Error parsing types specification '%s' for option", optspec{2}, optname);
     end_try_catch
 
     ## if this is an optional option
@@ -147,7 +170,7 @@ function paropts = parseOptions(opts, varargin)
 
     ## if option does not accept a 'char' value, but option value is a 'char',
     ## try evaluating it (this is used when parsing arguments from the command line)
-    if !feval(typefunc.(optkey), "string") && ischar(optval)
+    if !feval(typefunc.(optkey), "string") && ischar(optval) && !isobject(optval)
       try
         eval(sprintf("optval=[%s];", optval));
       catch
