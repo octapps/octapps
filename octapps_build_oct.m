@@ -106,8 +106,9 @@ function octapps_build_oct(varargin)
 
     endif
 
+    includestr = sprintf ( "-I%s -I%s/../", octave_config_info("includedir"), octave_config_info("octincludedir") );
     ## compile oct-file
-    runCommand(sprintf("g++ -fpic -c -o '%s' '%s' '-I%s'", ofile, srccpp, octave_config_info("includedir")));
+    runCommand(sprintf("g++ -fpic -c -o '%s' '%s' %s", ofile, srccpp, includestr ));
     runCommand(sprintf("g++ -shared -o '%s' '%s' -lgsl", octfile, ofile));
 
   endfor
