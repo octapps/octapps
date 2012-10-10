@@ -90,6 +90,8 @@ function paropts = parseOptions(opts, varargin)
         switch opttypes{i}
           case "integer"
             typefuncstr = strcat(typefuncstr, "isnumeric(x)&&all(fix(x)==x)");
+          case "nonzero"
+            typefuncstr = strcat(typefuncstr, "isnumeric(x)&&all(x!=0)");
           case "positive"
             typefuncstr = strcat(typefuncstr, "isnumeric(x)&&all(x>=0)");
           case "negative"
