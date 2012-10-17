@@ -34,7 +34,7 @@
 function [xx, yy, zz] = metricEllipsoid ( gij, mismatch, Nsteps=20, method=1 )
   dimgij = size(gij);
   assert ( ( dimgij == [2,2] ) || dimgij == [3,3], "Metric 'gij' needs to be 2x2 or 3x3, got %d x %d\n", dimgij(1), dimgij(2) );
-  assert ( issymmetric ( gij ), "Metric 'gij' needs to be a symmetric matrix!\n" );
+  assert ( issymmetric ( gij ) > 0, "Metric 'gij' needs to be a symmetric matrix!\n" );
 
   nDim = dimgij(1);
 
