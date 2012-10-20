@@ -58,7 +58,7 @@ function [x, wksp] = drawFromHist(hgrm, N, wksp=[])
 
   ## generate random indices to histogram bins,
   ## with appropriate probabilities
-  [ii{1:dim}] = ind2sub(size(px), discrete_rnd(N, wksp.ii, wksp.P));
+  [ii{1:dim}] = ind2sub(size(px), discrete_rnd(wksp.ii, wksp.P, 1, N));
 
   ## start with the lower bound of each randomly
   ## chosen bin and add a uniformly-distributed
