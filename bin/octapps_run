@@ -17,24 +17,26 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## Run script from command line. This script invokes the OCTAPPS function
-## octapps_run to parse the command line and call the script. Command-line
-## options are given as either
+## Run Octave function from the command line.
+## Command-line options may be given as:
 ##   --name <value>   or   --name=<value>
-## and are designed to be parsed further by parseOptions().
 
-## print usage if no script supplied, or help is requested
-if [ "x$1" = "x" ] || [ "x$1" = "x--help" ]; then
-    echo "usage: $0 --help | <octave function> <arguments...>" >&2
+## Get function name, or print usage
+function="$1"
+if [ "x${function}" = "x" ]; then
+    echo "usage: $0 <octave-function> <arguments...>" >&2
     exit 1
 fi
-
-## get script name, remaining arguments are script arguments
-script="$1"
 shift
 
-## execute octave, using --eval to invoke the script octapps_run with
-## the name of the script. the /dev/null marks the start of the script
-## arguments, and prevents octave from trying to read a file after
-## evaluating the --eval code.
-exec octave -qfH --eval "octapps_run(\"$0\", \"${script}\");" /dev/null "$@"
+## If first command-line argment is --help, print function help
+if [ "x$1" = "x--help" ]; then
+    exec octave -qfH --eval "help ${function}"
+fi
+
+## Execute Octave, using --eval to invoke the Octave function, and
+## using parseCommandLine() to parse the command-line arguments.
+## The "/dev/null" marks the start of the arguments passed to the
+## Octave function, and prevents Octave from trying to read a file
+## after evaluating the --eval code.
+exec octave -qfH --eval "${function}(parseCommandLine(\"/dev/null\"){:});" /dev/null "$@"

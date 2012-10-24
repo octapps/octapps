@@ -15,21 +15,31 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## Parse string command-line options into format expected by parseOptions().
+## Return command-line options in format expected by parseOptions().
+## Command-line options may be given as:
+##   --name <value>   or   --name=<value>
 ## Syntax:
-##   opts = parseCommandLine(args...)
-## where:
-##   opts = parseOptions() options
-##   args = command-line options given as either
-##          --name <value>   or   --name=<value>
+##   opts = parseCommandLine(delim)
+## where
+##   delim = remove all command-line arguments that appear before this
+##           argument, if it is given on the command line (optional)
 
-function opts = parseCommandLine(varargin)
+function opts = parseCommandLine(delim=[])
 
-  ## get command-line arguments
-  if nargin == 1
-    args = varargin{1};
-  else
-    args = varargin;
+  ## get command-line arguments passed to Octave
+  args = argv();
+
+  ## remove all command-line arguments that appear before delim,
+  ## if it is given on the command line. delim defaults to the value
+  ## of program_invocation_name, since when a script is run with no
+  ## script command-line arguments, argv() contains Octave's command-
+  ## line arguments, ending with program_invocation_name
+  if isempty(delim)
+    delim = program_invocation_name;
+  endif
+  i = strmatch(delim, args);
+  if !isempty(i)
+    args = args(min(i)+1:end);
   endif
 
   ## parse command-line arguments
