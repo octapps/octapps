@@ -62,6 +62,14 @@ oct/$(version)/%_wrap.cpp : oct/%.i Makefile
 
 endif
 
+all : oct/$(version)/depends.oct
+
+oct/$(version)/depends.oct : oct/$(version)/depends.o Makefile
+	$(verbose)$(MKOCTFILE) -g -o $@ $<
+
+oct/$(version)/%.o : oct/%.cpp Makefile
+	$(verbose)$(MKOCTFILE) -g -c -o $@ $<
+
 check : all
 	@source octapps-user-env.sh; \
 	mfiles=`$(FIND) $${PWD}/src -name deprecated -prune -or -name '*.m' -printf '%f\n'`; \
