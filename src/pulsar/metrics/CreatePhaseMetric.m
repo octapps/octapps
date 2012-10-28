@@ -30,7 +30,7 @@
 ##             "freq": frequency, SI units
 ##             "fdots": frequency spindowns, SI units
 ##   "spindowns": number of frequency spindown coordinates
-##   "ref_time": reference time in GPS seconds (default: mid-point of ephemerides)
+##   "ref_time": reference time in GPS seconds
 ##   "mid_offset": observation mid-point, in seconds offset from ref_time (default: 0.0)
 ##   "time_span": observation time-span in seconds
 ##   "detectors": comma-separated list of detector names
