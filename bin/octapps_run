@@ -29,6 +29,9 @@ if [ "x${function}" = "x" ]; then
 fi
 shift
 
+## Strip any extension from the function name
+function=`expr "X${function}" : "X\([^.]*\).*"`
+
 ## If first command-line argment is --help, print function help
 if [ "x$1" = "x--help" ]; then
     exec octave -qfH --eval "help ${function}"
