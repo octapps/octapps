@@ -99,6 +99,7 @@ function results = TestFlatLatticeTiling(varargin)
 
   ## Create output struct
   results = struct;
+  results.gitID = format_gitID(lalcvar.lalVCSInfo, lalpulsarcvar.lalPulsarVCSInfo, octapps_gitID);
 
   ## Create tiling, set up parameter space, and create metric
   switch tiling{1}
