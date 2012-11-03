@@ -24,6 +24,7 @@
 ##   pd      = false dismissal probability
 ##   Ns      = number of segments
 ##   Rsqr_H  = histogram of SNR "geometric factor" R^2,
+##             computed using SqrSNRGeometricFactorHist(),
 ##             or scalar giving mean value of R^2
 ##   detstat = detection statistic, one of:
 ##      "ChiSqr": chi^2 statistic, e.g. the F-statistic
