@@ -15,96 +15,115 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## Generate a Condor DAG submission file
-## Syntax:
-##   makeCondorDAG(dagfile, dagopts)
-## where:
-##   dagfile  = Condor DAG file
-##   dagnodes = structure array of Condor DAG nodes
+## Set up a Condor DAG for running Condor jobs.
+## Usage:
+##   makeCondorDAG(...)
+## Options:
+##   "dag_name":	name of Condor DAG, used to name DAG submit file
+##   "parent_dir":	where to write DAG submit file (default: current directory)
+##   "job_nodes":	struct array of job nodes, which has the following fields:
+##			* "file": Condor job submit file for this job
+##			* "vars": struct of variable substitutions to make
+##			* "child": array indexing child job nodes for this node
+##   "retries":		how man times to retry Condor jobs (default: 0)
 
-function makeCondorDAG(dagfile, dagnodes)
+function makeCondorDAG(varargin)
+
+  ## parse options
+  parseOptions(varargin,
+               {"dag_name", "char"},
+               {"parent_dir", "char", "."},
+               {"job_nodes", "struct"},
+               {"retries", "integer,positive", 0},
+               []);
 
   ## check input
-  assert(ischar(dagfile));
-  assert(isstruct(dagnodes));
-  jobnames = {dagnodes.jobname};
-  for n = 1:length(dagnodes)
-    dagnode = dagnodes(n);
+  if !isempty(strchr(dag_name, "."))
+    error("%s: dag name '%s' should not contain an extension", funcName, dag_name);
+  endif
+  for n = 1:length(job_nodes)
+    job_node = job_nodes(n);
 
     ## check node
-    if !isfield(dagnode, "jobname")
-      error("%s: missing DAG field 'jobname'", funcName);
+    if !isfield(job_node, "file")
+      error("%s: missing job node field 'file'", funcName);
     endif
-    if length(find(strcmp(dagnode.jobname, jobnames))) > 1
-      error("%s: job name 'jobname' is not unique", funcName);
-    endif
-    if !isfield(dagnode, "jobfile")
-      error("%s: missing DAG field 'jobfile'", funcName);
-    endif
-    if isfield(dagnode, "vars")
-      if !isstruct(dagnode.vars)
-        error("%s: DAG field 'vars' must be a struct", funcName);
+    if isfield(job_node, "vars") && !isempty(job_node.vars)
+      if !isstruct(job_node.vars)
+        error("%s: job node field 'vars' must be a struct", funcName);
       endif
-      vars = fieldnames(dagnode.vars);
-      for i = 1:length(vars)
-        value = dagnode.vars.(vars{i});
-        if !ischar(value)
-          error("%s: value of DAG variable '%s' must be a string", funcName, vars{i});
-        endif
-      endfor
     endif
 
     ## check node children
-    if isfield(dagnode, "child")
-      if !iscell(dagnode.child)
-        error("%s: 'child' must be a cell array", funcName);
+    if isfield(job_node, "child") && !isempty(job_node.child)
+      if !isvector(job_node.child)
+        error("%s: job node field 'child' must be a vector", funcName);
       endif
-      for i = 1:length(dagnode.child)
-        if !any(strcmp(dagnode.child{i}, jobnames))
-          error("%s: undefined node child '%s'", funcName, dagnode.child{i});
-        endif
-      endfor
+      if any(mod(job_node.child, 1) != 0)
+        error("%s: elements job node vector 'child' must be integers", funcName);
+      endif
+      if any(job_node.child > length(job_nodes))
+        error("%s: elements job node vector 'child' must be <= number of nodes", funcName);
+      endif
     endif
 
   endfor
 
-  ## print DAG description to file
-  fdag = fopen(dagfile, "w");
-  if (fdag < 0)
-    error("%s: could not open '%s'", funcName, dagfile);
+  ## check that parent directory exists
+  if exist(parent_dir, "dir")
+    parent_dir = canonicalize_file_name(parent_dir);
+  else
+    error("%s: parent directory '%s' does not exist", funcName, parent_dir);
   endif
-  for n = 1:length(dagnodes)
-    dagnode = dagnodes(n);
+
+  ## check that DAG submission file does not exist, and that job submission files do exist
+  dag_file = fullfile(parent_dir, strcat(dag_name, ".dag"));
+  if exist(dag_file, "file")
+    error("%s: DAG file '%s' already exists", funcName, dag_file);
+  endif
+  for n = 1:length(job_nodes)
+    job_node = job_nodes(n);
+    if !exist(job_node.file, "file")
+      error("%s: job file '%s' does not exist", funcName, job_node.(file));
+    endif
+  endfor
+
+  ## write Condor DAG submission file
+  fid = fopen(dag_file, "w");
+  if fid < 0
+    error("%s: could not open file '%s' for writing", funcName, dag_file);
+  endif
+  for n = 1:length(job_nodes)
+    job_node = job_nodes(n);
 
     ## print node
-    fprintf(fdag, "JOB %s %s\n", dagnode.jobname, dagnode.jobfile);
+    fprintf(fid, "\n");
+    fprintf(fid, "JOB %s_%i %s\n", dag_name, n, job_node.file);
+    fprintf(fid, "RETRY %s_%i %d\n", dag_name, n, retries);
 
     ## print node variables
-    if isfield(dagnode, "vars")
-      fprintf(fdag, "VARS %s", dagnode.jobname);
-      vars = fieldnames(dagnode.vars);
+    if isfield(job_node, "vars") && !isempty(job_node.vars)
+      fprintf(fid, "VARS %s_%i", dag_name, n);
+      vars = fieldnames(job_node.vars);
       for i = 1:length(vars)
-        value = dagnode.vars.(vars{i});
-        value = strrep(strrep(value, "\\", "\\\\"), "\"", "\\\"");
-        fprintf(fdag, " %s=\"%s\"", vars{i}, value);
+        value = stringify(job_node.vars.(vars{i}));
+        value = strrep(value, "\\", "\\\\"); 
+        value = strrep(value, "\"", "\\\"");
+        fprintf(fid, " %s=\"%s\"", vars{i}, value);
       endfor
-      fprintf(fdag, "\n");
-    endif
-
-    ## print node retries
-    if isfield(dagnode, "retry")
-      fprintf(fdag, "RETRY %s %d\n", dagnode.jobname, dagnode.retry);
+      fprintf(fid, "\n");
     endif
 
     ## print node children
-    if isfield(dagnode, "child")
-      fprintf(fdag, "PARENT %s CHILD", dagnode.jobname);
-      fprintf(fdag, " %s", dagnode.child{:});
-      fprintf(fdag, "\n");
+    if isfield(job_node, "child") && !isempty(job_node.child)
+      fprintf(fid, "PARENT %s_%i CHILD", dag_name, n);
+      for i = 1:length(job_node.child)
+        fprintf(fid, " %s_%i", dag_name, job_node.child(i));
+      endfor
+      fprintf(fid, "\n");
     endif
       
-    fprintf(fdag, "\n");
   endfor
-  fclose(fdag);
+  fclose(fid);
 
 endfunction
