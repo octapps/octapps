@@ -27,7 +27,8 @@
 ##			directories (default: current directory)
 ##   "log_dir":		where to write Condor log files (default: $TMPDIR")
 ##   "func_name":	name of Octave function to run
-##   "arguments":	cell array of arguments to pass to function
+##   "arguments":	cell array of arguments to pass to function.
+##			use condorVar() to insert reference to a Condor variable.
 ##   "func_nargout":	how many outputs returned by the function to save
 ##   "exec_files":	cell array of executable files required by the function
 ##   "data_files":	cell array of data files required by the function;
@@ -35,7 +36,8 @@
 ##			* "file_path", or
 ##			* {"ENVPATH", "file_name_in_ENVPATH", ...}
 ##			where ENVPATH is the name of an environment path
-##   "extra_condor":	extra key-values to write to Condor submit file
+##   "extra_condor":	extra commands to write to Condor submit file, in form:
+##			{"command", "value", ...}
 
 function job_file = makeCondorJob(varargin)
 
@@ -79,7 +81,7 @@ function job_file = makeCondorJob(varargin)
     error("%s: log directory '%s' does not exist", funcName, log_dir);
   endif
 
-  ## check that job submission file and input/output directories do not exist
+  ## check that job submit file and input/output directories do not exist
   job_file = fullfile(parent_dir, strcat(job_name, ".job"));
   if exist(job_file, "file")
     error("%s: job file '%s' already exists", funcName, job_file);
@@ -160,41 +162,42 @@ function job_file = makeCondorJob(varargin)
   endfor
 
   ## directories where dependent executables/shared libraries and function/.oct files are copied
-  execdir = ".bin";
-  funcdir = ".oct";
+  execdir = ".exec";
+  funcdir = ".func";
   envpaths = struct("PATH", execdir, "LD_LIBRARY_PATH", execdir, "OCTAVE_PATH", funcdir);
 
   ## build Octave evaluation string, which sets up environment, calls function, and saves output
   envpaths = {"PATH", "LD_LIBRARY_PATH"};
+  evalstr = "";
   for i = 1:length(envpaths)
     evalstr = sprintf("%sputenv(\"%s\",strcat(fullfile(pwd,\"%s\"),\":\",getenv(\"%s\")));", evalstr, envpaths{i}, execdir, envpaths{i});
   endfor
   evalstr = sprintf("%saddpath(fullfile(pwd,\"%s\"),\"-begin\");", evalstr, funcdir);
+  evalstr = strcat(evalstr, sprintf("arguments=%s;", stringify(arguments)));
   if length(arguments) > 0
-    evalstr = strcat(evalstr, sprintf("args=%s;", stringify(arguments)));
-    callfuncstr = sprintf("%s(args{:})", func_name);
+    callfuncstr = sprintf("%s(arguments{:})", func_name);
   else
     callfuncstr = sprintf("%s", func_name);
   endif
   if func_nargout > 0
     evalstr = sprintf("%stic;[results{1:%i}]=%s;elapsed=toc;", evalstr, func_nargout, callfuncstr);
-    evalstr = sprintf("%ssave(\"-hdf5\",\"stdres.h5\",\"results\",\"elapsed\");", evalstr);
+    evalstr = sprintf("%ssave(\"-hdf5\",\"stdres.h5\",\"arguments\",\"results\",\"elapsed\");", evalstr);
   else
-    evalstr = sprintf("%s%s;", evalstr, stringify(arguments), callfuncstr);
+    evalstr = sprintf("%s%s;", evalstr, callfuncstr);
   endif
   evalstr = strrep(evalstr, "'", "''");
   evalstr = strrep(evalstr, "\"", "\"\"");
 
-  ## build Condor job submission file spec
+  ## build Condor job submit file spec
   job_spec = struct;
   job_spec.universe = "vanilla";
-  job_spec.executable = "octave";
-  job_spec.arguments = sprintf("'-qfH' '--eval' '%s'", evalstr);
-  job_spec.initialdir = fullfile(job_outdir, "$(cluster).$(process)");
+  job_spec.executable = fullfile(octave_config_info("bindir"), "octave");
+  job_spec.arguments = sprintf("\"'-qfH' '--eval' '%s'\"", evalstr);
+  job_spec.initialdir = "";
   job_spec.output = "stdout";
   job_spec.error = "stderr";
   job_spec.log = fullfile(log_dir, strcat(job_name, ".log"));
-  job_spec.environment = "";
+  job_spec.environment = "OCTAVE_HISTFILE=/dev/null";
   job_spec.getenv = "false";
   job_spec.should_transfer_files = "yes";
   job_spec.transfer_input_files = strcat(job_indir, filesep);
@@ -203,10 +206,15 @@ function job_file = makeCondorJob(varargin)
   extra_condor = struct(extra_condor{:});
   extra_condor_names = fieldnames(extra_condor);
   for i = 1:length(extra_condor_names)
-    if isfield(job_spec, extra_condor_names{i})
-      error("%s: cannot override value of Condor command '%s'", funcName, extra_condor_names{i});
+    extra_condor_name =  extra_condor_names{i};
+    if isfield(job_spec, extra_condor_name)
+      error("%s: cannot override value of Condor command '%s'", funcName, extra_condor_name);
     endif
-    job_spec.(extra_condor_names{i}) = extra_condor.(extra_condor_names{i});
+    extra_condor_val = extra_condor.(extra_condor_name);
+    if !ischar(extra_condor_val)
+      error("%s: value of Condor command '%s' must be a string", funcName, extra_condor_name);
+    endif
+    job_spec.(extra_condor_name) = extra_condor_val;
   endfor
 
   ## create input directories
@@ -240,22 +248,21 @@ function job_file = makeCondorJob(varargin)
   endfor
 
   ## overwrite octapps_gitID.m with static copy of current repository's git ID
-  octapps_gitID = fullfile(job_infuncdir, "octapps_gitID.m");
-  if exist("octapps_gitID", "file")
+  octapps_gitID_file = fullfile(job_infuncdir, "octapps_gitID.m");
+  if exist(octapps_gitID_file, "file")
     gitID = octapps_gitID();
-    fid = fopen(octapps_gitID, "w");
+    fid = fopen(octapps_gitID_file, "w");
     if fid < 0
-      error("%s: could not open file '%s' for writing", funcName, octapps_gitID);
+      error("%s: could not open file '%s' for writing", funcName, octapps_gitID_file);
     endif
     fprintf(fid, "## generated by %s\n", funcName);
     fprintf(fid, "function ID = octapps_gitID()\n");
-    fprintf(fid, "  ID = %s\n", stringify(ID));
+    fprintf(fid, "  ID = %s;\n", stringify(gitID));
     fprintf(fid, "endfunction\n");
     fclose(fid);
   endif
 
-
-  ## write Condor job submission file
+  ## write Condor job submit file
   fid = fopen(job_file, "w");
   if fid < 0
     error("%s: could not open file '%s' for writing", funcName, job_file);

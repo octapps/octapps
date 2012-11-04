@@ -27,8 +27,12 @@ function s = stringify(x)
   switch class(x)
 
     case "char"
-      ## strings: return x, quoted
-      s = strcat("\"", x, "\"");
+      ## strings: if begins with \0, return literal x, otherwise quoted x
+      if x(1) == "\0"
+        s = x(2:end);
+      else
+        s = strcat("\"", x, "\"");
+      endif
 
     case "cell"
       ## cells: create {} expression,
