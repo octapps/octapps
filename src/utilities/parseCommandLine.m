@@ -27,19 +27,15 @@
 function opts = parseCommandLine(delim=[])
 
   ## get command-line arguments passed to Octave
-  args = argv();
+  args = evalin("base", "argv()(1:nargin)");
 
   ## remove all command-line arguments that appear before delim,
-  ## if it is given on the command line. delim defaults to the value
-  ## of program_invocation_name, since when a script is run with no
-  ## script command-line arguments, argv() contains Octave's command-
-  ## line arguments, ending with program_invocation_name
-  if isempty(delim)
-    delim = program_invocation_name;
-  endif
-  i = strmatch(delim, args);
-  if !isempty(i)
-    args = args(min(i)+1:end);
+  ## if it is given on the command line.
+  if !isempty(delim)
+    i = strmatch(delim, args);
+    if !isempty(i)
+      args = args(min(i)+1:end);
+    endif
   endif
 
   ## parse command-line arguments
