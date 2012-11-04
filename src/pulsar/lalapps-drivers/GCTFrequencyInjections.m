@@ -52,8 +52,7 @@ function results = GCTFrequencyInjections(varargin)
                       {"f2dot_band", "real,positive,scalar"},
                       {"f2dot_refine", "real,strictpos,scalar"},
                       {"mismatch_per_dim", "real,strictpos,scalar"},
-                      {"debug_level", "integer,scalar"},
-                      {"result_file", "char"},
+                      {"debug_level", "integer,scalar", 0},
                       []);
 
   ## check input
@@ -68,6 +67,7 @@ function results = GCTFrequencyInjections(varargin)
 
   ## initialise result file
   results = struct;
+  results.gitID = format_gitID(octapps_gitID());
   results.opts = opts;
   
   ## get reference time and average segment time span
