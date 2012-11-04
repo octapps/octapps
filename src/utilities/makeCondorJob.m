@@ -95,6 +95,44 @@ function job_file = makeCondorJob(varargin)
     error("%s: output directory '%s' already exists", funcName, job_outdir);
   endif
 
+  ## resolve locations of executable files
+  unmanglePATH;
+  path_value = getenv("PATH");
+  for i = 1:length(exec_files)
+    resolved_file = file_in_path(path_value, exec_files{i});
+    if isempty(resolved_file)
+      error("%s: could not find required file '%s'", funcName, exec_files{i});
+    endif
+    exec_files{i} = resolved_file;
+  endfor  
+
+  ## resolve locations of data files
+  resolved_files = {};
+  for i = 1:length(data_files)
+    switch class(data_files{i})
+      case "char"
+        resolved_file = fullfile(parent_dir, data_files{i});
+        if !exist(data_files{i}, "file")
+          error("%s: could not find required file '%s'", funcName, data_files{i});
+        endif
+        resolved_files{end+1} = data_files{i};
+      case "cell"
+        envpath_name = data_files{i}{1};
+        envpath_value = getenv(envpath_name);
+        if length(envpath_value) == 0
+          error("%s: environment path '%s' is not set", funcName, envpath_name);
+        endif
+        for j = 2:length(data_files{i})
+          resolved_file = file_in_path(envpath_value, data_files{i}{j});
+          if isempty(resolved_file)
+            error("%s: could not find required file '%s'", funcName, data_files{i}{j});
+          endif
+          resolved_files{end+1} = resolved_file;
+        endfor
+    endswitch
+  endfor
+  data_files = resolved_files;
+
   ## prefixes of local Octave functions and shared libraries,
   ## which do not need to be distributed
   octprefixes = cellfun("octave_config_info", {"fcnfiledir", "octfiledir"}, "UniformOutput", false);
@@ -134,31 +172,6 @@ function job_file = makeCondorJob(varargin)
     if !exist(exec_files{i}, "file")
       error("%s: could not find required file '%s'", funcName, exec_files{i});
     endif
-  endfor
-
-  ## resolve locations of data files
-  full_data_files = {};
-  for i = 1:length(data_files)
-    switch class(data_files{i})
-      case "char"
-        if !exist(data_files{i}, "file")
-          error("%s: could not find required file '%s'", funcName, data_files{i});
-        endif
-        full_data_files{end+1} = data_files{i};
-      case "cell"
-        envpath_name = data_files{i}{1};
-        envpath_value = getenv(envpath_name);
-        if length(envpath_value) == 0
-          error("%s: environment path '%s' is not set", funcName, envpath_name);
-        endif
-        for j = 2:length(data_files{i})
-          res_data_file = file_in_path(envpath_value, data_files{i}{j});
-          if isempty(res_data_file)
-            error("%s: could not find required file '%s'", funcName, res_data_file);
-          endif
-          full_data_files{end+1} = res_data_file;
-        endfor
-    endswitch
   endfor
 
   ## directories where dependent executables/shared libraries and function/.oct files are copied
@@ -231,9 +244,9 @@ function job_file = makeCondorJob(varargin)
   endif
 
   ## copy input files to input directories
-  for i = 1:length(full_data_files)
-    if !copyRealFile(full_data_files{i}, job_indir)
-      error("%s: failed to copy '%s' to '%s'", funcName, full_data_files{i}, job_indir);
+  for i = 1:length(data_files)
+    if !copyRealFile(data_files{i}, job_indir)
+      error("%s: failed to copy '%s' to '%s'", funcName, data_files{i}, job_indir);
     endif
   endfor
   for i = 1:length(exec_files)
