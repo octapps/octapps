@@ -387,13 +387,13 @@ endfunction
 
 ## Generate reference template banks
 
-%!#demo
+%!demo
 %! parent_dir = fileparts(which("TestFlatLatticeTiling"));
 %! square_ref = TestFlatLatticeTiling("tiling", {"freq_square", "time_span", 864000, "fndots", [100, -1e-7], "fndot_bands", [1e-8, 1e-7]}, ...
 %!                                    "lattice", "Ans", "max_mismatch", 3.0, "num_injections", 0, "return_points", true);
 %! save("-hdf5", fullfile(parent_dir, "TestFlatLatticeTiling_square_ref.h5"), "square_ref");
 
-%!#demo
+%!demo
 %! parent_dir = fileparts(which("TestFlatLatticeTiling"));
 %! agebrake_ref = TestFlatLatticeTiling("tiling", {"freq_agebrake", "time_span", 864000, "freq", 100, "freq_band", 1e-8, ...
 %!                                                 "age", 3e9, "f1dot_brake", [2, 7], "f2dot_brake", [2, 7]}, ...
