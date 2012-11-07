@@ -43,14 +43,14 @@ function M = ConstructSuperSkyMetrics(sometric, coordIDs, skycoordsys)
   assert(ischar(skycoordsys));
 
   ## get coordinates of spin, orbital, frequency and spindown coordinates
-  insx = find(coordIDs == DOPPLERCOORD_NSX_EQU);
-  insy = find(coordIDs == DOPPLERCOORD_NSY_EQU);
-  inoX = find(coordIDs == DOPPLERCOORD_NOX_ECL);
-  inoY = find(coordIDs == DOPPLERCOORD_NOY_ECL);
-  ifs = [find(coordIDs == DOPPLERCOORD_FREQ_SI), ...
-         find(coordIDs == DOPPLERCOORD_F1DOT_SI), ...
-         find(coordIDs == DOPPLERCOORD_F2DOT_SI), ...
-         find(coordIDs == DOPPLERCOORD_F3DOT_SI)];
+  insx = find(coordIDs == DOPPLERCOORD_N3SX_EQU);
+  insy = find(coordIDs == DOPPLERCOORD_N3SY_EQU);
+  inoX = find(coordIDs == DOPPLERCOORD_N3OX_ECL);
+  inoY = find(coordIDs == DOPPLERCOORD_N3OY_ECL);
+  ifs = [find(coordIDs == DOPPLERCOORD_FREQ), ...
+         find(coordIDs == DOPPLERCOORD_F1DOT), ...
+         find(coordIDs == DOPPLERCOORD_F2DOT), ...
+         find(coordIDs == DOPPLERCOORD_F3DOT)];
 
   ## diagonally normalise spin-orbit metric
   [nsometric, dsometric, idsometric] = DiagonalNormaliseMetric(sometric);
