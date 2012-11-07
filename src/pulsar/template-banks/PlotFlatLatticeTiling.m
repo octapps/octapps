@@ -37,21 +37,23 @@ function PlotFlatLatticeTiling(res, i, j, what, paramx=[], paramy=[])
 
   ## check input
   assert(isstruct(res));
-  assert(!isempty(res.templates));
-  assert(!isempty(res.injections));
-  assert(!isempty(res.nearest_index));
-  assert(!isempty(res.min_mismatch));
   assert(isscalar(i));
   assert(isscalar(j));
   assert(ischar(what));
 
   ## get indices of templates which have/have not been "hit" by an injection
-  hit_kk = res.nearest_index;
-  nohit_kk = setdiff(1:res.num_templates, hit_kk);
+  if !isempty(res.injections)
+    hit_kk = res.nearest_index;
+    nohit_kk = setdiff(1:res.num_templates, hit_kk);
+  else
+    nohit_kk = 1:res.num_templates;
+  endif
 
   ## get indices of injections which are/are not "covered" by a template
-  cvr_kk = find(res.min_mismatch <= 1.0);
-  nocvr_kk = setdiff(1:res.num_injections, cvr_kk);
+  if !isempty(res.injections)
+    cvr_kk = find(res.min_mismatch <= 1.0);
+    nocvr_kk = setdiff(1:res.num_injections, cvr_kk);
+  endif
 
   ## clear current figure and prepare for plotting
   clf;
@@ -59,16 +61,25 @@ function PlotFlatLatticeTiling(res, i, j, what, paramx=[], paramy=[])
 
   ## plot templates which have been hit
   if any(what == "T")
+    if isempty(res.templates) || isempty(res.injections)
+      error("%s: 'T' option requires template and injection points", funcName);
+    endif
     plot(res.templates(i, hit_kk), res.templates(j, hit_kk), "bo");
   endif
 
   ## plot templates which have not been hit
   if any(what == "t")
+    if isempty(res.templates)
+      error("%s: 't' option requires template points", funcName);
+    endif
     plot(res.templates(i, nohit_kk), res.templates(j, nohit_kk), "co");
   endif
 
   ## plot metric ellipses of templates which have been hit
   if any(what == "E")
+    if isempty(res.templates) || isempty(res.injections)
+      error("%s: 'E' option requires template and injection points", funcName);
+    endif
     [x, y] = metricEllipsoid(res.metric([i,j], [i,j]), 1.0);
     for k = hit_kk
       plot(x + res.templates(i,k), y + res.templates(j,k), "b-");
@@ -77,6 +88,9 @@ function PlotFlatLatticeTiling(res, i, j, what, paramx=[], paramy=[])
 
   ## plot metric ellipses of templates which have not been hit
   if any(what == "e")
+    if isempty(res.templates)
+      error("%s: 'e' option requires template points", funcName);
+    endif
     [x, y] = metricEllipsoid(res.metric([i,j], [i,j]), 1.0);
     for k = nohit_kk
       plot(x + res.templates(i,k), y + res.templates(j,k), "c-");
@@ -85,6 +99,9 @@ function PlotFlatLatticeTiling(res, i, j, what, paramx=[], paramy=[])
 
   ## plot metric ellipses of templates which have been hit by non-covered templates
   if any(what == "f")
+    if isempty(res.templates) || isempty(res.injections)
+      error("%s: 'f' option requires template and injection points", funcName);
+    endif
     [x, y] = metricEllipsoid(res.metric([i,j], [i,j]), 1.0);
     for k = hit_kk(nocvr_kk)
       plot(x + res.templates(i,k), y + res.templates(j,k), "b-");
@@ -93,16 +110,25 @@ function PlotFlatLatticeTiling(res, i, j, what, paramx=[], paramy=[])
 
   ## plot injections which are covered
   if any(what == "I")
+    if isempty(res.injections)
+      error("%s: 'I' option requires injection points", funcName);
+    endif
     plot(res.injections(i, cvr_kk), res.injections(j, cvr_kk), "kx");
   endif
 
   ## plot injections which are not covered
   if any(what == "i")
-    plot(res.injections(i, nocvr_kk), res.injections(j, nocvr_kk), "rx");
+    if isempty(res.injections)
+      error("%s: 'i' option requires injection points", funcName);
+    endif
+   plot(res.injections(i, nocvr_kk), res.injections(j, nocvr_kk), "rx");
   endif
 
   ## plot lines from covered injections to their nearest template
   if any(what == "N")
+    if isempty(res.templates) || isempty(res.injections)
+      error("%s: 'N' option requires template and injection points", funcName);
+    endif
     x = [res.injections(i, cvr_kk); res.templates(i, hit_kk(cvr_kk)); nan(1, length(cvr_kk))];
     y = [res.injections(j, cvr_kk); res.templates(j, hit_kk(cvr_kk)); nan(1, length(cvr_kk))];
     plot(x(:), y(:), "k-");
@@ -110,6 +136,9 @@ function PlotFlatLatticeTiling(res, i, j, what, paramx=[], paramy=[])
 
   ## plot lines from non-covered injections to their nearest template
   if any(what == "n")
+    if isempty(res.templates) || isempty(res.injections)
+      error("%s: 'n' option requires template and injection points", funcName);
+    endif
     x = [res.injections(i, nocvr_kk); res.templates(i, hit_kk(nocvr_kk)); nan(1, length(nocvr_kk))];
     y = [res.injections(j, nocvr_kk); res.templates(j, hit_kk(nocvr_kk)); nan(1, length(nocvr_kk))];
     plot(x(:), y(:), "r-");
