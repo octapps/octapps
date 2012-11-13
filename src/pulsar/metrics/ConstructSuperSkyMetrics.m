@@ -97,22 +97,14 @@ function M = ConstructSuperSkyMetrics(sometric, coordIDs, skycoordsys)
   ## extract sky offset vectors
   M.skyoff = -residual(fitting, [inx, iny, inz]);
 
-  ## diagonally normalise residual super-sky metric
-  [nrssmetric, drssmetric, idrssmetric] = DiagonalNormaliseMetric(M.rssmetric, "tolerant");
-  nskyrssmetric = nrssmetric([inx, iny, inz], [inx, iny, inz]);
-  dskyrssmetric = drssmetric([inx, iny, inz], [inx, iny, inz]);
-  idskyrssmetric = idrssmetric([inx, iny, inz], [inx, iny, inz]);
-
   ## eigendecompose residual super-sky metric
-  [nskyeigvec, nskyeigval] = eig(nskyrssmetric);
+  skyrssmetric = M.rssmetric([inx, iny, inz], [inx, iny, inz]);
+  [skyeigvec, skyeigval] = eig(skyrssmetric);
 
   ## order eigenvectors in descending order of eigenvalues
-  [nskyeigval, iidescend] = sort(diag(nskyeigval), "descend");
-  nskyeigval = diag(nskyeigval);
-  nskyeigvec = nskyeigvec(:, iidescend);
-
-  ## invert diagonal normalisation of eigenvectors
-  skyeigvec = dskyrssmetric * nskyeigvec * idskyrssmetric;
+  [skyeigval, iidescend] = sort(diag(skyeigval), "descend");
+  skyeigval = diag(skyeigval);
+  skyeigvec = skyeigvec(:, iidescend);
 
   ## align third sky dimension with smallest eigenvector
   M.alignsky = skyeigvec';
@@ -123,7 +115,7 @@ function M = ConstructSuperSkyMetrics(sometric, coordIDs, skycoordsys)
   M.arssmetric = aligned' * M.rssmetric * aligned;
 
   ## compute aligned sky offset vectors
-  M.askyoff = M.skyoff * M.alignsky;
+  M.askyoff = M.skyoff * M.alignsky';
 
   ## ensure metrics are exactly symmetric
   M.ssmetric = 0.5*(M.ssmetric' + M.ssmetric);
