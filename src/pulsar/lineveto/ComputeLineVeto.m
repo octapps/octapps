@@ -17,76 +17,52 @@
 
 
 function LVstat = ComputeLineVeto ( twoF_multi, twoF_single, rho, lX, useAllTerms )
-  ## LVstat = compute_lv_lallike ( twoF_multi, twoF_single, rho, lX, useAllTerms )
-  ## function to calculate Line Veto statistics for N detectors
-  ## NOTE: input should be 2F, NOT F! Summed, not averaged, over segments!
-  ## NOTE2: rho is therefore reinterpreted as "semicoherent rho", including Nseg exponent
-  ## NOTE2: return value LVstat therefore still has to be divided  by Nseg to get output comparable to HSGCT
-  ## original formula: LVstat = fstat_multi - log( rho_max_line^4/70 + exp(fstat1)*prior1 + exp(fstat2)*prior2 );
-  ## implementation here is optimized to avoid underflows ("logsumexp formula")
-  ## code is very close to implementation in lalapps/GCT/LineVeto.c
+ ## LVstat = compute_lv_lallike ( twoF_multi, twoF_single, rho, lX, useAllTerms )
+ ## function to calculate Line Veto statistics for N detectors
+ ## NOTE: input should be 2F, NOT F! Summed, not averaged, over segments!
+ ## NOTE2: rho is therefore reinterpreted as "semicoherent rho", including Nseg exponent
+ ## NOTE2: return value LVstat therefore still has to be divided  by Nseg to get output comparable to HSGCT
+ ## original formula: LVstat = F_multi - log( rho^4/70 + exp(F1)*l1 + exp(F2)*l2 );
+ ## implementation here is optimized to avoid underflows ("logsumexp formula")
+ ## code is very close to implementation in lalapps/GCT/LineVeto.c
 
-  # check for consistent vector/matrix lengths
-  numcands = length(twoF_multi);
-  numdets  = length(twoF_single(1,:));
-  if ( length(twoF_single(:,1)) != numcands )
-   error(["Invalid input - number of candidates does not match between twoF_multi (", int2str(numcands), " elements) and twoF_single (", int2str(length(twoF_single(:,1))), " rows)."]);
-  endif
-  if ( length(lX) != numdets )
-   error(["Invalid input - number of detectors does not match between twoF_single (", int2str(numdets), " columns) and lX (", int2str(length(lX)), " elements)."]);
-  endif
+ # check for consistent vector/matrix lengths
+ numcands = length(twoF_multi);
+ numdets  = length(twoF_single(1,:));
+ if ( length(twoF_single(:,1)) != numcands )
+  error(["Invalid input - number of candidates does not match between twoF_multi (", int2str(numcands), " elements) and twoF_single (", int2str(length(twoF_single(:,1))), " rows)."]);
+ endif
+ if ( length(lX) != numdets )
+  error(["Invalid input - number of detectors does not match between twoF_single (", int2str(numdets), " columns) and lX (", int2str(length(lX)), " elements)."]);
+ endif
 
-  # special treatment for additional denominator term 'rho^4/70'  - octave seems to work fine with log(0)=-inf
-  if ( rho < 0.0 )
-   error("Invalid input - prior parameter rho must be >=0.\n")
+ # special treatment for additional denominator term 'rho^4/70'  - octave seems to work fine with log(0)=-inf
+ if ( rho < 0.0 )
+  error("Invalid input - prior parameter rho must be >=0.\n")
+ else
+  logRhoTerm = 4.0 * log(rho) - log(70.0);
+  denomterms = logRhoTerm*ones(numcands,1);
+ endif
+
+ # log the lX priors - octave seems to work fine with log(0)=-inf
+ for X = 1:1:numdets
+  if ( lX(X) < 0.0 )
+   error("Invalid input - prior parameter lX must be >=0.\n")
   else
-    logRhoTerm = 4.0 * log(rho) - log(70.0);
-    maxSumInit = logRhoTerm;
+   denomterms = cat(2,denomterms,0.5 * twoF_single(:,X)+log(lX(X)));
   endif
+ endfor
 
-  # log the lX priors - octave seems to work fine with log(0)=-inf
-  for X = 1:1:numdets
-   if ( lX(X) < 0.0 )
-    error("Invalid input - prior parameter lX must be >=0.\n")
-   else
-    loglX(X) = log(lX(X));
-   endif
+ maxInSum = max( denomterms, [], 2 ); # column vector of the maximum from each row
+
+ LVstat = 0.5 * twoF_multi - maxInSum; # dominant term to LV-statistic
+
+ if ( useAllTerms == 1 ) # optionally add logsumexp term (possibly negligible in many cases)
+  extraSum = zeros(numcands,1);
+  for X = 1:1:length(denomterms(1,:))
+   extraSum += exp ( denomterms(:,X) - maxInSum );
   endfor
-
-  for n = 1:1:numcands
-
-   maxInSum = maxSumInit;
-
-   for X = 1:1:numdets # FXprior equiv log(lX * e^(FX)) = FX + log(lX)
-    FXprior(n,X) = 0.5 * twoF_single(n,X);
-    FXprior(n,X) += loglX(X);
-
-    # keep track of maximum value in denominator sum 
-    if ( FXprior(n,X) > maxInSum )
-     maxInSum = FXprior(n,X);
-    endif
-   endfor # X < nDet
-
-   LV = 0.5 * twoF_multi(n) - maxInSum; # dominant term to LV-statistic
-
-   if ( useAllTerms == 1 )	# optionally add logsumexp term (possibly negligible in many cases)
-    extraSum = 0;	# will be:  e^[-(maxInSum - logRhoTerm)] + sum_X e^[ -(maxInSum - FXprior) ] >= 1
-
-    # need to treat (rho^4/70) term separately
-    if ( rho > 0.0 )
-     extraSum += exp ( logRhoTerm - maxInSum );
-    endif
-    # now add all FX-contributions
-    for X = 1:1:numdets
-     extraSum += exp (  FXprior(n,X) - maxInSum );
-    endfor
-
-    LV -= log( extraSum );
-
-   endif # useAllTerms?
-
-  LVstat(n) = LV;
-
-  endfor # n < length(F)
+  LVstat -= log( extraSum );
+ endif # useAllTerms?
 
 endfunction # compute_lv_lallike()
