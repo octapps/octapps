@@ -132,7 +132,6 @@ function results = GCTFrequencyInjections(varargin)
   for i = 2:length(SFT_files)
     GCT.DataFiles1 = strcat(GCT.DataFiles1, ";", SFT_files{i});
   endfor
-  GCT.useWholeSFTs = true;
   GCT.skyRegion = sprintf("(%.16f,%.16f)", alpha, delta);
   GCT.gridType1 = 2;
   GCT.Freq = MFD.Freq;
