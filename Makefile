@@ -45,6 +45,8 @@ octapps-user-env.sh octapps-user-env.csh : Makefile
 			;; \
 	esac
 
+ifneq ($(MKOCTFILE),false)
+
 all : oct/$(version)
 
 oct/$(version) :
@@ -60,7 +62,7 @@ oct/$(version)/gsl.oct : oct/$(version)/gsl_wrap.cpp Makefile
 oct/$(version)/%_wrap.cpp : oct/%.i Makefile
 	$(verbose)$(SWIG) -octave -c++ -globals "$*cvar" -o $@ $<
 
-endif
+endif # neq ($(SWIG),false)
 
 all : oct/$(version)/depends.oct
 
@@ -69,6 +71,8 @@ oct/$(version)/depends.oct : oct/$(version)/depends.o Makefile
 
 oct/$(version)/%.o : oct/%.cpp Makefile
 	$(verbose)$(MKOCTFILE) -g -c -o $@ $<
+
+endif # neq ($(MKOCTFILE),false)
 
 check : all
 	@source octapps-user-env.sh; \
