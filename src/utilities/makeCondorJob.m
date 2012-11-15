@@ -47,7 +47,7 @@ function job_file = makeCondorJob(varargin)
                {"parent_dir", "char", "."},
                {"log_dir", "char", getenv("TMPDIR")},
                {"func_name", "char"},
-               {"arguments", "cell", {}},
+               {"arguments", "cell,vector", {}},
                {"func_nargout", "integer"},
                {"exec_files", "cell", {}},
                {"data_files", "cell", {}},
