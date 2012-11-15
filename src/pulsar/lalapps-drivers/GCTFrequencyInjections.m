@@ -21,30 +21,36 @@
 ## where:
 ##   results = structure containing results of injections
 ## Options:
-##   "SFT_timestamp_files":	cell array of SFT timestamp files; first two letters of
-##				filenames must give detector name (e.g. H1)
-##   "GCT_segment_file":	segment file (columns: startGPS, endGPS, duration[h], NumSFTs)
-##   "ephem_year":		ephemeris year (e.g. 09-11)
-##   "noise_Sh":		noise Sh of generated SFTs
-##   "inject_h0":		injection h0
-##   "alpha":			right ascension (radians)
-##   "delta":			declination (radians)
-##   "freq":			injection frequency (Hz)
-##   "f1dot_band":		first spindown band (Hz/s)
-##   "f2dot_band":		second spindown band (Hz/s^2)
-##   "f2dot_refine":		second spindown refinement factor
-##   "mismatch_per_dim":	mismatch per dimension
-##   "debug_level":		LAL debug level
+##   "SFT_timestamp_files":     cell array of SFT timestamp files; first two letters of
+##                              filenames must give detector name (e.g. H1)
+##   "GCT_num_segments":        number of segments
+##   "GCT_segment_span":        time span of each segment (seconds)
+##   "GCT_segment_file":        OR: segment file (columns: startGPS, endGPS, duration[h], NumSFTs)
+##   "ephem_year":              ephemeris year (e.g. 09-11)
+##   "noise_Sh":                noise Sh of generated SFTs
+##   "inject_h0":               injection h0
+##   "inject_band":             injection SFT bandwidth
+##   "alpha":                   right ascension (radians)
+##   "delta":                   declination (radians)
+##   "freq":                    injection frequency (Hz)
+##   "f1dot_band":              first spindown band (Hz/s)
+##   "f2dot_band":              second spindown band (Hz/s^2)
+##   "f2dot_refine":            second spindown refinement factor
+##   "mismatch_per_dim":        mismatch per dimension
+##   "debug_level":             LAL debug level
 
 function results = GCTFrequencyInjections(varargin)
 
   ## parse options
   opts = parseOptions(varargin,
                       {"SFT_timestamp_files", "cell"},
-                      {"GCT_segment_file", "char"},
+                      {"GCT_num_segments", "strictpos,integer", []},
+                      {"GCT_segment_span", "strictpos,real", []},
+                      {"GCT_segment_file", "char", []},
                       {"ephem_year", "char"},
                       {"noise_Sh", "real,positive,scalar"},
                       {"inject_h0", "real,strictpos,scalar"},
+                      {"inject_band", "real,strictpos,scalar"},
                       {"alpha", "real,scalar"},
                       {"delta", "real,scalar"},
                       {"freq", "real,strictpos,scalar"},
@@ -54,6 +60,7 @@ function results = GCTFrequencyInjections(varargin)
                       {"mismatch_per_dim", "real,strictpos,scalar"},
                       {"debug_level", "integer,scalar", 0},
                       []);
+  assert(isempty(GCT_segment_file) || (isempty(GCT_num_segments) && isempty(GCT_segment_span)));
 
   ## check input
   for i = 1:length(SFT_timestamp_files)
@@ -61,7 +68,7 @@ function results = GCTFrequencyInjections(varargin)
       error("%s: file '%s' does not exist", funcName, SFT_timestamp_files{i});
     endif
   endfor
-  if !exist(GCT_segment_file, "file")
+  if !isempty(GCT_segment_file) && !exist(GCT_segment_file, "file")
     error("%s: file '%s' does not exist", funcName, GCT_segment_file);
   endif
 
@@ -69,11 +76,19 @@ function results = GCTFrequencyInjections(varargin)
   results = struct;
   results.gitID = format_gitID(octapps_gitID());
   results.opts = opts;
-  
-  ## get reference time and average segment time span
-  segs = load(GCT_segment_file);
-  ref_time = mean([segs(1,1), segs(end, 2)]);
-  seg_span = mean(segs(:,2) - segs(:,1));
+
+  ## determine reference time
+  sft_times = [];
+  for i = 1:length(SFT_timestamp_files)
+    sft_times = [sft_times; load(SFT_timestamp_files{i})(:,1)];
+  endfor
+  ref_time = mean([min(sft_times), max(sft_times)]);
+
+  ## average segment time span
+  if !isempty(GCT_segment_file)
+    segs = load(GCT_segment_file);
+    GCT_segment_span = mean(segs(:,2) - segs(:,1));
+  endif
 
   ## generate SFTs with injection
   MFD = struct;
@@ -81,7 +96,7 @@ function results = GCTFrequencyInjections(varargin)
   MFD.Alpha = alpha;
   MFD.Delta = delta;
   MFD.Freq = freq;
-  MFD.Band = 1.0;
+  MFD.Band = inject_band;
   MFD.fmin = MFD.Freq - 0.5*MFD.Band;
   MFD.cosi = -1 + 2*rand();
   MFD.ephemYear = ephem_year;
@@ -95,7 +110,7 @@ function results = GCTFrequencyInjections(varargin)
   MFD.refTime = ref_time;
   SFT_files = cell(size(SFT_timestamp_files));
   for i = 1:length(SFT_timestamp_files)
-    
+
     ## generate SFTs
     MFD.IFO = SFT_timestamp_files{i}(1:2);
     MFD.outSFTbname = SFT_files{i} = strcat(MFD.IFO, ".sft");
@@ -107,7 +122,7 @@ function results = GCTFrequencyInjections(varargin)
 
   ## calculate frequency and spindown spacings from metric
   i = 0:2;
-  gii = ( 4*pi^2 .* (1+i).^2 .* seg_span.^(2+2*i) ) ./ ( (3+2*i) .* factorial(2+i).^2 );
+  gii = ( 4*pi^2 .* (1+i).^2 .* GCT_segment_span.^(2+2*i) ) ./ ( (3+2*i) .* factorial(2+i).^2 );
   dfndot = 2 .* sqrt(mismatch_per_dim ./ gii);
 
   ## run HierarchSearchGCT (no mismatch)
@@ -134,7 +149,12 @@ function results = GCTFrequencyInjections(varargin)
   nf2dots = 10;
   GCT.df2dot = min(dfndot(3), f2dot_band / nf2dots);
   GCT.f2dotBand = 0.0;
-  GCT.segmentList = fullfile(".", GCT_segment_file);
+  if !isempty(GCT_segment_file)
+    GCT.segmentList = fullfile(".", GCT_segment_file);
+  else
+    GCT.nStacksMax = GCT_num_segments;
+    GCT.tStack = GCT_segment_span;
+  endif
   GCT.refTime = MFD.refTime;
   GCT.peakThrF = 0.0;
   GCT.SignalOnly = (noise_Sh == 0.0);
