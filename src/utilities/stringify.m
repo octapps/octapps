@@ -37,11 +37,21 @@ function s = stringify(x)
     case "cell"
       ## cells: create {} expression,
       ## calling stringify() for each element
+      if length(size(x)) > 2
+        error("cannot stringify cell arrays with >2 dimensions");
+      endif
       s = "{";
-      if length(x) > 0
-        s = strcat(s, stringify(x{1}));
-        for i = 2:length(x)
-          s = strcat(s, ",", stringify(x{i}));
+      if numel(x) > 0
+        for i = 1:size(x, 1)
+          if i > 1
+            s = strcat(s, ";");
+          endif
+          for j = 1:size(x, 2)
+            if j > 1
+              s = strcat(s, ",");
+            endif
+            s = strcat(s, stringify(x{i, j}));
+          endfor
         endfor
       endif
       s = strcat(s, "}");
@@ -97,6 +107,10 @@ endfunction
 %!test
 %! x = @(y) y*2;
 %! assert(x(7) == eval(stringify(x))(7));
+
+%!test
+%! x = {1, 2, "three"; 4, 5, {6}};
+%! assert(isequal(x, eval(stringify(x))));
 
 %!test
 %! x = {1, 2, "three", {4, 5, {6}, true}, 7, false, int16(9)};
