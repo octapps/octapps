@@ -73,7 +73,7 @@ function ret = TuneAdaptiveLVPriors ( varargin )
    currfreqstring = convert_freq_to_string(startfreq(band) + (numsft-2)*params_init.sftwidth,4,2);
    sftfile = [params_init.sftdir, filesep, "h1_", currfreqstring, params_init.sft_filenamebit];
    if ( exist(sftfile,"file") != 2 )
-    freqsubdir = convert_freq_to_string(10*floor((startfreq(band) + (numsft-2)*params_init.sftwidth)/10),4,0); # EatH SFTs on atlas are organized in 0fff subdirs
+    freqsubdir = convert_freq_to_string(10*floor((startfreq(band) + (numsft-2)*params_init.sftwidth)/10+0.001),4,0); # EatH SFTs on atlas are organized in 0fff subdirs - 0.001 is to make sure 60.000 gets floored to 60 and not 50, as octave can have small numerical inaccuracies here
     sftfile = [params_init.sftdir, filesep, freqsubdir, filesep, "h1_", currfreqstring, params_init.sft_filenamebit];
     if ( exist(sftfile,"file") != 2 )
      error(["Required SFT file ", sftfile, " does not exist."]);
@@ -99,9 +99,15 @@ function ret = TuneAdaptiveLVPriors ( varargin )
   params_psd.inputData = sfts.h1;
   params_psd.outputPSD = [params_init.workingdir, filesep, "psd_H1_med_", num2str(params_psd.blocksRngMed), "_band_", int2str(band), ".dat"];
   [num_outliers_H1(band), max_outlier_H1(band), freqbins_H1] = CountSFTPowerOutliers ( params_psd, params_init.thresh, params_init.lalpath, params_init.debug );
+  if ( params_init.cleanup == 1 )
+   [err, msg] = unlink (params_psd.outputPSD);
+  endif
   params_psd.inputData = sfts.l1;
   params_psd.outputPSD = [params_init.workingdir, filesep, "psd_L1_med_", num2str(params_psd.blocksRngMed), "_band_", int2str(band), ".dat"];
   [num_outliers_L1(band), max_outlier_L1(band), freqbins_L1] = CountSFTPowerOutliers ( params_psd, params_init.thresh, params_init.lalpath, params_init.debug );
+  if ( params_init.cleanup == 1 )
+   [err, msg] = unlink (params_psd.outputPSD);
+  endif
 
   # compute the line priors
   l_H1(band) = max(params_init.LVlmin, num_outliers_H1(band)/(freqbins_H1-num_outliers_H1(band)));
@@ -125,18 +131,6 @@ function ret = TuneAdaptiveLVPriors ( varargin )
  fprintf ( fid, "%%%% startfreq num_outliers_H1 num_outliers_L1 max_outlier_H1 max_outlier_L1 l_H1 l_L1\n" )
  fprintf ( fid, "%f %f %f %f %f %f %f\n", outmatrix );
  fclose ( params_init.outfile );
-
- # Clean up temporary files
- if ( params_init.cleanup == 1 )
-  printf("Cleaning up temporary files...\n");
-  [allfiles, err, msg] = readdir ( params_init.workingdir );
-  for numfile = 3:1:length(allfiles) # skip the first two entries "." and ".."
-   if ( strncmp(allfiles{numfile},"psd_",4) == 1 )
-    filenamesplit = strsplit(allfiles{numfile},".");
-    [err, msg] = unlink ([params_init.workingdir, filesep, allfiles{numfile}]);
-   endif
-  endfor
- endif
 
  ret = 1;
 
