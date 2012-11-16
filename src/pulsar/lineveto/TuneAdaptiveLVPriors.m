@@ -24,8 +24,7 @@ function ret = TuneAdaptiveLVPriors ( varargin )
 
  # read in and check input parameters
  params_init = parseOptions(varargin,
-                     {"sftdir_H1", "char"},
-                     {"sftdir_L1", "char"},
+                     {"sftdir", "char"},
                      {"sft_filenamebit", "char", ""},
                      {"freqmin", "numeric,scalar"},
                      {"freqmax", "numeric,scalar"},
@@ -71,15 +70,22 @@ function ret = TuneAdaptiveLVPriors ( varargin )
   sfts.h1 = [];
   sfts.l1 = [];
   for numsft = 1:1:num_sfts_per_freqband+2
-   currfreqstring = convert_freq_to_string(startfreq(band) - (numsft-2)*params_init.sftwidth);
-   sftfile = [params_init.sftdir_H1, filesep, "h1_", currfreqstring, params_init.sft_filenamebit];
+   currfreqstring = convert_freq_to_string(startfreq(band) + (numsft-2)*params_init.sftwidth,4,2);
+   sftfile = [params_init.sftdir, filesep, "h1_", currfreqstring, params_init.sft_filenamebit];
    if ( exist(sftfile,"file") != 2 )
-    error(["Required SFT file ", sftfile, " does not exist."]);
+    freqsubdir = convert_freq_to_string(10*floor((startfreq(band) + (numsft-2)*params_init.sftwidth)/10),4,0); # EatH SFTs on atlas are organized in 0fff subdirs
+    sftfile = [params_init.sftdir, filesep, freqsubdir, filesep, "h1_", currfreqstring, params_init.sft_filenamebit];
+    if ( exist(sftfile,"file") != 2 )
+     error(["Required SFT file ", sftfile, " does not exist."]);
+    endif
    endif
    sfts.h1 = [sfts.h1, sftfile];
-   sftfile = [params_init.sftdir_L1, filesep, "l1_", currfreqstring, params_init.sft_filenamebit];
+   sftfile = [params_init.sftdir, filesep, "l1_", currfreqstring, params_init.sft_filenamebit];
    if ( exist(sftfile,"file") != 2 )
-    error(["Required SFT file ", sftfile, " does not exist."]);
+    sftfile = [params_init.sftdir, filesep, freqsubdir, filesep, "l1_", currfreqstring, params_init.sft_filenamebit];
+    if ( exist(sftfile,"file") != 2 )
+     error(["Required SFT file ", sftfile, " does not exist."]);
+    endif
    endif
    sfts.l1 = [sfts.l1, sftfile];
    if ( numsft < num_sfts_per_freqband+2 )
@@ -142,12 +148,8 @@ function [params_init] = check_input_parameters ( params_init )
  ## [params_init] = check_input_parameters ( params_init )
  ## function to parse argument list into variables and check consistency
 
- if ( !isdir(params_init.sftdir_H1) )
-  error(["Invalid input parameter (sftdir_H1): ", params_init.sftdir_H1, " is not a directory."])
- endif
-
- if ( !isdir(params_init.sftdir_L1) )
-  error(["Invalid input parameter (sftdir_L1): ", params_init.sftdir_L1, " is not a directory."])
+ if ( !isdir(params_init.sftdir) )
+  error(["Invalid input parameter (sftdir): ", params_init.sftdir, " is not a directory."])
  endif
 
  if ( params_init.freqmin < 0.0 )
@@ -193,25 +195,28 @@ function [params_init] = check_input_parameters ( params_init )
 endfunction # check_input_parameters()
 
 
-function [freqstring] = convert_freq_to_string ( freq )
- ## [freqstring] = convert_freq_to_string ( freq )
+function [freqstring] = convert_freq_to_string ( freq, leading, trailing )
+ ## [freqstring] = convert_freq_to_string ( freq, leading, trailing )
  ## function to convert a frequency value to a string with leading 0s
-   freqstring = num2str(freq);
-   freqstring_split = strsplit(freqstring,".");
-   if ( length(freqstring_split) == 1 ) # no digits after '.'
-    freqstring = [freqstring, ".00"];
-   elseif ( length(freqstring_split{2}) == 1 ) # only one digit after '.'
-    freqstring = [freqstring, "0"];
-   elseif ( length(freqstring_split{2}) > 2 ) # too many digits after '.'
-    error(["Error converting frequency ", num2str(freq), " into string ", freqstring, ": need exactly two digits after '.' for filename matching."]);
-   endif
-   if ( length(freqstring) == 4 )
-    freqstring = ["000", freqstring];
-   elseif ( length(freqstring) == 5 )
-    freqstring = ["00", freqstring];
-   elseif ( length(freqstring) == 6 )
-    freqstring = ["0", freqstring];
-   elseif ( length(freqstring) != 7 ) # this is the correct final number (4 digits, dot, 2 digits)
-    error(["Error converting frequency ", num2str(freq), " into string ", freqstring, ": need 1-4 digits before '.' for filename matching."]);
-   endif
+ freqstring_init = num2str(freq);
+ freqstring_split = strsplit(freqstring_init,".");
+ if ( length(freqstring_split{1}) > leading ) # too many digits before '.'
+  error(["Error converting frequency ", num2str(freq), " into string ", freqstring_init, ": more leading digits than requested (", int2str(leading), ") - do not want to truncate this."]);
+ endif
+ freqstring = freqstring_split{1};
+ if ( trailing > 0 )
+  freqstring = [freqstring, "."];
+  if ( length(freqstring_split) >= 2 )
+   freqstring = [freqstring, freqstring_split{2}(1:min(length(freqstring_split{2}),trailing))];
+   digits = length(freqstring_split{2});
+  else
+   digits = 0;
+  endif
+  for ( n = 1:1:trailing-digits )
+   freqstring = [freqstring, "0"];
+  endfor
+ endif
+ for ( n = 1:1:leading-length(freqstring_split{1}) )
+  freqstring = ["0", freqstring];
+ endfor
 endfunction # convert_freq_to_string()
