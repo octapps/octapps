@@ -1,0 +1,217 @@
+## Copyright (C) 2012 David Keitel
+##
+## This program is free software; you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation; either version 2 of the License, or
+## (at your option) any later version.
+##
+## This program is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License
+## along with with program; see the file COPYING. If not, write to the
+## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+## MA  02111-1307  USA
+
+
+function ret = TuneAdaptiveLVPriors ( varargin )
+ ## ret = TuneAdaptiveLVPriors ( varargin )
+ ## function to count outliers in SFT power statistic over a large set of frequency bands (input sft files) and derive LV priors from that
+ ## command-line parameters can be taken from parseOptions call below
+ ## example call: octapps_run TuneAdaptiveLVPriors --sftdir=sfts --sft_filenamebit=S5R2 --freqmin=50 --freqmax=50.5 --freqband=0.05
+
+ # read in and check input parameters
+ params_init = parseOptions(varargin,
+                     {"sftdir_H1", "char"},
+                     {"sftdir_L1", "char"},
+                     {"sft_filenamebit", "char", ""},
+                     {"freqmin", "numeric,scalar"},
+                     {"freqmax", "numeric,scalar"},
+                     {"freqband", "numeric,scalar"},
+                     {"debug", "numeric,scalar", 0},
+                     {"cleanup", "numeric,scalar", 1},
+                     {"workingdir", "char", "."},
+                     {"lalpath", "char", ""},
+                     {"outfile", "char", "power_outliers.dat"},
+                     {"runmed", "numeric,scalar", 50},
+                     {"thresh", "numeric,scalar", 1.25},
+                     {"LVlmin", "numeric,scalar", 0.001},
+                     {"sftwidth", "numeric,scalar", 0.05}
+                );
+ params_init = check_input_parameters ( params_init );
+
+ if ( params_init.debug == 1 )
+  printf("Running from directory '%s'. LAL path is '%s'. Local octave version is '%s'. Input parameters are:\n", pwd, params_init.lalpath, version);
+  params_init
+ endif
+
+ # prepare PSD parameters
+ params_psd.PSDmthopSFTs = 1;
+ params_psd.PSDmthopIFOs = 8;
+ params_psd.blocksRngMed = params_init.runmed;
+ params_psd.FreqBand     = params_init.freqband;
+
+ # count necessary freqbands and sfts
+ # NOTE: rounded down, freqmax may not be reached if freqmax-freqmin is not an integer multiple of freqband
+ num_freqbands = floor ( ( params_init.freqmax - params_init.freqmin ) / params_init.freqband );
+ if ( num_freqbands <= 0 )
+  error(["Requested frequency range too small, corresponds to less than 1 freqband."]);
+ endif
+ num_sfts_per_freqband = ceil ( params_init.freqband / params_init.sftwidth );
+
+ for band = 1:1:num_freqbands # main loop over freqbands
+
+  startfreq(band) = params_init.freqmin+(band-1)*params_init.freqband;
+
+  printf("Frequency band %d, starting from %f Hz...\n", band, startfreq(band));
+
+  # load in enough sfts, i.e. one extra to the left and right of requested band
+  sfts.h1 = [];
+  sfts.l1 = [];
+  for numsft = 1:1:num_sfts_per_freqband+2
+   currfreqstring = convert_freq_to_string(startfreq(band) - (numsft-2)*params_init.sftwidth);
+   sftfile = [params_init.sftdir_H1, filesep, "h1_", currfreqstring, params_init.sft_filenamebit];
+   if ( exist(sftfile,"file") != 2 )
+    error(["Required SFT file ", sftfile, " does not exist."]);
+   endif
+   sfts.h1 = [sfts.h1, sftfile];
+   sftfile = [params_init.sftdir_L1, filesep, "l1_", currfreqstring, params_init.sft_filenamebit];
+   if ( exist(sftfile,"file") != 2 )
+    error(["Required SFT file ", sftfile, " does not exist."]);
+   endif
+   sfts.l1 = [sfts.l1, sftfile];
+   if ( numsft < num_sfts_per_freqband+2 )
+    sfts.h1 = [sfts.h1, ";"];
+    sfts.l1 = [sfts.l1, ";"];
+   endif
+  endfor
+
+  # count the outliers in the power statistic
+  params_psd.Freq = startfreq(band);
+  params_psd.inputData = sfts.h1;
+  params_psd.outputPSD = [params_init.workingdir, filesep, "psd_H1_med_", num2str(params_psd.blocksRngMed), "_band_", int2str(band), ".dat"];
+  [num_outliers_H1(band), max_outlier_H1(band), freqbins_H1] = CountSFTPowerOutliers ( params_psd, params_init.thresh, params_init.lalpath, params_init.debug );
+  params_psd.inputData = sfts.l1;
+  params_psd.outputPSD = [params_init.workingdir, filesep, "psd_L1_med_", num2str(params_psd.blocksRngMed), "_band_", int2str(band), ".dat"];
+  [num_outliers_L1(band), max_outlier_L1(band), freqbins_L1] = CountSFTPowerOutliers ( params_psd, params_init.thresh, params_init.lalpath, params_init.debug );
+
+  # compute the line priors
+  l_H1(band) = max(params_init.LVlmin, num_outliers_H1(band)/(freqbins_H1-num_outliers_H1(band)));
+  l_L1(band) = max(params_init.LVlmin, num_outliers_L1(band)/(freqbins_L1-num_outliers_L1(band)));
+
+ endfor # band <= num_band
+
+ # save outliers to file as an ascii matrix with custom header
+ outmatrix = cat(1,startfreq,num_outliers_H1,num_outliers_L1,max_outlier_H1,max_outlier_L1,l_H1,l_L1);
+ fid = fopen ( params_init.outfile, "w" );
+ fprintf ( fid, "%%%% produced from count_power_outliers_many_bands with the following options:\n" );
+ params_init_fieldnames = fieldnames(params_init);
+ params_init_values     = struct2cell(params_init);
+ for n=1:1:length(params_init_values)
+  if ( isnumeric(params_init_values{n}) )
+   params_init_values{n} = num2str(params_init_values{n});
+  endif
+  fprintf ( fid, "%%%% --%s=%s \n", params_init_fieldnames{n}, params_init_values{n} );
+ endfor
+ fprintf ( fid, "%%%% \n%%%% columns:\n" );
+ fprintf ( fid, "%%%% startfreq num_outliers_H1 num_outliers_L1 max_outlier_H1 max_outlier_L1 l_H1 l_L1\n" )
+ fprintf ( fid, "%f %f %f %f %f %f %f\n", outmatrix );
+ fclose ( params_init.outfile );
+
+ # Clean up temporary files
+ if ( params_init.cleanup == 1 )
+  printf("Cleaning up temporary files...\n");
+  [allfiles, err, msg] = readdir ( params_init.workingdir );
+  for numfile = 3:1:length(allfiles) # skip the first two entries "." and ".."
+   if ( strncmp(allfiles{numfile},"psd_",4) == 1 )
+    filenamesplit = strsplit(allfiles{numfile},".");
+    [err, msg] = unlink ([params_init.workingdir, filesep, allfiles{numfile}]);
+   endif
+  endfor
+ endif
+
+ ret = 1;
+
+endfunction # TuneAdaptiveLVPriors()
+
+############## AUXILIARY FUNCTIONS #############
+
+function [params_init] = check_input_parameters ( params_init )
+ ## [params_init] = check_input_parameters ( params_init )
+ ## function to parse argument list into variables and check consistency
+
+ if ( !isdir(params_init.sftdir_H1) )
+  error(["Invalid input parameter (sftdir_H1): ", params_init.sftdir_H1, " is not a directory."])
+ endif
+
+ if ( !isdir(params_init.sftdir_L1) )
+  error(["Invalid input parameter (sftdir_L1): ", params_init.sftdir_L1, " is not a directory."])
+ endif
+
+ if ( params_init.freqmin < 0.0 )
+  error(["Invalid input parameter (freqmin): ", num2str(params_init.freqmin), " is negative."]);
+ endif
+
+ if ( params_init.freqmax < params_init.freqmin )
+  error(["Invalid input parameter (freqmax): ", num2str(params_init.freqmax), " is lower than freqmin=", num2str(params_init.freqmin), "."]);
+ endif
+
+ if ( params_init.freqband <= 0.0 )
+  error(["Invalid input parameter (freqband): ", num2str(params_init.freqband), " must be positive."]);
+ endif
+
+ if ( ( params_init.debug != 0 ) && ( params_init.debug != 1 ) )
+  error(["Invalid input parameter (debug): ", int2str(params_init.debug), " is neither 0 or 1."])
+ endif
+
+ if ( ( params_init.cleanup != 0 ) && ( params_init.cleanup != 1 ) )
+  error(["Invalid input parameter (cleanup): ", int2str(params_init.cleanup), " is neither 0 or 1."])
+ endif
+
+ if ( !isdir(params_init.workingdir) )
+  error(["Invalid input parameter (workingdir): ", params_init.workingdir, " is not a directory."])
+ endif
+
+ if ( ( length(params_init.lalpath) > 0 ) && ( !isdir(params_init.lalpath) ) )
+  error(["Invalid input parameter (lalpath): ", params_init.lalpath, " is not a directory."]);
+ endif
+
+ if ( params_init.runmed < 0 )
+   error(["Invalid input parameter (runmed): ", num2str(params_init.runmed), " is negative."])
+ endif
+
+ if ( params_init.thresh < 1 )
+   error(["Invalid input parameter (thresh): ", num2str(params_init.thresh), " must be >= 1."])
+ endif
+
+ if ( params_init.sftwidth <= 0.0 )
+  error(["Invalid input parameter (sftwidth): ", num2str(params_init.sftwidth), " must be positive."]);
+ endif
+
+endfunction # check_input_parameters()
+
+
+function [freqstring] = convert_freq_to_string ( freq )
+ ## [freqstring] = convert_freq_to_string ( freq )
+ ## function to convert a frequency value to a string with leading 0s
+   freqstring = num2str(freq);
+   freqstring_split = strsplit(freqstring,".");
+   if ( length(freqstring_split) == 1 ) # no digits after '.'
+    freqstring = [freqstring, ".00"];
+   elseif ( length(freqstring_split{2}) == 1 ) # only one digit after '.'
+    freqstring = [freqstring, "0"];
+   elseif ( length(freqstring_split{2}) > 2 ) # too many digits after '.'
+    error(["Error converting frequency ", num2str(freq), " into string ", freqstring, ": need exactly two digits after '.' for filename matching."]);
+   endif
+   if ( length(freqstring) == 4 )
+    freqstring = ["000", freqstring];
+   elseif ( length(freqstring) == 5 )
+    freqstring = ["00", freqstring];
+   elseif ( length(freqstring) == 6 )
+    freqstring = ["0", freqstring];
+   elseif ( length(freqstring) != 7 ) # this is the correct final number (4 digits, dot, 2 digits)
+    error(["Error converting frequency ", num2str(freq), " into string ", freqstring, ": need 1-4 digits before '.' for filename matching."]);
+   endif
+endfunction # convert_freq_to_string()
