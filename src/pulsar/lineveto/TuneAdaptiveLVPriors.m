@@ -129,7 +129,7 @@ function ret = TuneAdaptiveLVPriors ( varargin )
  endfor
  fprintf ( fid, "%%%% \n%%%% columns:\n" );
  fprintf ( fid, "%%%% startfreq num_outliers_H1 num_outliers_L1 max_outlier_H1 max_outlier_L1 l_H1 l_L1\n" )
- fprintf ( fid, "%f %f %f %f %f %f %f\n", outmatrix );
+ fprintf ( fid, "%f %d %d %f %f %f %f\n", outmatrix );
  fclose ( params_init.outfile );
 
  ret = 1;
