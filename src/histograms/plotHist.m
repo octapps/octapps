@@ -37,7 +37,7 @@ function varargout = plotHist(hgrm, varargin)
   endif
 
   ## normalise histogram
-  if strcmp(varargin{1}, "nonorm")
+  if length(varargin) > 0 && strcmp(varargin{1}, "nonorm")
     varargin = varargin(2:end);
   else
     hgrm = normaliseHist(hgrm);
