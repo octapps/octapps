@@ -84,10 +84,30 @@ function paropts = parseOptions(opts, varargin)
       if length(typefuncstr) > 0
         typefuncstr = strcat(typefuncstr, "&&");
       endif
-      if strncmp(opttypes{i}, "a:", 2)
-        typefuncstr = strcat(typefuncstr, "isa(x,\"", opttypes{i}(3:end), "\")");
+      j = index(opttypes{i}, ":");
+      typefunccmd = opttypes{i}(1:j-1);
+      typefuncarg = opttypes{i}(j+1:end);
+      if !isempty(typefunccmd)
+        switch typefunccmd
+          case "a"
+            typefuncstr = strcat(typefuncstr, "isa(x,\"", typefuncarg, "\")");
+          case "numel"
+            x = str2num(typefuncarg);
+            if isempty(x) || fix(x) != x || x < 0
+              error("%s: argument to type specification command '%s' is not an integer", funcName, typefunccmd);
+            endif
+            typefuncstr = strcat(typefuncstr, "numel(x)==[", typefuncarg, "]");
+          case "size"
+            x = str2num(typefuncarg);
+            if isempty(x) || fix(x) != x || x < 0
+              error("%s: argument to type specification command '%s' is not an integer", funcName, typefunccmd);
+            endif
+            typefuncstr = strcat(typefuncstr, "all(size(x)==[", typefuncarg, "])");
+          otherwise
+            error("%s: unknown type specification command '%s'", funcName, typefunccmd);
+        endswitch
       else
-        switch opttypes{i}
+        switch typefuncarg
           case "integer"
             typefuncstr = strcat(typefuncstr, "isnumeric(x)&&all(fix(x)==x)");
           case "nonzero"
@@ -101,7 +121,13 @@ function paropts = parseOptions(opts, varargin)
           case "strictneg"
             typefuncstr = strcat(typefuncstr, "isnumeric(x)&&all(x<0)");
           otherwise
-            typefuncstr = strcat(typefuncstr, "is", opttypes{i}, "(x)");
+            typefuncfunc = strcat("is", typefuncarg);
+            try
+              str2func(typefuncfunc);
+              typefuncstr = strcat(typefuncstr, typefuncfunc, "(x)");
+            catch
+              error("%s: unknown type specification function '%s'", funcName, typefuncfunc);
+            end_try_catch
         endswitch
       endif
     endfor
