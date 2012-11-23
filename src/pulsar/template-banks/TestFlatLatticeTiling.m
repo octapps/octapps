@@ -26,22 +26,20 @@
 ## Options:
 ##   tiling: type of tiling to generate.
 ##     Options:
-##       {diag_square, ...}: Diagonal metric and square parameter space.
+##       {square, ...}: Arbitrary metric and square parameter space.
 ##         Options:
-##           diagelem: diagonal elements of metric (default: 1s)
+##           metric: parameter space metric (default: identity matrix)
 ##           bounds: size of parameter space in each dimension.
-##       {diag_ellipse, ...}: Diagonal metric and elliptical parameter space.
+##       {ellipse, ...}: Arbitrary metric and elliptical parameter space.
 ##         Options:
-##           diagelem: diagonal elements of metric (default: 1s)
-##           semis: elliptical parameter space semi-diameters (default: 1s)
+##           metric: parameter space metric (default: identity matrix)
+##           semis: elliptical parameter space semi-diameters.
+##           bounds: sizes of additional parameter-space dimensions.
 ##       {freq_square, ...}: CW frequency metric and square parameter space.
 ##         Options:
 ##           time_span: observation time in seconds
-##           fndots: list of frequency and spindown values, in Hz, Hz/s, etc.
-##           num_fndots: number of frequency/spindown values to tile in each dimension
-##                       (mutually exclusive with fndot_bands)
+##           fndot: list of frequency and spindown values, in Hz, Hz/s, etc.
 ##           fndot_bands: list of frequency and spindown bands (may be negative)
-##                        (mutually exclusive with num_fndots)
 ##       {freq_agebrake, ...}: CW frequency metric and age-braking index parameter space.
 ##         Options:
 ##           time_span: observation time in seconds.
@@ -53,14 +51,15 @@
 ##       {sky+freq_square, ...}: CW super-sky-frequency metric and square parameter space.
 ##         Options:
 ##           time_span: observation time in seconds.
-##           fndots: list of frequency and spindown values, in Hz, Hz/s, etc.
-##           num_fndots: number of frequency/spindown values to tile in each dimension
-##                       (mutually exclusive with fndot_bands)
+##           skyxy: centre of sky X-Y ellipse to observe (default: 0,0)
+##           skyxy_semis: semi-diameters of sky X-Y ellipse (default: 1,1)
+##           skyz: sky Z component to compute:
+##             lower (hemisphere), plane, upper, sphere
+##           fndot: list of frequency and spindown values, in Hz, Hz/s, etc.
 ##           fndot_bands: list of frequency and spindown bands (may be negative)
-##                        (mutually exclusive with num_fndots)
 ##           ref_time: reference time, in GPS seconds
+##           ephem_year: ephemeris year string (e.g. 05-09)
 ##           detectors: comma-separated list of detector names
-##           ephem_year: ephemeris year (default: 05-09)
 ##           sky_coords: super-sky coordinate system (default: equatorial)
 ##           sky_aligned: use sky-aligned super-sky metric (default: true)
 ##           ptolemaic: use Ptolemaic ephemerides (default: false)
@@ -72,8 +71,9 @@
 ##   num_injections: number of injection points to test with
 ##      if < 0, use as a ratio of number of generated templates
 ##   workspace_size: size of workspace for computing mismatch histogram
-##   histogram_bins: number of mismatch histogram bins
 ##   return_points: return templates and injections (default: false)
+##   return_hgrm: return injection mismatch histogram (default: true)
+##   histogram_bins: number of mismatch histogram bins
 
 function results = TestFlatLatticeTiling(varargin)
 
@@ -81,11 +81,12 @@ function results = TestFlatLatticeTiling(varargin)
   parseOptions(varargin,
                {"tiling", "cell,vector"},
                {"lattice", "char"},
-               {"max_mismatch", "real,strictpos,scalar", 1.0},
+               {"max_mismatch", "real,strictpos,scalar"},
                {"num_injections", "real,scalar", 0},
                {"workspace_size", "real,scalar", 5000},
-               {"histogram_bins", "integer,strictpos,scalar", 100},
                {"return_points", "logical,scalar", false},
+               {"return_hgrm", "logical,scalar", true},
+               {"histogram_bins", "integer,strictpos,scalar", 100},
                []);
 
   ## Check input
@@ -104,55 +105,62 @@ function results = TestFlatLatticeTiling(varargin)
   ## Create tiling, set up parameter space, and create metric
   switch tiling{1}
 
-    case "diag_square"
+    case "square"
 
       ## Parse options
       parseOptions(tiling(2:end),
-                   {"diagelem", "real,vector", []},
+                   {"metric", "real,symmetric", []},
                    {"bounds", "real,vector"},
                    []);
-      assert(isempty(diagelem) || length(diagelem) == length(bounds));
+      assert(isempty(metric) || size(metric, 1) == length(bounds));
+      assert(det(metric) > 0);
 
       ## Create tiling
       dim = length(bounds);
       flt = CreateFlatLatticeTiling(dim);
 
       ## Add square bounds
-      for i = 1:dim
+      for i = 1:length(bounds)
         SetFlatLatticeConstantBound(flt, i-1, 0, bounds(i));
       endfor
 
-      ## Create diagonal metric
-      metric = new_gsl_matrix(dim, dim);
-      if isempty(diagelem)
-        metric.data = eye(dim);
+      ## Create metric
+      gslmetric = new_gsl_matrix(dim, dim);
+      if isempty(metric)
+        gslmetric.data = eye(dim);
       else
-        metric.data = diag(diagelem);
+        gslmetric.data = metric;
       endif
 
-    case "diag_ellipse"
+    case "ellipse"
 
       ## Parse options
       parseOptions(tiling(2:end),
-                   {"diagelem", "real,vector", []},
-                   {"semis", "real,vector", [1, 1]},
+                   {"metric", "real,symmetric", []},
+                   {"semis", "real,vector,numel:2"},
+                   {"bounds", "real,vector", []},
                    []);
-      assert(length(semis) == 2);
-      assert(isempty(diagelem) || length(diagelem) == length(semis));
+      assert(isempty(metric) || size(metric, 1) == length(semis) + length(bounds));
+      assert(det(metric) > 0);
 
       ## Create tiling
-      dim = 2;
+      dim = 2 + length(bounds);
       flt = CreateFlatLatticeTiling(dim);
 
-      ## Add elliptic bounds
-      SetFlatLatticeEllipticBounds(flt, 0, semis(1), semis(2));
+      ## Add elliptical bounds
+      SetFlatLatticeEllipticalBounds(flt, 0, 0.0, 0.0, semis(1), semis(2));
 
-      ## Create diagonal metric
-      metric = new_gsl_matrix(dim, dim);
-      if isempty(diagelem)
-        metric.data = eye(dim);
+      ## Add square bounds
+      for i = 1:length(bounds)
+        SetFlatLatticeConstantBound(flt, i+1, 0.0, bounds(i));
+      endfor
+
+      ## Create metric
+      gslmetric = new_gsl_matrix(dim, dim);
+      if isempty(metric)
+        gslmetric.data = eye(dim);
       else
-        metric.data = diag(diagelem);
+        gslmetric.data = metric;
       endif
 
     case "freq_square"
@@ -160,35 +168,25 @@ function results = TestFlatLatticeTiling(varargin)
       ## Parse options
       parseOptions(tiling(2:end),
                    {"time_span", "real,strictpos,scalar"},
-                   {"fndots", "real,vector"},
-                   {"num_fndots", "real,strictpos,vector", []},
+                   {"fndot", "real,vector"},
                    {"fndot_bands", "real,vector", []},
                    []);
-      assert(xor(isempty(fndot_bands), isempty(num_fndots)));
-      assert(isempty(fndot_bands) || length(fndot_bands) == length(fndots));
-      assert(isempty(num_fndots) || length(num_fndots) == length(fndots));
 
       ## Create tiling
-      dim = length(fndots);
+      dim = length(fndot);
       flt = CreateFlatLatticeTiling(dim);
 
       ## Add frequency and spindown bounds
-      if !isempty(num_fndots)
-        for i = 1:dim
-          SetFlatLatticeBBoxExtentBound(flt, i-1, fndots(i), num_fndots(i));
-        endfor
-      else
-        if isempty(fndot_bands)
-          fndot_bands = zeros(size(fndots));
-        endif
-        for i = 1:dim
-          SetFlatLatticeConstantBound(flt, i-1, fndots(i), fndots(i) + fndot_bands(i));
-        endfor
+      if isempty(fndot_bands)
+        fndot_bands = zeros(size(fndot));
       endif
+      for i = 1:length(fndot)
+        SetFlatLatticeConstantBound(flt, i-1, fndot(i), fndot(i) + fndot_bands(i));
+      endfor
 
       ## Create frequency metric
-      metric = new_gsl_matrix(dim, dim);
-      SpindownMetric(metric, time_span);
+      gslmetric = new_gsl_matrix(dim, dim);
+      SpindownMetric(gslmetric, time_span);
 
     case "freq_agebrake"
 
@@ -207,8 +205,8 @@ function results = TestFlatLatticeTiling(varargin)
       flt = CreateFlatLatticeTiling(dim);
 
       ## Create frequency metric
-      metric = new_gsl_matrix(dim, dim);
-      SpindownMetric(metric, time_span);
+      gslmetric = new_gsl_matrix(dim, dim);
+      SpindownMetric(gslmetric, time_span);
 
       ## Add frequency bound
       SetFlatLatticeConstantBound(flt, 0, freq, freq + freq_band);
@@ -224,22 +222,22 @@ function results = TestFlatLatticeTiling(varargin)
       ## Parse options
       parseOptions(tiling(2:end),
                    {"time_span", "real,strictpos,scalar"},
-                   {"fndots", "real,vector"},
-                   {"num_fndots", "real,strictpos,vector", []},
+                   {"skyxy", "real,vector,numel:2", [0.0, 0.0]},
+                   {"skyxy_semis", "real,positive,vector", 1.0},
+                   {"skyz", "char", "sphere"},
+                   {"fndot", "real,vector"},
                    {"fndot_bands", "real,vector", []},
                    {"ref_time", "real,strictpos,scalar"},
+                   {"ephem_year", "char"},
                    {"detectors", "char"},
-                   {"ephem_year", "char", "05-09"},
                    {"sky_coords", "char", "equatorial"},
                    {"sky_aligned", "logical", true},
                    {"ptolemaic", "logical", false},
                    []);
-      assert(xor(isempty(fndot_bands), isempty(num_fndots)));
-      assert(isempty(fndot_bands) || length(fndot_bands) == length(fndots));
-      assert(isempty(num_fndots) || length(num_fndots) == length(fndots));
+      assert(length(skyxy_semis) <= 2);
 
       ## Calculate number of spindowns
-      spindowns = length(fndots) - 1;
+      spindowns = length(fndot) - 1;
 
       ## Create spin-orbit metric
       [sometric, coordIDs] = CreatePhaseMetric("coords", "spin_equ,orbit_ecl,freq,fdots",
@@ -248,41 +246,54 @@ function results = TestFlatLatticeTiling(varargin)
                                                "detectors", detectors,
                                                "spindowns", spindowns,
                                                "ephem_year", ephem_year,
-                                               "fiducial_freq", fndots(1),
+                                               "fiducial_freq", fndot(1),
                                                "ptolemaic", ptolemaic);
 
       ## Construct super-sky metrics
       ssky_metrics = ConstructSuperSkyMetrics(sometric, coordIDs, sky_coords);
       if sky_aligned
         ssmetric = ssky_metrics.arssmetric;
+        skyoff = ssky_metrics.askyoff;
       else
         ssmetric = ssky_metrics.rssmetric;
+        skyoff = ssky_metrics.skyoff;
       endif
+      results.sky_offset = skyoff;
 
       ## Create tiling
       dim = 4 + spindowns;
       flt = CreateFlatLatticeTiling(dim);
 
       ## Add sky position bounds
-      SetFlatLatticeSuperSkyAllBounds(flt, 0);
+      if length(skyxy_semis) < 2
+        skyxy_semis(2) = skyxy_semis(1);
+      endif
+      SetFlatLatticeEllipticalBounds(flt, 0, skyxy(1), skyxy(2), skyxy_semis(1), skyxy_semis(2));
+      switch skyz
+        case "lower"
+          skyz_type = FLSSNZ_LOWER;
+        case "plane"
+          skyz_type = FLSSNZ_PLANE;
+        case "upper"
+          skyz_type = FLSSNZ_UPPER;
+        case "sphere"
+          skyz_type = FLSSNZ_SPHERE;
+        otherwise
+          error("%s: unknown skyz option '%s'", funcName, skyz);
+      endswitch
+      SetFlatLatticeSuperSkyNZBound(flt, 2, skyz_type);
 
       ## Add frequency and spindown bounds
-      if !isempty(num_fndots)
-        for i = 1:length(fndots)
-          SetFlatLatticeBBoxExtentBound(flt, i+2, fndots(i), num_fndots(i));
-        endfor
-      else
-        if isempty(fndot_bands)
-          fndot_bands = zeros(size(fndots));
-        endif
-        for i = 1:length(fndots)
-          SetFlatLatticeConstantBound(flt, i+2, fndots(i), fndots(i) + fndot_bands(i));
-        endfor
+      if isempty(fndot_bands)
+        fndot_bands = zeros(size(fndot));
       endif
+      for i = 1:length(fndot)
+        SetFlatLatticeFnDotConstantBound(flt, 0, skyoff(i,:), i+2, fndot(i), fndot(i) + fndot_bands(i));
+      endfor
 
       ## Set metric
-      metric = new_gsl_matrix(dim, dim);
-      metric.data = ssmetric;
+      gslmetric = new_gsl_matrix(dim, dim);
+      gslmetric.data = ssmetric;
 
     otherwise
       error("%s: unknown tiling '%s'", funcName, tiling{1});
@@ -300,15 +311,16 @@ function results = TestFlatLatticeTiling(varargin)
   endswitch
 
   ## Set metric
-  SetFlatLatticeMetric(flt, metric, max_mismatch);
+  SetFlatLatticeMetric(flt, gslmetric, max_mismatch);
 
   ## Fill output struct
-  results.metric = metric.data(:,:);
+  results.metric = gslmetric.data(:,:);
+  results.max_mismatch = max_mismatch;
   results.templates = [];
   results.injections = [];
   results.nearest_index = [];
   results.min_mismatch = [];
-  results.mismatch_hgrm = newHist(1);
+  results.mismatch_hgrm = [];
 
   ## Count number of templates
   results.num_templates = double(CountTotalFlatLatticePoints(flt));
@@ -317,7 +329,9 @@ function results = TestFlatLatticeTiling(varargin)
   if return_points
     results.templates = zeros(dim, results.num_templates);
     for i = 1:results.num_templates
-      template = NextFlatLatticePoint(flt);
+      NextFlatLatticePoint(flt);
+      assert(GetFlatLatticePointCount(flt) == i);
+      template = GetFlatLatticePoint(flt);
       results.templates(:, i) = template.data(:);
     endfor
   endif
@@ -350,6 +364,11 @@ function results = TestFlatLatticeTiling(varargin)
     min_mismatch = [];
     workspace = [];
 
+    ## Create mismatch histogram, if requested
+    if return_hgrm
+      results.mismatch_hgrm = newHist(1);
+    endif
+
     ## Iterate over injections
     while num_injections > 0
 
@@ -365,7 +384,9 @@ function results = TestFlatLatticeTiling(varargin)
                                                 injections, nearest_template, nearest_index, min_mismatch, workspace);
 
       ## Add minimum mismatches to histogram
-      results.mismatch_hgrm = addDataToHist(results.mismatch_hgrm, min_mismatch.data / max_mismatch, 1.0 / histogram_bins);
+      if return_hgrm
+        results.mismatch_hgrm = addDataToHist(results.mismatch_hgrm, min_mismatch.data / max_mismatch, 1.0 / histogram_bins);
+      endif
 
       ## Decrement number of remaining injections
       num_injections -= workspace_size;
@@ -389,7 +410,7 @@ endfunction
 
 %!#demo
 %! parent_dir = fileparts(which("TestFlatLatticeTiling"));
-%! square_ref = TestFlatLatticeTiling("tiling", {"freq_square", "time_span", 864000, "fndots", [100, -1e-7], "fndot_bands", [1e-8, 1e-7]}, ...
+%! square_ref = TestFlatLatticeTiling("tiling", {"freq_square", "time_span", 864000, "fndot", [100, -1e-7], "fndot_bands", [1e-8, 1e-7]}, ...
 %!                                    "lattice", "Ans", "max_mismatch", 3.0, "num_injections", 0, "return_points", true);
 %! save("-hdf5", fullfile(parent_dir, "TestFlatLatticeTiling_square_ref.h5"), "square_ref");
 
@@ -405,7 +426,7 @@ endfunction
 %!test
 %! parent_dir = fileparts(which("TestFlatLatticeTiling"));
 %! load(fullfile(parent_dir, "TestFlatLatticeTiling_square_ref.h5"));
-%! square = TestFlatLatticeTiling("tiling", {"freq_square", "time_span", 864000, "fndots", [100, -1e-7], "fndot_bands", [1e-8, 1e-7]}, ...
+%! square = TestFlatLatticeTiling("tiling", {"freq_square", "time_span", 864000, "fndot", [100, -1e-7], "fndot_bands", [1e-8, 1e-7]}, ...
 %!                                "lattice", "Ans", "max_mismatch", 3.0, "num_injections", 0, "return_points", true);
 %! assert(square.num_templates == square_ref.num_templates);
 %! assert(all(all(abs(square.templates - square_ref.templates) < 1e-7 * abs(square_ref.templates))));
