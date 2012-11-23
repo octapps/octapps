@@ -37,6 +37,7 @@ function ret = TuneAdaptiveLVPriors ( varargin )
                      {"runmed", "numeric,scalar", 50},
                      {"thresh", "numeric,scalar", 1.25},
                      {"LVlmin", "numeric,scalar", 0.001},
+                     {"LVlmax", "numeric,scalar", 1000},
                      {"sftwidth", "numeric,scalar", 0.05}
                 );
  params_init = check_input_parameters ( params_init );
@@ -111,7 +112,9 @@ function ret = TuneAdaptiveLVPriors ( varargin )
 
   # compute the line priors
   l_H1(band) = max(params_init.LVlmin, num_outliers_H1(band)/(freqbins_H1-num_outliers_H1(band)));
+  l_H1(band) = min(l_H1(band), params_init.LVlmax);
   l_L1(band) = max(params_init.LVlmin, num_outliers_L1(band)/(freqbins_L1-num_outliers_L1(band)));
+  l_H1(band) = min(l_H1(band), params_init.LVlmax);
 
  endfor # band <= num_band
 
@@ -147,7 +150,7 @@ function [params_init] = check_input_parameters ( params_init )
  endif
 
  if ( params_init.freqmin < 0.0 )
-  error(["Invalid input parameter (freqmin): ", num2str(params_init.freqmin), " is negative."]);
+  error(["Invalid input parameter (freqmin): ", num2str(params_init.freqmin), " must be >= 0."]);
  endif
 
  if ( params_init.freqmax < params_init.freqmin )
@@ -155,7 +158,7 @@ function [params_init] = check_input_parameters ( params_init )
  endif
 
  if ( params_init.freqband <= 0.0 )
-  error(["Invalid input parameter (freqband): ", num2str(params_init.freqband), " must be positive."]);
+  error(["Invalid input parameter (freqband): ", num2str(params_init.freqband), " must be > 0."]);
  endif
 
  if ( ( params_init.debug != 0 ) && ( params_init.debug != 1 ) )
@@ -175,15 +178,23 @@ function [params_init] = check_input_parameters ( params_init )
  endif
 
  if ( params_init.runmed < 0 )
-   error(["Invalid input parameter (runmed): ", num2str(params_init.runmed), " is negative."])
+   error(["Invalid input parameter (runmed): ", num2str(params_init.runmed), " must be >= 0."])
  endif
 
  if ( params_init.thresh < 1 )
    error(["Invalid input parameter (thresh): ", num2str(params_init.thresh), " must be >= 1."])
  endif
 
+ if ( params_init.LVlmin < 0 )
+   error(["Invalid input parameter (LVlmin): ", num2str(params_init.LVlmin), " must be >= 0."])
+ endif
+
+ if ( params_init.LVlmax < params_init.LVlmin )
+   error(["Invalid input parameter (LVlmax): ", num2str(params_init.LVlmax), " must be >= LVlmin = ", num2str(params_init.LVlmin), "."])
+ endif
+
  if ( params_init.sftwidth <= 0.0 )
-  error(["Invalid input parameter (sftwidth): ", num2str(params_init.sftwidth), " must be positive."]);
+  error(["Invalid input parameter (sftwidth): ", num2str(params_init.sftwidth), " must be > 0."]);
  endif
 
 endfunction # check_input_parameters()
