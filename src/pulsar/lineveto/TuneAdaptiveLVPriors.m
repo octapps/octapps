@@ -64,8 +64,9 @@ function ret = TuneAdaptiveLVPriors ( varargin )
  for band = 1:1:num_freqbands # main loop over freqbands
 
   startfreq(band) = params_init.freqmin+(band-1)*params_init.freqband;
+  freqband(band) = params_init.freqband;
 
-  printf("Frequency band %d, starting from %f Hz...\n", band, startfreq(band));
+  printf("Frequency band %d, starting from %f Hz, width %f Hz...\n", band, startfreq(band), freqband(band));
 
   # load in enough sfts, i.e. one extra to the left and right of requested band
   sfts.h1 = [];
@@ -99,27 +100,27 @@ function ret = TuneAdaptiveLVPriors ( varargin )
   params_psd.Freq = startfreq(band);
   params_psd.inputData = sfts.h1;
   params_psd.outputPSD = [params_init.workingdir, filesep, "psd_H1_med_", num2str(params_psd.blocksRngMed), "_band_", int2str(band), ".dat"];
-  [num_outliers_H1(band), max_outlier_H1(band), freqbins_H1] = CountSFTPowerOutliers ( params_psd, params_init.thresh, params_init.lalpath, params_init.debug );
+  [num_outliers_H1(band), max_outlier_H1(band), freqbins_H1(band)] = CountSFTPowerOutliers ( params_psd, params_init.thresh, params_init.lalpath, params_init.debug );
   if ( params_init.cleanup == 1 )
    [err, msg] = unlink (params_psd.outputPSD);
   endif
   params_psd.inputData = sfts.l1;
   params_psd.outputPSD = [params_init.workingdir, filesep, "psd_L1_med_", num2str(params_psd.blocksRngMed), "_band_", int2str(band), ".dat"];
-  [num_outliers_L1(band), max_outlier_L1(band), freqbins_L1] = CountSFTPowerOutliers ( params_psd, params_init.thresh, params_init.lalpath, params_init.debug );
+  [num_outliers_L1(band), max_outlier_L1(band), freqbins_L1(band)] = CountSFTPowerOutliers ( params_psd, params_init.thresh, params_init.lalpath, params_init.debug );
   if ( params_init.cleanup == 1 )
    [err, msg] = unlink (params_psd.outputPSD);
   endif
 
   # compute the line priors
-  l_H1(band) = max(params_init.LVlmin, num_outliers_H1(band)/(freqbins_H1-num_outliers_H1(band)));
+  l_H1(band) = max(params_init.LVlmin, num_outliers_H1(band)/(freqbins_H1(band)-num_outliers_H1(band)));
   l_H1(band) = min(l_H1(band), params_init.LVlmax);
-  l_L1(band) = max(params_init.LVlmin, num_outliers_L1(band)/(freqbins_L1-num_outliers_L1(band)));
+  l_L1(band) = max(params_init.LVlmin, num_outliers_L1(band)/(freqbins_L1(band)-num_outliers_L1(band)));
   l_H1(band) = min(l_H1(band), params_init.LVlmax);
 
  endfor # band <= num_band
 
  # save outliers to file as an ascii matrix with custom header
- outmatrix = cat(1,startfreq,num_outliers_H1,num_outliers_L1,max_outlier_H1,max_outlier_L1,l_H1,l_L1);
+ outmatrix = cat(1,startfreq,freqband,freqbins_H1,freqbins_L1,num_outliers_H1,num_outliers_L1,max_outlier_H1,max_outlier_L1,l_H1,l_L1);
  fid = fopen ( params_init.outfile, "w" );
  fprintf ( fid, "%%%% produced from count_power_outliers_many_bands with the following options:\n" );
  params_init_fieldnames = fieldnames(params_init);
@@ -131,8 +132,8 @@ function ret = TuneAdaptiveLVPriors ( varargin )
   fprintf ( fid, "%%%% --%s=%s \n", params_init_fieldnames{n}, params_init_values{n} );
  endfor
  fprintf ( fid, "%%%% \n%%%% columns:\n" );
- fprintf ( fid, "%%%% startfreq num_outliers_H1 num_outliers_L1 max_outlier_H1 max_outlier_L1 l_H1 l_L1\n" )
- fprintf ( fid, "%f %d %d %f %f %f %f\n", outmatrix );
+ fprintf ( fid, "%%%% startfreq freqband freqbins_H1 freqbins_L1 num_outliers_H1 num_outliers_L1 max_outlier_H1 max_outlier_L1 l_H1 l_L1\n" )
+ fprintf ( fid, "%f %f %d %d %d %d %f %f %f %f\n", outmatrix );
  fclose ( params_init.outfile );
 
  ret = 1;
