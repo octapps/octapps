@@ -28,7 +28,9 @@ function ret = TuneAdaptiveLVPriors ( varargin )
                      {"sft_filenamebit", "char", ""},
                      {"freqmin", "numeric,scalar"},
                      {"freqmax", "numeric,scalar"},
-                     {"freqband", "numeric,scalar"},
+                     {"freqstep", "numeric,scalar", 0.05},
+                     {"freqbandmethod", "char", "step"},
+                     {"freqoffset", "numeric,scalar", 0},
                      {"debug", "numeric,scalar", 0},
                      {"cleanup", "numeric,scalar", 1},
                      {"workingdir", "char", "."},
@@ -51,31 +53,38 @@ function ret = TuneAdaptiveLVPriors ( varargin )
  params_psd.PSDmthopSFTs = 1;
  params_psd.PSDmthopIFOs = 8;
  params_psd.blocksRngMed = params_init.runmed;
- params_psd.FreqBand     = params_init.freqband;
 
  # count necessary freqbands and sfts
- # NOTE: rounded down, freqmax may not be reached if freqmax-freqmin is not an integer multiple of freqband
- num_freqbands = floor ( ( params_init.freqmax - params_init.freqmin ) / params_init.freqband );
- if ( num_freqbands <= 0 )
-  error(["Requested frequency range too small, corresponds to less than 1 freqband."]);
+ # NOTE: rounded down, freqmax may not be reached if freqmax-freqmin is not an integer multiple of freqstep
+ num_freqsteps = floor ( ( params_init.freqmax - params_init.freqmin ) / params_init.freqstep );
+ if ( num_freqsteps <= 0 )
+  error(["Requested frequency range too small, corresponds to less than 1 freqstep."]);
  endif
- num_sfts_per_freqband = ceil ( params_init.freqband / params_init.sftwidth );
 
- for band = 1:1:num_freqbands # main loop over freqbands
+ for band = 1:1:num_freqsteps # main loop over freqbands
 
-  startfreq(band) = params_init.freqmin+(band-1)*params_init.freqband;
-  freqband(band) = params_init.freqband;
+  startfreq(band) = params_init.freqmin+(band-1)*params_init.freqstep;
+  if ( strcmp(params_init.freqbandmethod,"EatHS6bucket") == 1 )
+   startfreq(band) += params_init.freqoffset;
+   freqband(band) = params_init.freqstep;
+  elseif ( strcmp(params_init.freqbandmethod,"step") == 1 )
+   freqband(band) = params_init.freqstep;
+  endif
+  params_psd.FreqBand   = freqband(band);
+  params_psd.Freq       = startfreq(band);
+  num_sfts_per_freqband = ceil ( freqband(band) / params_init.sftwidth );
 
   printf("Frequency band %d, starting from %f Hz, width %f Hz...\n", band, startfreq(band), freqband(band));
 
   # load in enough sfts, i.e. one extra to the left and right of requested band
   sfts.h1 = [];
   sfts.l1 = [];
+  sftstartfreq = floor(20*startfreq(band))/20; # round down to get SFT file containing the startfreq
   for numsft = 1:1:num_sfts_per_freqband+2
-   currfreqstring = convert_freq_to_string(startfreq(band) + (numsft-2)*params_init.sftwidth,4,2);
+   currfreqstring = convert_freq_to_string(sftstartfreq + (numsft-2)*params_init.sftwidth,4,2);
    sftfile = [params_init.sftdir, filesep, "h1_", currfreqstring, params_init.sft_filenamebit];
    if ( exist(sftfile,"file") != 2 )
-    freqsubdir = convert_freq_to_string(10*floor((startfreq(band) + (numsft-2)*params_init.sftwidth)/10+0.001),4,0); # EatH SFTs on atlas are organized in 0fff subdirs - 0.001 is to make sure 60.000 gets floored to 60 and not 50, as octave can have small numerical inaccuracies here
+    freqsubdir = convert_freq_to_string(10*floor((sftstartfreq + (numsft-2)*params_init.sftwidth)/10+0.001),4,0); # EatH SFTs on atlas are organized in 0fff subdirs - 0.001 is to make sure 60.000 gets floored to 60 and not 50, as octave can have small numerical inaccuracies here
     sftfile = [params_init.sftdir, filesep, freqsubdir, filesep, "h1_", currfreqstring, params_init.sft_filenamebit];
     if ( exist(sftfile,"file") != 2 )
      error(["Required SFT file ", sftfile, " does not exist."]);
@@ -97,7 +106,6 @@ function ret = TuneAdaptiveLVPriors ( varargin )
   endfor
 
   # count the outliers in the power statistic
-  params_psd.Freq = startfreq(band);
   params_psd.inputData = sfts.h1;
   params_psd.outputPSD = [params_init.workingdir, filesep, "psd_H1_med_", num2str(params_psd.blocksRngMed), "_band_", int2str(band), ".dat"];
   [num_outliers_H1(band), max_outlier_H1(band), freqbins_H1(band)] = CountSFTPowerOutliers ( params_psd, params_init.thresh, params_init.lalpath, params_init.debug );
@@ -158,8 +166,16 @@ function [params_init] = check_input_parameters ( params_init )
   error(["Invalid input parameter (freqmax): ", num2str(params_init.freqmax), " is lower than freqmin=", num2str(params_init.freqmin), "."]);
  endif
 
- if ( params_init.freqband <= 0.0 )
-  error(["Invalid input parameter (freqband): ", num2str(params_init.freqband), " must be > 0."]);
+ if ( params_init.freqstep <= 0.0 )
+  error(["Invalid input parameter (freqstep): ", num2str(params_init.freqstep), " must be > 0."]);
+ endif
+
+ if ( ( strcmp(params_init.freqbandmethod,"step") != 1 ) && ( strcmp(params_init.freqbandmethod,"EatHS6bucket") != 1 ) )
+  error(["Invalid input parameter (freqbandmethod): ", params_init.freqbandmethod, " is not supported, currently supported are: 'step', 'EatHS6bucket'"]);
+ endif
+
+ if ( params_init.freqoffset < 0.0 )
+  error(["Invalid input parameter (freqoffset): ", num2str(params_init.freqoffset), " must be >= 0."]);
  endif
 
  if ( ( params_init.debug != 0 ) && ( params_init.debug != 1 ) )
