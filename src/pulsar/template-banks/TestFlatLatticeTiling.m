@@ -61,7 +61,8 @@
 ##           ephem_year: ephemeris year string (e.g. 05-09)
 ##           detectors: comma-separated list of detector names
 ##           sky_coords: super-sky coordinate system (default: equatorial)
-##           sky_aligned: use sky-aligned super-sky metric (default: true)
+##           align_sky: use sky-aligned super-sky metric (default: true)
+##           offset_sky: use sky-offset frequency coordinates (default: true)
 ##           ptolemaic: use Ptolemaic ephemerides (default: false)
 ##   lattice: type of lattice to use.
 ##     Options:
@@ -231,7 +232,8 @@ function results = TestFlatLatticeTiling(varargin)
                    {"ephem_year", "char"},
                    {"detectors", "char"},
                    {"sky_coords", "char", "equatorial"},
-                   {"sky_aligned", "logical", true},
+                   {"align_sky", "logical", true},
+                   {"offset_sky", "logical", true},
                    {"ptolemaic", "logical", false},
                    []);
       assert(length(skyxy_semis) <= 2);
@@ -251,12 +253,15 @@ function results = TestFlatLatticeTiling(varargin)
 
       ## Construct super-sky metrics
       ssky_metrics = ConstructSuperSkyMetrics(sometric, coordIDs, sky_coords);
-      if sky_aligned
+      if align_sky
         ssmetric = ssky_metrics.arssmetric;
         skyoff = ssky_metrics.askyoff;
       else
         ssmetric = ssky_metrics.rssmetric;
         skyoff = ssky_metrics.skyoff;
+      endif
+      if !offset_sky
+        skyoff = zeros(size(skyoff));
       endif
       results.sky_offset = skyoff;
 
