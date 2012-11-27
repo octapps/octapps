@@ -145,4 +145,8 @@ function dag_file = makeCondorDAG(varargin)
     endif
   endfor
 
+  ## save job node data for later use
+  dag_nodes_file = fullfile(parent_dir, strcat(dag_name, "_nodes.h5"));
+  save("-hdf5", dag_nodes_file, "job_nodes");
+
 endfunction
