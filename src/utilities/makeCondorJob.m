@@ -32,7 +32,7 @@
 ##   "func_nargout":	how many outputs returned by the function to save
 ##   "exec_files":	cell array of executable files required by the function
 ##   "data_files":	cell array of data files required by the function;
-## 			elements of cell array may be either:
+##                      elements of cell array may be either:
 ##			* "file_path", or
 ##			* {"ENVPATH", "file_name_in_ENVPATH", ...}
 ##			where ENVPATH is the name of an environment path
@@ -104,7 +104,7 @@ function job_file = makeCondorJob(varargin)
       error("%s: could not find required file '%s'", funcName, exec_files{i});
     endif
     exec_files{i} = resolved_file;
-  endfor  
+  endfor
 
   ## resolve locations of data files
   resolved_files = {};
