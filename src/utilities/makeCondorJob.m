@@ -142,20 +142,27 @@ function job_file = makeCondorJob(varargin)
   func_files = struct2cell(depends(octprefixes, func_name));
 
   ## find if any job function dependencies are .oct modules
-  ## if so, include all .octs in current path as dependencies
-  if any(cellfun(@(x) strcmp(x(end-3:end), ".oct"), func_files))
-    octave_path = strsplit(path(), ":", true);
-    for i = 1:length(octave_path)
-      if any(cellfun(@(x) strncmp(octave_path{i}, x, length(x)), octprefixes))
-        continue;
-      endif
-      oct_files = glob(fullfile(octave_path{i}, "*.oct"));
-      func_files = {func_files{:}, oct_files{:}};
-      exec_files = {exec_files{:}, oct_files{:}};
-    endfor
-    func_files = unique(func_files);
-    exec_files = unique(exec_files);
-  endif
+  ## if so, load them, then add all loaded .octs as dependencies
+  for i = 1:length(func_files)
+    [func_file_path, func_file_name, func_file_ext] = fileparts(func_files{i});
+    if strcmp(func_file_ext, ".oct")
+      try
+        eval(strcat(func_file_name, ";"));
+      catch
+        error("%s: could not load required module '%s'", funcName, func_file_name);
+      end_try_catch
+    endif
+  endfor
+  oct_files = unique({autoload.file});
+  for i = 1:length(oct_files)
+    if any(cellfun(@(x) strncmp(oct_files{i}, x, length(x)), octprefixes))
+      continue;
+    endif
+    func_files = {func_files{:}, oct_files{i}};
+    exec_files = {exec_files{:}, oct_files{i}};
+  endfor
+  func_files = unique(func_files);
+  exec_files = unique(exec_files);
 
   ## get dependencies of executables and .oct modules
   if length(exec_files) > 0
