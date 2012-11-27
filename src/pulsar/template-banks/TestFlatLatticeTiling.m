@@ -431,15 +431,19 @@ endfunction
 %! parent_dir = fileparts(which("TestFlatLatticeTiling"));
 %! load(fullfile(parent_dir, "TestFlatLatticeTiling_square_ref.h5"));
 %! square = TestFlatLatticeTiling("tiling", {"freq_square", "time_span", 864000, "fndot", [100, -1e-7], "fndot_bands", [1e-8, 1e-7]}, ...
-%!                                "lattice", "Ans", "max_mismatch", 3.0, "num_injections", 0, "return_points", true);
+%!                                "lattice", "Ans", "max_mismatch", 3.0, "num_injections", 1000, "return_points", true);
 %! assert(square.num_templates == square_ref.num_templates);
 %! assert(all(all(abs(square.templates - square_ref.templates) < 1e-7 * abs(square_ref.templates))));
+%! dx = square.injections - square.templates(:, square.nearest_index);
+%! assert(all(abs(dot(dx, square.metric * dx) - square.min_mismatch) < 1e-7 * square.min_mismatch))
 
 %!test
 %! parent_dir = fileparts(which("TestFlatLatticeTiling"));
 %! load(fullfile(parent_dir, "TestFlatLatticeTiling_agebrake_ref.h5"));
 %! agebrake = TestFlatLatticeTiling("tiling", {"freq_agebrake", "time_span", 864000, "freq", 100, "freq_band", 1e-8, ...
 %!                                             "age", 3e9, "f1dot_brake", [2, 7], "f2dot_brake", [2, 7]}, ...
-%!                                  "lattice", "Ans", "max_mismatch", 3.0, "num_injections", 0, "return_points", true);
+%!                                  "lattice", "Ans", "max_mismatch", 3.0, "num_injections", 1000, "return_points", true);
 %! assert(agebrake.num_templates == agebrake_ref.num_templates);
 %! assert(all(all(abs(agebrake.templates - agebrake_ref.templates) < 1e-7 * abs(agebrake_ref.templates))));
+%! dx = agebrake.injections - agebrake.templates(:, agebrake.nearest_index);
+%! assert(all(abs(dot(dx, agebrake.metric * dx) - agebrake.min_mismatch) < 1e-7 * agebrake.min_mismatch))
