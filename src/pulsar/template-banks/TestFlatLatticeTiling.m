@@ -364,7 +364,6 @@ function results = TestFlatLatticeTiling(varargin)
 
     ## Initialise arguments to NearestFlatLatticePointToRandomPoints()
     injections = [];
-    nearest_template = [];
     nearest_index = [];
     min_mismatch = [];
     workspace = [];
@@ -384,9 +383,9 @@ function results = TestFlatLatticeTiling(varargin)
       endif
 
       ## Generate injections and find nearest template point
-      [injections, nearest_template, nearest_index, min_mismatch, workspace] = ...
+      [injections, nearest_index, min_mismatch, workspace] = ...
           NearestFlatLatticePointToRandomPoints(flt, rng, workspace_size, ...
-                                                injections, nearest_template, nearest_index, min_mismatch, workspace);
+                                                injections, nearest_index, min_mismatch, workspace);
 
       ## Add minimum mismatches to histogram
       if return_hgrm
