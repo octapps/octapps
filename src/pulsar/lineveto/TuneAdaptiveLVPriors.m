@@ -112,15 +112,24 @@ function ret = TuneAdaptiveLVPriors ( varargin )
   params_psd.Freq       = startfreq(band);
   num_sfts_per_freqband = ceil ( freqband(band) / params_init.sftwidth );
 
-  # load in enough sfts, i.e. one extra to the left and right of requested band
+  # load in enough sfts, checking for runmed bands (not GCT runmed, which is already included, but ComputePSD runmed)
   sfts.h1 = [];
   sfts.l1 = [];
   sftstartfreq = floor(20*startfreq(band))/20; # round down to get SFT file containing the startfreq
-  for numsft = 1:1:num_sfts_per_freqband+2
-   currfreqstring = convert_freq_to_string(sftstartfreq + (numsft-2)*params_init.sftwidth,4,2);
+  num_sfts_to_load = num_sfts_per_freqband;
+  runmed_wing = fix(params_init.runmed/2 + 1) / params_EatH.TSFT;
+  if ( startfreq(band) - runmed_wing < sftstartfreq )
+   sftstartfreq -= params_init.sftwidth;
+   num_sfts_to_load++;
+  endif
+  if ( startfreq(band) + freqband(band) + runmed_wing > sftstartfreq + num_sfts_to_load*params_init.sftwidth )
+   num_sfts_to_load++;
+  endif
+  for numsft = 1:1:num_sfts_to_load
+   currfreqstring = convert_freq_to_string(sftstartfreq + (numsft-1)*params_init.sftwidth,4,2);
    sftfile = [params_init.sftdir, filesep, "h1_", currfreqstring, params_init.sft_filenamebit];
    if ( exist(sftfile,"file") != 2 )
-    freqsubdir = convert_freq_to_string(10*floor((sftstartfreq + (numsft-2)*params_init.sftwidth)/10+0.001),4,0); # EatH SFTs on atlas are organized in 0fff subdirs - 0.001 is to make sure 60.000 gets floored to 60 and not 50, as octave can have small numerical inaccuracies here
+    freqsubdir = convert_freq_to_string(10*floor((sftstartfreq + (numsft-1)*params_init.sftwidth)/10+0.001),4,0); # EatH SFTs on atlas are organized in 0fff subdirs - 0.001 is to make sure 60.000 gets floored to 60 and not 50, as octave can have small numerical inaccuracies here
     sftfile = [params_init.sftdir, filesep, freqsubdir, filesep, "h1_", currfreqstring, params_init.sft_filenamebit];
     if ( exist(sftfile,"file") != 2 )
      error(["Required SFT file ", sftfile, " does not exist."]);
@@ -135,7 +144,7 @@ function ret = TuneAdaptiveLVPriors ( varargin )
     endif
    endif
    sfts.l1 = [sfts.l1, sftfile];
-   if ( numsft < num_sfts_per_freqband+2 )
+   if ( numsft < num_sfts_to_load )
     sfts.h1 = [sfts.h1, ";"];
     sfts.l1 = [sfts.l1, ";"];
    endif
