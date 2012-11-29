@@ -61,20 +61,48 @@ function ret = TuneAdaptiveLVPriors ( varargin )
   error(["Requested frequency range too small, corresponds to less than 1 freqstep."]);
  endif
 
+ if ( strcmp(params_init.freqbandmethod,"EatHS6bucket") == 1 ) # prepare for freqband computations, based on CFS_S6LV1_setup.C from EatH project-daemons
+  hours = 3600;
+  days  = 24 * hours;
+  years = 365 * days;
+  params_EatH.TSFT          = 1800.0;
+  params_EatH.mismatchSpin  = 0.1; # 'spin' mismatch (in f,fdot)
+  params_EatH.Tstack        = 60.0 * days;
+  params_EatH.Tspan         = 255.32 *days; # total time-spanned by data
+  params_EatH.dopplerFactor = 1.05e-4; # max relative doppler-shift
+  params_EatH.DataFreqMin   = 59.0;
+  params_EatH.tauNSmin      = 600.0 * years;
+  params_EatH.RngMedWindow  = 101; # app-default
+  params_EatH.f1dot         = - params_EatH.DataFreqMin / params_EatH.tauNSmin; # include sightly positive 'spindowns' too
+  params_EatH.f1dotBand     = 1.1 * abs( params_EatH.f1dot ); # search from [-FreqMin/tau, 0.1 * FreqMin/tau]
+  params_EatH.f1dotSideband = getf1dotSidebands ( params_EatH.f1dot, params_EatH.f1dotBand, params_EatH.Tspan );
+  params_EatH.df1dot        = sqrt ( 720.0 * params_EatH.mismatchSpin) / ( pi * params_EatH.Tstack^2 );
+  params_EatH.GCSideband    = 2.0 * abs(params_EatH.df1dot/2.0) * params_EatH.Tspan/2.0;
+ endif
+
  for band = 1:1:num_freqsteps # main loop over freqbands
 
   startfreq(band) = params_init.freqmin+(band-1)*params_init.freqstep;
+  freqband(band)  = params_init.freqstep;
   if ( strcmp(params_init.freqbandmethod,"EatHS6bucket") == 1 )
-   startfreq(band) += params_init.freqoffset;
-   freqband(band) = params_init.freqstep;
+   wufreq(band)     = startfreq(band);
+   searchfreq(band) = startfreq(band) + params_init.freqoffset;
+   GCTsideband      = getSidebandAtFreq ( searchfreq(band), params_EatH.RngMedWindow, params_EatH, use_rngmedSideband=0 );
+   GCTsftstartfreq  = floor(20*(searchfreq(band)-GCTsideband))/20; # round down to get SFT file containing the startfreq
+   freqband(band)   = params_init.freqstep;
+   sideBand1        = getSidebandAtFreq ( startfreq(band), params_init.runmed, params_EatH, use_rngmedSideband=0 );
+   startfreq(band)  = searchfreq(band) - sideBand1;
+   sideBand2        = getSidebandAtFreq ( searchfreq(band)+params_init.freqstep, params_init.runmed, params_EatH, use_rngmedSideband=0 );
+   freqband(band)  += sideBand1 + sideBand2;
+   printf("Frequency band %d, WU freq %f Hz, physical search startfreq %f Hz , width %f Hz: processing band from %f Hz with width %f Hz...\n", band, wufreq(band), searchfreq(band), params_init.freqstep, startfreq(band), freqband(band));
   elseif ( strcmp(params_init.freqbandmethod,"step") == 1 )
-   freqband(band) = params_init.freqstep;
+   printf("Frequency band %d, starting from %f Hz, width %f Hz...\n", band, startfreq(band), freqband(band));
+   wufreq(band)     = startfreq(band);
+   searchfreq(band) = startfreq(band);
   endif
   params_psd.FreqBand   = freqband(band);
   params_psd.Freq       = startfreq(band);
   num_sfts_per_freqband = ceil ( freqband(band) / params_init.sftwidth );
-
-  printf("Frequency band %d, starting from %f Hz, width %f Hz...\n", band, startfreq(band), freqband(band));
 
   # load in enough sfts, i.e. one extra to the left and right of requested band
   sfts.h1 = [];
@@ -128,7 +156,7 @@ function ret = TuneAdaptiveLVPriors ( varargin )
  endfor # band <= num_band
 
  # save outliers to file as an ascii matrix with custom header
- outmatrix = cat(1,startfreq,freqband,freqbins_H1,freqbins_L1,num_outliers_H1,num_outliers_L1,max_outlier_H1,max_outlier_L1,l_H1,l_L1);
+ outmatrix = cat(1,wufreq,searchfreq,startfreq,freqband,freqbins_H1,freqbins_L1,num_outliers_H1,num_outliers_L1,max_outlier_H1,max_outlier_L1,l_H1,l_L1);
  fid = fopen ( params_init.outfile, "w" );
  fprintf ( fid, "%%%% produced from count_power_outliers_many_bands with the following options:\n" );
  params_init_fieldnames = fieldnames(params_init);
@@ -140,8 +168,8 @@ function ret = TuneAdaptiveLVPriors ( varargin )
   fprintf ( fid, "%%%% --%s=%s \n", params_init_fieldnames{n}, params_init_values{n} );
  endfor
  fprintf ( fid, "%%%% \n%%%% columns:\n" );
- fprintf ( fid, "%%%% startfreq freqband freqbins_H1 freqbins_L1 num_outliers_H1 num_outliers_L1 max_outlier_H1 max_outlier_L1 l_H1 l_L1\n" )
- fprintf ( fid, "%f %f %d %d %d %d %f %f %f %f\n", outmatrix );
+ fprintf ( fid, "%%%% wufreq searchfreq startfreq freqband freqbins_H1 freqbins_L1 num_outliers_H1 num_outliers_L1 max_outlier_H1 max_outlier_L1 l_H1 l_L1\n" )
+ fprintf ( fid, "%f %f %f %f %d %d %d %d %f %f %f %f\n", outmatrix );
  fclose ( params_init.outfile );
 
  ret = 1;
@@ -242,3 +270,38 @@ function [freqstring] = convert_freq_to_string ( freq, leading, trailing )
   freqstring = ["0", freqstring];
  endfor
 endfunction # convert_freq_to_string()
+
+
+function sideBand = getSidebandAtFreq ( Freq, RngMedWindow, params_EatH, use_rngmedSideband )
+ ## sideBand = getSidebandAtFreq ( Freq, RngMedWindow, params_EatH, use_rngmedSideband )
+ ## based on CFS_S6LV1_setup.C from EatH project-daemons
+
+  # get extra-band required to account for frequency-drifting due to f1dot-range
+  FreqMax = Freq + params_EatH.f1dotSideband;
+
+  dopplerSideband = params_EatH.dopplerFactor * FreqMax;
+  GCSideband      = params_EatH.GCSideband; # GCTSideband referes to both sides of frequency-interval
+
+  sideBand = dopplerSideband + params_EatH.f1dotSideband + GCSideband; # HS-app SUMS them, not max(,)!!
+  if ( use_rngmedSideband == 1 )
+   rngmedSideband  = 1.0 * (RngMedWindow/2 + 1) / params_EatH.TSFT;
+   sideBand += rngmedSideband;
+  endif
+
+endfunction # getSidebandAtFreq()
+
+
+function deltaFreqMax = getf1dotSidebands ( f1dot, f1dotBand, Tspan )
+ ## deltaFreqMax = getf1dotSidebands ( f1dot, f1dotBand, Tspan )
+ ## based on CFS_S6LV1_setup.C from EatH project-daemons
+
+  deltaT   = 0.5 * Tspan; # refTime = mid-point of observation-span
+  f1dotMin = min ( f1dot, f1dot + f1dotBand );
+  f1dotMax = max ( f1dot, f1dot + f1dotBand );
+
+  dFreq1 = abs ( f1dotMin * deltaT );
+  dFreq2 = abs ( f1dotMax * deltaT );
+
+  deltaFreqMax = max ( dFreq1, dFreq2 ); # maximal frequency-shift forward or backward from mid-time = reftime
+
+endfunction # getf1dotSidebands()
