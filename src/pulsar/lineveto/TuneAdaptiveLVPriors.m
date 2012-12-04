@@ -65,6 +65,7 @@ function ret = TuneAdaptiveLVPriors ( varargin )
   days  = 24 * hours;
   years = 365 * days;
   params_EatH.TSFT          = 1800.0;
+  sft_dfreq = 1.0/params_EatH.TSFT;
   params_EatH.DataFileBand  = 0.05;
   params_EatH.dopplerFactor = 1.05e-4; # max relative doppler-shift
   offsetFreqIndex = 0; # this was only necessary when WUs were split in freq
@@ -111,9 +112,11 @@ function ret = TuneAdaptiveLVPriors ( varargin )
    # get back down to start of contributing frequencies, including Doppler and spindown, but not running median bins
    sideBand1        = getSidebandAtFreq ( searchfreq(band), params_EatH, use_rngmedSideband=0 );
    startfreq(band)  = searchfreq(band) - sideBand1;
+   startfreq(band)  -= mod(startfreq(band),sft_dfreq); # round down to next sft bin
    # do the same at upper end
    sideBand2        = getSidebandAtFreq ( searchfreq(band)+params_init.freqstep, params_EatH, use_rngmedSideband=0 );
    freqband(band)  += sideBand1 + sideBand2;
+   freqband(band)  += -mod(startfreq(band),sft_dfreq)+sft_dfreq; # round up to next sft bin
    printf("Frequency band %d, WU freq %f Hz, physical search startfreq %f Hz , width %f Hz: processing band from %f Hz with width %f Hz...\n", band, wufreq(band), searchfreq(band), params_init.freqstep, startfreq(band), freqband(band));
   elseif ( strcmp(params_init.freqbandmethod,"step") == 1 )
    printf("Frequency band %d, starting from %f Hz, width %f Hz...\n", band, startfreq(band), freqband(band));
