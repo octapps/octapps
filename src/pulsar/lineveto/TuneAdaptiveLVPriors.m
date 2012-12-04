@@ -60,37 +60,49 @@ function ret = TuneAdaptiveLVPriors ( varargin )
   error(["Requested frequency range too small, corresponds to less than 1 freqstep."]);
  endif
 
- if ( strcmp(params_init.freqbandmethod,"EatHS6bucket") == 1 ) # prepare for freqband computations, based on CFS_S6LV1_setup.C from EatH project-daemons
+ if ( strncmp(params_init.freqbandmethod,"EatH",4) == 1 )
   hours = 3600;
   days  = 24 * hours;
   years = 365 * days;
   params_EatH.TSFT          = 1800.0;
-  params_EatH.mismatchSpin  = 0.1; # 'spin' mismatch (in f,fdot)
-  params_EatH.Tstack        = 60.0 * hours;
-  params_EatH.Tspan         = 255.32 *days; # total time-spanned by data
-  params_EatH.dopplerFactor = 1.05e-4; # max relative doppler-shift
-  params_EatH.DataFreqMin   = 50.0;
-  params_EatH.DataFreqMax   = 450.0;
   params_EatH.DataFileBand  = 0.05;
-  params_EatH.FreqBand      = 0.05; # Hz; yields about ~12% overheads
-  params_EatH.tauNSmin      = 600.0 * years;
-  params_EatH.RngMedWindow  = 101; # app-default
+  params_EatH.dopplerFactor = 1.05e-4; # max relative doppler-shift
+  offsetFreqIndex = 0; # this was only necessary when WUs were split in freq
+  if ( strcmp(params_init.freqbandmethod,"EatHS5R3") == 1 ) # prepare for freqband computations, based on CFS_S5R3_setup.C from EatH project-daemons
+   params_EatH.mismatchSpin  = 0.3; # called just "mismatch" in CFS_S5R3_setup.C
+   params_EatH.Tstack        = 25.0 * hours;
+   params_EatH.Tspan         = 381.0 *days; # total time-spanned by data
+   params_EatH.DataFreqMin   = 50.0;
+   params_EatH.DataFreqMax   = 1200.0;
+   params_EatH.FreqBand      = 0.05; # originally in CFS_S5R3_setup.C: pars0.FreqBand = pars0.HoughSideband * pars0.tauF / ( pars0.tauF + pars0.tauH ) * ( 1.0 - eps ) / eps;
+   params_EatH.tauNSmin      = 1000.0 * years;
+   params_EatH.RngMedWindow  = 101; # app-default
+   params_EatH.df1dot        = sqrt ( 33.0 * params_EatH.mismatchSpin) / ( pi * params_EatH.Tstack^2 ); # higher f1dot-resolution than predicted by the metric, because nf1dotRes=1
+  elseif ( strcmp(params_init.freqbandmethod,"EatHS6bucket") == 1 ) # prepare for freqband computations, based on CFS_S6LV1_setup.C from EatH project-daemons
+   params_EatH.mismatchSpin  = 0.1; # 'spin' mismatch (in f,fdot)
+   params_EatH.Tstack        = 60.0 * hours;
+   params_EatH.Tspan         = 255.32 *days; # total time-spanned by data
+   params_EatH.DataFreqMin   = 50.0;
+   params_EatH.DataFreqMax   = 450.0;
+   params_EatH.FreqBand      = 0.05; # Hz; yields about ~12% overheads
+   params_EatH.tauNSmin      = 600.0 * years;
+   params_EatH.RngMedWindow  = 101; # app-default
+   params_EatH.df1dot        = sqrt ( 720.0 * params_EatH.mismatchSpin) / ( pi * params_EatH.Tstack^2 );
+  endif
   params_EatH.f1dot         = - params_EatH.DataFreqMin / params_EatH.tauNSmin; # include sightly positive 'spindowns' too
   params_EatH.f1dotBand     = 1.1 * abs( params_EatH.f1dot ); # search from [-FreqMin/tau, 0.1 * FreqMin/tau]
   params_EatH.f1dotSideband = getf1dotSidebands ( params_EatH.f1dot, params_EatH.f1dotBand, params_EatH.Tspan );
-  params_EatH.df1dot        = sqrt ( 720.0 * params_EatH.mismatchSpin) / ( pi * params_EatH.Tstack^2 );
   params_EatH.GCSideband    = 2.0 * abs(params_EatH.df1dot/2.0) * params_EatH.Tspan/2.0;
   # account for SFT-sidebands
   params_EatH.FreqMin       = params_EatH.DataFreqMin + 1.01 * getSidebandAtFreq ( params_EatH.DataFreqMin, params_EatH, use_rngmedSideband=1 );
   params_EatH.FreqMax       = params_EatH.DataFreqMax - getSidebandAtFreq ( params_EatH.DataFreqMax, params_EatH, use_rngmedSideband=1 ) - 1.0/params_EatH.TSFT;
-  offsetFreqIndex = 0; # this was only necessary when WUs were split in freq
  endif
 
  for band = 1:1:num_freqsteps # main loop over freqbands
 
   startfreq(band) = params_init.freqmin+(band-1)*params_init.freqstep;
   freqband(band)  = params_init.freqstep;
-  if ( strcmp(params_init.freqbandmethod,"EatHS6bucket") == 1 )
+  if ( strncmp(params_init.freqbandmethod,"EatH",4) == 1 )
    wufreq(band)     = startfreq(band);
    # get the frequency index of the first WU input SFT file
    [iFreq0, iFreq1] = get_iFreqRange4DataFile ( wufreq(band), params_EatH );
@@ -186,7 +198,7 @@ function ret = TuneAdaptiveLVPriors ( varargin )
  endfor
  fprintf ( fid, "%%%% \n%%%% columns:\n" );
  fprintf ( fid, "%%%% wufreq searchfreq startfreq freqband freqbins_H1 freqbins_L1 num_outliers_H1 num_outliers_L1 max_outlier_H1 max_outlier_L1 l_H1 l_L1\n" )
- fprintf ( fid, "%f %f %f %f %d %d %d %d %f %f %f %f\n", outmatrix );
+ fprintf ( fid, "%.2f %.10f %.10f %.10f %d %d %d %d %.6f %.6f %.6f %.6f\n", outmatrix );
  fclose ( params_init.outfile );
 
  ret = 1;
@@ -215,8 +227,8 @@ function [params_init] = check_input_parameters ( params_init )
   error(["Invalid input parameter (freqstep): ", num2str(params_init.freqstep), " must be > 0."]);
  endif
 
- if ( ( strcmp(params_init.freqbandmethod,"step") != 1 ) && ( strcmp(params_init.freqbandmethod,"EatHS6bucket") != 1 ) )
-  error(["Invalid input parameter (freqbandmethod): ", params_init.freqbandmethod, " is not supported, currently supported are: 'step', 'EatHS6bucket'"]);
+ if ( ( strcmp(params_init.freqbandmethod,"step") != 1 ) && ( strcmp(params_init.freqbandmethod,"EatHS5R3") != 1 ) && ( strcmp(params_init.freqbandmethod,"EatHS6bucket") != 1 ) )
+  error(["Invalid input parameter (freqbandmethod): ", params_init.freqbandmethod, " is not supported, currently supported are: 'step', 'EatHS5R3', 'EatHS6bucket'"]);
  endif
 
  if ( ( params_init.debug != 0 ) && ( params_init.debug != 1 ) )
