@@ -17,14 +17,14 @@
 
 
 function LVstat = ComputeLineVeto ( twoF_multi, twoF_single, rho, lX, useAllTerms )
- ## LVstat = compute_lv_lallike ( twoF_multi, twoF_single, rho, lX, useAllTerms )
+ ## LVstat = ComputeLineVeto ( twoF_multi, twoF_single, rho, lX, useAllTerms )
  ## function to calculate Line Veto statistics for N detectors
  ## NOTE: input should be 2F, NOT F! Summed, not averaged, over segments!
  ## NOTE2: rho is therefore reinterpreted as "semicoherent rho", including Nseg exponent
- ## NOTE2: return value LVstat therefore still has to be divided  by Nseg to get output comparable to HSGCT
+ ## NOTE3: return value LVstat therefore still has to be divided  by Nseg to get output comparable to HSGCT
  ## original formula: LVstat = F_multi - log( rho^4/70 + exp(F1)*l1 + exp(F2)*l2 );
  ## implementation here is optimized to avoid underflows ("logsumexp formula")
- ## code is very close to implementation in lalapps/GCT/LineVeto.c
+ ## should be compatible with implementation in lalapps/GCT/LineVeto.c
 
  # check for consistent vector/matrix lengths
  numcands = length(twoF_multi);
@@ -65,4 +65,4 @@ function LVstat = ComputeLineVeto ( twoF_multi, twoF_single, rho, lX, useAllTerm
   LVstat -= log( extraSum );
  endif # useAllTerms?
 
-endfunction # compute_lv_lallike()
+endfunction # ComputeLineVeto()
