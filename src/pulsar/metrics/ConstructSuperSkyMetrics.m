@@ -65,7 +65,6 @@ function M = ConstructSuperSkyMetrics(sometric, coordIDs, skycoordsys)
   ## subtract linear fit from orbital X and Y, creating residual coordinates
   subtractfit = eye(size(sometric));
   subtractfit(fitting, fitted) = -fitcoeffs;
-  residual = dsometric * subtractfit * idsometric;
 
   ## reconstruct super-sky metric from spin and orbital metric, in requested coordinates
   switch skycoordsys
