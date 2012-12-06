@@ -27,7 +27,7 @@ function ret = TuneAdaptiveLVPriors ( varargin )
                      {"sftdir", "char"},
                      {"sft_filenamebit", "char", ""},
                      {"freqmin", "numeric,scalar"},
-                     {"freqmax", "numeric,scalar"},
+                     {"freqmax", "numeric,scalar", 0}, # default: set to freqmin
                      {"freqstep", "numeric,scalar", 0.05},
                      {"freqbandmethod", "char", "step"},
                      {"debug", "numeric,scalar", 0},
@@ -39,14 +39,19 @@ function ret = TuneAdaptiveLVPriors ( varargin )
                      {"thresh", "numeric,scalar", 1.25},
                      {"LVlmin", "numeric,scalar", 0.001},
                      {"LVlmax", "numeric,scalar", 1000},
-                     {"sftwidth", "numeric,scalar", 0.05}
+                     {"sftwidth", "numeric,scalar", 0.05},
+                     {"Tsft", "numeric,scalar", 1800}
                 );
  params_init = check_input_parameters ( params_init );
+
+ format long;
 
  if ( params_init.debug == 1 )
   printf("Running from directory '%s'. LAL path is '%s'. Local octave version is '%s'. Input parameters are:\n", pwd, params_init.lalpath, version);
   params_init
  endif
+
+ global SMALL_EPS = 1.0e-6;
 
  # prepare PSD parameters
  params_psd.PSDmthopSFTs = 1;
@@ -55,19 +60,17 @@ function ret = TuneAdaptiveLVPriors ( varargin )
 
  # count necessary freqbands and sfts
  # NOTE: rounded down, freqmax may not be reached if freqmax-freqmin is not an integer multiple of freqstep
- num_freqsteps = floor ( ( params_init.freqmax - params_init.freqmin ) / params_init.freqstep );
- if ( num_freqsteps <= 0 )
-  error(["Requested frequency range too small, corresponds to less than 1 freqstep."]);
- endif
+ num_freqsteps = 1 + floor ( ( params_init.freqmax - params_init.freqmin ) / params_init.freqstep + SMALL_EPS );
 
+ sft_dfreq = 1.0/params_init.Tsft;
  if ( strncmp(params_init.freqbandmethod,"EatH",4) == 1 )
   hours = 3600;
   days  = 24 * hours;
   years = 365 * days;
-  params_EatH.TSFT          = 1800.0;
-  sft_dfreq = 1.0/params_EatH.TSFT;
+  params_EatH.TSFT          = params_init.Tsft;
   params_EatH.DataFileBand  = 0.05;
   params_EatH.dopplerFactor = 1.05e-4; # max relative doppler-shift
+  params_EatH.Dterms        = 8;
   offsetFreqIndex = 0; # this was only necessary when WUs were split in freq
   if ( strcmp(params_init.freqbandmethod,"EatHS5R3") == 1 ) # prepare for freqband computations, based on CFS_S5R3_setup.C from EatH project-daemons
    params_EatH.mismatchSpin  = 0.3; # called just "mismatch" in CFS_S5R3_setup.C
@@ -88,7 +91,8 @@ function ret = TuneAdaptiveLVPriors ( varargin )
    params_EatH.FreqBand      = 0.05; # Hz; yields about ~12% overheads
    params_EatH.tauNSmin      = 600.0 * years;
    params_EatH.RngMedWindow  = 101; # app-default
-   params_EatH.df1dot        = sqrt ( 720.0 * params_EatH.mismatchSpin) / ( pi * params_EatH.Tstack^2 );
+   params_EatH.df1dot        = sqrt ( 720.0 * params_EatH.mismatchSpin ) / ( pi * params_EatH.Tstack^2 );
+   params_EatH.dFreq         = sqrt ( 12.0 * params_EatH.mismatchSpin ) / ( pi * params_EatH.Tstack );
   endif
   params_EatH.f1dot         = - params_EatH.DataFreqMin / params_EatH.tauNSmin; # include sightly positive 'spindowns' too
   params_EatH.f1dotBand     = 1.1 * abs( params_EatH.f1dot ); # search from [-FreqMin/tau, 0.1 * FreqMin/tau]
@@ -96,7 +100,7 @@ function ret = TuneAdaptiveLVPriors ( varargin )
   params_EatH.GCSideband    = 2.0 * abs(params_EatH.df1dot/2.0) * params_EatH.Tspan/2.0;
   # account for SFT-sidebands
   params_EatH.FreqMin       = params_EatH.DataFreqMin + 1.01 * getSidebandAtFreq ( params_EatH.DataFreqMin, params_EatH, use_rngmedSideband=1 );
-  params_EatH.FreqMax       = params_EatH.DataFreqMax - getSidebandAtFreq ( params_EatH.DataFreqMax, params_EatH, use_rngmedSideband=1 ) - 1.0/params_EatH.TSFT;
+  params_EatH.FreqMax       = params_EatH.DataFreqMax - getSidebandAtFreq ( params_EatH.DataFreqMax, params_EatH, use_rngmedSideband=1 ) - 1.0/params_init.Tsft;
  endif
 
  for band = 1:1:num_freqsteps # main loop over freqbands
@@ -117,6 +121,9 @@ function ret = TuneAdaptiveLVPriors ( varargin )
    sideBand2        = getSidebandAtFreq ( searchfreq(band)+params_init.freqstep, params_EatH, use_rngmedSideband=0 );
    freqband(band)  += sideBand1 + sideBand2;
    freqband(band)  += -mod(startfreq(band),sft_dfreq)+sft_dfreq; # round up to next sft bin
+   # add Dterms correction to actually match GCT code data read-in (not present in CFS_*_setup.C)
+   startfreq(band) -= params_EatH.Dterms*sft_dfreq/2.0;
+   freqband(band)  += params_EatH.Dterms*sft_dfreq;
    printf("Frequency band %d, WU freq %f Hz, physical search startfreq %f Hz , width %f Hz: processing band from %f Hz with width %f Hz...\n", band, wufreq(band), searchfreq(band), params_init.freqstep, startfreq(band), freqband(band));
   elseif ( strcmp(params_init.freqbandmethod,"step") == 1 )
    printf("Frequency band %d, starting from %f Hz, width %f Hz...\n", band, startfreq(band), freqband(band));
@@ -132,19 +139,19 @@ function ret = TuneAdaptiveLVPriors ( varargin )
   sfts.l1 = [];
   sftstartfreq = floor(20*startfreq(band))/20; # round down to get SFT file containing the startfreq
   num_sfts_to_load = num_sfts_per_freqband;
-  runmed_wing = fix(params_init.runmed/2 + 1) / params_EatH.TSFT;
-  if ( startfreq(band) - runmed_wing < sftstartfreq )
+  runmed_wing = fix(params_init.runmed/2 + 1) / params_init.Tsft;
+  while ( startfreq(band) - runmed_wing <= sftstartfreq )
    sftstartfreq -= params_init.sftwidth;
    num_sfts_to_load++;
-  endif
-  if ( startfreq(band) + freqband(band) + runmed_wing > sftstartfreq + num_sfts_to_load*params_init.sftwidth )
+  endwhile
+  while ( startfreq(band) + freqband(band) + runmed_wing >= sftstartfreq + num_sfts_to_load*params_init.sftwidth )
    num_sfts_to_load++;
-  endif
+  endwhile
   for numsft = 1:1:num_sfts_to_load
    currfreqstring = convert_freq_to_string(sftstartfreq + (numsft-1)*params_init.sftwidth,4,2);
    sftfile = [params_init.sftdir, filesep, "h1_", currfreqstring, params_init.sft_filenamebit];
    if ( exist(sftfile,"file") != 2 )
-    freqsubdir = convert_freq_to_string(10*floor((sftstartfreq + (numsft-1)*params_init.sftwidth)/10+0.001),4,0); # EatH SFTs on atlas are organized in 0fff subdirs - 0.001 is to make sure 60.000 gets floored to 60 and not 50, as octave can have small numerical inaccuracies here
+    freqsubdir = convert_freq_to_string(10*floor((sftstartfreq + (numsft-1)*params_init.sftwidth)/10+SMALL_EPS),4,0); # EatH SFTs on atlas are organized in 0fff subdirs - SMALL_EPS is to make sure 60.000 gets floored to 60 and not 50, as octave can have small numerical inaccuracies here
     sftfile = [params_init.sftdir, filesep, freqsubdir, filesep, "h1_", currfreqstring, params_init.sft_filenamebit];
     if ( exist(sftfile,"file") != 2 )
      error(["Required SFT file ", sftfile, " does not exist."]);
@@ -190,7 +197,7 @@ function ret = TuneAdaptiveLVPriors ( varargin )
  # save outliers to file as an ascii matrix with custom header
  outmatrix = cat(1,wufreq,searchfreq,startfreq,freqband,freqbins_H1,freqbins_L1,num_outliers_H1,num_outliers_L1,max_outlier_H1,max_outlier_L1,l_H1,l_L1);
  fid = fopen ( params_init.outfile, "w" );
- fprintf ( fid, "%%%% produced from count_power_outliers_many_bands with the following options:\n" );
+ fprintf ( fid, "%%%% produced from TuneAdaptiveLVPriors() with the following options:\n" );
  params_init_fieldnames = fieldnames(params_init);
  params_init_values     = struct2cell(params_init);
  for n=1:1:length(params_init_values)
@@ -222,7 +229,9 @@ function [params_init] = check_input_parameters ( params_init )
   error(["Invalid input parameter (freqmin): ", num2str(params_init.freqmin), " must be >= 0."]);
  endif
 
- if ( params_init.freqmax < params_init.freqmin )
+ if ( params_init.freqmax == 0 )
+  params_init.freqmax = params_init.freqmin;
+ elseif ( params_init.freqmax < params_init.freqmin )
   error(["Invalid input parameter (freqmax): ", num2str(params_init.freqmax), " is lower than freqmin=", num2str(params_init.freqmin), "."]);
  endif
 
@@ -268,6 +277,10 @@ function [params_init] = check_input_parameters ( params_init )
 
  if ( params_init.sftwidth <= 0.0 )
   error(["Invalid input parameter (sftwidth): ", num2str(params_init.sftwidth), " must be > 0."]);
+ endif
+
+ if ( params_init.Tsft <= 0.0 )
+  error(["Invalid input parameter (Tsft): ", num2str(params_init.Tsft), " must be > 0."]);
  endif
 
 endfunction # check_input_parameters()
@@ -344,7 +357,7 @@ function [iFreq0, iFreq1] = get_iFreqRange4DataFile ( f0, params_EatH )
  ##
  ## NOTE: iFreq0 == iFreq1 == -1 means there are no physical FreqBands 'starting' in this data file
 
- SMALL_EPS = 1.0e-6;
+ global SMALL_EPS;
 
  # lowest physical search frequency needing this as the lowest data-files
  f0Eff = f0 + getSidebandAtFreq ( f0, params_EatH, use_rngmedSideband=1 );
