@@ -103,7 +103,10 @@ function ret = TuneAdaptiveLVPriors ( varargin )
   params_EatH.FreqMax       = params_EatH.DataFreqMax - getSidebandAtFreq ( params_EatH.DataFreqMax, params_EatH, use_rngmedSideband=1 ) - 1.0/params_init.Tsft;
  endif
 
- for band = 1:1:num_freqsteps # main loop over freqbands
+ band   = 0;
+ iFreq0 = 0;
+ while ( ( band < num_freqsteps ) && ( iFreq0 >= 0 ) ) # main loop over freqbands - break when EatH.FreqMax reached
+  band++;
 
   startfreq(band) = params_init.freqmin+(band-1)*params_init.freqstep;
   freqband(band)  = params_init.freqstep;
@@ -111,91 +114,104 @@ function ret = TuneAdaptiveLVPriors ( varargin )
    wufreq(band)     = startfreq(band);
    # get the frequency index of the first WU input SFT file
    [iFreq0, iFreq1] = get_iFreqRange4DataFile ( wufreq(band), params_EatH );
-   # get the start of the physical search band
-   searchfreq(band) = params_EatH.FreqMin + 1.0 * ( iFreq0 + offsetFreqIndex ) * params_EatH.FreqBand;
-   # get back down to start of contributing frequencies, including Doppler and spindown, but not running median bins
-   sideBand1        = getSidebandAtFreq ( searchfreq(band), params_EatH, use_rngmedSideband=0 );
-   startfreq(band)  = searchfreq(band) - sideBand1;
-   startfreq(band)  -= mod(startfreq(band),sft_dfreq); # round down to next sft bin
-   # do the same at upper end
-   sideBand2        = getSidebandAtFreq ( searchfreq(band)+params_init.freqstep, params_EatH, use_rngmedSideband=0 );
-   freqband(band)  += sideBand1 + sideBand2;
-   freqband(band)  += -mod(startfreq(band),sft_dfreq)+sft_dfreq; # round up to next sft bin
-   # add Dterms correction to actually match GCT code data read-in (not present in CFS_*_setup.C)
-   startfreq(band) -= params_EatH.Dterms*sft_dfreq/2.0;
-   freqband(band)  += params_EatH.Dterms*sft_dfreq;
-   printf("Frequency band %d, WU freq %f Hz, physical search startfreq %f Hz , width %f Hz: processing band from %f Hz with width %f Hz...\n", band, wufreq(band), searchfreq(band), params_init.freqstep, startfreq(band), freqband(band));
+   if ( iFreq0 < 0 ) # this means we are outside EatH.FreqMax
+    searchfreq(band) = wufreq(band) + getSidebandAtFreq ( wufreq(band), params_EatH, use_rngmedSideband=1 );
+    printf("Frequency band %d, WU freq %f Hz, physical search startfreq %f Hz would lie outside EatH.FreqMax=%f, skipping...\n", band, wufreq(band), searchfreq(band), params_EatH.FreqMax);  
+   else
+    # get the start of the physical search band
+    searchfreq(band) = params_EatH.FreqMin + 1.0 * ( iFreq0 + offsetFreqIndex ) * params_EatH.FreqBand;
+    # get back down to start of contributing frequencies, including Doppler and spindown, but not running median bins
+    sideBand1        = getSidebandAtFreq ( searchfreq(band), params_EatH, use_rngmedSideband=0 );
+    startfreq(band)  = searchfreq(band) - sideBand1;
+    startfreq(band)  -= mod(startfreq(band),sft_dfreq); # round down to next sft bin
+    # do the same at upper end
+    sideBand2        = getSidebandAtFreq ( searchfreq(band)+params_init.freqstep, params_EatH, use_rngmedSideband=0 );
+    freqband(band)  += sideBand1 + sideBand2;
+    freqband(band)  += -mod(startfreq(band),sft_dfreq)+sft_dfreq; # round up to next sft bin
+    # add Dterms correction to actually match GCT code data read-in (not present in CFS_*_setup.C)
+    startfreq(band) -= params_EatH.Dterms*sft_dfreq/2.0;
+    freqband(band)  += params_EatH.Dterms*sft_dfreq;
+    printf("Frequency band %d, WU freq %f Hz, physical search startfreq %f Hz , width %f Hz: processing band from %f Hz with width %f Hz...\n", band, wufreq(band), searchfreq(band), params_init.freqstep, startfreq(band), freqband(band));
+   endif
   elseif ( strcmp(params_init.freqbandmethod,"step") == 1 )
    printf("Frequency band %d, starting from %f Hz, width %f Hz...\n", band, startfreq(band), freqband(band));
    wufreq(band)     = startfreq(band);
    searchfreq(band) = startfreq(band);
   endif
-  params_psd.FreqBand   = freqband(band);
-  params_psd.Freq       = startfreq(band);
-  num_sfts_per_freqband = ceil ( freqband(band) / params_init.sftwidth );
 
-  # load in enough sfts, checking for runmed bands (not GCT runmed, which is already included, but ComputePSD runmed)
-  sfts.h1 = [];
-  sfts.l1 = [];
-  sftstartfreq = floor(20*startfreq(band))/20; # round down to get SFT file containing the startfreq
-  num_sfts_to_load = num_sfts_per_freqband;
-  runmed_wing = fix(params_init.runmed/2 + 1) / params_init.Tsft;
-  while ( startfreq(band) - runmed_wing <= sftstartfreq )
-   sftstartfreq -= params_init.sftwidth;
-   num_sfts_to_load++;
-  endwhile
-  while ( startfreq(band) + freqband(band) + runmed_wing >= sftstartfreq + num_sfts_to_load*params_init.sftwidth )
-   num_sfts_to_load++;
-  endwhile
-  for numsft = 1:1:num_sfts_to_load
-   currfreqstring = convert_freq_to_string(sftstartfreq + (numsft-1)*params_init.sftwidth,4,2);
-   sftfile = [params_init.sftdir, filesep, "h1_", currfreqstring, params_init.sft_filenamebit];
-   if ( exist(sftfile,"file") != 2 )
-    freqsubdir = convert_freq_to_string(10*floor((sftstartfreq + (numsft-1)*params_init.sftwidth)/10+SMALL_EPS),4,0); # EatH SFTs on atlas are organized in 0fff subdirs - SMALL_EPS is to make sure 60.000 gets floored to 60 and not 50, as octave can have small numerical inaccuracies here
-    sftfile = [params_init.sftdir, filesep, freqsubdir, filesep, "h1_", currfreqstring, params_init.sft_filenamebit];
+  if ( iFreq0 >= 0 ) # do not go any further if we are outside EatH.FreqMax
+
+   # load in enough sfts, checking for runmed bands (not GCT runmed, which is already included, but ComputePSD runmed)
+   sfts.h1 = [];
+   sfts.l1 = [];
+   sftstartfreq = floor(20*startfreq(band))/20; # round down to get SFT file containing the startfreq
+   num_sfts_to_load = ceil ( freqband(band) / params_init.sftwidth );
+   runmed_wing = fix(params_init.runmed/2 + 1) / params_init.Tsft;
+   while ( startfreq(band) - runmed_wing <= sftstartfreq + sft_dfreq ) # load another SFT if closer than one bin to the lower boundary
+    sftstartfreq -= params_init.sftwidth;
+    num_sfts_to_load++;
+   endwhile
+   while ( startfreq(band) + freqband(band) + runmed_wing >= sftstartfreq + num_sfts_to_load*params_init.sftwidth - sft_dfreq ) # load another SFT if closer than one bin to the upper boundary
+    num_sfts_to_load++;
+   endwhile
+   for numsft = 1:1:num_sfts_to_load
+    currfreqstring = convert_freq_to_string(sftstartfreq + (numsft-1)*params_init.sftwidth,4,2);
+    sftfile = [params_init.sftdir, filesep, "h1_", currfreqstring, params_init.sft_filenamebit];
     if ( exist(sftfile,"file") != 2 )
-     error(["Required SFT file ", sftfile, " does not exist."]);
+     freqsubdir = convert_freq_to_string(10*floor((sftstartfreq + (numsft-1)*params_init.sftwidth)/10+SMALL_EPS),4,0); # EatH SFTs on atlas are organized in 0fff subdirs - SMALL_EPS is to make sure 60.000 gets floored to 60 and not 50, as octave can have small numerical inaccuracies here
+     sftfile = [params_init.sftdir, filesep, freqsubdir, filesep, "h1_", currfreqstring, params_init.sft_filenamebit];
+     if ( exist(sftfile,"file") != 2 )
+      error(["Required SFT file ", sftfile, " does not exist."]);
+     endif
     endif
-   endif
-   sfts.h1 = [sfts.h1, sftfile];
-   sftfile = [params_init.sftdir, filesep, "l1_", currfreqstring, params_init.sft_filenamebit];
-   if ( exist(sftfile,"file") != 2 )
-    sftfile = [params_init.sftdir, filesep, freqsubdir, filesep, "l1_", currfreqstring, params_init.sft_filenamebit];
+    sfts.h1 = [sfts.h1, sftfile];
+    sftfile = [params_init.sftdir, filesep, "l1_", currfreqstring, params_init.sft_filenamebit];
     if ( exist(sftfile,"file") != 2 )
-     error(["Required SFT file ", sftfile, " does not exist."]);
+     sftfile = [params_init.sftdir, filesep, freqsubdir, filesep, "l1_", currfreqstring, params_init.sft_filenamebit];
+     if ( exist(sftfile,"file") != 2 )
+      error(["Required SFT file ", sftfile, " does not exist."]);
+     endif
     endif
+    sfts.l1 = [sfts.l1, sftfile];
+    if ( numsft < num_sfts_to_load )
+     sfts.h1 = [sfts.h1, ";"];
+     sfts.l1 = [sfts.l1, ";"];
+    endif
+   endfor
+
+   # count the outliers in the power statistic
+   params_psd.FreqBand   = freqband(band);
+   params_psd.Freq       = startfreq(band);
+   params_psd.inputData = sfts.h1;
+   params_psd.outputPSD = [params_init.workingdir, filesep, "psd_H1_med_", num2str(params_psd.blocksRngMed), "_band_", int2str(band), ".dat"];
+   [num_outliers_H1(band), max_outlier_H1(band), freqbins_H1(band)] = CountSFTPowerOutliers ( params_psd, params_init.thresh, params_init.lalpath, params_init.debug );
+   if ( params_init.cleanup == 1 )
+    [err, msg] = unlink (params_psd.outputPSD);
    endif
-   sfts.l1 = [sfts.l1, sftfile];
-   if ( numsft < num_sfts_to_load )
-    sfts.h1 = [sfts.h1, ";"];
-    sfts.l1 = [sfts.l1, ";"];
+   params_psd.inputData = sfts.l1;
+   params_psd.outputPSD = [params_init.workingdir, filesep, "psd_L1_med_", num2str(params_psd.blocksRngMed), "_band_", int2str(band), ".dat"];
+   [num_outliers_L1(band), max_outlier_L1(band), freqbins_L1(band)] = CountSFTPowerOutliers ( params_psd, params_init.thresh, params_init.lalpath, params_init.debug );
+   if ( params_init.cleanup == 1 )
+    [err, msg] = unlink (params_psd.outputPSD);
    endif
-  endfor
 
-  # count the outliers in the power statistic
-  params_psd.inputData = sfts.h1;
-  params_psd.outputPSD = [params_init.workingdir, filesep, "psd_H1_med_", num2str(params_psd.blocksRngMed), "_band_", int2str(band), ".dat"];
-  [num_outliers_H1(band), max_outlier_H1(band), freqbins_H1(band)] = CountSFTPowerOutliers ( params_psd, params_init.thresh, params_init.lalpath, params_init.debug );
-  if ( params_init.cleanup == 1 )
-   [err, msg] = unlink (params_psd.outputPSD);
-  endif
-  params_psd.inputData = sfts.l1;
-  params_psd.outputPSD = [params_init.workingdir, filesep, "psd_L1_med_", num2str(params_psd.blocksRngMed), "_band_", int2str(band), ".dat"];
-  [num_outliers_L1(band), max_outlier_L1(band), freqbins_L1(band)] = CountSFTPowerOutliers ( params_psd, params_init.thresh, params_init.lalpath, params_init.debug );
-  if ( params_init.cleanup == 1 )
-   [err, msg] = unlink (params_psd.outputPSD);
-  endif
+   # compute the line priors
+   l_H1(band) = max(params_init.LVlmin, num_outliers_H1(band)/(freqbins_H1(band)-num_outliers_H1(band)));
+   l_H1(band) = min(l_H1(band), params_init.LVlmax);
+   l_L1(band) = max(params_init.LVlmin, num_outliers_L1(band)/(freqbins_L1(band)-num_outliers_L1(band)));
+   l_H1(band) = min(l_H1(band), params_init.LVlmax);
 
-  # compute the line priors
-  l_H1(band) = max(params_init.LVlmin, num_outliers_H1(band)/(freqbins_H1(band)-num_outliers_H1(band)));
-  l_H1(band) = min(l_H1(band), params_init.LVlmax);
-  l_L1(band) = max(params_init.LVlmin, num_outliers_L1(band)/(freqbins_L1(band)-num_outliers_L1(band)));
-  l_H1(band) = min(l_H1(band), params_init.LVlmax);
+  endif # iFreq0 >= 0 
 
- endfor # band <= num_band
+ endwhile
+
+ # needed to ignore last entry in outmatrix if last band failed outside EatH.FreqMax
+ num_done_bands = band;
+ if ( iFreq0 < 0 )
+  num_done_bands--;
+ endif
 
  # save outliers to file as an ascii matrix with custom header
- outmatrix = cat(1,wufreq,searchfreq,startfreq,freqband,freqbins_H1,freqbins_L1,num_outliers_H1,num_outliers_L1,max_outlier_H1,max_outlier_L1,l_H1,l_L1);
  fid = fopen ( params_init.outfile, "w" );
  fprintf ( fid, "%%%% produced from TuneAdaptiveLVPriors() with the following options:\n" );
  params_init_fieldnames = fieldnames(params_init);
@@ -208,7 +224,13 @@ function ret = TuneAdaptiveLVPriors ( varargin )
  endfor
  fprintf ( fid, "%%%% \n%%%% columns:\n" );
  fprintf ( fid, "%%%% wufreq searchfreq startfreq freqband freqbins_H1 freqbins_L1 num_outliers_H1 num_outliers_L1 max_outlier_H1 max_outlier_L1 l_H1 l_L1\n" )
- fprintf ( fid, "%.2f %.10f %.10f %.10f %d %d %d %d %.6f %.6f %.6f %.6f\n", outmatrix );
+ if ( exist("l_H1","var") == 1 ) # if first band is already outside EatH.FreqMax, this would not be valid -> skip output
+  outmatrix = cat(1,wufreq(1:num_done_bands),searchfreq(1:num_done_bands),startfreq(1:num_done_bands),freqband(1:num_done_bands),freqbins_H1(1:num_done_bands),freqbins_L1(1:num_done_bands),num_outliers_H1(1:num_done_bands),num_outliers_L1(1:num_done_bands),max_outlier_H1(1:num_done_bands),max_outlier_L1(1:num_done_bands),l_H1(1:num_done_bands),l_L1(1:num_done_bands));
+  fprintf ( fid, "%.2f %.10f %.10f %.10f %d %d %d %d %.6f %.6f %.6f %.6f\n", outmatrix );
+ endif
+ if ( ( exist("l_H1","var") != 1 ) || ( num_done_bands < band ) )
+  fprintf ( fid, "%%%% EatH.FreqMax reached, no more bands processed.\n" );
+ endif
  fclose ( params_init.outfile );
 
  ret = 1;
