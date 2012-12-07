@@ -56,8 +56,11 @@ ifneq ($(SWIG),false)
 
 all : oct/$(version)/gsl.oct
 
-oct/$(version)/gsl.oct : oct/$(version)/gsl_wrap.cpp Makefile
+oct/$(version)/gsl.oct : oct/$(version)/gsl_wrap.o
 	$(verbose)$(MKOCTFILE) -g -lgsl -o $@ $<
+
+oct/$(version)/%_wrap.o : oct/$(version)/%_wrap.cpp
+	$(verbose)$(MKOCTFILE) -c -o $@ $<
 
 oct/$(version)/%_wrap.cpp : oct/%.i Makefile
 	$(verbose)$(SWIG) -octave -c++ -globals "$*cvar" -o $@ $<
