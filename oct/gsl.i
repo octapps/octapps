@@ -97,7 +97,8 @@ typedef struct {
                "'niederreiter_2', "
                "'sobol', "
                "'halton', "
-               "'reversehalton'\n");
+               "'reversehalton'\n",
+               type);
         return NULL;
       }
     }
