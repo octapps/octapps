@@ -56,7 +56,6 @@ function ret = TuneAdaptiveLVPriors ( varargin )
  # prepare PSD parameters
  params_psd.PSDmthopSFTs = 1;
  params_psd.PSDmthopIFOs = 8;
- params_psd.blocksRngMed = params_init.runmed;
 
  # count necessary freqbands and sfts
  # NOTE: rounded down, freqmax may not be reached if freqmax-freqmin is not an integer multiple of freqstep
@@ -146,12 +145,25 @@ function ret = TuneAdaptiveLVPriors ( varargin )
    sfts.l1 = [];
    sftstartfreq = floor(20*startfreq(band))/20; # round down to get SFT file containing the startfreq
    num_sfts_to_load = ceil ( freqband(band) / params_init.sftwidth );
-   runmed_wing = fix(params_init.runmed/2 + 1) / params_init.Tsft;
-   while ( startfreq(band) - runmed_wing <= sftstartfreq + sft_dfreq ) # load another SFT if closer than one bin to the lower boundary
+   runmed_wing_normal = fix(params_init.runmed/2 + 1) / params_init.Tsft;
+   # if Dterms/runmed overlap leads to problems at boundaries, fix by omitting a few bins from the runmed for that one band
+   if ( startfreq(band) - runmed_wing_normal < params_EatH.DataFreqMin )
+    runmed_effective = params_init.runmed - params_EatH.Dterms;
+    runmed_wing = fix(runmed_effective/2 + 1) / params_init.Tsft;
+    printf("NOTE: combined runmed=%d and Dterms=%d would require data from below FreqMin=%f, so reduced effective runmed to %d bins for this band only.\n", params_init.runmed, params_EatH.Dterms, params_EatH.DataFreqMin, runmed_effective);
+   elseif ( startfreq(band) + freqband(band) + runmed_wing_normal > params_EatH.DataFreqMax )
+    runmed_effective = params_init.runmed - params_EatH.Dterms;
+    runmed_wing = fix(runmed_effective + 1) / params_init.Tsft;
+    printf("NOTE: combined runmed=%d and Dterms=%d would require data from above FreqMax=%f, so reduced effective runmed to %d bins for this band only.\n", params_init.runmed, params_EatH.Dterms, params_EatH.DataFreqMax, runmed_effective);
+   else
+    runmed_effective = params_init.runmed;
+    runmed_wing = runmed_wing_normal;
+   endif
+   while ( startfreq(band) - runmed_wing < sftstartfreq ) # load another SFT if below the lower boundary
     sftstartfreq -= params_init.sftwidth;
     num_sfts_to_load++;
    endwhile
-   while ( startfreq(band) + freqband(band) + runmed_wing >= sftstartfreq + num_sfts_to_load*params_init.sftwidth - sft_dfreq ) # load another SFT if closer than one bin to the upper boundary
+   while ( startfreq(band) + freqband(band) + runmed_wing > sftstartfreq + num_sfts_to_load*params_init.sftwidth ) # load another SFT if above the upper boundary
     num_sfts_to_load++;
    endwhile
    for numsft = 1:1:num_sfts_to_load
@@ -182,6 +194,7 @@ function ret = TuneAdaptiveLVPriors ( varargin )
    # count the outliers in the power statistic
    params_psd.FreqBand   = freqband(band);
    params_psd.Freq       = startfreq(band);
+   params_psd.blocksRngMed = runmed_effective;
    params_psd.inputData = sfts.h1;
    params_psd.outputPSD = [params_init.workingdir, filesep, "psd_H1_med_", num2str(params_psd.blocksRngMed), "_band_", int2str(band), ".dat"];
    [num_outliers_H1(band), max_outlier_H1(band), freqbins_H1(band)] = CountSFTPowerOutliers ( params_psd, params_init.thresh, params_init.lalpath, params_init.debug );
