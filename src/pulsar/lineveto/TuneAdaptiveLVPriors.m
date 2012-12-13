@@ -128,8 +128,8 @@ function ret = TuneAdaptiveLVPriors ( varargin )
     freqband(band)  += sideBand1 + sideBand2;
     freqband(band)  += -mod(startfreq(band),sft_dfreq)+sft_dfreq; # round up to next sft bin
     # add Dterms correction to actually match GCT code data read-in (not present in CFS_*_setup.C)
-    startfreq(band) -= params_EatH.Dterms*sft_dfreq/2.0;
-    freqband(band)  += params_EatH.Dterms*sft_dfreq;
+    startfreq(band) -= params_EatH.Dterms*sft_dfreq;
+    freqband(band)  += 2.0*params_EatH.Dterms*sft_dfreq;
     printf("Frequency band %d, WU freq %f Hz, physical search startfreq %f Hz , width %f Hz: processing band from %f Hz with width %f Hz...\n", band, wufreq(band), searchfreq(band), params_init.freqstep, startfreq(band), freqband(band));
    endif
   elseif ( strcmp(params_init.freqbandmethod,"step") == 1 )
@@ -148,11 +148,11 @@ function ret = TuneAdaptiveLVPriors ( varargin )
    runmed_wing_normal = fix(params_init.runmed/2 + 1) / params_init.Tsft;
    # if Dterms/runmed overlap leads to problems at boundaries, fix by omitting a few bins from the runmed for that one band
    if ( startfreq(band) - runmed_wing_normal < params_EatH.DataFreqMin )
-    runmed_effective = params_init.runmed - params_EatH.Dterms;
+    runmed_effective = params_init.runmed - 2.0*params_EatH.Dterms;
     runmed_wing = fix(runmed_effective/2 + 1) / params_init.Tsft;
     printf("NOTE: combined runmed=%d and Dterms=%d would require data from below FreqMin=%f, so reduced effective runmed to %d bins for this band only.\n", params_init.runmed, params_EatH.Dterms, params_EatH.DataFreqMin, runmed_effective);
    elseif ( startfreq(band) + freqband(band) + runmed_wing_normal > params_EatH.DataFreqMax )
-    runmed_effective = params_init.runmed - params_EatH.Dterms;
+    runmed_effective = params_init.runmed - 2.0*params_EatH.Dterms;
     runmed_wing = fix(runmed_effective + 1) / params_init.Tsft;
     printf("NOTE: combined runmed=%d and Dterms=%d would require data from above FreqMax=%f, so reduced effective runmed to %d bins for this band only.\n", params_init.runmed, params_EatH.Dterms, params_EatH.DataFreqMax, runmed_effective);
    else
