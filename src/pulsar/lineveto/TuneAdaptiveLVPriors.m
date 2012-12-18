@@ -98,7 +98,7 @@ function ret = TuneAdaptiveLVPriors ( varargin )
  params_run.GCSideband    = 2.0 * abs(params_run.df1dot/2.0) * params_run.Tspan/2.0;
  # account for SFT-sidebands
  params_run.FreqMin       = params_run.DataFreqMin + 1.01 * getSidebandAtFreq ( params_run.DataFreqMin, params_run, use_rngmedSideband=1 );
- params_run.FreqMax       = params_run.DataFreqMax - getSidebandAtFreq ( params_run.DataFreqMax, params_run, use_rngmedSideband=1 ) - 1.0/params_run.Tsft;
+ params_run.FreqMax       = params_run.DataFreqMax - getSidebandAtFreq ( params_run.DataFreqMax, params_run, use_rngmedSideband=1 ) - params_run.sft_dfreq;
 
  curr_step   = 0;
  valid_band = 1;
@@ -110,11 +110,11 @@ function ret = TuneAdaptiveLVPriors ( varargin )
 
   if ( valid_band == 0 )
 
-   printf("Frequency band %d/%d, WU freq %f Hz, physical search startfreq %f Hz would lie outside params_run.FreqMax=%f, skipping...\n", curr_step, num_freqsteps, wufreq(curr_step), searchfreq(curr_step), params_run.FreqMax);
+   printf("Frequency band %d/%d, WU freq %f Hz, physical search startfreq %f Hz would lie outside params_run.FreqMax=%f, skipping all bands from here on.\n", curr_step, num_freqsteps, wufreq(curr_step), searchfreq(curr_step), params_run.FreqMax);
 
   else
 
-   printf("Frequency band %d/%d, WU freq %f Hz, physical search startfreq %f Hz , width %f Hz: processing band from %f Hz with width %f Hz...\n", curr_step, num_freqsteps, wufreq(curr_step), searchfreq(curr_step), params_init.freqstep, startfreq(curr_step), freqband(curr_step));
+   printf("Frequency band %d/%d, WU freq %f Hz, physical search startfreq %f Hz, width %f Hz: processing band from %f Hz with width %f Hz...\n", curr_step, num_freqsteps, wufreq(curr_step), searchfreq(curr_step), params_init.freqstep, startfreq(curr_step), freqband(curr_step));
 
    # get the correct set of sfts, checking for running median window
    [sftstartfreq, num_sfts_to_load, rngmedbins_effective] = get_sft_range ( params_init, params_run, startfreq(curr_step), freqband(curr_step) );
@@ -173,7 +173,7 @@ function ret = TuneAdaptiveLVPriors ( varargin )
   fprintf ( fid, "%.2f %.10f %.10f %.10f %d %d %d %d %.6f %.6f %.6f %.6f\n", outmatrix );
  endif
  if ( ( exist("l_H1","var") != 1 ) || ( num_steps_done < curr_step ) )
-  fprintf ( fid, "%%%% params_run.FreqMax reached, no more bands processed.\n" );
+  fprintf ( fid, "%%%% params_run.FreqMax=%.10f reached, no more bands processed.\n", params_run.FreqMax );
  endif
  fclose ( params_init.outfile );
 
@@ -287,7 +287,7 @@ function sideBand = getSidebandAtFreq ( Freq, params_run, use_rngmedSideband )
 
   sideBand = dopplerSideband + params_run.f1dotSideband + GCSideband; # HS-app SUMS them, not max(,)!!
   if ( use_rngmedSideband == 1 )
-   rngmedSideband  =  fix(params_run.RngMedWindow/2 + 1) / params_run.Tsft; # "fix" needed because original C code does integer summation and only afterwards casts the bracket to float
+   rngmedSideband  =  fix(params_run.RngMedWindow/2 + 1) * params_run.sft_dfreq; # "fix" needed because original C code does integer summation and only afterwards casts the bracket to float
    sideBand += rngmedSideband;
   endif
 
@@ -360,17 +360,18 @@ function [valid_band, wufreq, searchfreq, startfreq, freqband] = get_freq_ranges
   [iFreq0, iFreq1] = get_iFreqRange4DataFile ( wufreq, params_run );
   if ( iFreq0 < 0 ) # this means we are outside params_run.FreqMax
    valid_band = 0;
-   searchfreq = wufreq + getSidebandAtFreq ( wufreq, params_run, use_rngmedSideband=1 );
+   searchfreq = searchfreq = wufreq + getSidebandAtFreq ( wufreq, params_run, use_rngmedSideband=1 ); # needed for commandline output
+   startfreq  = 0; # irrelevant from here on
   else
    valid_band = 1;
    # get the start of the physical search band
    searchfreq = params_run.FreqMin + 1.0 * ( iFreq0 + params_run.offsetFreqIndex ) * params_run.FreqBand;
    # get back down to start of contributing frequencies, including Doppler and spindown, but not running median bins
-   sideBand1        = getSidebandAtFreq ( searchfreq, params_run, use_rngmedSideband=0 );
+   sideBand1  = getSidebandAtFreq ( searchfreq, params_run, use_rngmedSideband=0 );
    startfreq  = searchfreq - sideBand1;
-   startfreq  -= mod(startfreq,params_run.sft_dfreq); # round down to next sft bin
+   startfreq -= mod(startfreq,params_run.sft_dfreq); # round down to next sft bin
    # do the same at upper end
-   sideBand2        = getSidebandAtFreq ( searchfreq+params_init.freqstep, params_run, use_rngmedSideband=0 );
+   sideBand2  = getSidebandAtFreq ( searchfreq+params_init.freqstep, params_run, use_rngmedSideband=0 );
    freqband  += sideBand1 + sideBand2;
    freqband  += -mod(startfreq,params_run.sft_dfreq)+params_run.sft_dfreq; # round up to next sft bin
    # add Dterms correction to actually match GCT code data read-in (not present in CFS_*_setup.C)
@@ -387,16 +388,16 @@ function [sftstartfreq, num_sfts_to_load, rngmedbins_effective] = get_sft_range 
 
  sftstartfreq = floor(20*startfreq)/20; # round down to get SFT file containing the startfreq
  num_sfts_to_load = ceil ( freqband / params_init.sftwidth );
- rngmed_wing_normal = fix(params_init.rngmedbins/2 + 1) / params_run.Tsft;
+ rngmed_wing_normal = fix(params_init.rngmedbins/2 + 1) * params_run.sft_dfreq;
 
  # if Dterms/rngmedbins overlap leads to problems at boundaries, fix by omitting a few bins from the rngmed for that one band
  if ( startfreq - rngmed_wing_normal < params_run.DataFreqMin )
   rngmedbins_effective = params_init.rngmedbins - 2.0*params_run.Dterms;
-  rngmed_wing = fix(rngmedbins_effective/2 + 1) / params_run.Tsft;
+  rngmed_wing = fix(rngmedbins_effective/2 + 1) * params_run.sft_dfreq;
   printf("NOTE: combined rngmedbins=%d and Dterms=%d would require data from below FreqMin=%f, so reduced effective rngmed to %d bins for this band only.\n", params_init.rngmedbins, params_run.Dterms, params_run.DataFreqMin, rngmedbins_effective);
  elseif ( startfreq + freqband + rngmed_wing_normal > params_run.DataFreqMax )
   rngmedbins_effective = params_init.rngmedbins - 2.0*params_run.Dterms;
-  rngmed_wing = fix(rngmedbins_effective + 1) / params_run.Tsft;
+  rngmed_wing = fix(rngmedbins_effective + 1) * params_run.sft_dfreq;
   printf("NOTE: combined rngmedbins=%d and Dterms=%d would require data from above FreqMax=%f, so reduced effective rngmed to %d bins for this band only.\n", params_init.rngmedbins, params_run.Dterms, params_run.DataFreqMax, rngmedbins_effective);
  else
   rngmedbins_effective = params_init.rngmedbins;
@@ -404,13 +405,23 @@ function [sftstartfreq, num_sfts_to_load, rngmedbins_effective] = get_sft_range 
  endif
 
  # load more SFTs if below the lower boundary
- while ( startfreq - rngmed_wing < sftstartfreq )
-  sftstartfreq -= params_init.sftwidth;
-  num_sfts_to_load++;
+ while ( startfreq - rngmed_wing < sftstartfreq + params_run.sft_dfreq )
+  if ( sftstartfreq - params_init.sftwidth >= params_run.DataFreqMin )
+   sftstartfreq -= params_init.sftwidth;
+   num_sfts_to_load++;
+  else
+   printf("NOTE: Required data start frequency %f Hz is closer to DataFreqMin=%f Hz than one SFT bin (%f Hz), cannot add more SFTs below. Next call to lalapps_ComputePSD might fail.\n", startfreq-rngmed_wing, params_run.DataFreqMin, params_run.sft_dfreq);
+   break;
+  endif
  endwhile
  # load more SFTs if above the upper boundary
- while ( startfreq + freqband + rngmed_wing > sftstartfreq + num_sfts_to_load*params_init.sftwidth )
-  num_sfts_to_load++;
+ while ( startfreq + freqband + rngmed_wing >= sftstartfreq + num_sfts_to_load*params_init.sftwidth - params_run.sft_dfreq )
+  if ( sftstartfreq + num_sfts_to_load*params_init.sftwidth <= params_run.DataFreqMax )
+   num_sfts_to_load++;
+  else
+   printf("NOTE: Required data end frequency %f Hz is closer to DataFreqMax=%f Hz than one SFT bin (%f Hz), cannot add more SFTs above. Next call to lalapps_ComputePSD might fail.\n", startfreq+freqband+rngmed_wing, params_run.DataFreqMax, params_run.sft_dfreq);
+   break;
+  endif
  endwhile
 
 endfunction # get_sft_range()
