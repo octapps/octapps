@@ -14,16 +14,17 @@ function [fDEst, dfDEst] = estimateFalseDismissal ( fA, stat_0, stat_s )
   if ( length(stat_0) < 100 || length(stat_s) < 100 )
     dfDEst = zeros(1,length(fDEst));
     printf("Warning: In function estimateFalseDismissal: Cannot reshape sample array because length=%d smaller than 100. No errors have been computed.\n", length(stat_0));
-  
+
   else
     g = 100;
-    
+
     if ( round(length(stat_0)/g) != length(stat_0)/g || round(length(stat_s)/g) != length(stat_s)/g )
-      
-      printf("Warning: In function estimateFalseDismissal: Cannot reshape sample array because length=%d is not multiple of 100. Samples are truncated to closest multiple for error computation.\n", length(stat_0));
+
+      printf("Warning: In function estimateFalseDismissal: Cannot reshape sample array because \n\
+          length=%d is not multiple of 100. Samples are truncated to closest multiple for error computation.\n", length(stat_0));
       stat_0 = resize (stat_0, 1, g*floor(length(stat_0)/g));
       stat_s = resize (stat_s, 1, g*floor(length(stat_s)/g));
-      
+
     endif
 
     h_0 = round(Nsamples_0 / g );
@@ -31,18 +32,18 @@ function [fDEst, dfDEst] = estimateFalseDismissal ( fA, stat_0, stat_s )
     %% Jackknife error-estimate on g=100 subgroups
     stat_0_j = reshape ( stat_0, g, Nsamples_0/g );
     stat_s_j = reshape ( stat_s, g, Nsamples_s/g );
-    
+
     diffs_j = zeros(g, Nbins);
     for j = 1:g
       thresh_j     = empirical_inv (1 - fA, stat_0_j(j,:) );
       fD_j         = empirical_cdf ( thresh_j, stat_s_j(j,:) );
       diffs_j(j,:) = fD_j - fDEst;
     endfor
-    
+
     varfD = 1/(g * (g-1)) * sumsq ( diffs_j, 1 );
-    
+
     dfDEst = sqrt ( varfD );
-  
+
   endif
 
 endfunction
