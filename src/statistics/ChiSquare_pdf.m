@@ -47,6 +47,9 @@ function p = ChiSquare_pdf(x, k, lambda)
   if any(ii(:))
     p(ii) = e.^(-0.5 .* (x(ii) + lambda(ii)) ) .* x(ii).^((k(ii)-1)/2) .* \
         sqrt(lambda(ii)) .* besseli(k(ii)/2 - 1, sqrt( x(ii) .* lambda(ii) ) ) ./ ( 2 .* (x(ii) .* lambda(ii)).^(k(ii)/4) );
+    if ( isnan (p(ii)) )
+      error ("ChiSquare_pdf(): Got NaN for x=%g, k=%d, lambda=%g\n", x(ii), k(ii), lambda(ii) );
+    endif
   endif
 
 endfunction
