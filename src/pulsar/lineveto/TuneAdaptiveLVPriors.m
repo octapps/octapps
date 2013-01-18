@@ -100,21 +100,23 @@ function ret = TuneAdaptiveLVPriors ( varargin )
  params_run.FreqMin       = params_run.DataFreqMin + 1.01 * getSidebandAtFreq ( params_run.DataFreqMin, params_run, use_rngmedSideband=1 );
  params_run.FreqMax       = params_run.DataFreqMax - getSidebandAtFreq ( params_run.DataFreqMax, params_run, use_rngmedSideband=1 ) - params_run.sft_dfreq;
 
- curr_step   = 0;
+ curr_step  = 0;
+ offset     = 0;
  valid_band = 1;
- while ( ( curr_step < num_freqsteps ) && ( valid_band == 1 ) ) # main loop over freqbands - break when params_run.FreqMax reached
+ iFreq0_old = 0;
+ while ( ( curr_step < num_freqsteps+offset ) && ( valid_band == 1 ) ) # main loop over freqbands - break when params_run.FreqMax reached
   curr_step++;
 
   # compute the relevant frequencies and bands
-  [valid_band, wufreq(curr_step), searchfreq(curr_step), startfreq(curr_step), freqband(curr_step)] = get_freq_ranges ( params_init, params_run, curr_step );
+  [valid_band, wufreq(curr_step), searchfreq(curr_step), startfreq(curr_step), freqband(curr_step), offset, iFreq0_old] = get_freq_ranges ( params_init, params_run, offset, iFreq0_old, curr_step );
 
   if ( valid_band == 0 )
 
-   printf("Frequency band %d/%d, WU freq %f Hz, physical search startfreq %f Hz would lie outside params_run.FreqMax=%f, skipping all bands from here on.\n", curr_step, num_freqsteps, wufreq(curr_step), searchfreq(curr_step), params_run.FreqMax);
+   printf("Frequency band %d/%d, WU freq %f Hz, physical search startfreq %f Hz would lie outside params_run.FreqMax=%f, skipping all bands from here on.\n", curr_step, num_freqsteps+offset, wufreq(curr_step), searchfreq(curr_step), params_run.FreqMax);
 
   else
 
-   printf("Frequency band %d/%d, WU freq %f Hz, physical search startfreq %f Hz, width %f Hz: processing band from %f Hz with width %f Hz...\n", curr_step, num_freqsteps, wufreq(curr_step), searchfreq(curr_step), params_init.freqstep, startfreq(curr_step), freqband(curr_step));
+   printf("Frequency band %d/%d, WU freq %f Hz, physical search startfreq %f Hz, width %f Hz: processing band from %f Hz with width %f Hz...\n", curr_step, num_freqsteps+offset, wufreq(curr_step), searchfreq(curr_step), params_init.freqstep, startfreq(curr_step), freqband(curr_step));
 
    # get the correct set of sfts, checking for running median window
    [sftstartfreq, num_sfts_to_load, rngmedbins_effective] = get_sft_range ( params_init, params_run, startfreq(curr_step), freqband(curr_step) );
@@ -349,21 +351,34 @@ function [iFreq0, iFreq1] = get_iFreqRange4DataFile ( f0, params_run )
 endfunction # get_iFreqRange4DataFile()
 
 
-function [valid_band, wufreq, searchfreq, startfreq, freqband] = get_freq_ranges ( params_init, params_run, band )
- ## [valid_band, wufreq, searchfreq, startfreq, freqband] = get_freq_ranges ( params_init, params_run, band )
- ## function to compute the nominal WU frequency, physical search start frequency and SFT read-in start frequency and band
+function [valid_band, wufreq, searchfreq, startfreq, freqband, offset, iFreq0_old] = get_freq_ranges ( params_init, params_run, offset, iFreq0_old, curr_step );
+ ## [valid_band, wufreq, searchfreq, startfreq, freqband, offset, iFreq0_old] = get_freq_ranges ( params_init, params_run, offset, iFreq0_old, curr_step )
+ ## function to compute the nominal WU frequency, the physical search start frequency and SFT read-in start frequency and band
 
-  wufreq    = params_init.freqmin+(band-1)*params_init.freqstep;
-  freqband  = params_init.freqstep;
+  wufreq   = params_init.freqmin+(curr_step-1-offset)*params_init.freqstep;
+  freqband = params_init.freqstep;
 
   # get the frequency index of the first WU input SFT file
   [iFreq0, iFreq1] = get_iFreqRange4DataFile ( wufreq, params_run );
   if ( iFreq0 < 0 ) # this means we are outside params_run.FreqMax
    valid_band = 0;
-   searchfreq = searchfreq = wufreq + getSidebandAtFreq ( wufreq, params_run, use_rngmedSideband=1 ); # needed for commandline output
+   searchfreq = wufreq + getSidebandAtFreq ( wufreq, params_run, use_rngmedSideband=1 ); # needed for commandline output
    startfreq  = 0; # irrelevant from here on
   else
    valid_band = 1;
+
+   if ( curr_step > 1 )
+    iFreq0diff = iFreq0 - iFreq0_old;
+    if ( iFreq0diff >= 2 )
+     wufreq_corr = params_init.freqmin+(curr_step-offset-iFreq0diff)*params_init.freqstep;
+     printf("At WU freq %f Hz, jump in physical search startfreq detected due to additional SFT required. Correcting by inserting additional line with previous WU freq % f Hz and corresponding search frequency.\n", wufreq, wufreq_corr);
+     offset++;
+     wufreq = wufreq_corr;
+     iFreq0--;
+    endif
+   endif
+   iFreq0_old = iFreq0;
+
    # get the start of the physical search band
    searchfreq = params_run.FreqMin + 1.0 * ( iFreq0 + params_run.offsetFreqIndex ) * params_run.FreqBand;
    # get back down to start of contributing frequencies, including Doppler and spindown, but not running median bins
@@ -377,6 +392,7 @@ function [valid_band, wufreq, searchfreq, startfreq, freqband] = get_freq_ranges
    # add Dterms correction to actually match GCT code data read-in (not present in CFS_*_setup.C)
    startfreq -= params_run.Dterms*params_run.sft_dfreq;
    freqband  += 2.0*params_run.Dterms*params_run.sft_dfreq;
+
   endif # iFreq0 < 0
 
 endfunction # get_freq_ranges()
