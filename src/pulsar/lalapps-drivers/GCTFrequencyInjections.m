@@ -35,7 +35,7 @@
 ##   "freq":                    injection frequency (Hz)
 ##   "f1dot_band":              first spindown band (Hz/s)
 ##   "f2dot_band":              second spindown band (Hz/s^2)
-##   "f2dot_refine":            second spindown refinement factor
+##   "f2dot_refine":            second spindown refinement factor (optional)
 ##   "mismatch_per_dim":        mismatch per dimension
 ##   "debug_level":             LAL debug level
 
@@ -56,7 +56,7 @@ function results = GCTFrequencyInjections(varargin)
                       {"freq", "real,strictpos,scalar"},
                       {"f1dot_band", "real,positive,scalar"},
                       {"f2dot_band", "real,positive,scalar"},
-                      {"f2dot_refine", "real,strictpos,scalar"},
+                      {"f2dot_refine", "real,strictpos,scalar", []},
                       {"mismatch_per_dim", "real,strictpos,scalar"},
                       {"debug_level", "integer,scalar", 0},
                       []);
@@ -161,7 +161,9 @@ function results = GCTFrequencyInjections(varargin)
   GCT.semiCohToplist = true;
   GCT.fnameout = "GCT_Fstats";
   GCT.nCand1 = 1;
-  GCT.gamma2Refine = f2dot_refine;
+  if !isempty(f2dot_refine)
+    GCT.gamma2Refine = f2dot_refine;
+  endif
   results.GCT_no_mismatch = GCT;
   runCode(GCT, "lalapps_HierarchSearchGCT");
 
