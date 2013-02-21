@@ -151,9 +151,8 @@ function [metric, coordIDs] = CreatePhaseMetric(varargin)
   par.signalParams.Doppler.fkdot(1) = fiducial_freq;
 
   ## set start time, reference time, and time span
-  GPSSetREAL8(par.startTime, start_time);
   GPSSetREAL8(par.signalParams.Doppler.refTime, ref_time);
-  par.Tspan = time_span;
+  SegListInitSimpleSegments(par.segmentList, LIGOTimeGPS(start_time), 1, time_span);
 
   ## calculate Doppler phase metric
   try
