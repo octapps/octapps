@@ -208,9 +208,15 @@ function paropts = parseOptions(opts, varargin)
 
     ## assign option value, if it's the right type
     if !feval(typefunc.(optkey), optval)
-      error("%s: Value of '%s' must satisfy: %s", funcName, optkey, formula(typefunc.(optkey)));
+
+      ## if option value is empty, use default (i.e. do nothing), otherwise raise error
+      if !isempty(optval)
+        error("%s: Value of '%s' must satisfy: %s", funcName, optkey, formula(typefunc.(optkey)));
+      endif
+
+    else
+      paropts.(optkey) = optval;
     endif
-    paropts.(optkey) = optval;
     
     ## mark that this option has been used
     --allowed.(optkey);
