@@ -23,12 +23,12 @@
 ##   coordIDs = coordinate IDs of the chosen coordinates
 ## Options:
 ##   "coords": comma-separated list of coordinates:
-##             "ssky_equ": super-sky equatorial coordinates
-##             "ssky_ecl": super-sky ecliptic coordinates
-##             "spin_equ": spin x-y equatorial coordinates
-##             "orbit_ecl": orbit x-y-z ecliptic coordinates
-##             "freq": frequency, SI units
-##             "fdots": frequency spindowns, SI units
+##             "ssky_equ": 3-sky in equatorial coordinates
+##             "ssky_ecl": 3-sky in ecliptic coordinates
+##             "spin_equ": spin 2-sky in x-y equatorial coordinates
+##             "orbit_ecl": orbit 3-sky in x-y-z ecliptic coordinates
+##             "freq": frequency in SI units
+##             "fdots": frequency spindowns in SI units
 ##   "spindowns": number of frequency spindown coordinates
 ##   "start_time": start time in GPS seconds (default: ref_time - 0.5*time_span)
 ##   "ref_time": reference time in GPS seconds (default: start_time + 0.5*time_span)

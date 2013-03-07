@@ -15,37 +15,37 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## Construct various super-sky metrics.
+## Construct various 3-sky metrics.
 ## Usage:
-##   [ssmetric, sscoordIDs, skyoff, alignsky] = ConstructSuperSkyMetrics(sometric, socoordIDs, ...)
+##   [metric3, coordIDs3, skyoff, alignsky] = ConstructSuperSkyMetrics(metric2p3, coordIDs2p3, ...)
 ## where:
-##   sometric = spin-orbit metric, created e.g. with CreatePhaseMetric()
-##   socoordIDs = DOPPLERCOORD_... coordinate IDs of spin-orbit metric
+##   metric2p3 = 2+3-sky metric, computed by CreatePhaseMetric()
+##   coordIDs2p3 = DOPPLERCOORD_... coordinate IDs of 2+3-sky metric
 ## Options are:
-##   "sky_coord_sys": super-sky coordinate system (default: equatorial)
-##   "residual_sky": use residual super-sky coordinates (default: false)
-##   "decouple_sky: use decoupled super-sky coordinates (default: false, true implies "residual_sky")
-##   "aligned_sky": use aligned super-sky coordinates (default: false, true implies "decouple_sky")
+##   "sky_coords": 3-sky coordinate system (default: equatorial)
+##   "residual_sky": use residual 3-sky coordinates (default: false)
+##   "decouple_sky: use decoupled 3-sky coordinates (default: false, true implies "residual_sky")
+##   "aligned_sky": use aligned 3-sky coordinates (default: false, true implies "decouple_sky")
 ## Outputs are:
-##   ssmetric = super-sky metric
-##   skyoff = sky offset (row) vectors for residual super-sky coordinates
-##   alignsky = alignment rotation matrix for aligned super-sky coordinates
-##   sscoordIDs = DOPPLERCOORD_... coordinate IDs of super-sky metric
+##   metric3 = 3-sky metric
+##   skyoff = sky offset (row) vectors for residual (and decoupled) 3-sky coordinates
+##   alignsky = alignment rotation matrix for aligned 3-sky coordinates
+##   coordIDs3 = DOPPLERCOORD_... coordinate IDs of 3-sky metric
 
-function [ssmetric, skyoff, alignsky, sscoordIDs] = ConstructSuperSkyMetrics(sometric, socoordIDs, varargin)
+function [metric3, skyoff, alignsky, coordIDs3] = ConstructSuperSkyMetrics(metric2p3, coordIDs2p3, varargin)
 
   ## parse options
   parseOptions(varargin,
-               {"sky_coord_sys", "char", "equatorial"},
+               {"sky_coords", "char", "equatorial"},
                {"residual_sky", "logical,scalar", false},
                {"decouple_sky", "logical,scalar", false},
                {"aligned_sky", "logical,scalar", false},
                []);
 
   ## check input
-  assert(issymmetric(sometric));
-  assert(isvector(socoordIDs));
-  assert(length(unique(socoordIDs)) == length(socoordIDs));
+  assert(issymmetric(metric2p3));
+  assert(isvector(coordIDs2p3));
+  assert(length(unique(coordIDs2p3)) == length(coordIDs2p3));
   if aligned_sky
     decouple_sky = true;
   endif
@@ -58,37 +58,37 @@ function [ssmetric, skyoff, alignsky, sscoordIDs] = ConstructSuperSkyMetrics(som
   lalpulsar;
 
   ## get coordinates of spin, orbital, frequency and spindown coordinates
-  insx = find(socoordIDs == DOPPLERCOORD_N3SX_EQU);
+  insx = find(coordIDs2p3 == DOPPLERCOORD_N3SX_EQU);
   assert(length(insx) > 0);
-  insy = find(socoordIDs == DOPPLERCOORD_N3SY_EQU);
+  insy = find(coordIDs2p3 == DOPPLERCOORD_N3SY_EQU);
   assert(length(insy) > 0);
-  inoX = find(socoordIDs == DOPPLERCOORD_N3OX_ECL);
+  inoX = find(coordIDs2p3 == DOPPLERCOORD_N3OX_ECL);
   assert(length(inoX) > 0);
-  inoY = find(socoordIDs == DOPPLERCOORD_N3OY_ECL);
+  inoY = find(coordIDs2p3 == DOPPLERCOORD_N3OY_ECL);
   assert(length(inoY) > 0);
-  inoZ = find(socoordIDs == DOPPLERCOORD_N3OZ_ECL);
+  inoZ = find(coordIDs2p3 == DOPPLERCOORD_N3OZ_ECL);
   assert(length(inoZ) > 0);
-  ifs = [find(socoordIDs == DOPPLERCOORD_FREQ), ...
-         find(socoordIDs == DOPPLERCOORD_F1DOT), ...
-         find(socoordIDs == DOPPLERCOORD_F2DOT), ...
-         find(socoordIDs == DOPPLERCOORD_F3DOT)];
+  ifs = [find(coordIDs2p3 == DOPPLERCOORD_FREQ), ...
+         find(coordIDs2p3 == DOPPLERCOORD_F1DOT), ...
+         find(coordIDs2p3 == DOPPLERCOORD_F2DOT), ...
+         find(coordIDs2p3 == DOPPLERCOORD_F3DOT)];
   assert(length(ifs) > 0);
 
-  ## reconstruct super-sky metric from spin and orbital metric, in requested coordinates
+  ## reconstruct 3-sky metric from spin and orbital metric, in requested coordinates
   ## adjust coordinate IDs and coordinate indices appropriately
   inx = insx;
   iny = insy;
   inz = inoX;
   idel = [inoY, inoZ];
-  sscoordIDs = socoordIDs;
-  switch sky_coord_sys
+  coordIDs3 = coordIDs2p3;
+  switch sky_coords
     case "equatorial"
       skyreconstruct = [1, 0, 0;
                         0, 1, 0;
                         1, 0, 0;
                         0, LAL_COSIEARTH, LAL_SINIEARTH,
                         0, -LAL_SINIEARTH, LAL_COSIEARTH];
-      sscoordIDs([inx, iny, inz]) = [DOPPLERCOORD_N3X_EQU,
+      coordIDs3([inx, iny, inz]) = [DOPPLERCOORD_N3X_EQU,
                                      DOPPLERCOORD_N3Y_EQU,
                                      DOPPLERCOORD_N3Z_EQU];
     case "ecliptic"
@@ -97,45 +97,45 @@ function [ssmetric, skyoff, alignsky, sscoordIDs] = ConstructSuperSkyMetrics(som
                         1, 0, 0;
                         0, 1, 0,
                         0, 0, 1];
-      sscoordIDs([inx, iny, inz]) = [DOPPLERCOORD_N3X_ECL,
+      coordIDs3([inx, iny, inz]) = [DOPPLERCOORD_N3X_ECL,
                                      DOPPLERCOORD_N3Y_ECL,
                                      DOPPLERCOORD_N3Z_ECL];
     otherwise
-      error("%s: unknown coordinate system '%s'", funcName, sky_coord_sys);
+      error("%s: unknown coordinate system '%s'", funcName, sky_coords);
   endswitch
-  sscoordIDs(idel) = [];
-  reconstruct = eye(size(sometric));
+  coordIDs3(idel) = [];
+  reconstruct = eye(size(metric2p3));
   reconstruct([insx, insy, inoX, inoY, inoZ], [inx, iny, inz]) = skyreconstruct;
   reconstruct(:, idel) = [];
   ss_inn = [inx, iny, inz];
   ss_iff = ifs;
   ss_iff(ss_iff > inz) -= 2;
 
-  ## reconstruct super-sky metric
-  ssmetric = reconstruct' * sometric * reconstruct;
+  ## reconstruct 3-sky metric
+  metric3 = reconstruct' * metric2p3 * reconstruct;
   skyoff = zeros(length(ifs), 3);
   alignsky = eye(3);
 
   if residual_sky
 
-    ## diagonally normalise spin-orbit metric
+    ## diagonally normalise 2+3-sky metric
     ## use "tolerant" since orbital Z may be zero, for Ptolemaic ephemerides
-    [nsometric, dsometric, idsometric] = DiagonalNormaliseMetric(sometric, "tolerant");
+    [nmetric2p3, dmetric2p3, idmetric2p3] = DiagonalNormaliseMetric(metric2p3, "tolerant");
 
     ## find least-squares linear fit to orbital X and Y by frequency and spindowns
     fitted = [inoX, inoY];
     fitting = ifs;
-    fitA = nsometric(:, fitting);
-    fity = nsometric(:, fitted);
+    fitA = nmetric2p3(:, fitting);
+    fity = nmetric2p3(:, fitted);
     fitcoeffs = (fitA' * fitA) \ (fitA' * fity);
 
     ## subtract linear fit from orbital X and Y, creating residual coordinates
-    subtractfit = eye(size(sometric));
+    subtractfit = eye(size(metric2p3));
     subtractfit(fitting, fitted) = -fitcoeffs;
 
-    ## construct residual super-sky metric
-    residual = dsometric * subtractfit * idsometric * reconstruct;
-    ssmetric = residual' * sometric * residual;
+    ## construct residual 3-sky metric
+    residual = dmetric2p3 * subtractfit * idmetric2p3 * reconstruct;
+    metric3 = residual' * metric2p3 * residual;
 
     ## extract sky offset vectors
     skyoff = skyoff - residual(fitting, ss_inn);
@@ -143,25 +143,25 @@ function [ssmetric, skyoff, alignsky, sscoordIDs] = ConstructSuperSkyMetrics(som
     if decouple_sky
 
       ## extract sky-sky, sky-frequency, and frequency-frequency blocks
-      rss_ss = ssmetric(ss_inn, ss_inn);
-      rss_sf = ssmetric(ss_inn, ss_iff);
-      rss_ff = ssmetric(ss_iff, ss_iff);
+      rss_ss = metric3(ss_inn, ss_inn);
+      rss_sf = metric3(ss_inn, ss_iff);
+      rss_ff = metric3(ss_iff, ss_iff);
 
       ## calculate additional sky offset and sky metric adjustment to
-      ## zero the sky-frequency block of the residual super-sky metric
+      ## zero the sky-frequency block of the residual 3-sky metric
       decoupleoff = rss_ff \ rss_sf';
       decouple_ss = -rss_sf * decoupleoff;
 
-      ## decouple residual super-sky metric and sky offset vectors
-      ssmetric(ss_inn, ss_inn) += decouple_ss;
-      ssmetric(ss_inn, ss_iff) = 0;
-      ssmetric(ss_iff, ss_inn) = 0;
+      ## decouple residual 3-sky metric and sky offset vectors
+      metric3(ss_inn, ss_inn) += decouple_ss;
+      metric3(ss_inn, ss_iff) = 0;
+      metric3(ss_iff, ss_inn) = 0;
       skyoff = skyoff + decoupleoff;
 
       if aligned_sky
 
-        ## eigendecompose residual super-sky metric sky-sky block
-        rss_ss = ssmetric(ss_inn, ss_inn);
+        ## eigendecompose residual 3-sky metric sky-sky block
+        rss_ss = metric3(ss_inn, ss_inn);
         [rss_ss_evec, rss_ss_eval] = eig(rss_ss);
 
         ## order eigenvectors in descending order of eigenvalues
@@ -171,11 +171,11 @@ function [ssmetric, skyoff, alignsky, sscoordIDs] = ConstructSuperSkyMetrics(som
 
         ## align third sky dimension with smallest eigenvector
         alignsky = rss_ss_evec' * alignsky;
-        aligned = eye(size(ssmetric));
+        aligned = eye(size(metric3));
         aligned(ss_inn, ss_inn) = rss_ss_evec;
 
-        ## align residual super-sky metric and sky offset vectors
-        ssmetric = aligned' * ssmetric * aligned;
+        ## align residual 3-sky metric and sky offset vectors
+        metric3 = aligned' * metric3 * aligned;
         skyoff = skyoff * alignsky';
 
       endif
@@ -185,6 +185,6 @@ function [ssmetric, skyoff, alignsky, sscoordIDs] = ConstructSuperSkyMetrics(som
   endif
 
   ## ensure metric is exactly symmetric
-  ssmetric = 0.5*(ssmetric' + ssmetric);
+  metric3 = 0.5*(metric3' + metric3);
 
 endfunction
