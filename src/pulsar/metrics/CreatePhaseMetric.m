@@ -26,7 +26,7 @@
 ##             "ssky_equ": super-sky equatorial coordinates
 ##             "ssky_ecl": super-sky ecliptic coordinates
 ##             "spin_equ": spin x-y equatorial coordinates
-##             "orbit_ecl": orbit x-y ecliptic coordinates
+##             "orbit_ecl": orbit x-y-z ecliptic coordinates
 ##             "freq": frequency, SI units
 ##             "fdots": frequency spindowns, SI units
 ##   "spindowns": number of frequency spindown coordinates
@@ -113,7 +113,8 @@ function [metric, coordIDs] = CreatePhaseMetric(varargin)
       case "orbit_ecl"
         coordIDs = [coordIDs, ...
                     DOPPLERCOORD_N3OX_ECL, ...
-                    DOPPLERCOORD_N3OY_ECL];
+                    DOPPLERCOORD_N3OY_ECL, ...
+                    DOPPLERCOORD_N3OZ_ECL];
       case "freq"
         coordIDs = [coordIDs, ...
                     DOPPLERCOORD_FREQ];
