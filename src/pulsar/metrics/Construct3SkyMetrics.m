@@ -17,7 +17,7 @@
 
 ## Construct various 3-sky metrics.
 ## Usage:
-##   [metric3, coordIDs3, skyoff, alignsky] = ConstructSuperSkyMetrics(metric2p3, coordIDs2p3, ...)
+##   [metric3, coordIDs3, skyoff, alignsky] = Construct3SkyMetrics(metric2p3, coordIDs2p3, ...)
 ## where:
 ##   metric2p3 = 2+3-sky metric, computed by CreatePhaseMetric()
 ##   coordIDs2p3 = DOPPLERCOORD_... coordinate IDs of 2+3-sky metric
@@ -32,7 +32,7 @@
 ##   alignsky = alignment rotation matrix for aligned 3-sky coordinates
 ##   coordIDs3 = DOPPLERCOORD_... coordinate IDs of 3-sky metric
 
-function [metric3, skyoff, alignsky, coordIDs3] = ConstructSuperSkyMetrics(metric2p3, coordIDs2p3, varargin)
+function [metric3, skyoff, alignsky, coordIDs3] = Construct3SkyMetrics(metric2p3, coordIDs2p3, varargin)
 
   ## parse options
   parseOptions(varargin,

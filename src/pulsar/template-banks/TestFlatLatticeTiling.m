@@ -252,10 +252,10 @@ function results = TestFlatLatticeTiling(varargin)
                                                "ptolemaic", ptolemaic);
 
       ## Construct 3-sky metrics
-      [ssmetric, skyoff, alignsky] = ConstructSuperSkyMetrics(sometric, coordIDs,
-                                                              "sky_coords", sky_coords,
-                                                              "residual_sky", true,
-                                                              "aligned_sky", align_sky);
+      [ssmetric, skyoff, alignsky] = Construct3SkyMetrics(sometric, coordIDs,
+                                                          "sky_coords", sky_coords,
+                                                          "residual_sky", true,
+                                                          "aligned_sky", align_sky);
       if !offset_sky
         skyoff = zeros(size(skyoff));
       endif
