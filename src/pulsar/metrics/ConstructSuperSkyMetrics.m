@@ -66,6 +66,8 @@ function [ssmetric, skyoff, alignsky, sscoordIDs] = ConstructSuperSkyMetrics(som
   assert(length(inoX) > 0);
   inoY = find(socoordIDs == DOPPLERCOORD_N3OY_ECL);
   assert(length(inoY) > 0);
+  inoZ = find(socoordIDs == DOPPLERCOORD_N3OZ_ECL);
+  assert(length(inoZ) > 0);
   ifs = [find(socoordIDs == DOPPLERCOORD_FREQ), ...
          find(socoordIDs == DOPPLERCOORD_F1DOT), ...
          find(socoordIDs == DOPPLERCOORD_F2DOT), ...
@@ -74,14 +76,18 @@ function [ssmetric, skyoff, alignsky, sscoordIDs] = ConstructSuperSkyMetrics(som
 
   ## reconstruct super-sky metric from spin and orbital metric, in requested coordinates
   ## adjust coordinate IDs and coordinate indices appropriately
-  [inx, iny, inz, idel] = deal(num2cell(sort([insx, insy, inoX, inoY])){:});
+  inx = insx;
+  iny = insy;
+  inz = inoX;
+  idel = [inoY, inoZ];
   sscoordIDs = socoordIDs;
   switch sky_coord_sys
     case "equatorial"
       skyreconstruct = [1, 0, 0;
                         0, 1, 0;
                         1, 0, 0;
-                        0, LAL_COSIEARTH, LAL_SINIEARTH];
+                        0, LAL_COSIEARTH, LAL_SINIEARTH,
+                        0, -LAL_SINIEARTH, LAL_COSIEARTH];
       sscoordIDs([inx, iny, inz]) = [DOPPLERCOORD_N3X_EQU,
                                      DOPPLERCOORD_N3Y_EQU,
                                      DOPPLERCOORD_N3Z_EQU];
@@ -89,7 +95,8 @@ function [ssmetric, skyoff, alignsky, sscoordIDs] = ConstructSuperSkyMetrics(som
       skyreconstruct = [1, 0, 0;
                         0, LAL_COSIEARTH, -LAL_SINIEARTH;
                         1, 0, 0;
-                        0, 1, 0];
+                        0, 1, 0,
+                        0, 0, 1];
       sscoordIDs([inx, iny, inz]) = [DOPPLERCOORD_N3X_ECL,
                                      DOPPLERCOORD_N3Y_ECL,
                                      DOPPLERCOORD_N3Z_ECL];
@@ -98,11 +105,11 @@ function [ssmetric, skyoff, alignsky, sscoordIDs] = ConstructSuperSkyMetrics(som
   endswitch
   sscoordIDs(idel) = [];
   reconstruct = eye(size(sometric));
-  reconstruct([insx, insy, inoX, inoY], [inx, iny, inz]) = skyreconstruct;
+  reconstruct([insx, insy, inoX, inoY, inoZ], [inx, iny, inz]) = skyreconstruct;
   reconstruct(:, idel) = [];
   ss_inn = [inx, iny, inz];
   ss_iff = ifs;
-  ss_iff(ss_iff > inz) -= 1;
+  ss_iff(ss_iff > inz) -= 2;
 
   ## reconstruct super-sky metric
   ssmetric = reconstruct' * sometric * reconstruct;
@@ -112,7 +119,8 @@ function [ssmetric, skyoff, alignsky, sscoordIDs] = ConstructSuperSkyMetrics(som
   if residual_sky
 
     ## diagonally normalise spin-orbit metric
-    [nsometric, dsometric, idsometric] = DiagonalNormaliseMetric(sometric);
+    ## use "tolerant" since orbital Z may be zero, for Ptolemaic ephemerides
+    [nsometric, dsometric, idsometric] = DiagonalNormaliseMetric(sometric, "tolerant");
 
     ## find least-squares linear fit to orbital X and Y by frequency and spindowns
     fitted = [inoX, inoY];
