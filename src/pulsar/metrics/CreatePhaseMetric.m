@@ -36,7 +36,7 @@
 ##   "detectors": comma-separated list of detector names
 ##   "ephem_year": ephemerides year (default: 05-09)
 ##   "fiducial_freq": fiducial frequency for sky-position coordinates
-##   "ptolemaic": whether to use Ptolemaic approximation (default: false)
+##   "phase_model": whether to use Phase_model approximation (default: false)
 
 function [metric, coordIDs] = CreatePhaseMetric(varargin)
 
@@ -50,7 +50,7 @@ function [metric, coordIDs] = CreatePhaseMetric(varargin)
                {"detectors", "char"},
                {"ephem_year", "char", "05-09"},
                {"fiducial_freq", "real,strictpos,scalar"},
-               {"ptolemaic", "logical,scalar", false},
+               {"phase_model", "char", "full"},
                []);
   if isempty(start_time) && isempty(ref_time)
     error("%s: one of 'start_time' and 'ref_time' must be given", funcName);
@@ -133,11 +133,18 @@ function [metric, coordIDs] = CreatePhaseMetric(varargin)
   ParseMultiDetectorInfo(par.detInfo, detNames, []);
 
   ## set detector motion
-  if ptolemaic
-    par.detMotionType = DETMOTION_SPIN_PTOLEORBIT;
-  else
-    par.detMotionType = DETMOTION_SPIN_ORBIT;
-  endif
+  switch phase_model
+    case "full"
+      par.detMotionType = DETMOTION_SPIN_ORBIT;
+    case "ptolemaic"
+      par.detMotionType = DETMOTION_SPIN_PTOLEORBIT;
+    case "linearI"
+      par.detMotionType = DETMOTION_ORBIT_SPINXY;
+    case {"linearII", "orbital"}
+      par.detMotionType = DETMOTION_ORBIT;
+    otherwise
+      error("%s: unknown phase model '%s'", funcName, phase_model)
+  endswitch
 
   ## do not include sky-position-dependent Roemer delay in time variable
   par.approxPhase = true;
