@@ -63,7 +63,7 @@
 ##           sky_coords: super-sky coordinate system (default: equatorial)
 ##           align_sky: use sky-aligned super-sky metric (default: true)
 ##           offset_sky: use sky-offset frequency coordinates (default: true)
-##           ptolemaic: use Ptolemaic ephemerides (default: false)
+##           det_motion: which detector motion to use
 ##   lattice: type of lattice to use.
 ##     Options:
 ##       "Zn": n-dimensional hypercubic lattice
@@ -234,7 +234,7 @@ function results = TestFlatLatticeTiling(varargin)
                    {"sky_coords", "char", "equatorial"},
                    {"align_sky", "logical", true},
                    {"offset_sky", "logical", true},
-                   {"ptolemaic", "logical", false},
+                   {"det_motion", "char", []},
                    []);
       assert(length(skyxy_semis) <= 2);
 
@@ -249,7 +249,7 @@ function results = TestFlatLatticeTiling(varargin)
                                                "spindowns", spindowns,
                                                "ephem_year", ephem_year,
                                                "fiducial_freq", fndot(1),
-                                               "ptolemaic", ptolemaic);
+                                               "det_motion", det_motion);
 
       ## Construct super-sky metrics
       [ssmetric, skyoff, alignsky] = ConstructSuperSkyMetrics(sometric, coordIDs,
