@@ -147,9 +147,12 @@ function [ssmetric, skyoff, alignsky, sscoordIDs] = ConstructSuperSkyMetrics(som
       rss_sf = ssmetric(ss_inn, ss_iff);
       rss_ff = ssmetric(ss_iff, ss_iff);
 
+      ## diagonally normalise frequency-frequency block
+      [nrss_ff, drss_ff, idrss_ff] = DiagonalNormaliseMetric(rss_ff);
+
       ## calculate additional sky offset and sky metric adjustment to
       ## zero the sky-frequency block of the residual super-sky metric
-      decoupleoff = rss_ff \ rss_sf';
+      decoupleoff = drss_ff * rss_ff \ (drss_ff * rss_sf');
       decouple_ss = -rss_sf * decoupleoff;
 
       ## decouple residual super-sky metric and sky offset vectors
