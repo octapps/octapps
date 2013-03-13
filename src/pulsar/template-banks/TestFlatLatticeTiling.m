@@ -48,7 +48,7 @@
 ##           age: spindown age in seconds.
 ##           f1dot_brake: first spindown braking index range.
 ##           f2dot_brake: second spindown braking index range.
-##       {sky+freq_square, ...}: CW 3-sky-frequency metric and square parameter space.
+##       {sky+freq_square, ...}: CW super-sky-frequency metric and square parameter space.
 ##         Options:
 ##           time_span: observation time in seconds.
 ##           skyxy: centre of sky X-Y ellipse to observe (default: 0,0)
@@ -60,8 +60,8 @@
 ##           ref_time: reference time, in GPS seconds
 ##           ephem_year: ephemeris year string (e.g. 05-09)
 ##           detectors: comma-separated list of detector names
-##           sky_coords: 3-sky coordinate system (default: equatorial)
-##           align_sky: use sky-aligned 3-sky metric (default: true)
+##           sky_coords: super-sky coordinate system (default: equatorial)
+##           align_sky: use sky-aligned super-sky metric (default: true)
 ##           offset_sky: use sky-offset frequency coordinates (default: true)
 ##           ptolemaic: use Ptolemaic ephemerides (default: false)
 ##   lattice: type of lattice to use.
@@ -241,7 +241,7 @@ function results = TestFlatLatticeTiling(varargin)
       ## Calculate number of spindowns
       spindowns = length(fndot) - 1;
 
-      ## Create 2+3-sky metric
+      ## Create spin-orbit component metric
       [sometric, coordIDs] = CreatePhaseMetric("coords", "spin_equ,orbit_ecl,freq,fdots",
                                                "time_span", time_span,
                                                "ref_time", ref_time,
@@ -251,11 +251,11 @@ function results = TestFlatLatticeTiling(varargin)
                                                "fiducial_freq", fndot(1),
                                                "ptolemaic", ptolemaic);
 
-      ## Construct 3-sky metrics
-      [ssmetric, skyoff, alignsky] = Construct3SkyMetrics(sometric, coordIDs,
-                                                          "sky_coords", sky_coords,
-                                                          "residual_sky", true,
-                                                          "aligned_sky", align_sky);
+      ## Construct super-sky metrics
+      [ssmetric, skyoff, alignsky] = ConstructSuperSkyMetrics(sometric, coordIDs,
+                                                              "sky_coords", sky_coords,
+                                                              "residual_sky", true,
+                                                              "aligned_sky", align_sky);
       if !offset_sky
         skyoff = zeros(size(skyoff));
       endif
