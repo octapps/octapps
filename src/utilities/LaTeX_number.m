@@ -1,4 +1,4 @@
-function ret = LaTeX_number ( val, precision = 3, form = "auto" )
+function ret = LaTeX_number ( val, precision = 3, form = "auto", dollar="$" )
   %% LaTeX-format a scalar number, using format 'form', and precision
   %% 'precision' P governs the number of digits to output
   %%
@@ -9,10 +9,10 @@ function ret = LaTeX_number ( val, precision = 3, form = "auto" )
   %%   "auto: for automatic switching between "g" and "e" depending on 'val',
   %%          namely "g" for val in [1e-3, 1e3], or "e" otherwise
   %%
-  %% Note: if given a vector/matrix of length 'N' of numbers, returns a cell-arrary
-  %% of 'N' strings
+  %% Note: if given a vector/matrix of 'N' elements, returns a cell-array
+  %% of 'N' strings with the same size as 'val'
 
-  N = length ( val );
+  N = numel ( val );
 
   ret = cell(1, N );
 
@@ -26,10 +26,11 @@ function ret = LaTeX_number ( val, precision = 3, form = "auto" )
     error ("Invalid input 'form'='%s'. Allowed are {'f', 'g', 'e', 'auto'}\n", form );
   endif
 
-  fmt_f = sprintf ("$%%.%df$", precision );
-  fmt_g = sprintf ("$%%.%dg$", precision );
-  fmt_e = sprintf ("$%%.%df\\\\times 10^{%%d}$", precision );
-  fmt_e0= sprintf ("$10^{%%d}$", precision );
+  fmt_f = sprintf ("%s%%.%df%s", dollar, precision, dollar );
+  fmt_g = sprintf ("%s%%.%dg%s", dollar, precision, dollar );
+  fmt_e = sprintf ("%s%%.%df{\\times}10^{%%d}%s", dollar, precision, dollar );
+  fmt_pe0 = sprintf ("%s10^{%%d}%s", dollar, dollar );
+  fmt_me0 = sprintf ("%s-10^{%%d}%s", dollar, dollar );
 
   for i = 1:N
 
@@ -49,12 +50,20 @@ function ret = LaTeX_number ( val, precision = 3, form = "auto" )
       case FORM_G
         ret{i} = sprintf (fmt_g, this_val );
       case FORM_E
-        expon = floor ( log10 ( this_val ) );
-        mant = this_val / 10^expon;
-        if ( abs(mant - 1) < 10^(-precision) )	%% don't print redundant '1x10^x', but rather '10^x'
-          ret{i} = sprintf(fmt_e0, expon );
+        if this_val == 0
+          ret{i} = sprintf(fmt_g, 0);
         else
-          ret{i} = sprintf(fmt_e, mant, expon );
+          expon = floor ( log10 ( abs(this_val) ) );
+          mant = this_val / 10^expon;
+          if ( abs(mant) - 1 < 10^(-precision) )	%% don't print redundant '1x10^x', but rather '10^x'
+            if mant < 0
+              ret{i} = sprintf(fmt_me0, expon );
+            else
+              ret{i} = sprintf(fmt_pe0, expon );
+            endif
+          else
+            ret{i} = sprintf(fmt_e, mant, expon );
+          endif
         endif
       otherwise
         error ("Something went wrong, form_index = %d undefined ... \n", form_index );
@@ -62,6 +71,7 @@ function ret = LaTeX_number ( val, precision = 3, form = "auto" )
 
   endfor ## i = 1:N
 
-  return;
+  %% reshape ret to be same size as val
+  ret = reshape(ret, size(val));
 
 endfunction
