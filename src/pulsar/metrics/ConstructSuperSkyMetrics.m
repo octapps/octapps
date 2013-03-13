@@ -17,7 +17,7 @@
 
 ## Construct various super-sky metrics.
 ## Usage:
-##   [ssmetric, sscoordIDs, skyoff, alignsky] = ConstructSuperSkyMetrics(sometric, socoordIDs, ...)
+##   [ssmetric, skyoff, alignsky, sscoordIDs] = ConstructSuperSkyMetrics(sometric, socoordIDs, ...)
 ## where:
 ##   sometric = spin-orbit component metric, computed by CreatePhaseMetric()
 ##   socoordIDs = DOPPLERCOORD_... coordinate IDs of spin-orbit component metric
