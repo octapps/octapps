@@ -25,7 +25,6 @@ function results = TestSuperSkyMetric(varargin)
                {"detectors", "char"},
                {"ephem_year", "char", []},
                {"fiducial_freq", "real,strictpos,scalar"},
-               {"sky_projection", "char"},
                {"max_mismatch", "real,strictpos,scalar", 0.5},
                {"num_trials", "integer,strictpos,scalar"},
                []);
@@ -125,26 +124,18 @@ function results = TestSuperSkyMetric(varargin)
     ## compute mismatch in sky-projected aligned metric
     mu_spa_ssmetric = dot(spa_dp, spa_ssmetric * spa_dp);
 
-    ## create random sky points, depending on projection
-    switch sky_projection
-      case "orthographic"
+    ## create random point in unit disk
+    r = rand(1, trial_block);
+    th = rand(1, trial_block) * 2*pi;
+    x1 = [r .* cos(th); r .* sin(th)];
 
-        ## create random point in unit disk
-        r = rand(1, trial_block);
-        th = rand(1, trial_block) * 2*pi;
-        x1 = [r .* cos(th); r .* sin(th)];
+    ## add random offsets to create second random point
+    x2 = x1 + spa_dp([ina, inb], :);
 
-        ## add random offsets to create second random point
-        x2 = x1 + spa_dp([ina, inb], :);
-
-        ## project onto sky upper hemisphere; use real() for computing
-        ## aligned-c component in case point has radius > 1
-        n1 = [x1; real(sqrt(1 - sumsq(x1, 1)))];
-        n2 = [x2; real(sqrt(1 - sumsq(x2, 1)))];
-
-      otherwise
-        error("%s: unknown sky projection '%s'", funcName, sky_projection);
-    endswitch
+    ## project onto sky upper hemisphere; use real() for computing
+    ## aligned-c component in case point has radius > 1
+    n1 = [x1; real(sqrt(1 - sumsq(x1, 1)))];
+    n2 = [x2; real(sqrt(1 - sumsq(x2, 1)))];
 
     ## create point offsets in (non-sky-projected) aligned metric
     a_dp = zeros(size(a_ssmetric, 1), trial_block);
