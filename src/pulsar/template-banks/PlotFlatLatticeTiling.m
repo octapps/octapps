@@ -133,7 +133,7 @@ function PlotFlatLatticeTiling(res, p, what, varargin)
   if any(what == "t")
     tmpl = templates(:, find(hit_kk))';
     tmpl = unique(tmpl, "rows");
-    plot(tmpl(1, :), tmpl(2, :), "b*");
+    plot(tmpl(:, 1), tmpl(:, 2), "b*");
   endif
 
   ## plot intersection ellipse centres of templates which have not been hit
