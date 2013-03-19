@@ -30,8 +30,8 @@
 ##             "freq": frequency in SI units
 ##             "fdots": frequency spindowns in SI units
 ##   "spindowns": number of frequency spindown coordinates
-##   "start_time": start time in GPS seconds (default: ref_time - 0.5*time_span)
-##   "ref_time": reference time in GPS seconds (default: start_time + 0.5*time_span)
+##   "start_time": start time(s) in GPS seconds (default: [ref_time - 0.5*time_span])
+##   "ref_time": reference time in GPS seconds (default: mean(start_time + 0.5*time_span))
 ##   "time_span": observation time-span in seconds
 ##   "detectors": comma-separated list of detector names
 ##   "ephem_year": ephemerides year (default: 05-09)
@@ -44,7 +44,7 @@ function [metric, coordIDs] = CreatePhaseMetric(varargin)
   parseOptions(varargin,
                {"coords", "char"},
                {"spindowns", "integer,positive,scalar"},
-               {"start_time", "real,strictpos,scalar", []},
+               {"start_time", "real,strictpos,vector", []},
                {"ref_time", "real,strictpos,scalar", []},
                {"time_span", "real,strictpos,scalar"},
                {"detectors", "char"},
@@ -69,14 +69,15 @@ function [metric, coordIDs] = CreatePhaseMetric(varargin)
     error("%s: Could not load ephemerides", funcName);
   end_try_catch
 
-  ## check start time and reference time
+  ## check start time(s) and reference time
   if isempty(start_time)
-    start_time = ref_time - 0.5*time_span;
+    start_time = [ref_time - 0.5*time_span];
   elseif isempty(ref_time)
-    ref_time = start_time + 0.5*time_span;
+    ref_time = mean(start_time + 0.5*time_span);
   endif
-  if start_time < ephemerides.ephemE{1}.gps || ephemerides.ephemE{end}.gps < start_time + time_span
-    error("%s: time span [%f,%f] is outside range of ephemerides", funcName, start_time, start_time + time_span);
+  start_time = sort(start_time);
+  if start_time(1) < ephemerides.ephemE{1}.gps || ephemerides.ephemE{end}.gps < start_time(end) + time_span
+    error("%s: time span [%f,%f] is outside range of ephemerides", funcName, start_time(1), start_time(end) + time_span);
   endif
 
   ## create metric parameters struct
@@ -153,14 +154,24 @@ function [metric, coordIDs] = CreatePhaseMetric(varargin)
 
   ## set start time, reference time, and time span
   GPSSetREAL8(par.signalParams.Doppler.refTime, ref_time);
-  SegListInitSimpleSegments(par.segmentList, LIGOTimeGPS(start_time), 1, time_span);
+  SegListInit(par.segmentList);
+  for i = 1:length(start_time)
+    seg = new_Seg;
+    segstart = new_LIGOTimeGPS(start_time(i));
+    segend = new_LIGOTimeGPS(start_time(i) + time_span);
+    SegSet(seg, segstart, segend, i);
+    SegListAppend(par.segmentList, seg);
+  endfor
 
   ## calculate Doppler phase metric
   try
-    [metric_retn, metric_err] = DopplerPhaseMetric(par, ephemerides);
+    retn = DopplerFstatMetric(par, ephemerides);
   catch
     error("%s: Could not calculate phase metric", funcName);
   end_try_catch
-  metric = metric_retn.data(:,:);
+  metric = retn.g_ij.data(:,:);
+
+  ## cleanup
+  SegListClear(par.segmentList);
 
 endfunction
