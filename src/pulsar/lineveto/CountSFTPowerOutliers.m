@@ -21,7 +21,7 @@ function [num_outliers, max_outlier, freqbins] = CountSFTPowerOutliers ( params_
 
 
  # The following params_psd fields are REQUIRED from the caller function
- required_fields = {"Freq","FreqBand","inputData","outputPSD"};
+ required_fields = {"inputData","outputPSD"};
  for n=1:1:length(required_fields)
   if ( !isfield(params_psd,required_fields{n}) )
    error(["Required field '", required_fields{n}, "' of params_psd was not set by caller function."]);
