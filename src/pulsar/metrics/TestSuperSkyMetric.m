@@ -14,6 +14,31 @@
 ## along with Octave; see the file COPYING.  If not, see
 ## <http://www.gnu.org/licenses/>.
 
+## Test the super-sky metric with random offsets.
+## Usage:
+##   results = TestSuperSkyMetric(...)
+## where:
+##   results = struct containing:
+##     ssmetric_lpI  = super-sky metric computed with JKS's linear I phase model
+##     ssmetric_lpII = super-sky metric computed with JKS's linear II phase model
+##     ssmetric      = super-sky metric
+##     a_ssmetric    = aligned super-sky metric
+##     mu_spa_ssmetric_err_H  = error in sky-projected aligned mismatch compared to untransformed mismatch
+##     mu_a_ssmetric_err_H    = error in aligned mismatch compared to untransformed mismatch
+##     mu_ssmetric_lpI_err_H  = error in linear phase model I metric compared to untransformed mismatch
+##     mu_ssmetric_lpII_err_H = error in linear phase model II metric compared to untransformed mismatch
+## Options:
+##   spindowns: number of frequency spindowns coordinates
+##   start_time: start time in GPS seconds (default: see CreatePhaseMetric)
+##   ref_time: reference time in GPS seconds (default: see CreatePhaseMetric)
+##   time_span: observation time-span in seconds
+##   detectors: comma-separated list of detector names
+##   ephem_year: ephemerides year (default: see CreatePhaseMetric)
+##   fiducial_freq: fiducial frequency for sky-position coordinates
+##   max_mismatch: maximum prescribed mismatch to test at
+##   num_trials: number of trials to perform
+##   err_H_dx: width of error histogram bins (default: 1e-5)
+
 function results = TestSuperSkyMetric(varargin)
 
   ## parse options
