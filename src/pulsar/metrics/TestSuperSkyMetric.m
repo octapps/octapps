@@ -35,6 +35,8 @@
 ##   detectors: comma-separated list of detector names
 ##   ephem_year: ephemerides year (default: see CreatePhaseMetric)
 ##   fiducial_freq: fiducial frequency for sky-position coordinates
+##   sky_coords: sky coordinate system to use (default: equatorial)
+##   aligned_sky: whether to align sky coordinates (default: true)
 ##   max_mismatch: maximum prescribed mismatch to test at
 ##   num_trials: number of trials to perform
 ##   err_H_dx: width of error histogram bins (default: 1e-5)
@@ -50,6 +52,8 @@ function results = TestSuperSkyMetric(varargin)
                {"detectors", "char"},
                {"ephem_year", "char", []},
                {"fiducial_freq", "real,strictpos,scalar"},
+               {"sky_coords", "char", "equatorial"},
+               {"aligned_sky", "logical,scalar", true},
                {"max_mismatch", "real,strictpos,scalar", 0.5},
                {"num_trials", "integer,strictpos,scalar"},
                {"err_H_dx", "real,strictpos,scalar", 1e-5},
@@ -88,15 +92,24 @@ function results = TestSuperSkyMetric(varargin)
                                              "det_motion", "spin+orbit");
 
   ## construct untransformed super-sky metric
-  results.ssmetric = ConstructSuperSkyMetrics(sometric, socoordIDs, "sky_coords", "equatorial");
+  results.ssmetric = ConstructSuperSkyMetrics(sometric, socoordIDs, "sky_coords", sky_coords);
 
   ## construct aligned super-sky metric
   [results.a_ssmetric, a_skyoff, a_alignsky, a_sscoordIDs] = ConstructSuperSkyMetrics(sometric, socoordIDs,
-                                                                                      "sky_coords", "equatorial",
-                                                                                      "aligned_sky", true);
-  ina = find(a_sscoordIDs == DOPPLERCOORD_N3X_EQU);
-  inb = find(a_sscoordIDs == DOPPLERCOORD_N3Y_EQU);
-  inc = find(a_sscoordIDs == DOPPLERCOORD_N3Z_EQU);
+                                                                                      "sky_coords", sky_coords,
+                                                                                      "aligned_sky", aligned_sky);
+  switch sky_coords
+    case "equatorial"
+      ina = find(a_sscoordIDs == DOPPLERCOORD_N3X_EQU);
+      inb = find(a_sscoordIDs == DOPPLERCOORD_N3Y_EQU);
+      inc = find(a_sscoordIDs == DOPPLERCOORD_N3Z_EQU);
+    case "ecliptic"
+      ina = find(a_sscoordIDs == DOPPLERCOORD_N3X_ECL);
+      inb = find(a_sscoordIDs == DOPPLERCOORD_N3Y_ECL);
+      inc = find(a_sscoordIDs == DOPPLERCOORD_N3Z_ECL);
+    otherwise
+      error("%s: unknown coordinate system '%s'", funcName, sky_coords);
+  endswitch
   iff = [find(a_sscoordIDs == DOPPLERCOORD_FREQ), ...
          find(a_sscoordIDs == DOPPLERCOORD_F1DOT), ...
          find(a_sscoordIDs == DOPPLERCOORD_F2DOT), ...
