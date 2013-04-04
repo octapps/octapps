@@ -38,7 +38,7 @@ function [pd, Ns, FDP, fdp_vars, fdp_opts] = SensitivityHoughFstatFDP(pd, Ns, ar
   fdp_opts.zero = zero;
 
   ## false alarm probability per template, and number count false alarm threshold
-  if sum([isempty(paNt),isempty(nth)]) != 1
+  if !xor(isempty(paNt), isempty(nth))
     error("%s: 'paNt' and 'nth' are mutually exclusive options", funcName);
   endif
   if !isempty(paNt)

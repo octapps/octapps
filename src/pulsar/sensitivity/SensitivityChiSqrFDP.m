@@ -39,7 +39,7 @@ function [pd, Ns, FDP, fdp_vars, fdp_opts] = SensitivityChiSqrFDP(pd, Ns, args)
   fdp_opts.norm = norm;
 
   ## false alarm threshold
-  if sum([isempty(paNt),isempty(sa)]) != 1
+  if !xor(isempty(paNt), isempty(sa))
     error("%s: 'paNt' and 'sa' are mutually exclusive options", funcName);
   endif
   if !isempty(paNt)
