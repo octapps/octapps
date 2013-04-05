@@ -1,4 +1,6 @@
 function ret = LaTeX_number ( val, precision = 3, form = "auto" )
+  %% ret = LaTeX_number ( val, precision = 3, form = "auto" )
+  %%
   %% LaTeX-format a scalar number, using format 'form', and precision
   %% 'precision' P governs the number of digits to output
   %%
@@ -6,7 +8,7 @@ function ret = LaTeX_number ( val, precision = 3, form = "auto" )
   %%     "f": floating-point format '$%.Pf$' with precision 'P'
   %%     "g": floating-point format '$%.Pg$' where 'P' is the number of significant digits
   %%     "e": for exponential LaTeX notation, with 'P' significant digits
-  %%   "auto: for automatic switching between "g" and "e" depending on 'val',
+  %%   "auto": for automatic switching between "g" and "e" depending on 'val',
   %%          namely "g" for val in [1e-3, 1e3], or "e" otherwise
   %%
   %% Note: if given a vector/matrix of length 'N' of numbers, returns a cell-arrary
