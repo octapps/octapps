@@ -4,7 +4,7 @@ function [ephemE, ephemS] = init_barycenter(efile, sfile)
 %
 % This function takes in the filenames of a file containing the Earth
 % ephemeris (efile) and Sun ephemeris (sfile) in the format of those within
-% LAL e.g. earth05-09.dat, sun05-09.dat. It outputs that data in a format
+% LAL e.g. earth00-19-DE405.dat, sun00-19-DE405.dat. It outputs that data in a format
 % usuable by the barycentring codes - positions, velocities and
 % acceleration:
 %   ephem.pos - vector of x, y and z positions (light seconds)

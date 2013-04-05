@@ -34,7 +34,7 @@
 ##   "ref_time": reference time in GPS seconds (default: mean(start_time + 0.5*time_span))
 ##   "time_span": observation time-span in seconds
 ##   "detectors": comma-separated list of detector names
-##   "ephem_year": ephemerides year (default: 05-09)
+##   "ephem_year": ephemerides year (default: 00-19-DE405)
 ##   "fiducial_freq": fiducial frequency for sky-position coordinates
 ##   "det_motion": which detector motion to use (default: spin+orbit)
 
@@ -48,7 +48,7 @@ function [metric, coordIDs] = CreatePhaseMetric(varargin)
                {"ref_time", "real,strictpos,scalar", []},
                {"time_span", "real,strictpos,scalar"},
                {"detectors", "char"},
-               {"ephem_year", "char", "05-09"},
+               {"ephem_year", "char", "00-19-DE405"},
                {"fiducial_freq", "real,strictpos,scalar"},
                {"det_motion", "char", "spin+orbit"},
                []);

@@ -30,8 +30,8 @@ function [emitdt, emitte, emitdd, emitR, emitER, emitE, emitS] = ...
 %
 % It also takes in a vector of GPS times (tGPS). Ephemeris files for the
 % Earth (efile) and Sun (sfile) also need to be specified - these should be
-% in the format of the ephemeris files given in LAL e.g. earth05-09.dat,
-% sun05-09.dat. The source must be specified with:
+% in the format of the ephemeris files given in LAL e.g. earth00-19-DE405.dat,
+% sun00-19-DE405.dat. The source must be specified with:
 %   source.alpha = right ascension in rads
 %   source.delta = declination in rads
 %

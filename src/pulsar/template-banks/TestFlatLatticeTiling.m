@@ -58,7 +58,7 @@
 ##           fndot: list of frequency and spindown values, in Hz, Hz/s, etc.
 ##           fndot_bands: list of frequency and spindown bands (may be negative)
 ##           ref_time: reference time, in GPS seconds
-##           ephem_year: ephemeris year string (e.g. 05-09)
+##           ephem_year: ephemeris year string (e.g. 00-19-DE405)
 ##           detectors: comma-separated list of detector names
 ##           sky_coords: super-sky coordinate system (default: equatorial)
 ##           align_sky: use sky-aligned super-sky metric (default: true)

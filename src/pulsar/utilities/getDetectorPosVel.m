@@ -29,7 +29,7 @@
 ##   "gps_times":  list of GPS times
 ##   "detector":   name of detector (default: H1)
 ##   "motion":     type of motion (default: spin+orbit)
-##   "ephem_year": ephemerides year (default: 05-09)
+##   "ephem_year": ephemerides year (default: 00-19-DE405)
 function [p, v, sp, sv, op, ov] = getDetectorPosVel(varargin)
 
   ## parse options
@@ -37,7 +37,7 @@ function [p, v, sp, sv, op, ov] = getDetectorPosVel(varargin)
                {"gps_times", "real,strictpos,vector"},
                {"detector", "char", "H1"},
                {"motion", "char", "spin+orbit"},
-               {"ephem_year", "char", "05-09"},
+               {"ephem_year", "char", "00-19-DE405"},
                []);
 
   ## load LAL libraries
