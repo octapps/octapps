@@ -19,6 +19,10 @@ function [num_outliers, max_outlier, freqbins] = CountSFTPowerOutliers ( params_
  ## [num_outliers, max_outlier, freqbins] = CountSFTPowerOutliers ( params_psd, thresh, lalpath, debug )
  ## function to compute the number of outliers of the SFT power statistic
 
+ threshdimensions = size(thresh);
+ if ( ( length(threshdimensions) > 3 ) || ( ( threshdimensions(1) > 1 ) && ( threshdimensions(2) > 1 ) ) )
+  error("Parameter 2 (thresh) has too high dimension, only a single row or column vector is accepted.");
+ endif
 
  # The following params_psd fields are REQUIRED from the caller function
  required_fields = {"inputData","outputPSD"};
@@ -45,8 +49,9 @@ function [num_outliers, max_outlier, freqbins] = CountSFTPowerOutliers ( params_
  psd = load(params_psd.outputPSD);
 
  # get PSD power outlier count and maximum
- outliers     = psd(psd(:,3)>thresh,3);
- num_outliers = length(outliers);
+ for n = 1:1:length(thresh)
+  num_outliers(n) = length(psd(psd(:,3)>thresh(n),3));
+ endfor
  max_outlier  = max(psd(:,3));
  freqbins     = length(psd(:,1));
 
