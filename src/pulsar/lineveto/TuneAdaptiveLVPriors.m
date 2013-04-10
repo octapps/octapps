@@ -383,12 +383,10 @@ function [valid_band, wufreq, searchfreq, startfreq, freqband, offset, iFreq0_ol
    searchfreq = params_run.FreqMin + 1.0 * ( iFreq0 + params_run.offsetFreqIndex ) * params_run.FreqBand;
    # get back down to start of contributing frequencies, including Doppler and spindown, but not running median bins
    sideBand1  = getSidebandAtFreq ( searchfreq, params_run, use_rngmedSideband=0 );
-   startfreq  = searchfreq - sideBand1;
-   startfreq -= mod(startfreq,params_run.sft_dfreq); # round down to next sft bin
+   startfreq  = searchfreq - sideBand1; # we do not round this to an exact bin, as ComputePSD already reads in from the next-lowest bin frequency
    # do the same at upper end
    sideBand2  = getSidebandAtFreq ( searchfreq+params_init.freqstep, params_run, use_rngmedSideband=0 );
-   freqband  += sideBand1 + sideBand2;
-   freqband  += -mod(startfreq,params_run.sft_dfreq)+params_run.sft_dfreq; # round up to next sft bin
+   freqband  += sideBand1 + sideBand2; # we do not round this to exact bins, as ComputePSD already reads in up to and including the next-highest bin frequency
    # add Dterms correction to actually match GCT code data read-in (not present in CFS_*_setup.C)
    startfreq -= params_run.Dterms*params_run.sft_dfreq;
    freqband  += 2.0*params_run.Dterms*params_run.sft_dfreq;
