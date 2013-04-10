@@ -112,11 +112,11 @@ function ret = TuneAdaptiveLVPriors ( varargin )
 
   if ( valid_band == 0 )
 
-   printf("Frequency band %d/%d, WU freq %f Hz, physical search startfreq %f Hz would lie outside params_run.FreqMax=%f, skipping all bands from here on.\n", curr_step, num_freqsteps+offset, wufreq(curr_step), searchfreq(curr_step), params_run.FreqMax);
+   printf("Frequency band %d/%d, WUfreq=%f Hz, physical searchfreq=%f Hz would lie outside params_run.FreqMax=%f, skipping all bands from here on.\n", curr_step, num_freqsteps+offset, wufreq(curr_step), searchfreq(curr_step), params_run.FreqMax);
 
   else
 
-   printf("Frequency band %d/%d, WU freq %f Hz, physical search startfreq %f Hz, width %f Hz: processing band from %f Hz with width %f Hz...\n", curr_step, num_freqsteps+offset, wufreq(curr_step), searchfreq(curr_step), params_init.freqstep, startfreq(curr_step), freqband(curr_step));
+   printf("Frequency band %d/%d, WUfreq=%f Hz, physical searchfreq=%f Hz, width %f Hz: processing band from startfreq=%f Hz with width freqband=%f Hz...\n", curr_step, num_freqsteps+offset, wufreq(curr_step), searchfreq(curr_step), params_init.freqstep, startfreq(curr_step), freqband(curr_step));
 
    # get the correct set of sfts, checking for running median window
    [sftstartfreq, num_sfts_to_load, rngmedbins_effective] = get_sft_range ( params_init, params_run, startfreq(curr_step), freqband(curr_step) );
@@ -353,7 +353,7 @@ endfunction # get_iFreqRange4DataFile()
 
 function [valid_band, wufreq, searchfreq, startfreq, freqband, offset, iFreq0_old] = get_freq_ranges ( params_init, params_run, offset, iFreq0_old, curr_step );
  ## [valid_band, wufreq, searchfreq, startfreq, freqband, offset, iFreq0_old] = get_freq_ranges ( params_init, params_run, offset, iFreq0_old, curr_step )
- ## function to compute the nominal WU frequency, the physical search start frequency and SFT read-in start frequency and band
+ ## function to compute the nominal WU frequency, the physical search frequency and SFT read-in start frequency and band
 
   wufreq   = params_init.freqmin+(curr_step-1-offset)*params_init.freqstep;
   freqband = params_init.freqstep;
@@ -371,7 +371,7 @@ function [valid_band, wufreq, searchfreq, startfreq, freqband, offset, iFreq0_ol
     iFreq0diff = iFreq0 - iFreq0_old;
     if ( iFreq0diff >= 2 )
      wufreq_corr = params_init.freqmin+(curr_step-offset-iFreq0diff)*params_init.freqstep;
-     printf("At WU freq %f Hz, jump in physical search startfreq detected due to additional SFT required. Correcting by inserting additional line with previous WU freq % f Hz and corresponding search frequency.\n", wufreq, wufreq_corr);
+     printf("At WU freq %f Hz, jump in physical searchfreq detected due to additional SFT required. Correcting by inserting additional line with previous WUfreq=%f Hz and corresponding searchfreq.\n", wufreq, wufreq_corr);
      offset++;
      wufreq = wufreq_corr;
      iFreq0--;
