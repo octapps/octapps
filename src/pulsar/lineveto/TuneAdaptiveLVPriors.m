@@ -39,7 +39,8 @@ function ret = TuneAdaptiveLVPriors ( varargin )
                      {"thresh", "numeric,scalar", 1.25},
                      {"LVlmin", "numeric,scalar", 0.001},
                      {"LVlmax", "numeric,scalar", 1000},
-                     {"sftwidth", "numeric,scalar", 0.05}
+                     {"sftwidth", "numeric,scalar", 0.05},
+                     {"timestampsfiles", "char", ""}
                 );
  params_init = check_input_parameters ( params_init );
 
@@ -125,17 +126,23 @@ function ret = TuneAdaptiveLVPriors ( varargin )
    sfts = get_sft_paths ( params_init, sftstartfreq, num_sfts_to_load );
 
    # count the outliers in the power statistic
-   params_psd.FreqBand   = freqband(curr_step);
-   params_psd.Freq       = startfreq(curr_step);
-   params_psd.blocksRngMed = rngmedbins_effective;
-   params_psd.inputData = sfts.h1;
-   params_psd.outputPSD = [params_init.workingdir, filesep, "psd_H1_med_", num2str(params_psd.blocksRngMed), "_band_", int2str(curr_step), ".dat"];
+   params_psd.FreqBand       = freqband(curr_step);
+   params_psd.Freq           = startfreq(curr_step);
+   params_psd.blocksRngMed   = rngmedbins_effective;
+   params_psd.inputData      = sfts.h1;
+   if ( params_init.usetimestampsfiles == 1 )
+    params_psd.timeStampsFile = params_init.timestampsfiles{1};
+   endif
+   params_psd.outputPSD      = [params_init.workingdir, filesep, "psd_H1_med_", num2str(params_psd.blocksRngMed), "_band_", int2str(curr_step), ".dat"];
    [num_outliers_H1(curr_step), max_outlier_H1(curr_step), freqbins_H1(curr_step)] = CountSFTPowerOutliers ( params_psd, params_init.thresh, params_init.lalpath, params_init.debug );
    if ( params_init.cleanup == 1 )
     [err, msg] = unlink (params_psd.outputPSD);
    endif
-   params_psd.inputData = sfts.l1;
-   params_psd.outputPSD = [params_init.workingdir, filesep, "psd_L1_med_", num2str(params_psd.blocksRngMed), "_band_", int2str(curr_step), ".dat"];
+   params_psd.inputData      = sfts.l1;
+   if ( params_init.usetimestampsfiles == 1 )
+    params_psd.timeStampsFile = params_init.timestampsfiles{2};
+   endif
+   params_psd.outputPSD      = [params_init.workingdir, filesep, "psd_L1_med_", num2str(params_psd.blocksRngMed), "_band_", int2str(curr_step), ".dat"];
    [num_outliers_L1(curr_step), max_outlier_L1(curr_step), freqbins_L1(curr_step)] = CountSFTPowerOutliers ( params_psd, params_init.thresh, params_init.lalpath, params_init.debug );
    if ( params_init.cleanup == 1 )
     [err, msg] = unlink (params_psd.outputPSD);
@@ -245,6 +252,23 @@ function [params_init] = check_input_parameters ( params_init )
 
  if ( params_init.sftwidth <= 0.0 )
   error(["Invalid input parameter (sftwidth): ", num2str(params_init.sftwidth), " must be > 0."]);
+ endif
+
+ if ( length(params_init.timestampsfiles) == 0 )
+  params_init.usetimestampsfiles = 0;
+ else
+  params_init.usetimestampsfiles = 1;
+  splitinstring = strsplit(params_init.timestampsfiles, ",");
+  params_init = rmfield(params_init,"timestampsfiles");
+  for n=1:1:length(splitinstring)
+   params_init.timestampsfiles{n} = splitinstring{n};
+   if ( exist(params_init.timestampsfiles{n},"file") != 2 )
+    error(["Invalid input parameter (timestampsfiles{", int2str(n), "}): '", params_init.timestampsfiles{n}, "' does not exist."])
+   endif
+  endfor
+  if ( length(params_init.timestampsfiles) != 2 ) # hardcoded H1 L1 right now, generalize to numdetectors later
+   error(["Invalid input parameter (timestampsfiles): need exactly 2 comma-separated files for H1, L1."])
+  endif
  endif
 
 endfunction # check_input_parameters()
