@@ -62,45 +62,8 @@ function ret = TuneAdaptiveLVPriors ( varargin )
  # NOTE: rounded down, freqmax may not be reached if freqmax-freqmin is not an integer multiple of freqstep
  num_freqsteps = 1 + floor ( ( params_init.freqmax - params_init.freqmin ) / params_init.freqstep + SMALL_EPS );
 
- # hardcoded EatH run parameters, taken from CFS_*_setup.C from EatH project-daemons
- hours = 3600;
- days  = 24 * hours;
- years = 365 * days;
- params_run.Tsft          = 1800.0;
- params_run.sft_dfreq     = 1.0/params_run.Tsft;
- params_run.DataFileBand  = 0.05;
- params_run.dopplerFactor = 1.05e-4; # max relative doppler-shift
- params_run.Dterms        = 8;
- params_run.offsetFreqIndex = 0; # this was only necessary when WUs were split in freq
- if ( strcmp(params_init.runname,"S5R3") == 1 ) # prepare for freqband computations, based on CFS_S5R3_setup.C from EatH project-daemons
-  params_run.mismatchSpin  = 0.3; # called just "mismatch" in CFS_S5R3_setup.C
-  params_run.Tstack        = 25.0 * hours;
-  params_run.Tspan         = 381.0 *days; # total time-spanned by data
-  params_run.DataFreqMin   = 50.0;
-  params_run.DataFreqMax   = 1200.0;
-  params_run.FreqBand      = 0.05; # originally in CFS_S5R3_setup.C: pars0.FreqBand = pars0.HoughSideband * pars0.tauF / ( pars0.tauF + pars0.tauH ) * ( 1.0 - eps ) / eps;
-  params_run.tauNSmin      = 1000.0 * years;
-  params_run.RngMedWindow  = 101; # app-default
-  params_run.df1dot        = sqrt ( 33.0 * params_run.mismatchSpin) / ( pi * params_run.Tstack^2 ); # higher f1dot-resolution than predicted by the metric, because nf1dotRes=1
- elseif ( strcmp(params_init.runname,"S6bucket") == 1 ) # prepare for freqband computations, based on CFS_S6LV1_setup.C from EatH project-daemons
-  params_run.mismatchSpin  = 0.1; # 'spin' mismatch (in f,fdot)
-  params_run.Tstack        = 60.0 * hours;
-  params_run.Tspan         = 255.32 *days; # total time-spanned by data
-  params_run.DataFreqMin   = 50.0;
-  params_run.DataFreqMax   = 450.0;
-  params_run.FreqBand      = 0.05; # Hz; yields about ~12% overheads
-  params_run.tauNSmin      = 600.0 * years;
-  params_run.RngMedWindow  = 101; # app-default
-  params_run.df1dot        = sqrt ( 720.0 * params_run.mismatchSpin ) / ( pi * params_run.Tstack^2 );
-  params_run.dFreq         = sqrt ( 12.0 * params_run.mismatchSpin ) / ( pi * params_run.Tstack );
- endif
- params_run.f1dot         = - params_run.DataFreqMin / params_run.tauNSmin; # include sightly positive 'spindowns' too
- params_run.f1dotBand     = 1.1 * abs( params_run.f1dot ); # search from [-FreqMin/tau, 0.1 * FreqMin/tau]
- params_run.f1dotSideband = getf1dotSidebands ( params_run.f1dot, params_run.f1dotBand, params_run.Tspan );
- params_run.GCSideband    = 2.0 * abs(params_run.df1dot/2.0) * params_run.Tspan/2.0;
- # account for SFT-sidebands
- params_run.FreqMin       = params_run.DataFreqMin + 1.01 * getSidebandAtFreq ( params_run.DataFreqMin, params_run, use_rngmedSideband=1 );
- params_run.FreqMax       = params_run.DataFreqMax - getSidebandAtFreq ( params_run.DataFreqMax, params_run, use_rngmedSideband=1 ) - params_run.sft_dfreq;
+ # get hardcoded EatH run parameters
+ params_run = setup_params_run ( params_init.runname ); 
 
  curr_step  = 0;
  offset     = 0;
@@ -157,7 +120,7 @@ function ret = TuneAdaptiveLVPriors ( varargin )
 
   endif # valid_band == 1
 
- endwhile
+ endwhile # main loop over freqbands
 
  # needed to ignore last entry in outmatrix if last band failed outside params_run.FreqMax
  num_steps_done = curr_step;
@@ -264,6 +227,60 @@ function [params_init] = check_input_parameters ( params_init )
  endif
 
 endfunction # check_input_parameters()
+
+ 
+function params_run = setup_params_run ( runname )
+ ## params_run = setup_params_run ( runname )
+ ## provide hardcoded EatH run parameters, taken from CFS_*_setup.C from EatH project-daemons
+
+ hours = 3600;
+ days  = 24 * hours;
+ years = 365 * days;
+
+ # common fundamental quantities for all runs
+ params_run.Tsft          = 1800.0;
+ params_run.sft_dfreq     = 1.0/params_run.Tsft;
+ params_run.DataFileBand  = 0.05;
+ params_run.dopplerFactor = 1.05e-4; # max relative doppler-shift
+ params_run.Dterms        = 8;
+ params_run.offsetFreqIndex = 0; # this was only necessary when WUs were split in freq
+
+ # run-dependent quantitites
+ if ( strcmp(runname,"S5R3") == 1 ) # based on CFS_S5R3_setup.C from EatH project-daemons
+  params_run.mismatchSpin  = 0.3; # called just "mismatch" in CFS_S5R3_setup.C
+  params_run.Tstack        = 25.0 * hours;
+  params_run.Tspan         = 381.0 *days; # total time-spanned by data
+  params_run.DataFreqMin   = 50.0;
+  params_run.DataFreqMax   = 1200.0;
+  params_run.FreqBand      = 0.05; # originally in CFS_S5R3_setup.C: pars0.FreqBand = pars0.HoughSideband * pars0.tauF / ( pars0.tauF + pars0.tauH ) * ( 1.0 - eps ) / eps;
+  params_run.tauNSmin      = 1000.0 * years;
+  params_run.RngMedWindow  = 101; # app-default
+  params_run.df1dot        = sqrt ( 33.0 * params_run.mismatchSpin) / ( pi * params_run.Tstack^2 ); # higher f1dot-resolution than predicted by the metric, because nf1dotRes=1
+
+ elseif ( strcmp(runname,"S6bucket") == 1 ) # based on CFS_S6LV1_setup.C from EatH project-daemons
+  params_run.mismatchSpin  = 0.1; # 'spin' mismatch (in f,fdot)
+  params_run.Tstack        = 60.0 * hours;
+  params_run.Tspan         = 255.32 *days; # total time-spanned by data
+  params_run.DataFreqMin   = 50.0;
+  params_run.DataFreqMax   = 450.0;
+  params_run.FreqBand      = 0.05; # Hz; yields about ~12% overheads
+  params_run.tauNSmin      = 600.0 * years;
+  params_run.RngMedWindow  = 101; # app-default
+  params_run.df1dot        = sqrt ( 720.0 * params_run.mismatchSpin ) / ( pi * params_run.Tstack^2 );
+  params_run.dFreq         = sqrt ( 12.0 * params_run.mismatchSpin ) / ( pi * params_run.Tstack );
+
+ endif
+
+ # common derived quantities for all runs
+ params_run.f1dot         = - params_run.DataFreqMin / params_run.tauNSmin; # include sightly positive 'spindowns' too
+ params_run.f1dotBand     = 1.1 * abs( params_run.f1dot ); # search from [-FreqMin/tau, 0.1 * FreqMin/tau]
+ params_run.f1dotSideband = getf1dotSidebands ( params_run.f1dot, params_run.f1dotBand, params_run.Tspan );
+ params_run.GCSideband    = 2.0 * abs(params_run.df1dot/2.0) * params_run.Tspan/2.0;
+ # account for SFT-sidebands
+ params_run.FreqMin       = params_run.DataFreqMin + 1.01 * getSidebandAtFreq ( params_run.DataFreqMin, params_run, use_rngmedSideband=1 );
+ params_run.FreqMax       = params_run.DataFreqMax - getSidebandAtFreq ( params_run.DataFreqMax, params_run, use_rngmedSideband=1 ) - params_run.sft_dfreq;
+
+endfunction # setup_params_run()
 
 
 function [freqstring] = convert_freq_to_string ( freq, leading, trailing )
