@@ -42,7 +42,8 @@ function ret = TuneAdaptiveLVPriors ( varargin )
                      {"sftwidth", "numeric,scalar", 0.05},
                      {"timestampsfiles", "char", ""}
                 );
- params_init = check_input_parameters ( params_init );
+ writeCommandLineToFile ( params_init.outfile, params_init, mfilename );
+ params_init = check_input_parameters ( params_init ); # this already processes some of the input params, so have to do output before
 
  format long;
 
@@ -165,16 +166,7 @@ function ret = TuneAdaptiveLVPriors ( varargin )
  endif
 
  # save outliers to file as an ascii matrix with custom header
- fid = fopen ( params_init.outfile, "w" );
- fprintf ( fid, "%%%% produced from TuneAdaptiveLVPriors() with the following options:\n" );
- params_init_fieldnames = fieldnames(params_init);
- params_init_values     = struct2cell(params_init);
- for n=1:1:length(params_init_values)
-  if ( isnumeric(params_init_values{n}) )
-   params_init_values{n} = num2str(params_init_values{n});
-  endif
-  fprintf ( fid, "%%%% --%s=%s \n", params_init_fieldnames{n}, params_init_values{n} );
- endfor
+ fid = fopen ( params_init.outfile, "a" ); # append mode because commandline has already been written into this file
  fprintf ( fid, "%%%% \n%%%% columns:\n" );
  fprintf ( fid, "%%%% wufreq searchfreq startfreq freqband freqbins_H1 freqbins_L1 num_outliers_H1 num_outliers_L1 max_outlier_H1 max_outlier_L1 l_H1 l_L1\n" )
  if ( exist("l_H1","var") == 1 ) # if first band is already outside params_run.FreqMax, this would not be valid -> skip output
