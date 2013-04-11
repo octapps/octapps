@@ -527,14 +527,31 @@ function write_results_to_file (outfile, frequencies, freqbins, num_outliers, ma
  # header (commandline has already been written into this file)
  fid = fopen ( outfile, "a" ); # append mode
  fprintf ( fid, "%%%% \n%%%% columns:\n" );
- fprintf ( fid, "%%%% wufreq searchfreq psd_startfreq psd_freqband freqbins_H1 freqbins_L1 num_outliers_H1 num_outliers_L1 max_outlier_H1 max_outlier_L1 l_H1 l_L1\n" )
+ columnlabels = {"wufreq", "searchfreq", "psd_startfreq", "psd_freqband", "freqbins_H1", "freqbins_L1", "num_outliers_H1", "num_outliers_L1", "max_outlier_H1", "max_outlier_L1", "l_H1", "l_L1"};
+ majordigits = 4*ones(length(columnlabels),1); # assume only frequencies, bin numbers, power values etc up to 9999
+ minordigits = [2,10,10,10,0,0,0,0,6,6,6,6]; # these must be the same as the ".2f" and similar in the body formatstring
+ formatstring = "%%%%%%%%"; # double-escaped comment marker "%%" for beginning of line
+ for n = 1:1:length(columnlabels) # pad headings if numbers will be wider
+  formatstring = [formatstring, " %%%ds"];
+  if ( minordigits(n) == 0 )
+   decimaldot = 0;
+  else
+   decimaldot = 1;
+  endif
+  columnwidths(n) = max(length(columnlabels{n}),majordigits(n)+decimaldot+minordigits(n));
+ endfor
+ formatstring = sprintf([formatstring, "\n"], columnwidths);
+ fprintf ( fid, formatstring, columnlabels{:} );
 
  # body
  if ( ( length(l.H1) == 0 ) || ( num_steps_done < curr_step ) ) # if first band is already outside params_run.FreqMax, this would not be valid -> skip output
   fprintf ( fid, "%%%% params_run.FreqMax=%.10f reached, no more bands processed.\n", FreqMax );
  else
-  outmatrix = cat(1,frequencies.wu_start(1:num_steps_done),frequencies.search_start(1:num_steps_done),frequencies.psd_start(1:num_steps_done),frequencies.psd_band(1:num_steps_done),freqbins.H1(1:num_steps_done),freqbins.L1(1:num_steps_done),num_outliers.H1(1:num_steps_done),num_outliers.L1(1:num_steps_done),max_outlier.H1(1:num_steps_done),max_outlier.L1(1:num_steps_done),l.H1(1:num_steps_done),l.L1(1:num_steps_done));
-  fprintf ( fid, "%.2f %.10f %.10f %.10f %d %d %d %d %.6f %.6f %.6f %.6f\n", outmatrix );
+  columnwidths(1) += 3; # now need to pad for leading "%% " in heading also
+  formatstring = sprintf("%%%d.2f %%%d.10f %%%d.10f %%%d.10f %%%dd %%%dd %%%dd %%%dd %%%d.6f %%%d.6f %%%d.6f %%%d.6f\n", columnwidths); # pad to standard with; ".2f" and similar must be same numbers of minor digits as above
+  for n=1:1:num_steps_done
+   fprintf ( fid, formatstring, frequencies.wu_start(n),frequencies.search_start(n),frequencies.psd_start(n),frequencies.psd_band(n),freqbins.H1(n),freqbins.L1(n),num_outliers.H1(n),num_outliers.L1(n),max_outlier.H1(n),max_outlier.L1(n),l.H1(n),l.L1(n) );
+  endfor
  endif
 
  # done
