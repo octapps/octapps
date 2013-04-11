@@ -65,40 +65,52 @@ function ret = TuneAdaptiveLVPriors ( varargin )
  # get hardcoded EatH run parameters
  params_run = setup_params_run ( params_init.runname ); 
 
+ # prepare output structs and counting variables
+ frequencies     = [];
+ freqbins.H1     = [];
+ freqbins.L1     = [];
+ num_outliers.H1 = [];
+ num_outliers.L1 = [];
+ max_outlier.H1  = [];
+ max_outlier.L1  = [];
+ l.H1            = [];
+ l.L1            = [];
  curr_step  = 0;
  offset     = 0;
  valid_band = 1;
  iFreq0_old = 0;
- while ( ( curr_step < num_freqsteps+offset ) && ( valid_band == 1 ) ) # main loop over freqbands - break when params_run.FreqMax reached
+
+ # main loop over freqbands - break when params_run.FreqMax reached
+ while ( ( curr_step < num_freqsteps+offset ) && ( valid_band == 1 ) )
   curr_step++;
 
   # compute the relevant frequencies and bands
-  [valid_band, wufreq(curr_step), searchfreq(curr_step), startfreq(curr_step), freqband(curr_step), offset, iFreq0_old] = get_freq_ranges ( params_init, params_run, offset, iFreq0_old, curr_step );
+  [valid_band, frequencies, offset, iFreq0_old] = get_freq_ranges ( frequencies, params_init, params_run, offset, iFreq0_old, curr_step );
 
   if ( valid_band == 0 )
 
-   printf("Frequency band %d/%d, WUfreq=%f Hz, physical searchfreq=%f Hz would lie outside params_run.FreqMax=%f, skipping all bands from here on.\n", curr_step, num_freqsteps+offset, wufreq(curr_step), searchfreq(curr_step), params_run.FreqMax);
+   printf("Frequency band %d/%d, WUfreq=%f Hz, physical searchfreq=%f Hz would lie outside params_run.FreqMax=%f, skipping all bands from here on.\n", curr_step, num_freqsteps+offset, frequencies.wu_start(curr_step), frequencies.search_start(curr_step), params_run.FreqMax);
 
   else
 
-   printf("Frequency band %d/%d, WUfreq=%f Hz, physical searchfreq=%f Hz, width %f Hz: processing band from startfreq=%f Hz with width freqband=%f Hz...\n", curr_step, num_freqsteps+offset, wufreq(curr_step), searchfreq(curr_step), params_init.freqstep, startfreq(curr_step), freqband(curr_step));
+   printf("Frequency band %d/%d, WUfreq=%f Hz, physical searchfreq=%f Hz, width %f Hz: processing band from psd_startfreq=%f Hz with width psd_freqband=%f Hz...\n", curr_step, num_freqsteps+offset, frequencies.wu_start(curr_step), frequencies.search_start(curr_step), params_init.freqstep, frequencies.psd_start(curr_step), frequencies.psd_band(curr_step));
 
    # get the correct set of sfts, checking for running median window
-   [sftstartfreq, num_sfts_to_load, rngmedbins_effective] = get_sft_range ( params_init, params_run, startfreq(curr_step), freqband(curr_step) );
+   [sftstartfreq, num_sfts_to_load, rngmedbins_effective] = get_sft_range ( params_init, params_run, frequencies.psd_start(curr_step), frequencies.psd_band(curr_step) );
 
    # load in all required sfts
    sfts = get_sft_paths ( params_init, sftstartfreq, num_sfts_to_load );
 
    # count the outliers in the power statistic
-   params_psd.FreqBand       = freqband(curr_step);
-   params_psd.Freq           = startfreq(curr_step);
+   params_psd.FreqBand       = frequencies.psd_band(curr_step);
+   params_psd.Freq           = frequencies.psd_start(curr_step);
    params_psd.blocksRngMed   = rngmedbins_effective;
    params_psd.inputData      = sfts.h1;
    if ( params_init.usetimestampsfiles == 1 )
     params_psd.timeStampsFile = params_init.timestampsfiles{1};
    endif
    params_psd.outputPSD      = [params_init.workingdir, filesep, "psd_H1_med_", num2str(params_psd.blocksRngMed), "_band_", int2str(curr_step), ".dat"];
-   [num_outliers_H1(curr_step), max_outlier_H1(curr_step), freqbins_H1(curr_step)] = CountSFTPowerOutliers ( params_psd, params_init.thresh, params_init.lalpath, params_init.debug );
+   [num_outliers.H1(curr_step), max_outlier.H1(curr_step), freqbins.H1(curr_step)] = CountSFTPowerOutliers ( params_psd, params_init.thresh, params_init.lalpath, params_init.debug );
    if ( params_init.cleanup == 1 )
     [err, msg] = unlink (params_psd.outputPSD);
    endif
@@ -107,16 +119,16 @@ function ret = TuneAdaptiveLVPriors ( varargin )
     params_psd.timeStampsFile = params_init.timestampsfiles{2};
    endif
    params_psd.outputPSD      = [params_init.workingdir, filesep, "psd_L1_med_", num2str(params_psd.blocksRngMed), "_band_", int2str(curr_step), ".dat"];
-   [num_outliers_L1(curr_step), max_outlier_L1(curr_step), freqbins_L1(curr_step)] = CountSFTPowerOutliers ( params_psd, params_init.thresh, params_init.lalpath, params_init.debug );
+   [num_outliers.L1(curr_step), max_outlier.L1(curr_step), freqbins.L1(curr_step)] = CountSFTPowerOutliers ( params_psd, params_init.thresh, params_init.lalpath, params_init.debug );
    if ( params_init.cleanup == 1 )
     [err, msg] = unlink (params_psd.outputPSD);
    endif
 
    # compute the line priors
-   l_H1(curr_step) = max(params_init.LVlmin, num_outliers_H1(curr_step)/(freqbins_H1(curr_step)-num_outliers_H1(curr_step)));
-   l_H1(curr_step) = min(l_H1(curr_step), params_init.LVlmax);
-   l_L1(curr_step) = max(params_init.LVlmin, num_outliers_L1(curr_step)/(freqbins_L1(curr_step)-num_outliers_L1(curr_step)));
-   l_H1(curr_step) = min(l_H1(curr_step), params_init.LVlmax);
+   l.H1(curr_step) = max(params_init.LVlmin, num_outliers.H1(curr_step)/(freqbins.H1(curr_step)-num_outliers.H1(curr_step)));
+   l.H1(curr_step) = min(l.H1(curr_step), params_init.LVlmax);
+   l.L1(curr_step) = max(params_init.LVlmin, num_outliers.L1(curr_step)/(freqbins.L1(curr_step)-num_outliers.L1(curr_step)));
+   l.L1(curr_step) = min(l.L1(curr_step), params_init.LVlmax);
 
   endif # valid_band == 1
 
@@ -129,17 +141,7 @@ function ret = TuneAdaptiveLVPriors ( varargin )
  endif
 
  # save outliers to file as an ascii matrix with custom header
- fid = fopen ( params_init.outfile, "a" ); # append mode because commandline has already been written into this file
- fprintf ( fid, "%%%% \n%%%% columns:\n" );
- fprintf ( fid, "%%%% wufreq searchfreq startfreq freqband freqbins_H1 freqbins_L1 num_outliers_H1 num_outliers_L1 max_outlier_H1 max_outlier_L1 l_H1 l_L1\n" )
- if ( exist("l_H1","var") == 1 ) # if first band is already outside params_run.FreqMax, this would not be valid -> skip output
-  outmatrix = cat(1,wufreq(1:num_steps_done),searchfreq(1:num_steps_done),startfreq(1:num_steps_done),freqband(1:num_steps_done),freqbins_H1(1:num_steps_done),freqbins_L1(1:num_steps_done),num_outliers_H1(1:num_steps_done),num_outliers_L1(1:num_steps_done),max_outlier_H1(1:num_steps_done),max_outlier_L1(1:num_steps_done),l_H1(1:num_steps_done),l_L1(1:num_steps_done));
-  fprintf ( fid, "%.2f %.10f %.10f %.10f %d %d %d %d %.6f %.6f %.6f %.6f\n", outmatrix );
- endif
- if ( ( exist("l_H1","var") != 1 ) || ( num_steps_done < curr_step ) )
-  fprintf ( fid, "%%%% params_run.FreqMax=%.10f reached, no more bands processed.\n", params_run.FreqMax );
- endif
- fclose ( params_init.outfile );
+ write_results_to_file (params_init.outfile, frequencies, freqbins, num_outliers, max_outlier, l, num_steps_done, curr_step, params_run.FreqMax );
 
  ret = 1;
 
@@ -384,45 +386,45 @@ function [iFreq0, iFreq1] = get_iFreqRange4DataFile ( f0, params_run )
 endfunction # get_iFreqRange4DataFile()
 
 
-function [valid_band, wufreq, searchfreq, startfreq, freqband, offset, iFreq0_old] = get_freq_ranges ( params_init, params_run, offset, iFreq0_old, curr_step );
- ## [valid_band, wufreq, searchfreq, startfreq, freqband, offset, iFreq0_old] = get_freq_ranges ( params_init, params_run, offset, iFreq0_old, curr_step )
+function [valid_band, frequencies, offset, iFreq0_old] = get_freq_ranges ( frequencies, params_init, params_run, offset, iFreq0_old, curr_step );
+ ## [valid_band, frequencies, offset, iFreq0_old] = get_freq_ranges ( frequencies, params_init, params_run, offset, iFreq0_old, curr_step )
  ## function to compute the nominal WU frequency, the physical search frequency and SFT read-in start frequency and band
 
-  wufreq   = params_init.freqmin+(curr_step-1-offset)*params_init.freqstep;
-  freqband = params_init.freqstep;
+  frequencies.wu_start(curr_step) = params_init.freqmin+(curr_step-1-offset)*params_init.freqstep;
+  frequencies.psd_band(curr_step) = params_init.freqstep;
 
   # get the frequency index of the first WU input SFT file
-  [iFreq0, iFreq1] = get_iFreqRange4DataFile ( wufreq, params_run );
+  [iFreq0, iFreq1] = get_iFreqRange4DataFile ( frequencies.wu_start(curr_step), params_run );
   if ( iFreq0 < 0 ) # this means we are outside params_run.FreqMax
    valid_band = 0;
-   searchfreq = wufreq + getSidebandAtFreq ( wufreq, params_run, use_rngmedSideband=1 ); # needed for commandline output
-   startfreq  = 0; # irrelevant from here on
+   frequencies.search_start(curr_step) = frequencies.wu_start(curr_step) + getSidebandAtFreq ( frequencies.wu_start(curr_step), params_run, use_rngmedSideband=1 ); # needed for commandline output
+   frequencies.psd_start(curr_step)    = 0; # irrelevant from here on
   else
    valid_band = 1;
 
    if ( curr_step > 1 )
     iFreq0diff = iFreq0 - iFreq0_old;
     if ( iFreq0diff >= 2 )
-     wufreq_corr = params_init.freqmin+(curr_step-offset-iFreq0diff)*params_init.freqstep;
-     printf("At WU freq %f Hz, jump in physical searchfreq detected due to additional SFT required. Correcting by inserting additional line with previous WUfreq=%f Hz and corresponding searchfreq.\n", wufreq, wufreq_corr);
+     freq_wu_start_corr = params_init.freqmin+(curr_step-offset-iFreq0diff)*params_init.freqstep;
+     printf("At WU freq %f Hz, jump in physical searchfreq detected due to additional SFT required. Correcting by inserting additional line with previous WUfreq=%f Hz and corresponding searchfreq.\n", frequencies.wu_start(curr_step), freq_wu_start_corr);
      offset++;
-     wufreq = wufreq_corr;
+     frequencies.wu_start(curr_step) = freq_wu_start_corr;
      iFreq0--;
     endif
    endif
    iFreq0_old = iFreq0;
 
    # get the start of the physical search band
-   searchfreq = params_run.FreqMin + 1.0 * ( iFreq0 + params_run.offsetFreqIndex ) * params_run.FreqBand;
+   frequencies.search_start(curr_step) = params_run.FreqMin + 1.0 * ( iFreq0 + params_run.offsetFreqIndex ) * params_run.FreqBand;
    # get back down to start of contributing frequencies, including Doppler and spindown, but not running median bins
-   sideBand1  = getSidebandAtFreq ( searchfreq, params_run, use_rngmedSideband=0 );
-   startfreq  = searchfreq - sideBand1; # we do not round this to an exact bin, as ComputePSD already reads in from the next-lowest bin frequency
+   sideBand1  = getSidebandAtFreq ( frequencies.search_start(curr_step), params_run, use_rngmedSideband=0 );
+   frequencies.psd_start(curr_step)    = frequencies.search_start(curr_step) - sideBand1; # we do not round this to an exact bin, as ComputePSD already reads in from the next-lowest bin frequency
    # do the same at upper end
-   sideBand2  = getSidebandAtFreq ( searchfreq+params_init.freqstep, params_run, use_rngmedSideband=0 );
-   freqband  += sideBand1 + sideBand2; # we do not round this to exact bins, as ComputePSD already reads in up to and including the next-highest bin frequency
+   sideBand2  = getSidebandAtFreq ( frequencies.search_start(curr_step)+params_init.freqstep, params_run, use_rngmedSideband=0 );
+   frequencies.psd_band(curr_step)    += sideBand1 + sideBand2; # we do not round this to exact bins, as ComputePSD already reads in up to and including the next-highest bin frequency
    # add Dterms correction to actually match GCT code data read-in (not present in CFS_*_setup.C)
-   startfreq -= params_run.Dterms*params_run.sft_dfreq;
-   freqband  += 2.0*params_run.Dterms*params_run.sft_dfreq;
+   frequencies.psd_start(curr_step)   -= params_run.Dterms*params_run.sft_dfreq;
+   frequencies.psd_band(curr_step)    += 2.0*params_run.Dterms*params_run.sft_dfreq;
 
   endif # iFreq0 < 0
 
@@ -516,3 +518,26 @@ function sfts = get_sft_paths ( params_init, sftstartfreq, num_sfts_to_load )
  endfor # numsft = 1:1:num_sfts_to_load
 
 endfunction # get_sft_paths()
+
+
+function write_results_to_file (outfile, frequencies, freqbins, num_outliers, max_outlier, l, num_steps_done, curr_step, FreqMax )
+ ## write_results_to_file (outfile, frequencies, freqbins, num_outliers, max_outlier, l, num_steps_done, curr_step, FreqMax )
+ ## save outliers to file as an ascii matrix with custom header
+
+ # header (commandline has already been written into this file)
+ fid = fopen ( outfile, "a" ); # append mode
+ fprintf ( fid, "%%%% \n%%%% columns:\n" );
+ fprintf ( fid, "%%%% wufreq searchfreq psd_startfreq psd_freqband freqbins_H1 freqbins_L1 num_outliers_H1 num_outliers_L1 max_outlier_H1 max_outlier_L1 l_H1 l_L1\n" )
+
+ # body
+ if ( ( length(l.H1) == 0 ) || ( num_steps_done < curr_step ) ) # if first band is already outside params_run.FreqMax, this would not be valid -> skip output
+  fprintf ( fid, "%%%% params_run.FreqMax=%.10f reached, no more bands processed.\n", FreqMax );
+ else
+  outmatrix = cat(1,frequencies.wu_start(1:num_steps_done),frequencies.search_start(1:num_steps_done),frequencies.psd_start(1:num_steps_done),frequencies.psd_band(1:num_steps_done),freqbins.H1(1:num_steps_done),freqbins.L1(1:num_steps_done),num_outliers.H1(1:num_steps_done),num_outliers.L1(1:num_steps_done),max_outlier.H1(1:num_steps_done),max_outlier.L1(1:num_steps_done),l.H1(1:num_steps_done),l.L1(1:num_steps_done));
+  fprintf ( fid, "%.2f %.10f %.10f %.10f %d %d %d %d %.6f %.6f %.6f %.6f\n", outmatrix );
+ endif
+
+ # done
+ fclose ( outfile );
+
+endfunction # write_results_to_file()
