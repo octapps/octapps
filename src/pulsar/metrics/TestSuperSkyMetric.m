@@ -63,7 +63,7 @@ function results = TestSuperSkyMetric(varargin)
   lal;
   lalpulsar;
 
-  ## create linear phase model metrics from Andrzej Krolak's papers
+  ## create linear phase model metrics from Andrzej Krolak etal's papers
   [results.ssmetric_lpI, sscoordIDs_lpI] = CreatePhaseMetric("coords", "ssky_equ,freq,fdots",
                                                              "spindowns", spindowns,
                                                              "start_time", start_time,
