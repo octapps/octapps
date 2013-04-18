@@ -153,7 +153,7 @@ function [metric, coordIDs] = CreatePhaseMetric(varargin)
   par.signalParams.Doppler.fkdot(1) = fiducial_freq;
 
   ## set start time, reference time, and time span
-  GPSSetREAL8(par.signalParams.Doppler.refTime, ref_time);
+  par.signalParams.Doppler.refTime = ref_time;
   SegListInit(par.segmentList);
   for i = 1:length(start_time)
     seg = new_Seg;
