@@ -39,6 +39,7 @@
 ##   sky_coords: sky coordinate system to use (default: equatorial)
 ##   aligned_sky: whether to align sky coordinates (default: true)
 ##   max_mismatch: maximum prescribed mismatch to test at
+##   max_unit_disk: maximum radius of random sky points in unit disk (default: 1.0)
 ##   num_trials: number of trials to perform
 ##   err_H_minrange: minimum range of error histogram bins (default: 0.01)
 ##   err_H_binsper10: number of error histogram bins per decade (default: 10)
@@ -61,6 +62,7 @@ function results = TestSuperSkyMetric(varargin)
                {"sky_coords", "char", "equatorial"},
                {"aligned_sky", "logical,scalar", true},
                {"max_mismatch", "real,strictpos,scalar", 0.5},
+               {"max_unit_disk", "real,strictpos,scalar", 1.0},
                {"num_trials", "integer,strictpos,scalar"},
                {"err_H_minrange", "real,strictpos,scalar", 0.01},
                {"err_H_binsper10", "integer,strictpos,scalar", 10},
@@ -173,7 +175,7 @@ function results = TestSuperSkyMetric(varargin)
     mu_spa_ssmetric = dot(spa_dp, spa_ssmetric * spa_dp);
 
     ## create random point in unit disk
-    r = rand(1, trial_block);
+    r = max_unit_disk * rand(1, trial_block);
     th = rand(1, trial_block) * 2*pi;
     x1 = [r .* cos(th); r .* sin(th)];
 
