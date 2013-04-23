@@ -23,6 +23,7 @@
 ##   coordIDs = coordinate IDs of the chosen coordinates
 ## Options:
 ##   "coords": comma-separated list of coordinates:
+##             "alpha_delta": physical sky coordinates
 ##             "ssky_equ": super-sky in equatorial coordinates
 ##             "ssky_ecl": super-sky in ecliptic coordinates
 ##             "spin_equ": spin sky in x-y equatorial coordinates
@@ -37,6 +38,8 @@
 ##   "ephem_year": ephemerides year (default: 00-19-DE405)
 ##   "fiducial_freq": fiducial frequency for sky-position coordinates
 ##   "det_motion": which detector motion to use (default: spin+orbit)
+##   "alpha": for physical sky coordinates, right ascension to compute metric at
+##   "delta": for physical sky coordinates, declination to compute metric at
 
 function [metric, coordIDs] = CreatePhaseMetric(varargin)
 
@@ -51,6 +54,8 @@ function [metric, coordIDs] = CreatePhaseMetric(varargin)
                {"ephem_year", "char", "00-19-DE405"},
                {"fiducial_freq", "real,strictpos,scalar"},
                {"det_motion", "char", "spin+orbit"},
+               {"alpha", "real,scalar", 0},
+               {"delta", "real,scalar", 0},
                []);
   if isempty(start_time) && isempty(ref_time)
     error("%s: one of 'start_time' and 'ref_time' must be given", funcName);
@@ -97,6 +102,10 @@ function [metric, coordIDs] = CreatePhaseMetric(varargin)
   coord_list = strsplit(coords, ",");
   for i = 1:length(coord_list)
     switch coord_list{i}
+      case "alpha_delta"
+        coordIDs = [coordIDs, ...
+                    DOPPLERCOORD_ALPHA, ...
+                    DOPPLERCOORD_DELTA];
       case "ssky_equ"
         coordIDs = [coordIDs, ...
                     DOPPLERCOORD_N3X_EQU, ...
@@ -149,7 +158,9 @@ function [metric, coordIDs] = CreatePhaseMetric(varargin)
   ## do not project coordinates
   par.projectCoord = -1;
 
-  ## set fiducial frequency
+  ## set fiducial frequency and sky position
+  par.signalParams.Doppler.Alpha = alpha;
+  par.signalParams.Doppler.Delta = delta;
   par.signalParams.Doppler.fkdot(1) = fiducial_freq;
 
   ## set start time, reference time, and time span
