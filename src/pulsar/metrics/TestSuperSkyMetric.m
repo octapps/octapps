@@ -39,7 +39,8 @@
 ##   aligned_sky: whether to align sky coordinates (default: true)
 ##   max_mismatch: maximum prescribed mismatch to test at
 ##   num_trials: number of trials to perform
-##   err_H_dx: width of error histogram bins (default: 1e-5)
+##   err_H_minrange: minimum range of error histogram bins (default: 0.01)
+##   err_H_binsper10: number of error histogram bins per decade (default: 10)
 
 function results = TestSuperSkyMetric(varargin)
 
@@ -56,7 +57,8 @@ function results = TestSuperSkyMetric(varargin)
                {"aligned_sky", "logical,scalar", true},
                {"max_mismatch", "real,strictpos,scalar", 0.5},
                {"num_trials", "integer,strictpos,scalar"},
-               {"err_H_dx", "real,strictpos,scalar", 5e-3},
+               {"err_H_minrange", "real,strictpos,scalar", 0.01},
+               {"err_H_binsper10", "integer,strictpos,scalar", 10},
                []);
 
   ## load LAL libraries
@@ -134,10 +136,10 @@ function results = TestSuperSkyMetric(varargin)
   onto_spa_ssmetric = sqrt(max_mismatch) * Dnorm * inv(CD_spa_ssmetric);
 
   ## initalise result histograms
-  results.mu_spa_ssmetric_err_H = Hist(1, {"lin", "dbin", err_H_dx});
-  results.mu_a_ssmetric_err_H = Hist(1, {"lin", "dbin", err_H_dx});
-  results.mu_ssmetric_lpI_err_H = Hist(1, {"lin", "dbin", err_H_dx});
-  results.mu_ssmetric_lpII_err_H = Hist(1, {"lin", "dbin", err_H_dx});
+  results.mu_spa_ssmetric_err_H = Hist(1, {"log", "minrange", err_H_minrange, "binsper10", err_H_binsper10});
+  results.mu_a_ssmetric_err_H = Hist(1, {"log", "minrange", err_H_minrange, "binsper10", err_H_binsper10});
+  results.mu_ssmetric_lpI_err_H = Hist(1, {"log", "minrange", err_H_minrange, "binsper10", err_H_binsper10});
+  results.mu_ssmetric_lpII_err_H = Hist(1, {"log", "minrange", err_H_minrange, "binsper10", err_H_binsper10});
 
   ## iterate over all trials in 'trial_block'-sized blocks
   trial_block = 1e5;
@@ -190,36 +192,28 @@ function results = TestSuperSkyMetric(varargin)
     mu_ssmetric = dot(dp, results.ssmetric * dp);
 
     ## bin error in sky-projected aligned mismatch compared to untransformed mismatch
-    mu_spa_ssmetric_err = MismatchError(mu_spa_ssmetric, mu_ssmetric);
+    mu_spa_ssmetric_err = mu_spa_ssmetric ./ mu_ssmetric - 1;
     results.mu_spa_ssmetric_err_H = addDataToHist(results.mu_spa_ssmetric_err_H, mu_spa_ssmetric_err(:));
 
     ## bin error in aligned mismatch compared to untransformed mismatch
-    mu_a_ssmetric_err = MismatchError(mu_a_ssmetric, mu_ssmetric);
+    mu_a_ssmetric_err = mu_a_ssmetric ./ mu_ssmetric - 1;
     results.mu_a_ssmetric_err_H = addDataToHist(results.mu_a_ssmetric_err_H, mu_a_ssmetric_err(:));
 
     ## compute mismatch in metric with linear phase model I
     mu_ssmetric_lpI = dot(dp, results.ssmetric_lpI * dp);
 
     ## bin error in linear phase model I metric compared to untransformed mismatch
-    mu_ssmetric_lpI_err = MismatchError(mu_ssmetric_lpI, mu_ssmetric);
+    mu_ssmetric_lpI_err = mu_ssmetric_lpI ./ mu_ssmetric - 1;
     results.mu_ssmetric_lpI_err_H = addDataToHist(results.mu_ssmetric_lpI_err_H, mu_ssmetric_lpI_err(:));
 
     ## compute mismatch in metric with linear phase model II
     mu_ssmetric_lpII = dot(dp, results.ssmetric_lpII * dp);
 
     ## bin error in linear phase model II metric compared to untransformed mismatch
-    mu_ssmetric_lpII_err = MismatchError(mu_ssmetric_lpII, mu_ssmetric);
+    mu_ssmetric_lpII_err = mu_ssmetric_lpII ./ mu_ssmetric - 1;
     results.mu_ssmetric_lpII_err_H = addDataToHist(results.mu_ssmetric_lpII_err_H, mu_ssmetric_lpII_err(:));
 
     num_trials -= trial_block;
   endwhile
 
-endfunction
-
-
-## calculate mismatch error, binning very large errors into the +- infinity histogram bins
-function err = MismatchError(mu, mu_ref)
-  err = mu ./ mu_ref - 1;
-  err(err < -1) = -inf;
-  err(err > 1) = inf;
 endfunction
