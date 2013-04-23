@@ -30,7 +30,7 @@ function ret = LaTeX_number ( val, precision = 3, form = "auto" )
 
   fmt_f = sprintf ("$%%.%df$", precision );
   fmt_g = sprintf ("$%%.%dg$", precision );
-  fmt_e = sprintf ("$%%.%df\\\\times 10^{%%d}$", precision );
+  fmt_e = sprintf ("$%%.%df\\times 10^{%%d}$", precision );
   fmt_e0= sprintf ("$10^{%%d}$", precision );
 
   for i = 1:N
