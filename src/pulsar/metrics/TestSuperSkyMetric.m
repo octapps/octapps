@@ -27,6 +27,7 @@
 ##     mu_a_ssmetric_err_H    = error in aligned mismatch compared to untransformed mismatch
 ##     mu_ssmetric_lpI_err_H  = error in linear phase model I metric compared to untransformed mismatch
 ##     mu_ssmetric_lpII_err_H = error in linear phase model II metric compared to untransformed mismatch
+##     mu_ssmetric_ad_err_H   = error in mismatch using physical coordinates compared to untransformed mismatch
 ## Options:
 ##   spindowns: number of frequency spindowns coordinates
 ##   start_time: start time in GPS seconds (default: see CreatePhaseMetric)
@@ -140,6 +141,7 @@ function results = TestSuperSkyMetric(varargin)
   results.mu_a_ssmetric_err_H = Hist(1, {"log", "minrange", err_H_minrange, "binsper10", err_H_binsper10});
   results.mu_ssmetric_lpI_err_H = Hist(1, {"log", "minrange", err_H_minrange, "binsper10", err_H_binsper10});
   results.mu_ssmetric_lpII_err_H = Hist(1, {"log", "minrange", err_H_minrange, "binsper10", err_H_binsper10});
+  results.mu_ssmetric_ad_err_H = Hist(1, {"log", "minrange", err_H_minrange, "binsper10", err_H_binsper10});
 
   ## iterate over all trials in 'trial_block'-sized blocks
   trial_block = 1e5;
@@ -167,25 +169,43 @@ function results = TestSuperSkyMetric(varargin)
     th = rand(1, trial_block) * 2*pi;
     x1 = [r .* cos(th); r .* sin(th)];
 
-    ## add random offsets to create second random point
-    x2 = x1 + spa_dp([ina, inb], :);
+    ## get random offset and compute dot products
+    dx = spa_dp([ina, inb], :);
+    x1_x1 = dot(x1, x1);
+    x1_dx = dot(x1, dx);
+    dx_dx = dot(dx, dx);
 
-    ## project onto sky upper hemisphere; use real() for computing
-    ## aligned-c component in case point has radius > 1
-    n1 = [x1; real(sqrt(1 - sumsq(x1, 1)))];
-    n2 = [x2; real(sqrt(1 - sumsq(x2, 1)))];
+    ## compute the constant multiplier 'c' required to satisfy
+    ## |x1 + c*dx| == 1; if it is less than 1, then |x + dx| > 1
+    ## and second random point would lie outside sky sphere,
+    ## thus limit 'c' to be less than 1.
+    c = ( sqrt(x1_dx.^2 + dx_dx.*(1 - x1_x1)) - x1_dx ) ./ dx_dx;
+    c = min(1.0, c);
+
+    ## compute second random point by adding (scaled) offset
+    x2 = x1;
+    for i = 1:2
+      x2(i, :) += c .* dx(i, :);
+    endfor
+
+    ## project onto (aligned sky) upper hemisphere; use real()
+    ## in case points have radius >1 due to numerical roundoff
+    a_n1 = [x1; real(sqrt(1 - sumsq(x1)))];
+    a_n2 = [x2; real(sqrt(1 - sumsq(x2)))];
 
     ## create point offsets in (non-sky-projected) aligned metric
     a_dp = zeros(size(results.a_ssmetric, 1), trial_block);
-    a_dp([ina, inb, inc], :) = n2 - n1;
+    a_dp([ina, inb, inc], :) = a_n2 - a_n1;
     a_dp(iff, :) = spa_dp(spa_iff, :);
 
     ## compute mismatch in aligned metric
     mu_a_ssmetric = dot(a_dp, results.a_ssmetric * a_dp);
 
     ## compute inverse coordinate transform from aligned (residual) coordinates to untransformed super-sky coordinates
+    n1 = a_alignsky \ a_n1;
+    n2 = a_alignsky \ a_n2;
     dp = zeros(size(a_dp));
-    dp([ina, inb, inc], :) = a_alignsky \ a_dp([ina, inb, inc], :);
+    dp([ina, inb, inc], :) = n2 - n1;
     dp(iff, :) = a_dp(iff, :) - a_skyoff * a_dp([ina, inb, inc], :);
 
     ## compute mismatch in untransformed metric
@@ -212,6 +232,37 @@ function results = TestSuperSkyMetric(varargin)
     ## bin error in linear phase model II metric compared to untransformed mismatch
     mu_ssmetric_lpII_err = mu_ssmetric_lpII ./ mu_ssmetric - 1;
     results.mu_ssmetric_lpII_err_H = addDataToHist(results.mu_ssmetric_lpII_err_H, mu_ssmetric_lpII_err(:));
+
+    ## compute right ascensions alpha1 and alpha2 from sky positions n1 and n2
+    alpha1 = atan2(n1(2, :), n1(1, :));
+    alpha2 = atan2(n2(2, :), n2(1, :));
+
+    ## compute declinations delta1 and delta2 from sky positions n1 and n2
+    delta1 = atan2(n1(3, :), sqrt(sumsq(n1(1:2, :))));
+    delta2 = atan2(n2(3, :), sqrt(sumsq(n2(1:2, :))));
+
+    ## compute "equivalent" sky position offset in physical coordinates (alpha,delta),
+    ## evaluated at (alpha1,delta1). ad_dp is a product of the Jacobian matrix
+    ##   \partial(\cos\alpha\cos\delta, \sin\alpha\cos\delta, \sin\delta)/\partial(\alpha,\delta)
+    ## and the physical offsets
+    ##   (\Delta\alpha, \Delta\delta)
+    cosalpha = cos(alpha1);
+    sinalpha = sin(alpha1);
+    cosdelta = cos(delta1);
+    sindelta = sin(delta1);
+    dalpha = alpha2 - alpha1;
+    ddelta = delta2 - delta1;
+    ad_dp = dp;
+    ad_dp(ina, :) = -sinalpha.*cosdelta.*dalpha - cosalpha.*sindelta.*ddelta;
+    ad_dp(inb, :) = cosalpha.*cosdelta.*dalpha - sinalpha.*sindelta.*ddelta;
+    ad_dp(inc, :) = cosdelta.*ddelta;
+
+    ## compute mismatch in metric using physical coordinates (alpha,delta)
+    mu_ssmetric_ad = dot(ad_dp, results.ssmetric * ad_dp);
+
+    ## bin error in metric using physical coordinates compared to untransformed mismatch
+    mu_ssmetric_ad_err = mu_ssmetric_ad ./ mu_ssmetric - 1;
+    results.mu_ssmetric_ad_err_H = addDataToHist(results.mu_ssmetric_ad_err_H, mu_ssmetric_ad_err(:));
 
     num_trials -= trial_block;
   endwhile
