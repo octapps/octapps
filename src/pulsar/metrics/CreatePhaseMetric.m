@@ -35,13 +35,17 @@
 ##   "ref_time": reference time in GPS seconds (default: mean(start_time + 0.5*time_span))
 ##   "time_span": observation time-span in seconds
 ##   "detectors": comma-separated list of detector names
-##   "ephem_year": ephemerides year (default: 00-19-DE405)
+##   "ephemerides": Earth/Sun ephemerides from loadEphemerides()
 ##   "fiducial_freq": fiducial frequency for sky-position coordinates
 ##   "det_motion": which detector motion to use (default: spin+orbit)
 ##   "alpha": for physical sky coordinates, right ascension to compute metric at
 ##   "delta": for physical sky coordinates, declination to compute metric at
 
 function [metric, coordIDs, start_time, ref_time] = CreatePhaseMetric(varargin)
+
+  ## load LAL libraries
+  lal;
+  lalpulsar;
 
   ## parse options
   parseOptions(varargin,
@@ -51,30 +55,22 @@ function [metric, coordIDs, start_time, ref_time] = CreatePhaseMetric(varargin)
                {"ref_time", "real,strictpos,scalar", []},
                {"time_span", "real,strictpos,scalar"},
                {"detectors", "char"},
-               {"ephem_year", "char", "00-19-DE405"},
+               {"ephemerides", "a:swig_ref", []},
                {"fiducial_freq", "real,strictpos,scalar"},
                {"det_motion", "char", "spin+orbit"},
                {"alpha", "real,scalar", 0},
                {"delta", "real,scalar", 0},
                []);
+
+  ## load ephemerides if not supplied
+  if isempty(ephemerides)
+    ephemerides = loadEphemerides();
+  endif
+
+  ## check start time(s) and reference time
   if isempty(start_time) && isempty(ref_time)
     error("%s: one of 'start_time' and 'ref_time' must be given", funcName);
   endif
-
-  ## load LAL libraries
-  lal;
-  lalpulsar;
-
-  ## load ephemerides
-  earth_ephem = sprintf("earth%s.dat", ephem_year);
-  sun_ephem = sprintf("sun%s.dat", ephem_year);
-  try
-    ephemerides = InitBarycenter(earth_ephem, sun_ephem);
-  catch
-    error("%s: Could not load ephemerides", funcName);
-  end_try_catch
-
-  ## check start time(s) and reference time
   if isempty(start_time)
     start_time = [ref_time - 0.5*time_span];
   elseif isempty(ref_time)

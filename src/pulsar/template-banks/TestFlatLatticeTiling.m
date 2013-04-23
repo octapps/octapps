@@ -58,8 +58,8 @@
 ##           fndot: list of frequency and spindown values, in Hz, Hz/s, etc.
 ##           fndot_bands: list of frequency and spindown bands (may be negative)
 ##           ref_time: reference time, in GPS seconds
-##           ephem_year: ephemeris year string (e.g. 00-19-DE405)
 ##           detectors: comma-separated list of detector names
+##           ephemerides: Earth/Sun ephemerides from loadEphemerides()
 ##           sky_coords: super-sky coordinate system (default: equatorial)
 ##           align_sky: use sky-aligned super-sky metric (default: true)
 ##           offset_sky: use sky-offset frequency coordinates (default: true)
@@ -78,6 +78,10 @@
 
 function results = TestFlatLatticeTiling(varargin)
 
+  ## Load LAL libraries
+  lal;
+  lalpulsar;
+
   ## Parse options
   parseOptions(varargin,
                {"tiling", "cell,vector"},
@@ -94,10 +98,6 @@ function results = TestFlatLatticeTiling(varargin)
   if !ischar(tiling{1})
     error("%s: first argument to 'tiling' must be a string", funcName);
   endif
-
-  ## Load LAL libraries
-  lal;
-  lalpulsar;
 
   ## Create output struct
   results = struct;
@@ -229,8 +229,8 @@ function results = TestFlatLatticeTiling(varargin)
                    {"fndot", "real,vector"},
                    {"fndot_bands", "real,vector", []},
                    {"ref_time", "real,strictpos,scalar"},
-                   {"ephem_year", "char"},
                    {"detectors", "char"},
+                   {"ephemerides", "a:swig_ref", []},
                    {"sky_coords", "char", "equatorial"},
                    {"align_sky", "logical", true},
                    {"offset_sky", "logical", true},
@@ -245,9 +245,9 @@ function results = TestFlatLatticeTiling(varargin)
       [sometric, coordIDs] = CreatePhaseMetric("coords", "spin_equ,orbit_ecl,freq,fdots",
                                                "time_span", time_span,
                                                "ref_time", ref_time,
-                                               "detectors", detectors,
                                                "spindowns", spindowns,
-                                               "ephem_year", ephem_year,
+                                               "detectors", detectors,
+                                               "ephemerides", ephemerides,
                                                "fiducial_freq", fndot(1),
                                                "det_motion", det_motion);
 

@@ -34,7 +34,7 @@
 ##   ref_time: reference time in GPS seconds (default: see CreatePhaseMetric)
 ##   time_span: observation time-span in seconds
 ##   detectors: comma-separated list of detector names
-##   ephem_year: ephemerides year (default: see CreatePhaseMetric)
+##   ephemerides: Earth/Sun ephemerides from loadEphemerides()
 ##   fiducial_freq: fiducial frequency for sky-position coordinates
 ##   sky_coords: sky coordinate system to use (default: equatorial)
 ##   aligned_sky: whether to align sky coordinates (default: true)
@@ -45,6 +45,10 @@
 
 function results = TestSuperSkyMetric(varargin)
 
+  ## load LAL libraries
+  lal;
+  lalpulsar;
+
   ## parse options
   parseOptions(varargin,
                {"spindowns", "integer,positive,scalar"},
@@ -52,7 +56,7 @@ function results = TestSuperSkyMetric(varargin)
                {"ref_time", "real,strictpos,scalar", []},
                {"time_span", "real,strictpos,scalar"},
                {"detectors", "char"},
-               {"ephem_year", "char", []},
+               {"ephemerides", "a:swig_ref", []},
                {"fiducial_freq", "real,strictpos,scalar"},
                {"sky_coords", "char", "equatorial"},
                {"aligned_sky", "logical,scalar", true},
@@ -62,19 +66,21 @@ function results = TestSuperSkyMetric(varargin)
                {"err_H_binsper10", "integer,strictpos,scalar", 10},
                []);
 
-  ## load LAL libraries
-  lal;
-  lalpulsar;
+  ## load ephemerides if not supplied
+  if isempty(ephemerides)
+    ephemerides = loadEphemerides();
+  endif
 
   ## create spin-orbit component metric
-  [sometric, socoordIDs] = CreatePhaseMetric("coords", "spin_equ,orbit_ecl,freq,fdots",
-                                             "spindowns", spindowns,
-                                             "start_time", start_time,
-                                             "ref_time", ref_time,
-                                             "time_span", time_span,
-                                             "detectors", detectors,
-                                             "fiducial_freq", fiducial_freq,
-                                             "det_motion", "spin+orbit");
+  [sometric, socoordIDs, start_time, ref_time] = CreatePhaseMetric("coords", "spin_equ,orbit_ecl,freq,fdots",
+                                                                   "spindowns", spindowns,
+                                                                   "start_time", start_time,
+                                                                   "ref_time", ref_time,
+                                                                   "time_span", time_span,
+                                                                   "detectors", detectors,
+                                                                   "ephemerides", ephemerides,
+                                                                   "fiducial_freq", fiducial_freq,
+                                                                   "det_motion", "spin+orbit");
 
   ## construct untransformed super-sky metric
   results.ssmetric = ConstructSuperSkyMetrics(sometric, socoordIDs, "sky_coords", sky_coords);
@@ -125,6 +131,7 @@ function results = TestSuperSkyMetric(varargin)
                                                              "ref_time", ref_time,
                                                              "time_span", time_span,
                                                              "detectors", detectors,
+                                                             "ephemerides", ephemerides,
                                                              "fiducial_freq", fiducial_freq,
                                                              "det_motion", "spinxy+orbit");
   [results.ssmetric_lpII, sscoordIDs_lpII] = CreatePhaseMetric("coords", "ssky_equ,freq,fdots",
@@ -133,6 +140,7 @@ function results = TestSuperSkyMetric(varargin)
                                                                "ref_time", ref_time,
                                                                "time_span", time_span,
                                                                "detectors", detectors,
+                                                               "ephemerides", ephemerides,
                                                                "fiducial_freq", fiducial_freq,
                                                                "det_motion", "orbit");
 

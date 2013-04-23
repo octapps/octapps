@@ -26,23 +26,28 @@
 ##   op = orbital components of detector positions
 ##   ov = orbital components of detector velocities
 ## Options:
-##   "gps_times":  list of GPS times
-##   "detector":   name of detector (default: H1)
-##   "motion":     type of motion (default: spin+orbit)
-##   "ephem_year": ephemerides year (default: 00-19-DE405)
+##   "gps_times":   list of GPS times
+##   "detector":    name of detector (default: H1)
+##   "motion":      type of motion (default: spin+orbit)
+##   "ephemerides": Earth/Sun ephemerides from loadEphemerides()
 function [p, v, sp, sv, op, ov] = getDetectorPosVel(varargin)
+
+  ## load LAL libraries
+  lal;
+  lalpulsar;
 
   ## parse options
   parseOptions(varargin,
                {"gps_times", "real,strictpos,vector"},
                {"detector", "char", "H1"},
                {"motion", "char", "spin+orbit"},
-               {"ephem_year", "char", "00-19-DE405"},
+               {"ephemerides", "a:swig_ref", []},
                []);
 
-  ## load LAL libraries
-  lal;
-  lalpulsar;
+  ## load ephemerides if not supplied
+  if isempty(ephemerides)
+    ephemerides = loadEphemerides();
+  endif
 
   ## parse detector string
   detInfo = new_MultiDetectorInfo();
@@ -54,15 +59,6 @@ function [p, v, sp, sv, op, ov] = getDetectorPosVel(varargin)
 
   ## parse detector motion string
   detMotion = ParseDetectorMotionString(motion);
-
-  ## load ephemerides
-  earth_ephem = sprintf("earth%s.dat", ephem_year);
-  sun_ephem = sprintf("sun%s.dat", ephem_year);
-  try
-    ephemerides = InitBarycenter(earth_ephem, sun_ephem);
-  catch
-    error("%s: Could not load ephemerides", funcName);
-  end_try_catch
 
   ## allocate arrays for holding spin and orbital positions and velocities
   sp = sv = op = ov = zeros(3, length(gps_times));

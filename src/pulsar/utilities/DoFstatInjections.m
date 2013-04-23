@@ -26,7 +26,7 @@ function results = DoFstatInjections(varargin)
                {"start_time", "real,strictpos,scalar", []},
                {"time_span", "real,strictpos,scalar"},
                {"detectors", "char"},
-               {"ephemerides", "a:swig_ref"},
+               {"ephemerides", "a:swig_ref", []},
                {"sft_time_span", "real,strictpos,scalar", 1800},
                {"sft_overlap", "real,positive,scalar", 0},
                {"inj_h0", "real,strictpos,row", []},
@@ -43,6 +43,11 @@ function results = DoFstatInjections(varargin)
                {"sch_fndot", "real,matrix", [100]},
                []);
 
+  ## load ephemerides if not supplied
+  if isempty(ephemerides)
+    ephemerides = loadEphemerides();
+  endif
+
   ## number of injection and search points
   assert(numel(inj_fndot) > 0);
   num_inj = size(inj_fndot, 2);
@@ -50,7 +55,6 @@ function results = DoFstatInjections(varargin)
   num_sch = size(sch_fndot, 2);
 
   ## check options
-  assert(strcmp(swig_type(ephemerides), "EphemerisData"));
   assert(isempty(inj_h0)    || size(inj_h0, 2)    == num_inj);
   assert(isempty(inj_cosi)  || size(inj_cosi, 2)  == num_inj);
   assert(isempty(inj_psi)   || size(inj_psi, 2)   == num_inj);
