@@ -41,7 +41,7 @@
 ##   "alpha": for physical sky coordinates, right ascension to compute metric at
 ##   "delta": for physical sky coordinates, declination to compute metric at
 
-function [metric, coordIDs] = CreatePhaseMetric(varargin)
+function [metric, coordIDs, start_time, ref_time] = CreatePhaseMetric(varargin)
 
   ## parse options
   parseOptions(varargin,
