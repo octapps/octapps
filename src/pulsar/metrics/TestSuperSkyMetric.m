@@ -65,24 +65,6 @@ function results = TestSuperSkyMetric(varargin)
   lal;
   lalpulsar;
 
-  ## create linear phase model metrics from Andrzej Krolak etal's papers
-  [results.ssmetric_lpI, sscoordIDs_lpI] = CreatePhaseMetric("coords", "ssky_equ,freq,fdots",
-                                                             "spindowns", spindowns,
-                                                             "start_time", start_time,
-                                                             "ref_time", ref_time,
-                                                             "time_span", time_span,
-                                                             "detectors", detectors,
-                                                             "fiducial_freq", fiducial_freq,
-                                                             "det_motion", "spinxy+orbit");
-  [results.ssmetric_lpII, sscoordIDs_lpII] = CreatePhaseMetric("coords", "ssky_equ,freq,fdots",
-                                                               "spindowns", spindowns,
-                                                               "start_time", start_time,
-                                                               "ref_time", ref_time,
-                                                               "time_span", time_span,
-                                                               "detectors", detectors,
-                                                               "fiducial_freq", fiducial_freq,
-                                                               "det_motion", "orbit");
-
   ## create spin-orbit component metric
   [sometric, socoordIDs] = CreatePhaseMetric("coords", "spin_equ,orbit_ecl,freq,fdots",
                                              "spindowns", spindowns,
@@ -134,6 +116,24 @@ function results = TestSuperSkyMetric(varargin)
   ## compute transform from surface of unit sphere to surface of sky-projected aligned
   ## metric ellipsoid with maximum mismatch of 'max_mismatch'
   onto_spa_ssmetric = sqrt(max_mismatch) * Dnorm * inv(CD_spa_ssmetric);
+
+  ## create linear phase model metrics from Andrzej Krolak etal's papers
+  [results.ssmetric_lpI, sscoordIDs_lpI] = CreatePhaseMetric("coords", "ssky_equ,freq,fdots",
+                                                             "spindowns", spindowns,
+                                                             "start_time", start_time,
+                                                             "ref_time", ref_time,
+                                                             "time_span", time_span,
+                                                             "detectors", detectors,
+                                                             "fiducial_freq", fiducial_freq,
+                                                             "det_motion", "spinxy+orbit");
+  [results.ssmetric_lpII, sscoordIDs_lpII] = CreatePhaseMetric("coords", "ssky_equ,freq,fdots",
+                                                               "spindowns", spindowns,
+                                                               "start_time", start_time,
+                                                               "ref_time", ref_time,
+                                                               "time_span", time_span,
+                                                               "detectors", detectors,
+                                                               "fiducial_freq", fiducial_freq,
+                                                               "det_motion", "orbit");
 
   ## initalise result histograms
   results.mu_spa_ssmetric_err_H = Hist(1, {"log", "minrange", err_H_minrange, "binsper10", err_H_binsper10});
