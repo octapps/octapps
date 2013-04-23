@@ -14,8 +14,8 @@ function g_aa = projectSuperskyMetric2Sky ( g_nn, alpha0, delta0 )
   assert ( nDim >= 3, "Input supersky metric must be at least 3x3 (got %dx%d)", nDim, nDim);
 
   %% jakobian d [n,fkdot] / d [a,fkdot]  (rows n^i, columns a^j}
-  sind = sin(delta); cosd = cos(delta);
-  sina = sin(alpha); cosa = cos(alpha);
+  sind = sin(delta0); cosd = cos(delta0);
+  sina = sin(alpha0); cosa = cos(alpha0);
   jak_n_a = [
              - cosd * sina, - sind * cosa;
                cosd * cosa, - sind * sina;
