@@ -68,7 +68,7 @@ function [rho, pd_rho] = SensitivitySNR(pd, Ns, Rsqr_H, detstat, varargin)
   ## get values and weights of R^2 as row vectors
   if isHist(Rsqr_H)
     ## R^2 = histogram
-    [Rsqr_xb, Rsqr_px] = finiteHist(Rsqr_H);
+    [Rsqr_xb, Rsqr_px] = finiteHist(Rsqr_H, "normalised");
     [xl, Rsqr_x, Rsqr_dx] = histBinGrids(Rsqr_H, 1, "xl", "xc", "dx");
     Rsqr_w = Rsqr_px .* Rsqr_dx;
     ## check histogram bins are positive

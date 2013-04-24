@@ -67,9 +67,6 @@ function hgrm = createGaussianHist ( M, S, varargin )
     %% (exit after 1 iteration if all parameters are constant)
   until histerr < err
 
-  %% output final histogram
-  hgrm = normaliseHist ( hgrm );
-
 endfunction
 
 

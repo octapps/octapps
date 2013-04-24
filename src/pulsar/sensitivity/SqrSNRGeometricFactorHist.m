@@ -163,7 +163,4 @@ function Rsqr_H = SqrSNRGeometricFactorHist(varargin)
   ## reduce scale of R^2 histogram so that <R^2> = 1
   Rsqr_H = transformHistBins(Rsqr_H, 1, @(x) x / apxnorm);
 
-  ## normalise histograms
-  Rsqr_H = normaliseHist(Rsqr_H);
-
 endfunction

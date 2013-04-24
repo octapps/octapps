@@ -27,9 +27,6 @@ function mean = meanOfHist(hgrm)
   assert(isHist(hgrm));
   dim = length(hgrm.xb);
 
-  ## normalise histogram
-  hgrm = normaliseHist(hgrm);
-
   ## calculate mean
   mean = zeros(dim, 1);
   for k = 1:dim

@@ -27,9 +27,6 @@ function variance = varianceOfHist(hgrm)
   assert(isHist(hgrm));
   dim = length(hgrm.xb);
 
-  ## normalise histogram
-  hgrm = normaliseHist(hgrm);
-
   ## calculate variance
   variance = zeros(dim, 1);
   for k = 1:dim

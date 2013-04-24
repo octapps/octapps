@@ -17,12 +17,10 @@
 
 ## Plot a histogram as a stair graph
 ## Syntax:
-##   plotHist(hgrm, hgrmopt, options, ...)
+##   plotHist(hgrm, options, ...)
 ##   h = plotHist(...)
 ## where:
 ##   hgrm    = histogram struct
-##   hgrmopt = optional histogram options:
-##             "nonorm" = do not normalise histogram
 ##   options = options to pass to graphics function
 ##   h       = return graphics handle
 
@@ -36,15 +34,8 @@ function varargout = plotHist(hgrm, varargin)
     error("%s: can only plot 1D histogram", funcName);
   endif
 
-  ## normalise histogram
-  if length(varargin) > 0 && strcmp(varargin{1}, "nonorm")
-    varargin = varargin(2:end);
-  else
-    hgrm = normaliseHist(hgrm);
-  endif
-
   ## get finite bins and probabilities
-  [xb, px] = finiteHist(hgrm);
+  [xb, px] = finiteHist(hgrm, "normalised");
   xb = xb{1};
 
   ## if histogram is singular

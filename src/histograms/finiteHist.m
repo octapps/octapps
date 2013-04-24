@@ -18,18 +18,62 @@
 ## Return the finite bins and probabilities of a histogram
 ## Syntax:
 ##   [xb, px] = finiteHist(hgrm)
+##   [xb, px] = finiteHist(hgrm, "normalised")
 ## where:
 ##   hgrm  = histogram struct
 ##   xb    = finite bins
 ##   px    = finite probabilities
 
-function [xb, px] = finiteHist(hgrm)
+function [xb, px] = finiteHist(hgrm, varargin)
 
+  ## check input
   assert(isHist(hgrm));
   dim = length(hgrm.xb);
+  normalise = false;
+  if length(varargin) > 0
+    assert(strcmp(varargin{1}, "normalised"));
+    normalise = true;
+  endif
 
+  ## extract finite grid from histogram
   xb = cellfun(@(x) x(2:end-1), hgrm.xb, "UniformOutput", false);
   ii = cellfun(@(x) 2:length(x)-2, hgrm.xb, "UniformOutput", false);
   px = hgrm.px(ii{:});
 
+  if normalise
+
+    ## compute areas of all probability bins
+    areas = ones(size(px));
+    for k = 1:dim
+      dx = histBinGrids(hgrm, k, "dx");
+      areas .*= dx;
+    endfor
+
+    ## determine which bins have non-zero area
+    nzii = (areas > 0);
+
+    ## normalise by total bin count in non-zero-area bins
+    norm = sum(px(nzii));
+    if norm > 0
+      px ./= norm;
+    endif
+
+    ## further normalise each probability bin by its area,
+    ## so bins with different areas are treated correctly
+    px(nzii) ./= areas(nzii);
+
+  endif
+
 endfunction
+
+
+## generate Gaussian histograms and test normalisation with equal/unequal bins
+%!test
+%! hgrm1 = addDataToHist(newHist(1), normrnd(0, 1, 1e6, 1), 0.01, 0);
+%! hgrm2 = addDataToHistLogBins(newHist(1), normrnd(0, 1, 1e6, 1), 0.5, 50);
+%! [xb1, px1] = finiteHist(hgrm1, "normalised");
+%! [xb2, px2] = finiteHist(hgrm2, "normalised");
+%! xc1 = histBinGrids(hgrm1, 1, "xc");
+%! xc2 = histBinGrids(hgrm2, 1, "xc");
+%! assert(mean(abs(px1 - normpdf(xc1, 0, 1))) < 0.005)
+%! assert(mean(abs(px2 - normpdf(xc2, 0, 1))) < 0.005)

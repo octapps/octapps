@@ -36,8 +36,8 @@ function mu = momentOfHist(hgrm, x0, n)
   assert(isvector(x0) && length(x0) == dim);
   assert(isvector(n)  && length(x0) == dim && all(n >= 0));
 
-  ## get finite bins and probabilities
-  [xb, px] = finiteHist(hgrm);
+  ## get finite and normalised bins and probabilities
+  [xb, px] = finiteHist(hgrm, "normalised");
 
   ## start with probability array
   muint = px;

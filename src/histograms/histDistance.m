@@ -15,10 +15,9 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## Computes a metric distance between histograms, defined to be
-## the area under the histogram whose probability densities are
-## the absolute difference in (normalised) probability densities
-## of the two input histograms.
+## Computes a distance between histograms, defined to be the
+## sum of the absolute difference in probability density in
+## each bin (for a common bin set), multiplied by the bin area.
 ## Syntax:
 ##   d = histDistance(hgrm1, hgrm2)
 ## where:
@@ -49,16 +48,21 @@ function d = histDistance(hgrm1, hgrm2)
 
   endfor
 
-  ## normalise histograms
-  hgrm1 = normaliseHist(hgrm1);
-  hgrm2 = normaliseHist(hgrm2);
+  ## get normalised histogram data
+  [xb1, px1] = finiteHist(hgrm1, "normalised");
+  [xb2, px2] = finiteHist(hgrm2, "normalised");
 
-  ## construct difference histogram
-  hgrmd.xb = hgrm1.xb;
-  hgrmd.px = abs(hgrm1.px - hgrm2.px);
-  assert(isHist(hgrmd));
+  ## compute areas of all probability bins
+  areas = ones(size(px1));
+  for k = 1:dim
+    dx = histBinGrids(hgrm1, k, "dx");
+    areas .*= dx;
+  endfor
+
+  ## compute area-weighted difference for each bin
+  diff_area = abs(px1 - px2) .* areas;
 
   ## return distance
-  d = areaUnderHist(hgrmd);
+  d = sum(diff_area(:));
 
 endfunction

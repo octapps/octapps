@@ -32,14 +32,11 @@ function [x, wksp] = drawFromHist(hgrm, N, wksp=[])
   assert(isHist(hgrm));
   dim = length(hgrm.xb);
 
-  ## get finite bins and probabilities
-  [xb, px] = finiteHist(hgrm);
+  ## get finite and normalised bins and probabilities
+  [xb, px] = finiteHist(hgrm, "normalised");
 
   ## store some variables for re-use
   if isempty(wksp)
-
-    ## normalise histogram
-    hgrm = normaliseHist(hgrm);
 
     ## probability of each bin
     P = px;
