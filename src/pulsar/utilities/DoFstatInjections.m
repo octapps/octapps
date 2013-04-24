@@ -37,10 +37,9 @@ function results = DoFstatInjections(varargin)
                {"inj_delta", "real,row", []},
                {"inj_fndot", "real,matrix", [100]},
                {"inj_band_pad", "real,strictpos,scalar", 0.1},
-               {"inj_rand_seed", "integer,strictpos,scalar", int32(rand()*(2^31-1))},
                {"sch_alpha", "real,row", []},
                {"sch_delta", "real,row", []},
-               {"sch_fndot", "real,matrix", [100]},
+               {"sch_fndot", "real,matrix", []},
                []);
 
   ## load ephemerides if not supplied
@@ -91,6 +90,17 @@ function results = DoFstatInjections(varargin)
     inj_delta = asin(-1 + 2*rand(size(inj_h0)));
   endif
 
+  ## use injection parameters as search parameters, if not given
+  if isempty(sch_alpha)
+    sch_alpha = inj_alpha;
+  endif
+  if isempty(sch_delta)
+    sch_delta = inj_delta;
+  endif
+  if isempty(sch_fndot)
+    sch_fndot = inj_fndot;
+  endif
+
   ## create results struct
   results = struct;
   results.inj_h0 = inj_h0;
@@ -131,7 +141,7 @@ function results = DoFstatInjections(varargin)
   MFDparams.Band = max(inj_fndot(1, :)) + inj_band_pad - MFDparams.fMin;
   ParseMultiDetectorInfo(MFDparams.detInfo, detNames, []);
   MFDparams.multiTimestamps = multiTimestamps;
-  MFDparams.randSeed = results.inj_rand_seed = inj_rand_seed;
+  MFDparams.randSeed = 0;
 
   ## run CWMakeFakeData() to generate SFTs with injections
   multiSFTs = [];
@@ -167,7 +177,7 @@ function results = DoFstatInjections(varargin)
     ## fill input Doppler parameters struct for ComputeFStat()
     Doppler.Alpha = sch_alpha(i);
     Doppler.Delta = sch_delta(i);
-    Doppler.fkdot = zeros(size(MFDsources.data{i}.Doppler.fkdot));
+    Doppler.fkdot = zeros(size(Doppler.fkdot));
     Doppler.fkdot(1:size(sch_fndot, 1)) = sch_fndot(:, i);
     Doppler.refTime = refTime;
 
