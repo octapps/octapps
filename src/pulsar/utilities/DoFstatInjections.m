@@ -14,6 +14,28 @@
 ## along with Octave; see the file COPYING.  If not, see
 ## <http://www.gnu.org/licenses/>.
 
+## Perform full software injections in generated SFTs using LALPulsar functions.
+##   results = DoFstatInjections(...)
+## Options (starred options are returned in results):
+##   ref_time: reference time in GPS seconds (default: see CreatePhaseMetric)
+##   start_time: start time in GPS seconds (default: see CreatePhaseMetric)
+##   time_span: observation time-span in seconds
+##   detectors: comma-separated list of detector names
+##   ephemerides: Earth/Sun ephemerides from loadEphemerides()
+##   sft_time_span: SFT time-span in seconds (default: 1800)
+##   sft_overlap: SFT overlap in seconds (default: 0)
+##  *inj_h0: injected h0 strain amplitude (default: 1.0)
+##  *inj_cosi: injected cosine of inclination angle (default: random)
+##  *inj_psi: injected polarisation angle (default: random)
+##  *inj_phi0: injected initial phase (default: random)
+##  *inj_alpha: injected right ascension (default: random)
+##  *inj_delta: injected declination (default: random)
+##  *inj_fndot: injected frequency/spindowns (default: 100 Hz)
+##   inj_band_pad: padding to add to SFTs either side of injections (default: 0.1 Hz)
+##  *sch_alpha: searched right ascension (default: same as injected)
+##  *sch_delta: searched declination (default: same as injected)
+##  *sch_fndot: searched frequency/spindowns (default: same as injected)
+
 function results = DoFstatInjections(varargin)
 
   ## load LAL libraries
