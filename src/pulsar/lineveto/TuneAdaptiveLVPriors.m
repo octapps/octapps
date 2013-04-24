@@ -29,7 +29,7 @@ function ret = TuneAdaptiveLVPriors ( varargin )
                      {"freqmin", "numeric,scalar"},
                      {"freqmax", "numeric,scalar", 0}, # default: set to freqmin
                      {"freqstep", "numeric,scalar", 0.05},
-                     {"runname", "char"},
+                     {"runconfig", "char"},
                      {"debug", "numeric,scalar", 0},
                      {"cleanup", "numeric,scalar", 1},
                      {"workingdir", "char", "."},
@@ -63,7 +63,7 @@ function ret = TuneAdaptiveLVPriors ( varargin )
  num_freqsteps = 1 + floor ( ( params_init.freqmax - params_init.freqmin ) / params_init.freqstep + SMALL_EPS );
 
  # get hardcoded EatH run parameters
- params_run = setup_params_run ( params_init.runname ); 
+ params_run = get_params_run ( params_init.runconfig );
 
  # prepare output structs and counting variables
  frequencies     = [];
@@ -171,8 +171,8 @@ function [params_init] = check_input_parameters ( params_init )
   error(["Invalid input parameter (freqstep): ", num2str(params_init.freqstep), " must be > 0."]);
  endif
 
- if ( ( strcmp(params_init.runname,"S5R3") != 1 ) && ( strcmp(params_init.runname,"S6bucket") != 1 ) )
-  error(["Invalid input parameter (runname): ", params_init.runname, " is not supported, currently supported are: 'S5R3', 'S6bucket'"]);
+ if ( exist(params_init.runconfig,"file") !=2 )
+  error(["Invalid input parameter (runconfig): '", params_init.runconfig, "' is not an existing file."])
  endif
 
  if ( ( params_init.debug != 0 ) && ( params_init.debug != 1 ) )
@@ -231,47 +231,22 @@ function [params_init] = check_input_parameters ( params_init )
 endfunction # check_input_parameters()
 
  
-function params_run = setup_params_run ( runname )
- ## params_run = setup_params_run ( runname )
- ## provide hardcoded EatH run parameters, taken from CFS_*_setup.C from EatH project-daemons
+function params_run = get_params_run ( runconfigfile )
+ ## params_run = get_params_run ( runconfigfile )
+ ## get EatH run parameters from a config file and check that all required fields were provided
 
- hours = 3600;
- days  = 24 * hours;
- years = 365 * days;
-
- # common fundamental quantities for all runs
- params_run.Tsft          = 1800.0;
- params_run.sft_dfreq     = 1.0/params_run.Tsft;
- params_run.DataFileBand  = 0.05;
- params_run.dopplerFactor = 1.05e-4; # max relative doppler-shift
- params_run.Dterms        = 8;
- params_run.offsetFreqIndex = 0; # this was only necessary when WUs were split in freq
-
- # run-dependent quantitites
- if ( strcmp(runname,"S5R3") == 1 ) # based on CFS_S5R3_setup.C from EatH project-daemons
-  params_run.mismatchSpin  = 0.3; # called just "mismatch" in CFS_S5R3_setup.C
-  params_run.Tstack        = 25.0 * hours;
-  params_run.Tspan         = 381.0 *days; # total time-spanned by data
-  params_run.DataFreqMin   = 50.0;
-  params_run.DataFreqMax   = 1200.0;
-  params_run.FreqBand      = 0.05; # originally in CFS_S5R3_setup.C: pars0.FreqBand = pars0.HoughSideband * pars0.tauF / ( pars0.tauF + pars0.tauH ) * ( 1.0 - eps ) / eps;
-  params_run.tauNSmin      = 1000.0 * years;
-  params_run.RngMedWindow  = 101; # app-default
-  params_run.df1dot        = sqrt ( 33.0 * params_run.mismatchSpin) / ( pi * params_run.Tstack^2 ); # higher f1dot-resolution than predicted by the metric, because nf1dotRes=1
-
- elseif ( strcmp(runname,"S6bucket") == 1 ) # based on CFS_S6LV1_setup.C from EatH project-daemons
-  params_run.mismatchSpin  = 0.1; # 'spin' mismatch (in f,fdot)
-  params_run.Tstack        = 60.0 * hours;
-  params_run.Tspan         = 255.32 *days; # total time-spanned by data
-  params_run.DataFreqMin   = 50.0;
-  params_run.DataFreqMax   = 450.0;
-  params_run.FreqBand      = 0.05; # Hz; yields about ~12% overheads
-  params_run.tauNSmin      = 600.0 * years;
-  params_run.RngMedWindow  = 101; # app-default
-  params_run.df1dot        = sqrt ( 720.0 * params_run.mismatchSpin ) / ( pi * params_run.Tstack^2 );
-  params_run.dFreq         = sqrt ( 12.0 * params_run.mismatchSpin ) / ( pi * params_run.Tstack );
-
+ source ( runconfigfile );
+ if ( exist("params_run","var") != 1 )
+  error(["Input runconfig='", runconfigfile, "' does not provide a structure 'params_run'."]);
  endif
+
+ required_fieldnames = {"sft_dfreq", "DataFileBand", "dopplerFactor" ,"Dterms", "offsetFreqIndex", "Tspan", "DataFreqMin", "DataFreqMax", "FreqBand", "RngMedWindow"};
+
+ for n = 1:1:length(required_fieldnames)
+  if ( !isfield(params_run,required_fieldnames{n}) )
+   error(["Input runconfig='", runconfigfile, "' does not provide required field 'params_run.", required_fieldnames{n}, "'."]);
+  endif
+ endfor
 
  # common derived quantities for all runs
  params_run.f1dot         = - params_run.DataFreqMin / params_run.tauNSmin; # include sightly positive 'spindowns' too
@@ -282,7 +257,7 @@ function params_run = setup_params_run ( runname )
  params_run.FreqMin       = params_run.DataFreqMin + 1.01 * getSidebandAtFreq ( params_run.DataFreqMin, params_run, use_rngmedSideband=1 );
  params_run.FreqMax       = params_run.DataFreqMax - getSidebandAtFreq ( params_run.DataFreqMax, params_run, use_rngmedSideband=1 ) - params_run.sft_dfreq;
 
-endfunction # setup_params_run()
+endfunction # get_params_run()
 
 
 function [freqstring] = convert_freq_to_string ( freq, leading, trailing )
