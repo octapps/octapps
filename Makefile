@@ -19,7 +19,7 @@ all .PHONY : octapps-user-env.sh octapps-user-env.csh
 octapps-user-env.sh octapps-user-env.csh : Makefile
 	$(verbose)echo "# source this file to access OctApps" > $@; \
 	cleanpath="$(SED) -e 's/^/:/;s/$$/:/;:A;s/:\([^:]*\)\(:.*\|\):\1:/:\1:\2:/g;s/:::*/:/g;tA;s/^:*//;s/:*$$//'"; \
-	mdirs=`$(FIND) $${PWD}/src -type d -printf '%p:'`; \
+	mdirs=`$(FIND) $${PWD}/src -type d ! -name private -printf '%p:'`; \
 	octave_path="$${PWD}/oct/$(version):$${mdirs}\$${OCTAVE_PATH}"; \
 	path="$${PWD}/bin:\$${PATH}"; \
 	case $@ in \
@@ -79,10 +79,12 @@ endif # neq ($(MKOCTFILE),false)
 
 check : all
 	@source octapps-user-env.sh; \
-	mfiles=`$(FIND) $${PWD}/src -name deprecated -prune -or -name '*.m' -printf '%f\n'`; \
+	mfiles=`$(FIND) $${PWD}/src -name deprecated -prune -or -name '*.m' -printf '%p\n'`; \
+	script='printf("testing %s ...\n",f);[n,m]=test(f); printf("... passed %i of %i\n",n,m); exit(!(0<n && n==m));'; \
 	for mfile in $${mfiles}; do \
-		echo "testing $${mfile}"; \
-		$(OCTAVE) -qfH --eval "test $${mfile}; exit(1)" && exit 1; \
+		if grep -q '^%!' "$${mfile}"; then \
+			$(OCTAVE) -qfH --eval "f='$${mfile}';$${script}" || exit 1; \
+		fi; \
 	done; exit 0
 
 clean :
