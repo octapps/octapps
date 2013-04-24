@@ -36,7 +36,8 @@ function ret = TuneAdaptiveLVPriors ( varargin )
                      {"lalpath", "char", ""},
                      {"outfile", "char", "power_outliers.dat"},
                      {"rngmedbins", "numeric,scalar", 101},
-                     {"thresh", "numeric,scalar", 1.25},
+                     {"SFTpower_thresh", "numeric,scalar", 0},
+                     {"SFTpower_fA", "numeric,scalar", 0},
                      {"LVlmin", "numeric,scalar", 0.001},
                      {"LVlmax", "numeric,scalar", 1000},
                      {"sftwidth", "numeric,scalar", 0.05},
@@ -57,6 +58,8 @@ function ret = TuneAdaptiveLVPriors ( varargin )
  # prepare PSD parameters
  params_psd.PSDmthopSFTs = 1;
  params_psd.PSDmthopIFOs = 8;
+ thresh.H1 = params_init.SFTpower_thresh;
+ thresh.L1 = params_init.SFTpower_thresh;
 
  # count necessary freqbands and sfts
  # NOTE: rounded down, freqmax may not be reached if freqmax-freqmin is not an integer multiple of freqstep
@@ -99,7 +102,28 @@ function ret = TuneAdaptiveLVPriors ( varargin )
    [sftstartfreq, num_sfts_to_load, rngmedbins_effective] = get_sft_range ( params_init, params_run, frequencies.psd_start(curr_step), frequencies.psd_band(curr_step) );
 
    # load in all required sfts
-   sfts = get_sft_paths ( params_init, sftstartfreq, num_sfts_to_load );
+   [sfts, firstsft] = get_sft_paths ( params_init, sftstartfreq, num_sfts_to_load );
+
+   if ( ( curr_step == 1 ) && ( params_init.SFTpower_fA > 0 ) )
+    printf("First band, converting SFTpower_fA=%g to SFTpower_thresh", params_init.SFTpower_fA);
+    if ( params_init.usetimestampsfiles == 1 ) # get number of SFTs from timestamps
+     printf(" using num_SFTs from timestamps files...\n");
+     timestamps_H1 = load(params_init.timestampsfiles{1});
+     num_SFTs.H1 = length(timestamps_H1);
+     timestamps_L1 = load(params_init.timestampsfiles{2});
+     num_SFTs.L1 = length(timestamps_L1);
+    else # get number of SFT bins needed to convert from fA to thresh
+     printf(" using num_SFTs from input SFTs...\n");
+     printf("Getting num_SFTs from input file '%s' ...\n", firstsft.h1);
+     num_SFTs.H1 = get_num_SFTs_from_file ( firstsft.h1 );
+     printf("Getting num_SFTs from input file '%s' ...\n", firstsft.l1);
+     num_SFTs.L1 = get_num_SFTs_from_file ( firstsft.l1 );
+    endif
+    thresh.H1 = compute_SFT_power_threshold_from_fA ( params_init.SFTpower_fA, num_SFTs.H1 );
+    thresh.L1 = compute_SFT_power_threshold_from_fA ( params_init.SFTpower_fA, num_SFTs.L1 );
+    printf("H1: num_SFTs=%d, threshold=%f\n", num_SFTs.H1, thresh.H1);
+    printf("L1: num_SFTs=%d, threshold=%f\n", num_SFTs.L1, thresh.L1);
+   endif
 
    # count the outliers in the power statistic
    params_psd.FreqBand       = frequencies.psd_band(curr_step);
@@ -110,7 +134,7 @@ function ret = TuneAdaptiveLVPriors ( varargin )
     params_psd.timeStampsFile = params_init.timestampsfiles{1};
    endif
    params_psd.outputPSD      = [params_init.workingdir, filesep, "psd_H1_med_", num2str(params_psd.blocksRngMed), "_band_", int2str(curr_step), ".dat"];
-   [num_outliers.H1(curr_step), max_outlier.H1(curr_step), freqbins.H1(curr_step)] = CountSFTPowerOutliers ( params_psd, params_init.thresh, params_init.lalpath, params_init.debug );
+   [num_outliers.H1(curr_step), max_outlier.H1(curr_step), freqbins.H1(curr_step)] = CountSFTPowerOutliers ( params_psd, thresh.H1, params_init.lalpath, params_init.debug );
    if ( params_init.cleanup == 1 )
     [err, msg] = unlink (params_psd.outputPSD);
    endif
@@ -119,7 +143,7 @@ function ret = TuneAdaptiveLVPriors ( varargin )
     params_psd.timeStampsFile = params_init.timestampsfiles{2};
    endif
    params_psd.outputPSD      = [params_init.workingdir, filesep, "psd_L1_med_", num2str(params_psd.blocksRngMed), "_band_", int2str(curr_step), ".dat"];
-   [num_outliers.L1(curr_step), max_outlier.L1(curr_step), freqbins.L1(curr_step)] = CountSFTPowerOutliers ( params_psd, params_init.thresh, params_init.lalpath, params_init.debug );
+   [num_outliers.L1(curr_step), max_outlier.L1(curr_step), freqbins.L1(curr_step)] = CountSFTPowerOutliers ( params_psd, thresh.L1, params_init.lalpath, params_init.debug );
    if ( params_init.cleanup == 1 )
     [err, msg] = unlink (params_psd.outputPSD);
    endif
@@ -195,8 +219,12 @@ function [params_init] = check_input_parameters ( params_init )
    error(["Invalid input parameter (rngmedbins): ", num2str(params_init.rngmedbins), " must be >= 0."])
  endif
 
- if ( params_init.thresh < 1 )
-   error(["Invalid input parameter (thresh): ", num2str(params_init.thresh), " must be >= 1."])
+ if ( params_init.SFTpower_thresh < 0 )
+   error(["Invalid input parameter (SFTpower_thresh): ", num2str(params_init.SFTpower_thresh), " must be positive (or 0 to not use)."])
+ endif
+
+ if ( params_init.SFTpower_fA < 0 )
+  error(["Invalid input parameter (SFTpower_fA): '", num2str(params_init.SFTpower_fA), "' must be positive (or 0 to not use)."])
  endif
 
  if ( params_init.LVlmin < 0 )
@@ -451,8 +479,8 @@ function [sftstartfreq, num_sfts_to_load, rngmedbins_effective] = get_sft_range 
 endfunction # get_sft_range()
 
 
-function sfts = get_sft_paths ( params_init, sftstartfreq, num_sfts_to_load )
- ## sfts = get_sft_paths ( params_init, sftstartfreq, num_sfts_to_load )
+function [sfts, firstsft] = get_sft_paths ( params_init, sftstartfreq, num_sfts_to_load )
+ ## [sfts, firstsft] = get_sft_paths ( params_init, sftstartfreq, num_sfts_to_load )
  ## function to get the full SFT paths (assuming Atlas-like directory structure) and cat them into argument strings for lalapps_ComputePSD
 
  global SMALL_EPS;
@@ -474,6 +502,9 @@ function sfts = get_sft_paths ( params_init, sftstartfreq, num_sfts_to_load )
    endif
   endif
   sfts.h1 = [sfts.h1, sftfile];
+  if ( numsft == 1 )
+   firstsft.h1 = sftfile;
+  endif
 
   # same for L1
   sftfile = [params_init.sftdir, filesep, "l1_", currfreqstring, params_init.sft_filenamebit];
@@ -484,6 +515,9 @@ function sfts = get_sft_paths ( params_init, sftstartfreq, num_sfts_to_load )
    endif
   endif
   sfts.l1 = [sfts.l1, sftfile];
+  if ( numsft == 1 )
+   firstsft.l1 = sftfile;
+  endif
 
   if ( numsft < num_sfts_to_load )
    sfts.h1 = [sfts.h1, ";"];
