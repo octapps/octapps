@@ -20,11 +20,11 @@
 ## the absolute difference in (normalised) probability densities
 ## of the two input histograms.
 ## Syntax:
-##   d = histMetric(hgrm1, hgrm2)
+##   d = histDistance(hgrm1, hgrm2)
 ## where:
 ##   hgrm{1,2} = histogram structs
 
-function d = histMetric(hgrm1, hgrm2)
+function d = histDistance(hgrm1, hgrm2)
 
   ## check input
   assert(isHist(hgrm1) && isHist(hgrm2));

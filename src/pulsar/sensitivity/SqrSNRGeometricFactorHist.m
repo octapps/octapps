@@ -111,8 +111,8 @@ function Rsqr_H = SqrSNRGeometricFactorHist(varargin)
     endfor
     
     ## calculate difference between old and new histograms
-    err = max(histMetric(Fpsqr_t_H, Fpsqr_t_H_old),
-              histMetric(Fxsqr_t_H, Fxsqr_t_H_old));
+    err = max(histDistance(Fpsqr_t_H, Fpsqr_t_H_old),
+              histDistance(Fxsqr_t_H, Fxsqr_t_H_old));
 
     ## continue until error is small enough
     ## (exit after 1 iteration if all parameters are constant)
@@ -154,7 +154,7 @@ function Rsqr_H = SqrSNRGeometricFactorHist(varargin)
     Rsqr_H = addDataToHist(Rsqr_H, Rsqr(:), hist_dx);
     
     ## calculate difference between old and new histograms
-    err = histMetric(Rsqr_H, Rsqr_H_old);
+    err = histDistance(Rsqr_H, Rsqr_H_old);
 
     ## continue until error is small enough
     ## (exit after 1 iteration if all parameters are constant)
