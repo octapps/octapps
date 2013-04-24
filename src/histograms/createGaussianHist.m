@@ -51,7 +51,7 @@ function hgrm = createGaussianHist ( M, S, varargin )
 
   %% iterate, adding N samples every round, and continue until histogram has converged
   %% to within the given tolerance of 'err'
-  N = 1000;
+  N = 1e6;
   do
     %% generate values of ap, ax, Fp, and Fx
     newsamples = normrnd ( M, S, N, 1);	%% N-vector of Gaussian random draws
@@ -71,3 +71,11 @@ function hgrm = createGaussianHist ( M, S, varargin )
   hgrm = normaliseHist ( hgrm );
 
 endfunction
+
+
+## generate Gaussian histogram and check its properties
+%!test
+%! hgrm = createGaussianHist(1.2, 3.4, "err", 1e-2, "binsize", 0.1);
+%! assert(abs(areaUnderHist(hgrm) - 1.0) < 1e-6)
+%! assert(abs(meanOfHist(hgrm) - 1.2) < 0.1)
+%! assert(abs(sqrt(varianceOfHist(hgrm)) - 3.4) < 0.1)
