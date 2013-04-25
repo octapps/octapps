@@ -28,7 +28,7 @@ function hgrm = resampleHist(hgrm, varargin)
 
   ## check input
   assert(isHist(hgrm));
-  dim = length(hgrm.xb);
+  dim = length(hgrm.bins);
 
   ## if all arguments are not scalars, and
   ## number of arguments equal to number of dimensions,
@@ -45,107 +45,107 @@ function hgrm = resampleHist(hgrm, varargin)
 
   else
 
-    ## otherwise intepret arguments as [k, nxb]
+    ## otherwise intepret arguments as [k, newbins]
     if length(varargin) != 2
       error("Invalid input arguments!");
     endif
-    [k, nxb] = deal(varargin{:});
+    [k, newbins] = deal(varargin{:});
     assert(isscalar(k));
-    nxb = reshape(sort(nxb(isfinite(nxb))), 1, []);
+    newbins = reshape(sort(newbins(isfinite(newbins))), 1, []);
 
     ## get old (finite) bin boundaries
-    xb = hgrm.xb{k}(2:end-1);
+    bins = hgrm.bins{k}(2:end-1);
 
     ## is old histogram has no finite bins
-    if isempty(xb)
+    if isempty(bins)
 
-      hgrm.xb{k} = [-inf, nxb, inf];
-      assert(all(hgrm.px(:) == 0));
-      siz = cellfun(@(x) length(x)-1, hgrm.xb);
+      hgrm.bins{k} = [-inf, newbins, inf];
+      assert(all(hgrm.counts(:) == 0));
+      siz = cellfun(@(x) length(x)-1, hgrm.bins);
       if length(siz) == 1
         siz(2) = 1;
       endif
-      hgrm.px = zeros(siz);
+      hgrm.counts = zeros(siz);
 
     else
 
       ## round bin boundaries
-      [xb, nxb] = roundHistBinBounds(xb, nxb);
+      [bins, newbins] = roundHistBinBounds(bins, newbins);
 
       ## check that new bins cover the range of old bins
-      if !(min(nxb) <= min(xb)) || !(max(nxb) >= max(xb))
+      if !(min(newbins) <= min(bins)) || !(max(newbins) >= max(bins))
         error("Range of new bins (%g to %g) does not include old bins (%g to %g)!",
-              min(nxb), max(nxb), min(xb), max(xb));
+              min(newbins), max(newbins), min(bins), max(bins));
       endif
 
       ## permute dimension k to beginning of array,
       ## then flatten other dimensions
-      px = hgrm.px;
-      perm = [k 1:(k-1) (k+1):max(dim,length(size(px)))];
-      px = permute(px, perm);
-      siz = size(px);
-      px = reshape(px, siz(1), []);
+      counts = hgrm.counts;
+      perm = [k 1:(k-1) (k+1):max(dim,length(size(counts)))];
+      counts = permute(counts, perm);
+      siz = size(counts);
+      counts = reshape(counts, siz(1), []);
 
       ## remove first (-inf) and last (inf) rows
-      pxminf = px(1, :);
-      pxpinf = px(end, :);
-      px = px(2:end-1, :);
+      minfcounts = counts(1, :);
+      pinfcounts = counts(end, :);
+      counts = counts(2:end-1, :);
 
       ## if new bins are a superset of old bins, no
       ## resampling is required - just need to extend
       ## probability array with zeros
-      nxbss = nxb(min(xb) <= nxb & nxb <= max(xb));
-      if length(nxbss) == length(xb) && nxbss  == xb
-        nloz = length(nxb(nxb < min(xb)));
-        nhiz = length(nxb(nxb > max(xb)));
-        npx = [zeros(nloz, size(px, 2));
-               px;
-               zeros(nhiz, size(px, 2))];
+      newbins_ss = newbins(min(bins) <= newbins & newbins <= max(bins));
+      if length(newbins_ss) == length(bins) && newbins_ss  == bins
+        nloz = length(newbins(newbins < min(bins)));
+        nhiz = length(newbins(newbins > max(bins)));
+        newcounts = [zeros(nloz, size(counts, 2));
+                     counts;
+                     zeros(nhiz, size(counts, 2))];
       else
         ## otherwise, need to interpolate
         ## probabilities to new bins
-        xbl = xb(1:end-1);
-        dxb = diff(xb);
-        dnxb = diff(nxb);
+        lowbin = bins(1:end-1);
+        dbins = diff(bins);
+        dnewbins = diff(newbins);
 
         ## calculate probabilities along dimension k
-        Px = px .* dxb(:)(:,ones(size(px, 2), 1));
+        prob = counts .* dbins(:)(:,ones(size(counts, 2), 1));
 
         ## create cumulative probability array resampled over new bins
-        Cx = zeros(length(nxb), size(px, 2));
-        for i = 1:length(nxb)
+        cumprob = zeros(length(newbins), size(counts, 2));
+        for i = 1:length(newbins)
 
           ## decide what fraction of each old bin
           ## should contribute to new bin
-          fr = (nxb(i) - xbl) ./ dxb;
+          fr = (newbins(i) - lowbin) ./ dbins;
           fr(fr < 0) = 0;
           fr(fr > 1) = 1;
 
           ## assign cumulative probability to new bin
-          Cx(i,:) = sum(Px .* fr(:)(:,ones(size(px, 2), 1)), 1);
+          cumprob(i,:) = sum(prob .* fr(:)(:,ones(size(counts, 2), 1)), 1);
 
         endfor
 
         ## calculate new probability array from cumulative probabilities
-        npx = (Cx(2:end,:) - Cx(1:end-1,:)) ./ dnxb(:)(:,ones(size(px, 2), 1));
+        newcounts = (cumprob(2:end,:) - cumprob(1:end-1,:)) ./ dnewbins(:)(:,ones(size(counts, 2), 1));
 
       endif
 
       ## add back first (-inf) and last (inf) rows
-      npx = [pxminf; npx; pxpinf];
+      newcounts = [minfcounts; newcounts; pinfcounts];
 
       ## unflatten other dimensions, then
       ## restore original dimension order
-      siz(1) = size(npx, 1);
-      npx = reshape(npx, siz);
+      siz(1) = size(newcounts, 1);
+      newcounts = reshape(newcounts, siz);
       ## octave-3.2.3 bug : ipermute doesn't work!
       iperm = zeros(size(perm));
       iperm(perm) = 1:length(perm);
-      npx = permute(npx, iperm);
+      newcounts = permute(newcounts, iperm);
 
       ## resampled histogram
-      hgrm.xb{k} = [-inf, nxb, inf];
-      hgrm.px = npx;
+      hgrm.bins{k} = [-inf, newbins, inf];
+      hgrm.counts = newcounts;
 
     endif
 

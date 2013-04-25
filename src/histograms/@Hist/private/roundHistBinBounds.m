@@ -19,9 +19,9 @@
 ## fraction of the smallest overall bin size, so that one
 ## can compare floating-point precision bin boundaries robustly.
 ## Syntax:
-##   [xb, xb, ...] = roundHistBinBounds(xb, xb, ...)
+##   [bins, bins, ...] = roundHistBinBounds(bins, bins, ...)
 ## where:
-##   xb = bin boundaries
+##   bins = bin boundaries
 
 function varargout = roundHistBinBounds(varargin)
 
@@ -33,13 +33,13 @@ function varargout = roundHistBinBounds(varargin)
 
   else
 
-    dx = inf;
+    dbins = inf;
     for i = 1:length(varargin)
-      dx = min([dx, diff(varargin{i})]);
+      dbins = min([dbins, diff(varargin{i})]);
     endfor
-    dx = 10^(floor(log10(dx)) - 3);
+    dbins = 10^(floor(log10(dbins)) - 3);
     for i = 1:length(varargin)
-      varargout{i} = round(varargin{i} / dx) * dx;
+      varargout{i} = round(varargin{i} / dbins) * dbins;
     endfor
 
   endif

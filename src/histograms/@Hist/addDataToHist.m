@@ -18,26 +18,26 @@
 ## Adds the given input data to the histogram.
 ## If the histogram is too small, more bins are added.
 ## Syntax:
-##   hgrm = addDataToHist(hgrm, data, dx, x0)
+##   hgrm = addDataToHist(hgrm, data, dbin, bin0)
 ## where:
 ##   hgrm = histogram class
 ##   data = input histogram data
-##   dx   = size of any new bins
-##   x0   = (optional) initial bin when adding inf. data
+##   dbin = size of any new bins
+##   bin0 = (optional) initial bin when adding inf. data
 
-function hgrm = addDataToHist(hgrm, data, dx, x0)
+function hgrm = addDataToHist(hgrm, data, dbin, bin0)
 
   ## check input
   assert(isHist(hgrm));
   if nargin < 4
-    x0 = [];
+    bin0 = [];
   endif
 
   ## get bin multiplicities from findHistBins, resize as needed
-  [hgrm, ii, nn] = findHistBins(hgrm, data, dx, x0);
+  [hgrm, ii, nn] = findHistBins(hgrm, data, dbin, bin0);
 
   ## add bin multiplicities to correct bins
-  jj = mat2cell(ii, size(ii, 1), ones(length(hgrm.xb), 1));
-  hgrm.px(sub2ind(size(hgrm.px), jj{:})) += nn;
+  jj = mat2cell(ii, size(ii, 1), ones(length(hgrm.bins), 1));
+  hgrm.counts(sub2ind(size(hgrm.counts), jj{:})) += nn;
 
 endfunction

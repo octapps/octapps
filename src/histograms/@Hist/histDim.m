@@ -28,6 +28,6 @@ function dim = histDim(hgrm)
   assert(isHist(hgrm));
 
   ## return dimensionality
-  dim = length(hgrm.xb);
+  dim = length(hgrm.bins);
 
 endfunction

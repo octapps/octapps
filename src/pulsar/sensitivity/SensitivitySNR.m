@@ -66,17 +66,34 @@ function [rho, pd_rho] = SensitivitySNR(pd, Ns, Rsqr_H, detstat, varargin)
   fdp_vars = cellfun(@(x) x(:), fdp_vars, "UniformOutput", false);
 
   ## get values and weights of R^2 as row vectors
-  if isHist(Rsqr_H)
-    ## R^2 = histogram
-    [Rsqr_xb, Rsqr_px] = finiteHist(Rsqr_H, "normalised");
-    [xl, Rsqr_x, Rsqr_dx] = histBinGrids(Rsqr_H, 1, "xl", "xc", "dx");
-    Rsqr_w = Rsqr_px .* Rsqr_dx;
-    ## check histogram bins are positive
-    if xl(1) < 0
+  if isHist(Rsqr_H)   ## R^2 = histogram
+
+    ## check histogram is 1-D
+    if (histDim(Rsqr_H) > 1)
+      error("%s: R^2 must be a 1D histogram", funcName);
+    endif
+
+    ## get probability densities and bin quantities
+    Rsqr_px = histProbs(Rsqr_H);
+    [Rsqr_x, Rsqr_dx] = histBins(Rsqr_H, 1, "centre", "width");
+
+    ## check histogram bins are positive and contain no infinities
+    if min(histRange(Rsqr_H)) < 0
       error("%s: R^2 histogram bins must be positive", funcName);
     endif
-  elseif isscalar(Rsqr_H) && isnumeric(Rsqr_H)
-    ## R^2 = singular value
+    if Rsqr_px(1) > 0 || Rsqr_px(end) > 0
+      error("%:s R^2 histogram contains non-zero probability in infinite bins", funcName);
+    endif
+
+    ## chop off infinite bins
+    Rsqr_px = Rsqr_px(2:end-1);
+    Rsqr_x = Rsqr_x(2:end-1);
+    Rsqr_dx = Rsqr_dx(2:end-1);
+
+    ## compute weights
+    Rsqr_w = Rsqr_px .* Rsqr_dx;
+
+  elseif isscalar(Rsqr_H) && isnumeric(Rsqr_H)   ## R^2 = singular value
     Rsqr_x = Rsqr_H;
     Rsqr_w = 1.0;
   endif

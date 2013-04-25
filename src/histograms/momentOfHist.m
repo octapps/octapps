@@ -17,7 +17,7 @@
 
 ## Returns the moment of a histogram,
 ##   mu(n) = integrate over x{1} to x{dim} :
-##              px(x{1},...,x{dim}) * (x{1}-x0{1})^n{1} * ...
+##              p(x{1},...,x{dim}) * (x{1}-x0{1})^n{1} * ...
 ##                 * (x{dim}-x0{dim})^n{dim} dx{1} ... dx{dim}
 ## taken with respect to a given position.
 ## Syntax:
@@ -36,25 +36,24 @@ function mu = momentOfHist(hgrm, x0, n)
   assert(isvector(x0) && length(x0) == dim);
   assert(isvector(n)  && length(x0) == dim && all(n >= 0));
 
-  ## get finite and normalised bins and probabilities
-  [xb, px] = finiteHist(hgrm, "normalised");
-
-  ## start with probability array
-  muint = px;
+  ## get histogram probability densities
+  prob = histProbs(hgrm);
 
   ## loop over dimensions
   for k = 1:dim
 
-    ## get lower and upper bin boundaries
-    [xl, xh] = histBinGrids(hgrm, k, "xl", "xh");
+    ## get lower and upper bin boundaries, not counting infinite bins
+    [xl, xh] = histBinGrids(hgrm, k, "lower", "upper");
+    xl(isinf(xl)) = 0;
+    xh(isinf(xh)) = 0;
 
     ## integral term for kth dimension:
     ##    integrate x{k}^n dx{k}, x{k} over all bins in kth dimension
-    muint .*= (((xh - x0(k)).^(n(k)+1) - (xl - x0(k)).^(n(k)+1)) ./ (n(k)+1));
+    prob .*= (((xh - x0(k)).^(n(k)+1) - (xl - x0(k)).^(n(k)+1)) ./ (n(k)+1));
 
   endfor
 
   ## sum up integral to get final moment
-  mu = sum(muint(:));
+  mu = sum(prob(:));
 
 endfunction

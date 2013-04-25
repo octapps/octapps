@@ -15,16 +15,13 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## Generates random values drawn from the
-## probability distribution given by the histogram.
+## Shows the contents of a histogram class.
 ## Syntax:
-##   x    = drawFromHist(hgrm, N)
+##   showHist(hgrm)
 ## where:
 ##   hgrm = histogram class
-##   N    = number of random values to generate
-##   x    = generated random values
 
-function x = drawFromHist(hgrm, N)
+function showHist(hgrm)
 
   ## check input
   assert(isHist(hgrm));
@@ -37,24 +34,42 @@ function x = drawFromHist(hgrm, N)
   endfor
   prob = histProbs(hgrm);
 
-  ## generate random indices to histogram bins, with appropriate probabilities
-  [ii{1:dim}] = ind2sub(size(prob), discrete_rnd(1:numel(prob), prob(:)', N, 1));
+  ## get size of terminal, and set empty buffer string
+  tsize = terminal_size();
+  buffer = "";  
 
-  ## start with the lower bound of each randomly
-  ## chosen bin and add a uniformly-distributed
-  ## offset within that bin
-  x = zeros(N, dim);
-  for k = 1:dim
-    dbin = binhi{k}(ii{k}) - binlo{k}(ii{k});
-    x(:,k) = binlo{k}(ii{k}) + rand(size(ii{k})).*dbin;
+  ## loop over all bins
+  dims = size(prob);
+  for n = 1:prod(dims)
+
+    ## get count in this bin, if it's non-zero ...
+    [subs{1:dim}] = ind2sub(dims, n);
+    p = prob(subs{:});
+    if p > 0
+
+      ## form string containing bin ranges in each dimension, and probability density
+      str = "";
+      for k = 1:dim
+        str = strcat(str, sprintf(" [% 6g,% 6g]", binlo{k}(subs{k}), binhi{k}(subs{k})));
+      endfor
+      str = strcat(str, sprintf(" = %0.4e", p));
+
+      ## if buffer would already fill terminal screen, print it and start
+      ## next line with string, otherwise add string to buffer
+      if length(buffer) + length(str) > tsize(2)
+        printf("%s\n", buffer);
+        buffer = str;
+      else
+        buffer = strcat(buffer, str);
+      endif
+
+    endif
+
   endfor
 
+  ## if there's anything left in the buffer, print it
+  if length(buffer) > 0
+    printf("%s\n", buffer);
+  endif
+
 endfunction
-
-
-## generate Gaussian histogram and test reproducing it
-%!test
-%! hgrm1 = createGaussianHist(1.2, 3.4, "err", 1e-3, "binsize", 0.1);
-%! x = drawFromHist(hgrm1, 1e6);
-%! hgrm2 = createHist(x(:), 0.1);
-%! assert(histDistance(hgrm1, hgrm2) < 0.05)

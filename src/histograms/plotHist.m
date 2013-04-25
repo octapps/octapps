@@ -28,30 +28,59 @@ function varargout = plotHist(hgrm, varargin)
 
   ## check input
   assert(isHist(hgrm));
-  
+
   ## check histogram is 1D
   if (histDim(hgrm) > 1)
     error("%s: can only plot 1D histogram", funcName);
   endif
 
-  ## get finite bins and probabilities
-  [xb, px] = finiteHist(hgrm, "normalised");
-  xb = xb{1};
+  ## get histogram bins and probability densities
+  [xl, xh] = histBins(hgrm, 1, "lower", "upper");
+  p = histProbs(hgrm);
 
-  ## if histogram is singular
-  if isempty(px)
+  ## if histogram is empty
+  if sum(p(:)) == 0
 
-    ## plot a stem
-    h = stem(xb, 1.0, varargin{:});
+    ## plot a stem point at zero
+    h = plot([0, 0], [0, 1], varargin{:}, 0, 1, varargin{:});
+    set(h(2), "color", get(h(1), "color"), "marker", "o");
 
   else
 
-    ## otherwise plot stairs
-    ii = find(px > 0);
+    ## plot histogram as a staircase
+
+    ## find maximum range of non-zero probabilities
+    ii = find(p > 0);
     ii = min(ii):max(ii);
-    x = [xb(ii(1)); xb(ii)(:); xb(ii(end))];
-    y = [0; px(ii)(:); 0];
-    h = stairs(x, y, varargin{:});
+    xl = reshape(xl(ii), 1, []);
+    xh = reshape(xh(ii), 1, []);
+    p = reshape(p(ii), 1, []);
+
+    ## create staircase, with stems for infinite values
+    x = reshape([xl(1), xh; xl, xh(end)], 1, []);
+    y = reshape([0, p; p, 0], 1, []);
+    if isinf(xl(1))
+      x(x == -inf) = xl(2);
+    endif
+    if isinf(xh(end))
+      x(x == +inf) = xh(end-1);
+    endif
+
+    ## plot staircase and possibly stems, delete lines which are not needed
+    h = plot(x, y, varargin{:}, x(2), y(2), varargin{:}, x(end-1), y(end-1), varargin{:});
+    if isinf(xl(1))
+      set(h(2), "color", get(h(1), "color"), "marker", "o");
+    else
+      delete(h(2));
+      h(2) = NaN;
+    endif
+    if isinf(xh(end))
+      set(h(3), "color", get(h(1), "color"), "marker", "o");
+    else
+      delete(h(3));
+      h(3) = NaN;
+    endif
+    h(isnan(h)) = [];
 
   endif
 

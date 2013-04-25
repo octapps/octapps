@@ -27,40 +27,41 @@ function d = histDistance(hgrm1, hgrm2)
 
   ## check input
   assert(isHist(hgrm1) && isHist(hgrm2));
-  assert(length(hgrm1.xb) == length(hgrm2.xb));
-  dim = length(hgrm1.xb);
+  assert(length(hgrm1.bins) == length(hgrm2.bins));
+  dim = length(hgrm1.bins);
 
   ## resample histograms to common bin set
   for k = 1:dim
 
     ## get rounded bins
-    [xb1, xb2] = roundHistBinBounds(hgrm1.xb{k}, hgrm2.xb{k});
-    if length(xb1) != length(xb2) || xb1 != xb2
+    [bins1, bins2] = roundHistBinBounds(hgrm1.bins{k}, hgrm2.bins{k});
+    if length(bins1) != length(bins2) || bins1 != bins2
 
       ## common bin set
-      xb = union(xb1, xb2);
+      bins = union(bins1, bins2);
 
       ## resample histograms
-      hgrm1 = resampleHist(hgrm1, k, xb);
-      hgrm2 = resampleHist(hgrm2, k, xb);
+      hgrm1 = resampleHist(hgrm1, k, bins);
+      hgrm2 = resampleHist(hgrm2, k, bins);
 
     endif
 
   endfor
 
-  ## get normalised histogram data
-  [xb1, px1] = finiteHist(hgrm1, "normalised");
-  [xb2, px2] = finiteHist(hgrm2, "normalised");
+  ## get histogram probability densities
+  p1 = histProbs(hgrm1);
+  p2 = histProbs(hgrm2);
 
-  ## compute areas of all probability bins
-  areas = ones(size(px1));
+  ## compute areas of all probability bins, not counting infinite bins
+  areas = ones(size(p1));
   for k = 1:dim
-    dx = histBinGrids(hgrm1, k, "dx");
-    areas .*= dx;
+    dbins = histBinGrids(hgrm1, k, "width");
+    areas .*= dbins;
   endfor
+  areas(isinf(areas)) = 0;
 
   ## compute area-weighted difference for each bin
-  diff_area = abs(px1 - px2) .* areas;
+  diff_area = abs(p1 - p2) .* areas;
 
   ## return distance
   d = sum(diff_area(:));

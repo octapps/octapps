@@ -1,4 +1,4 @@
-## Copyright (C) 2010 Karl Wette
+## Copyright (C) 2013 Karl Wette
 ##
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -15,17 +15,20 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## Return quantities relating to the histogram bin boundaries,
-## in gridded arrays of the same size as the probability array.
+## Return quantities relating to the histogram bin boundaries.
 ## Syntax:
-##   [binq, ...] = histBinsGrids(hgrm, k, "type", ...)
+##   [binq, ...] = histBins(hgrm, k, "type", ...)
 ## where:
 ##   hgrm = histogram class
 ##   k    = dimension along which to return bin quantities
-##   type = see histBins()
+##   type = one of:
+##            "lower": lower bin boundary
+##            "upper": upper bin boundary
+##            "centre": bin centre
+##            "width": bin width
 ##   binq = bin quantities
 
-function varargout = histBinGrids(hgrm, k, varargin)
+function varargout = histBins(hgrm, k, varargin)
 
   ## check input
   assert(isHist(hgrm));
@@ -35,16 +38,22 @@ function varargout = histBinGrids(hgrm, k, varargin)
   for i = 1:length(varargin)
 
     ## what do you want?
-    binq = histBins(hgrm, k, varargin{i});
+    fbins = hgrm.bins{k}(2:end-1);
+    switch varargin{i}
+      case "lower"
+        binq = [-inf, fbins(1:end-1), inf];
+      case "centre"
+        binq = [-inf, (fbins(1:end-1) + fbins(2:end)) / 2, inf];
+      case "upper"
+        binq = [-inf, fbins(2:end), inf];
+      case "width"
+        binq = [0, diff(fbins), 0];
+      otherwise
+        error("Invalid bin quantity '%s'!", varargin{i});
+    endswitch
 
-    ## return binq duplicated over all dimensions != k
-    ## taken from ndgrid.m
-    shape = size(hgrm.counts);
-    r = ones(size(shape));
-    r(k) = shape(k);
-    s = shape;
-    s(k) = 1;
-    varargout{i} = repmat(reshape(binq, r), s);
+    ## return binq
+    varargout{i} = binq(:);
 
   endfor
 

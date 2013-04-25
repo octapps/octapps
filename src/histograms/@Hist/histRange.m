@@ -27,15 +27,15 @@ function rng = histRange(hgrm)
 
   ## check input
   assert(isHist(hgrm));
-  dim = length(hgrm.xb);
+  dim = length(hgrm.bins);
 
   ## return range
   rng = zeros(dim, 2);
   for k = 1:dim
-    if length(hgrm.xb{k}) > 2
-      rng(k, :) = hgrm.xb{k}([2, end-1]);
+    if length(hgrm.bins{k}) > 2
+      rng(k, :) = hgrm.bins{k}([2, end-1]);
     else
-      rng(k, :) = hgrm.xb{k};
+      rng(k, :) = hgrm.bins{k};
     endif
   endfor
 

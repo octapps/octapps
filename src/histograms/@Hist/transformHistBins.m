@@ -27,9 +27,9 @@ function hgrm = transformHistBins(hgrm, k, F)
 
   ## check input
   assert(isHist(hgrm));
-  assert(1 <= k && k <= length(hgrm.xb));
+  assert(1 <= k && k <= length(hgrm.bins));
 
   ## transform bins
-  hgrm.xb{k}(2:end-1) = arrayfun(F, hgrm.xb{k}(2:end-1));  
+  hgrm.bins{k}(2:end-1) = arrayfun(F, hgrm.bins{k}(2:end-1));
 
 endfunction

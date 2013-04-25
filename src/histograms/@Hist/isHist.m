@@ -29,12 +29,12 @@ function ishgrm = isHist(hgrm)
   ishgrm = strcmp(class(hgrm), "Hist");
 
   ## perform various consistency checks on class variables
-  ishgrm = ishgrm && iscell(hgrm.xb) && isvector(hgrm.xb) && length(hgrm.xb) > 0 && ismatrix(hgrm.px);
+  ishgrm = ishgrm && iscell(hgrm.bins) && isvector(hgrm.bins) && length(hgrm.bins) > 0 && ismatrix(hgrm.counts);
   if ishgrm
-    for k = 1:length(hgrm.xb)
-      ishgrm = ishgrm && isvector(hgrm.xb{k}) && length(hgrm.xb{k}) >= 2 && ...
-          hgrm.xb{k}(1) == -inf && all(isfinite(hgrm.xb{k}(2:end-1))) && hgrm.xb{k}(end) == inf && ...
-          length(hgrm.xb{k}) == size(hgrm.px, k) + 1;
+    for k = 1:length(hgrm.bins)
+      ishgrm = ishgrm && isvector(hgrm.bins{k}) && length(hgrm.bins{k}) >= 2 && ...
+          hgrm.bins{k}(1) == -inf && all(isfinite(hgrm.bins{k}(2:end-1))) && hgrm.bins{k}(end) == inf && ...
+          length(hgrm.bins{k}) == size(hgrm.counts, k) + 1;
     endfor
   endif
 
