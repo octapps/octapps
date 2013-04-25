@@ -29,12 +29,76 @@ function hgrm = addDataToHist(hgrm, data, dbin, bin0)
 
   ## check input
   assert(isHist(hgrm));
-  if nargin < 4
-    bin0 = [];
+  dim = length(hgrm.bins);
+  assert(ismatrix(data) && size(data, 2) == dim);
+  assert(isscalar(dbin) || (isvector(dbin) && length(dbin) == dim));
+  if isscalar(dbin)
+    dbin = dbin(ones(dim, 1));
+  endif
+  if nargin < 4 || isempty(bin0)
+    bin0 = 0;
+  endif
+  if isscalar(bin0)
+    bin0 = bin0(ones(dim, 1));
   endif
 
-  ## get bin multiplicities from findHistBins, resize as needed
-  [hgrm, ii, nn] = findHistBins(hgrm, data, dbin, bin0);
+  ## check for non-numeric data
+  if any(isnan(data(:)))
+    error("%s: Input data contains NaNs", funcName);
+  endif
+
+  ## expand histogram to include new bins, if needed
+  for k = 1:dim
+
+    ## if data is all infinite
+    finii = find(isfinite(data(:,k)));
+    if !any(finii)
+
+      ## make sure there's at least one non-infinite bin
+      if length(hgrm.bins{k}) == 2
+        hgrm = resampleHist(hgrm, k, bin0);
+      endif
+
+    else
+
+      ## range of finite data
+      dmin = min(data(finii,k));
+      dmax = max(data(finii,k));
+
+      ## create new bins
+      if length(hgrm.bins{k}) == 2
+        newbins = (floor(dmin / dbin(k)):ceil(dmax / dbin(k))) * dbin(k);
+        if length(newbins) == 1
+          newbins = [newbins, newbins + dbin(k)];
+        endif
+      else
+        newbinslo = hgrm.bins{k}(2) - (ceil((hgrm.bins{k}(2) - dmin) / dbin(k)):-1:1) * dbin(k);
+        newbinshi = hgrm.bins{k}(end-1) + (1:ceil((dmax - hgrm.bins{k}(end-1)) / dbin(k))) * dbin(k);
+        newbins = [newbinslo, hgrm.bins{k}(2:end-1), newbinshi];
+      endif
+
+      ## resize histogram
+      hgrm = resampleHist(hgrm, k, newbins);
+
+    endif
+
+  endfor
+
+  ## bin indices
+  ii = zeros(size(data));
+  for k = 1:dim
+    datak = data(:,k);
+    ## so that last (finite) bin is treated as <=
+    if length(hgrm.bins{k}) >= 4
+      datak(datak == hgrm.bins{k}(end-1)) = hgrm.bins{k}(end-2);
+    endif
+    ii(:,k) = lookup(hgrm.bins{k}, datak, "lr");
+  endfor
+
+  ## multiplicities of each bin index
+  ii = sortrows(ii);
+  [ii, nnii] = unique(ii, "rows", "last");
+  nn = diff([0; nnii]);
 
   ## add bin multiplicities to correct bins
   jj = mat2cell(ii, size(ii, 1), ones(length(hgrm.bins), 1));
