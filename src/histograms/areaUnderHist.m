@@ -19,13 +19,13 @@
 ## Syntax:
 ##   area = areaUnderHist(hgrm)
 ## where:
-##   hgrm = histogram struct
+##   hgrm = histogram class
 
 function area = areaUnderHist(hgrm)
 
   ## check input
   assert(isHist(hgrm));
-  dim = length(hgrm.xb);
+  dim = histDim(hgrm);
 
   ## calculate area
   area = momentOfHist(hgrm, zeros(dim, 1), zeros(dim, 1));

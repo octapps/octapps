@@ -15,20 +15,21 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## Checks whether the input arguments are
-## valid histogram structs.
+## Checks whether the input argument is a valid histogram class.
 ## Syntax:
 ##   ishgrm = isHist(hgrm)
 ## where:
-##   hgrm   = maybe a histogram struct
-##   ishgrm = true if hgrm is a valid histogram struct,
+##   hgrm   = maybe a histogram class
+##   ishgrm = true if hgrm is a valid histogram class,
 ##            false otherwise
 
 function ishgrm = isHist(hgrm)
 
-  ishgrm = isstruct(hgrm) && length(hgrm) == 1 && ...
-      isfield(hgrm, "xb") && iscell(hgrm.xb) && isvector(hgrm.xb) && length(hgrm.xb) > 0 && ...
-      isfield(hgrm, "px") && ismatrix(hgrm.px);
+  ## check if hgrm is a Hist class object
+  ishgrm = strcmp(class(hgrm), "Hist");
+
+  ## perform various consistency checks on class variables
+  ishgrm = ishgrm && iscell(hgrm.xb) && isvector(hgrm.xb) && length(hgrm.xb) > 0 && ismatrix(hgrm.px);
   if ishgrm
     for k = 1:length(hgrm.xb)
       ishgrm = ishgrm && isvector(hgrm.xb{k}) && length(hgrm.xb{k}) >= 2 && ...
@@ -36,5 +37,5 @@ function ishgrm = isHist(hgrm)
           length(hgrm.xb{k}) == size(hgrm.px, k) + 1;
     endfor
   endif
-  
+
 endfunction

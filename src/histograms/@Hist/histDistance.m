@@ -21,7 +21,7 @@
 ## Syntax:
 ##   d = histDistance(hgrm1, hgrm2)
 ## where:
-##   hgrm{1,2} = histogram structs
+##   hgrm{1,2} = histogram classes
 
 function d = histDistance(hgrm1, hgrm2)
 

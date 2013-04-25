@@ -15,39 +15,29 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## Creates a new struct representing a (multi-dimensional) histogram.
+## Adds the given input data to the histogram.
+## If the histogram is too small, more bins are added.
 ## Syntax:
-##   [hgrm, hgrm, ...] = newHist(dim, val)
+##   hgrm = addDataToHist(hgrm, data, dx, x0)
 ## where:
-##   hgrm,... = histogram structs
-##   dim      = dimensionality of the histograms
-##   val      = singular val of the histograms
+##   hgrm = histogram class
+##   data = input histogram data
+##   dx   = size of any new bins
+##   x0   = (optional) initial bin when adding inf. data
 
-function varargout = newHist(dim, val)
+function hgrm = addDataToHist(hgrm, data, dx, x0)
 
   ## check input
-  if !exist("dim")
-    dim = 1;
-  elseif !isscalar(dim)
-    error("%s: dim must be a scalar", funcName);
-  endif
-  if !exist("val")
-    val = [];
-  elseif !isscalar(val)
-    error("%s: val must be a scalar", funcName);
+  assert(isHist(hgrm));
+  if nargin < 4
+    x0 = [];
   endif
 
-  ## create struct
-  clear hgrm;
-  [hgrm.xb{1:dim,1}] = deal([-inf val val inf]);
-  if dim == 1
-    hgrm.px = zeros(length(hgrm.xb{1})-1, 1);
-  else
-    hgrm.px = zeros((length(hgrm.xb{1})-1)*ones(1,dim));
-  endif
-  if !isempty(val)
-    hgrm.px(ceil(numel(hgrm.px)/2)) = 1;
-  endif
-  [varargout{1:max(nargout,1)}] = deal(hgrm);
+  ## get bin multiplicities from findHistBins, resize as needed
+  [hgrm, ii, nn] = findHistBins(hgrm, data, dx, x0);
+
+  ## add bin multiplicities to correct bins
+  jj = mat2cell(ii, size(ii, 1), ones(length(hgrm.xb), 1));
+  hgrm.px(sub2ind(size(hgrm.px), jj{:})) += nn;
 
 endfunction

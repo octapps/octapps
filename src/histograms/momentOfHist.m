@@ -23,7 +23,7 @@
 ## Syntax:
 ##   mu   = momentOfHist(hgrm, x0, n)
 ## where:
-##   hgrm = histogram struct
+##   hgrm = histogram class
 ##   x0   = relative offset in each dimension
 ##   n    = moment orders in each dimension
 ##   mu   = moment
@@ -32,7 +32,7 @@ function mu = momentOfHist(hgrm, x0, n)
 
   ## check input
   assert(isHist(hgrm));
-  dim = length(hgrm.xb);
+  dim = histDim(hgrm);
   assert(isvector(x0) && length(x0) == dim);
   assert(isvector(n)  && length(x0) == dim && all(n >= 0));
 

@@ -134,10 +134,10 @@ function results = TestSuperSkyMetric(varargin)
   onto_spa_ssmetric = sqrt(max_mismatch) * Dnorm * inv(CD_spa_ssmetric);
 
   ## initalise result histograms
-  results.mu_spa_ssmetric_err_H = newHist(1);
-  results.mu_a_ssmetric_err_H = newHist(1);
-  results.mu_ssmetric_lpI_err_H = newHist(1);
-  results.mu_ssmetric_lpII_err_H = newHist(1);
+  results.mu_spa_ssmetric_err_H = Hist(1);
+  results.mu_a_ssmetric_err_H = Hist(1);
+  results.mu_ssmetric_lpI_err_H = Hist(1);
+  results.mu_ssmetric_lpII_err_H = Hist(1);
 
   ## iterate over all trials in 'trial_block'-sized blocks
   trial_block = 1e5;

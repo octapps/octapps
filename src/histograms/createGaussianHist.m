@@ -3,7 +3,7 @@
 %% Syntax:
 %%   hgrm = createGaussianHist (M, S, "key1", val1, ... )
 %% where:
-%%   hgrm = returned histogram struct
+%%   hgrm = returned histogram class
 %%   M    = mean of the Gaussian distribution
 %%   V    = standard deviation
 %%
@@ -46,8 +46,8 @@ function hgrm = createGaussianHist ( M, S, varargin )
                {"err", "numeric,scalar", 1e-2},
                {"binsize", "numeric,scalar", S / 10.0});
 
-  %% create 1D histogram struct
-  hgrm = newHist ( 1 );
+  %% create 1D histogram class
+  hgrm = Hist ( 1 );
 
   %% iterate, adding N samples every round, and continue until histogram has converged
   %% to within the given tolerance of 'err'

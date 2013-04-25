@@ -19,13 +19,13 @@
 ## Syntax:
 ##   mean = meanOfHist(hgrm)
 ## where:
-##   hgrm = histogram struct
+##   hgrm = histogram class
 
 function mean = meanOfHist(hgrm)
 
   ## check input
   assert(isHist(hgrm));
-  dim = length(hgrm.xb);
+  dim = histDim(hgrm);
 
   ## calculate mean
   mean = zeros(dim, 1);

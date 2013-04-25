@@ -20,7 +20,7 @@
 ##   plotHist(hgrm, options, ...)
 ##   h = plotHist(...)
 ## where:
-##   hgrm    = histogram struct
+##   hgrm    = histogram class
 ##   options = options to pass to graphics function
 ##   h       = return graphics handle
 
@@ -30,7 +30,7 @@ function varargout = plotHist(hgrm, varargin)
   assert(isHist(hgrm));
   
   ## check histogram is 1D
-  if (length(hgrm.xb) > 1)
+  if (histDim(hgrm) > 1)
     error("%s: can only plot 1D histogram", funcName);
   endif
 

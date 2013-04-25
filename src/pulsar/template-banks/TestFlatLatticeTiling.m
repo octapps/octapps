@@ -366,7 +366,7 @@ function results = TestFlatLatticeTiling(varargin)
 
     ## Create mismatch histogram, if requested
     if return_hgrm
-      results.mismatch_hgrm = newHist(1);
+      results.mismatch_hgrm = Hist(1);
     endif
 
     ## Iterate over injections

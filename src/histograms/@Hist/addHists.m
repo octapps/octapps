@@ -19,7 +19,7 @@
 ## Syntax:
 ##   hgrmt = addHists(hgrm, hgrm, ...)
 ## where:
-##   hgrm  = histogram structs
+##   hgrm  = histogram classes
 ##   hgrmt = total histogram
 
 function hgrm = addHists(varargin)
@@ -31,7 +31,7 @@ function hgrm = addHists(varargin)
   assert(isscalar(dim));
 
   ## create output histogram
-  hgrm = newHist(dim);
+  hgrm = Hist(dim);
 
   ## iterate over histogram dimensions
   for i = 1:dim

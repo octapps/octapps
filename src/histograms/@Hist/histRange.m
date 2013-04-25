@@ -1,4 +1,4 @@
-## Copyright (C) 2012 Karl Wette
+## Copyright (C) 2013 Karl Wette
 ##
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -15,21 +15,28 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## Creates a histogram containing the supplied data.
+## Returns the range of a histogram class, which
+## is finite unless the histogram is empty.
 ## Syntax:
-##   hgrm = createHist(data, dx, ...)
+##   rng = histRange(hgrm)
 ## where:
 ##   hgrm = histogram class
-##   data = input histogram data
-##   dx   = size of any new bins
-## Additional arguments are passed to addDataToHist()
+##   rng  = range of the histogram
 
-function hgrm = createHist(data, dx, varargin)
+function rng = histRange(hgrm)
 
-  ## create histogram
-  hgrm = Hist(size(data, 2));
+  ## check input
+  assert(isHist(hgrm));
+  dim = length(hgrm.xb);
 
-  ## add data
-  hgrm = addDataToHist(hgrm, data, dx, varargin{:});
+  ## return range
+  rng = zeros(dim, 2);
+  for k = 1:dim
+    if length(hgrm.xb{k}) > 2
+      rng(k, :) = hgrm.xb{k}([2, end-1]);
+    else
+      rng(k, :) = hgrm.xb{k};
+    endif
+  endfor
 
 endfunction

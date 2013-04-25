@@ -20,7 +20,7 @@
 ## Syntax:
 ##   [x, ...] = histBinGrids(hgrm, k, "type", ...)
 ## where:
-##   hgrm = histogram struct
+##   hgrm = histogram class
 ##   k    = dimension along which to return bin quantities
 ##   type = one of:
 ##            "xl": lower bin boundary

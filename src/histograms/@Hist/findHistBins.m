@@ -21,7 +21,7 @@
 ## Syntax:
 ##   [hgrm, ii, nn] = findHistBins(hgrm, data, dx, x0)
 ## where:
-##   hgrm = histogram struct
+##   hgrm = histogram class
 ##   data = input histogram data
 ##   ii   = indices of histogram bins
 ##   dx   = size of any new bins

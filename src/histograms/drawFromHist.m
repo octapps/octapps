@@ -21,7 +21,7 @@
 ##   x         = drawFromHist(hgrm, N)
 ##   [x, wksp] = drawFromHist(hgrm, N, wksp)
 ## where:
-##   hgrm = histogram struct
+##   hgrm = histogram class
 ##   N    = number of random values to generate
 ##   wksp = working variables for drawFromHist
 ##   x    = generated random values
@@ -30,7 +30,7 @@ function [x, wksp] = drawFromHist(hgrm, N, wksp=[])
 
   ## check input
   assert(isHist(hgrm));
-  dim = length(hgrm.xb);
+  dim = histDim(hgrm);
 
   ## get finite and normalised bins and probabilities
   [xb, px] = finiteHist(hgrm, "normalised");

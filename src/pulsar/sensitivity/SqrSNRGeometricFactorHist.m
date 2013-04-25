@@ -86,7 +86,7 @@ function Rsqr_H = SqrSNRGeometricFactorHist(varargin)
   endfor
 
   ## calculate squared antenna patterns averaged over time and source location parameters
-  Fpsqr_t_H = Fxsqr_t_H = newHist;
+  Fpsqr_t_H = Fxsqr_t_H = Hist(1);
   do
 
     ## new random source location parameters
@@ -130,7 +130,7 @@ function Rsqr_H = SqrSNRGeometricFactorHist(varargin)
   N = !!rng.allconst + !rng.allconst*hist_N;
 
   ## calculate histogram of squared SNR geometric factor
-  Rsqr_H = newHist;
+  Rsqr_H = Hist(1);
   mism_hgrm_wksp = [];
   do
 

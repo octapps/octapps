@@ -1,4 +1,4 @@
-## Copyright (C) 2011 Karl Wette
+## Copyright (C) 2013 Karl Wette
 ##
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -15,21 +15,19 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## Transform the bins of a histogram
+## Returns the dimensionality of a histogram class.
 ## Syntax:
-##   hgrm = transformHistBins(hgrm, k, F)
+##   dim = histDim(hgrm)
 ## where:
-##   hgrm = histogram struct
-##   k    = dimension along which to scale bin
-##   F    = function to apply to bins
+##   hgrm = histogram class
+##   dim  = dimensionality of the histogram
 
-function hgrm = transformHistBins(hgrm, k, F)
+function dim = histDim(hgrm)
 
   ## check input
   assert(isHist(hgrm));
-  assert(1 <= k && k <= length(hgrm.xb));
 
-  ## transform bins
-  hgrm.xb{k}(2:end-1) = arrayfun(F, hgrm.xb{k}(2:end-1));  
+  ## return dimensionality
+  dim = length(hgrm.xb);
 
 endfunction

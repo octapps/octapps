@@ -20,7 +20,7 @@
 ##   [xb, px] = finiteHist(hgrm)
 ##   [xb, px] = finiteHist(hgrm, "normalised")
 ## where:
-##   hgrm  = histogram struct
+##   hgrm  = histogram class
 ##   xb    = finite bins
 ##   px    = finite probabilities
 
@@ -69,8 +69,8 @@ endfunction
 
 ## generate Gaussian histograms and test normalisation with equal/unequal bins
 %!test
-%! hgrm1 = addDataToHist(newHist(1), normrnd(0, 1, 1e6, 1), 0.01, 0);
-%! hgrm2 = addDataToHistLogBins(newHist(1), normrnd(0, 1, 1e6, 1), 0.5, 50);
+%! hgrm1 = addDataToHist(Hist(1), normrnd(0, 1, 1e6, 1), 0.01, 0);
+%! hgrm2 = addDataToHistLogBins(Hist(1), normrnd(0, 1, 1e6, 1), 0.5, 50);
 %! [xb1, px1] = finiteHist(hgrm1, "normalised");
 %! [xb2, px2] = finiteHist(hgrm2, "normalised");
 %! xc1 = histBinGrids(hgrm1, 1, "xc");

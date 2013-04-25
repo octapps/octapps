@@ -19,13 +19,13 @@
 ## Syntax:
 ##   variance = varianceOfHist(hgrm)
 ## where:
-##   hgrm = histogram struct
+##   hgrm = histogram class
 
 function variance = varianceOfHist(hgrm)
 
   ## check input
   assert(isHist(hgrm));
-  dim = length(hgrm.xb);
+  dim = histDim(hgrm);
 
   ## calculate variance
   variance = zeros(dim, 1);

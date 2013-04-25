@@ -1,4 +1,4 @@
-## Copyright (C) 2010 Karl Wette
+## Copyright (C) 2011 Karl Wette
 ##
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -15,29 +15,21 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## Adds the given input data to the histogram.
-## If the histogram is too small, more bins are added.
+## Transform the bins of a histogram
 ## Syntax:
-##   hgrm = addDataToHist(hgrm, data, dx, x0)
+##   hgrm = transformHistBins(hgrm, k, F)
 ## where:
-##   hgrm = histogram struct
-##   data = input histogram data
-##   dx   = size of any new bins
-##   x0   = (optional) initial bin when adding inf. data
+##   hgrm = histogram class
+##   k    = dimension along which to scale bin
+##   F    = function to apply to bins
 
-function hgrm = addDataToHist(hgrm, data, dx, x0)
+function hgrm = transformHistBins(hgrm, k, F)
 
   ## check input
   assert(isHist(hgrm));
-  if nargin < 4
-    x0 = [];
-  endif
+  assert(1 <= k && k <= length(hgrm.xb));
 
-  ## get bin multiplicities from findHistBins, resize as needed
-  [hgrm, ii, nn] = findHistBins(hgrm, data, dx, x0);
-
-  ## add bin multiplicities to correct bins
-  jj = mat2cell(ii, size(ii, 1), ones(length(hgrm.xb), 1));
-  hgrm.px(sub2ind(size(hgrm.px), jj{:})) += nn;
+  ## transform bins
+  hgrm.xb{k}(2:end-1) = arrayfun(F, hgrm.xb{k}(2:end-1));  
 
 endfunction
