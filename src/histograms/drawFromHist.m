@@ -56,5 +56,5 @@ endfunction
 %!test
 %! hgrm1 = createGaussianHist(1.2, 3.4, "err", 1e-3, "binsize", 0.1);
 %! x = drawFromHist(hgrm1, 1e6);
-%! hgrm2 = createHist(x(:), 0.1);
+%! hgrm2 = addDataToHist(Hist(1, {"lin", "dbin", 0.1}), x(:));
 %! assert(histDistance(hgrm1, hgrm2) < 0.05)

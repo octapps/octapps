@@ -47,7 +47,7 @@ function hgrm = createGaussianHist ( M, S, varargin )
                {"binsize", "numeric,scalar", S / 10.0});
 
   %% create 1D histogram class
-  hgrm = Hist ( 1 );
+  hgrm = Hist( 1, {"lin", "dbin", binsize} );
 
   %% iterate, adding N samples every round, and continue until histogram has converged
   %% to within the given tolerance of 'err'
@@ -58,7 +58,7 @@ function hgrm = createGaussianHist ( M, S, varargin )
 
     %% add new values to histogram
     oldhgrm = hgrm;
-    hgrm = addDataToHist ( hgrm, newsamples, binsize );
+    hgrm = addDataToHist ( hgrm, newsamples );
 
     %% calculate difference between old and new histograms
     histerr = histDistance ( hgrm, oldhgrm );

@@ -30,9 +30,6 @@ function hgrm = addHists(varargin)
   dim = unique(cellfun(@(h) length(h.bins), varargin));
   assert(isscalar(dim));
 
-  ## create output histogram
-  hgrm = Hist(dim);
-
   ## iterate over histogram dimensions
   for i = 1:dim
 
@@ -46,22 +43,18 @@ function hgrm = addHists(varargin)
     binsi = unique(cell2mat(binsi));
 
     ## set total histogram bins for this dimension
-    hgrm.bins{i} = [-inf, binsi, inf];
+    bins{i} = [-inf, binsi, inf];
 
   endfor
 
-  ## create zero probability array of correct size
-  siz = cellfun(@(x) length(x)-1, hgrm.bins);
-  if length(siz) == 1
-    siz(2) = 1;
-  endif
-  hgrm.counts = zeros(siz);
+  ## create output histogram with fixed bins
+  hgrm = Hist(dim, bins{:});
 
   ## iterate over histograms to add
   for n = 1:length(varargin)
 
     ## resample nth histogram to total histogram bins
-    hgrmn = resampleHist(varargin{n}, hgrm.bins{:});
+    hgrmn = resampleHist(varargin{n}, bins{:});
 
     ## add probabilities
     hgrm.counts += hgrmn.counts;

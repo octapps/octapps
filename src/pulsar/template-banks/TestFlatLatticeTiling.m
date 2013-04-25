@@ -366,7 +366,7 @@ function results = TestFlatLatticeTiling(varargin)
 
     ## Create mismatch histogram, if requested
     if return_hgrm
-      results.mismatch_hgrm = Hist(1);
+      results.mismatch_hgrm = Hist(1, {"lin", "dbin", 1.0 / histogram_bins});
     endif
 
     ## Iterate over injections
@@ -385,7 +385,7 @@ function results = TestFlatLatticeTiling(varargin)
 
       ## Add minimum mismatches to histogram
       if return_hgrm
-        results.mismatch_hgrm = addDataToHist(results.mismatch_hgrm, min_mismatch.data / max_mismatch, 1.0 / histogram_bins);
+        results.mismatch_hgrm = addDataToHist(results.mismatch_hgrm, min_mismatch.data / max_mismatch);
       endif
 
       ## Decrement number of remaining injections

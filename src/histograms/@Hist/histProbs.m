@@ -52,8 +52,11 @@ function prob = histProbs(hgrm)
 endfunction
 
 
-## generate Gaussian histograms and test normalisation
+## generate Gaussian histograms and test normalisation with equal/unequal bins
 %!test
-%! hgrm1 = addDataToHist(Hist(1), normrnd(0, 1, 1e6, 1), 0.01, 0);
+%! hgrm1 = addDataToHist(Hist(1, {"lin", "dbin", 0.01}), normrnd(0, 1, 1e6, 1));
+%! hgrm2 = addDataToHist(Hist(1, {"log", "minrange", 0.5, "binsper10", 50}), normrnd(0, 1, 1e6, 1));
 %! p1 = histProbs(hgrm1); c1 = histBinGrids(hgrm1, 1, "centre");
+%! p2 = histProbs(hgrm2); c2 = histBinGrids(hgrm2, 1, "centre");
 %! assert(mean(abs(p1 - normpdf(c1, 0, 1))) < 0.005)
+%! assert(mean(abs(p2 - normpdf(c2, 0, 1))) < 0.005)

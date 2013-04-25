@@ -17,27 +17,77 @@
 
 ## Creates a new class representing a multi-dimensional histogram.
 ## Syntax:
-##   hgrm = Hist(dim, val)
+##   hgrm = Hist(dim, type...)
 ## where:
 ##   hgrm = histogram class
 ##   dim  = dimensionality of the histogram
-##   bin0 = starting bin (default: 0)
+##   type = bin types, one per dimension
 
-function hgrm = Hist(dim, bin0=0)
+function hgrm = Hist(dim, varargin)
 
   ## check input
   assert(isscalar(dim));
-  assert(isscalar(bin0) || (isvector(bin0) && length(bin0) == dim));
-  if isscalar(bin0)
-    bin0 = bin0(ones(dim, 1));
+  if length(varargin) != dim
+    error("%s: number of bin types must match dimensionality", funcName);
   endif
 
   ## create class struct
   hgrm = struct;
+  siz = ones(1, dim+1);
   for k = 1:dim
-    hgrm.bins{k,1} = [-inf, bin0(k), inf];
+
+    ## parse bin type
+    bintypek = varargin{k};
+    if iscell(bintypek)
+      if length(bintypek) == 0 || !ischar(bintypek{1})
+        error("%s: bin type #i is not valid", funcName, k);
+      endif
+      hgrm.bintype{k} = struct("name", bintypek{1});
+
+      ## select bin type
+      switch hgrm.bintype{k}.name
+
+        case "lin"   ## linear bin generator
+
+          ## parse options
+          parseOptions(bintypek(2:end),
+                       {"dbin", "real,strictpos,scalar"},
+                       {"bin0", "real,scalar", 0},
+                       []);
+
+          ## set bin type and create bins
+          hgrm.bintype{k}.dbin = dbin;
+          hgrm.bins{k} = [-inf, bin0, inf];
+
+        case "log"   ## logarithmic bin generator
+
+          ## parse options
+          parseOptions(bintypek(2:end),
+                       {"minrange", "real,strictpos,scalar"},
+                       {"binsper10", "integer,strictpos,scalar"},
+                       []);
+
+          ## set bin type and create bins
+          hgrm.bintype{k}.binsper10 = binsper10;
+          hgrm.bins{k} = [-inf, linspace(-minrange, minrange, 2*binsper10 + 1), inf];          
+
+        otherwise
+          error("%s: unknown bin type '%s'", funcName, hgrm.bintype{k}.name)
+
+      endswitch
+    elseif isvector(bintypek)
+
+      ## use given fixed bins
+      hgrm.bintype{k} = struct("name", "fixed");
+      hgrm.bins{k} = [-inf, reshape(sort(bintypek), 1, []), inf];
+
+    endif
+
+    ## size of count array in this dimension
+    siz(k) = length(hgrm.bins{k}) - 1;
+
   endfor
-  hgrm.counts = squeeze(zeros([2*ones(1,dim), 1]));
+  hgrm.counts = squeeze(zeros(siz));
 
   ## create class
   hgrm = class(hgrm, "Hist");

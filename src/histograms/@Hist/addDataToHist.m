@@ -18,29 +18,17 @@
 ## Adds the given input data to the histogram.
 ## If the histogram is too small, more bins are added.
 ## Syntax:
-##   hgrm = addDataToHist(hgrm, data, dbin, bin0)
+##   hgrm = addDataToHist(hgrm, data)
 ## where:
 ##   hgrm = histogram class
 ##   data = input histogram data
-##   dbin = size of any new bins
-##   bin0 = (optional) initial bin when adding inf. data
 
-function hgrm = addDataToHist(hgrm, data, dbin, bin0)
+function hgrm = addDataToHist(hgrm, data)
 
   ## check input
   assert(isHist(hgrm));
   dim = length(hgrm.bins);
   assert(ismatrix(data) && size(data, 2) == dim);
-  assert(isscalar(dbin) || (isvector(dbin) && length(dbin) == dim));
-  if isscalar(dbin)
-    dbin = dbin(ones(dim, 1));
-  endif
-  if nargin < 4 || isempty(bin0)
-    bin0 = 0;
-  endif
-  if isscalar(bin0)
-    bin0 = bin0(ones(dim, 1));
-  endif
 
   ## check for non-numeric data
   if any(isnan(data(:)))
@@ -50,49 +38,86 @@ function hgrm = addDataToHist(hgrm, data, dbin, bin0)
   ## expand histogram to include new bins, if needed
   for k = 1:dim
 
-    ## if data is all infinite
-    finii = find(isfinite(data(:,k)));
-    if !any(finii)
+    ## get range of current (finite) bins
+    bins = hgrm.bins{k}(2:end-1);
+    binmin = bins(1);
+    binmax = bins(end);
 
-      ## make sure there's at least one non-infinite bin
-      if length(hgrm.bins{k}) == 2
-        hgrm = resampleHist(hgrm, k, bin0);
-      endif
+    ## get range of (finite) data
+    finii = isfinite(data(:,k));
+    datamin = min(data(finii,k));
+    datamax = max(data(finii,k));
 
-    else
+    ## if more bins are required
+    if any(finii) && (datamin < binmin || datamax > binmax)
+      newbinslo = [];
+      newbinshi = [];
 
-      ## range of finite data
-      dmin = min(data(finii,k));
-      dmax = max(data(finii,k));
+      ## select bin type
+      switch hgrm.bintype{k}.name
 
-      ## create new bins
-      if length(hgrm.bins{k}) == 2
-        newbins = (floor(dmin / dbin(k)):ceil(dmax / dbin(k))) * dbin(k);
-        if length(newbins) == 1
-          newbins = [newbins, newbins + dbin(k)];
-        endif
-      else
-        newbinslo = hgrm.bins{k}(2) - (ceil((hgrm.bins{k}(2) - dmin) / dbin(k)):-1:1) * dbin(k);
-        newbinshi = hgrm.bins{k}(end-1) + (1:ceil((dmax - hgrm.bins{k}(end-1)) / dbin(k))) * dbin(k);
-        newbins = [newbinslo, hgrm.bins{k}(2:end-1), newbinshi];
-      endif
+        case "fixed"   ## fixed bins, cannot be extended
+          error("%s: data range [%g,%g] extends beyond range of fixed bins [%g,%g]", funcName, datamin, datamax, binmin, binmax);
+
+        case "lin"   ## linear bin generator
+          dbin = hgrm.bintype{k}.dbin;
+
+          ## create new lower bins, if needed
+          if datamin < binmin
+            newbinslo = binmin - (ceil((binmin - datamin) / dbin):-1:1) * dbin;
+          endif
+
+          ## create new upper bins, if needed
+          if datamax > binmax
+            newbinshi = binmax + (1:ceil((datamax - binmax) / dbin)) * dbin;
+          endif
+
+        case "log"   ## logarithmic bin generator
+          binsper10 = hgrm.bintype{k}.binsper10;
+
+          ## create new lower bins, if needed
+          range = newbinmin = binmin;
+          do
+            range *= 10;
+            binslo = linspace(range, newbinmin, binsper10 + 1);
+            newbinslo = [binslo(1:end-1), newbinslo];
+            newbinmin = newbinslo(1);
+          until !(datamin < newbinmin)
+
+          ## create new upper bins, if needed
+          range = newbinmax = binmax;
+          do
+            range *= 10;
+            binshi = linspace(newbinmax, range, binsper10 + 1);
+            newbinshi = [newbinshi, binshi(2:end)];
+            newbinmax = newbinshi(end);
+          until !(datamax > newbinmax)
+
+        otherwise
+          error("%s: unknown bin type '%s'", funcName, hgrm.bintype{k}.name)
+
+      endswitch
 
       ## resize histogram
-      hgrm = resampleHist(hgrm, k, newbins);
+      hgrm = resampleHist(hgrm, k, [newbinslo, bins, newbinshi]);
 
     endif
-
+    
   endfor
 
-  ## bin indices
+  ## generate bin indices
   ii = zeros(size(data));
   for k = 1:dim
     datak = data(:,k);
+
     ## so that last (finite) bin is treated as <=
-    if length(hgrm.bins{k}) >= 4
+    if length(hgrm.bins{k}) > 3
       datak(datak == hgrm.bins{k}(end-1)) = hgrm.bins{k}(end-2);
     endif
+
+    ## lookup indices
     ii(:,k) = lookup(hgrm.bins{k}, datak, "lr");
+
   endfor
 
   ## multiplicities of each bin index

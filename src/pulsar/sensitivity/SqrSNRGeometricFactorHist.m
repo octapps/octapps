@@ -86,7 +86,7 @@ function Rsqr_H = SqrSNRGeometricFactorHist(varargin)
   endfor
 
   ## calculate squared antenna patterns averaged over time and source location parameters
-  Fpsqr_t_H = Fxsqr_t_H = Hist(1);
+  Fpsqr_t_H = Fxsqr_t_H = Hist(1, {"lin", "dbin", hist_dx});
   do
 
     ## new random source location parameters
@@ -105,8 +105,8 @@ function Rsqr_H = SqrSNRGeometricFactorHist(varargin)
       Fxsqr_t = TimeAvgSqrAntennaPattern(det(n).a0, det(n).b0, xx, yx, det(n).zeta, OmegaT);
 
       ## add new values to histograms
-      Fpsqr_t_H = addDataToHist(Fpsqr_t_H, Fpsqr_t(:), hist_dx);
-      Fxsqr_t_H = addDataToHist(Fxsqr_t_H, Fxsqr_t(:), hist_dx);
+      Fpsqr_t_H = addDataToHist(Fpsqr_t_H, Fpsqr_t(:));
+      Fxsqr_t_H = addDataToHist(Fxsqr_t_H, Fxsqr_t(:));
       
     endfor
     
@@ -130,7 +130,7 @@ function Rsqr_H = SqrSNRGeometricFactorHist(varargin)
   N = !!rng.allconst + !rng.allconst*hist_N;
 
   ## calculate histogram of squared SNR geometric factor
-  Rsqr_H = Hist(1);
+  Rsqr_H = Hist(1, {"lin", "dbin", hist_dx});
   mism_hgrm_wksp = [];
   do
 
@@ -151,7 +151,7 @@ function Rsqr_H = SqrSNRGeometricFactorHist(varargin)
 
     ## add new values to histogram
     Rsqr_H_old = Rsqr_H;
-    Rsqr_H = addDataToHist(Rsqr_H, Rsqr(:), hist_dx);
+    Rsqr_H = addDataToHist(Rsqr_H, Rsqr(:));
     
     ## calculate difference between old and new histograms
     err = histDistance(Rsqr_H, Rsqr_H_old);

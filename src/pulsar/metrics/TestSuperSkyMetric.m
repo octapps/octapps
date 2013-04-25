@@ -134,10 +134,10 @@ function results = TestSuperSkyMetric(varargin)
   onto_spa_ssmetric = sqrt(max_mismatch) * Dnorm * inv(CD_spa_ssmetric);
 
   ## initalise result histograms
-  results.mu_spa_ssmetric_err_H = Hist(1);
-  results.mu_a_ssmetric_err_H = Hist(1);
-  results.mu_ssmetric_lpI_err_H = Hist(1);
-  results.mu_ssmetric_lpII_err_H = Hist(1);
+  results.mu_spa_ssmetric_err_H = Hist(1, {"lin", "dbin", err_H_dx});
+  results.mu_a_ssmetric_err_H = Hist(1, {"lin", "dbin", err_H_dx});
+  results.mu_ssmetric_lpI_err_H = Hist(1, {"lin", "dbin", err_H_dx});
+  results.mu_ssmetric_lpII_err_H = Hist(1, {"lin", "dbin", err_H_dx});
 
   ## iterate over all trials in 'trial_block'-sized blocks
   trial_block = 1e5;
@@ -191,25 +191,25 @@ function results = TestSuperSkyMetric(varargin)
 
     ## bin error in sky-projected aligned mismatch compared to untransformed mismatch
     mu_spa_ssmetric_err = MismatchError(mu_spa_ssmetric, mu_ssmetric);
-    results.mu_spa_ssmetric_err_H = addDataToHist(results.mu_spa_ssmetric_err_H, mu_spa_ssmetric_err(:), err_H_dx);
+    results.mu_spa_ssmetric_err_H = addDataToHist(results.mu_spa_ssmetric_err_H, mu_spa_ssmetric_err(:));
 
     ## bin error in aligned mismatch compared to untransformed mismatch
     mu_a_ssmetric_err = MismatchError(mu_a_ssmetric, mu_ssmetric);
-    results.mu_a_ssmetric_err_H = addDataToHist(results.mu_a_ssmetric_err_H, mu_a_ssmetric_err(:), err_H_dx);
+    results.mu_a_ssmetric_err_H = addDataToHist(results.mu_a_ssmetric_err_H, mu_a_ssmetric_err(:));
 
     ## compute mismatch in metric with linear phase model I
     mu_ssmetric_lpI = dot(dp, results.ssmetric_lpI * dp);
 
     ## bin error in linear phase model I metric compared to untransformed mismatch
     mu_ssmetric_lpI_err = MismatchError(mu_ssmetric_lpI, mu_ssmetric);
-    results.mu_ssmetric_lpI_err_H = addDataToHist(results.mu_ssmetric_lpI_err_H, mu_ssmetric_lpI_err(:), err_H_dx);
+    results.mu_ssmetric_lpI_err_H = addDataToHist(results.mu_ssmetric_lpI_err_H, mu_ssmetric_lpI_err(:));
 
     ## compute mismatch in metric with linear phase model II
     mu_ssmetric_lpII = dot(dp, results.ssmetric_lpII * dp);
 
     ## bin error in linear phase model II metric compared to untransformed mismatch
     mu_ssmetric_lpII_err = MismatchError(mu_ssmetric_lpII, mu_ssmetric);
-    results.mu_ssmetric_lpII_err_H = addDataToHist(results.mu_ssmetric_lpII_err_H, mu_ssmetric_lpII_err(:), err_H_dx);
+    results.mu_ssmetric_lpII_err_H = addDataToHist(results.mu_ssmetric_lpII_err_H, mu_ssmetric_lpII_err(:));
 
     num_trials -= trial_block;
   endwhile
