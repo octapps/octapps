@@ -28,6 +28,7 @@
 ##     mu_ssmetric_lpI_err_H  = error in linear phase model I metric compared to untransformed mismatch
 ##     mu_ssmetric_lpII_err_H = error in linear phase model II metric compared to untransformed mismatch
 ##     mu_ssmetric_ad_err_H   = error in mismatch using physical coordinates compared to untransformed mismatch
+##     mu_twoF_err_H          = error in full software injections mismatch compared to untransformed mismatch
 ## Options:
 ##   spindowns: number of frequency spindowns coordinates
 ##   start_time: start time in GPS seconds (default: see CreatePhaseMetric)
@@ -36,6 +37,7 @@
 ##   detectors: comma-separated list of detector names
 ##   ephemerides: Earth/Sun ephemerides from loadEphemerides()
 ##   fiducial_freq: fiducial frequency for sky-position coordinates
+##   inj_freq_band_frac: injection frequency band, as a fraction of fiducial_freq
 ##   sky_coords: sky coordinate system to use (default: equatorial)
 ##   aligned_sky: whether to align sky coordinates (default: true)
 ##   max_mismatch: maximum prescribed mismatch to test at
@@ -59,6 +61,7 @@ function results = TestSuperSkyMetric(varargin)
                {"detectors", "char"},
                {"ephemerides", "a:swig_ref", []},
                {"fiducial_freq", "real,strictpos,scalar"},
+               {"inj_freq_band_frac", "real,strictpos,scalar", 0.05},
                {"sky_coords", "char", "equatorial"},
                {"aligned_sky", "logical,scalar", true},
                {"max_mismatch", "real,strictpos,scalar", 0.5},
@@ -117,14 +120,42 @@ function results = TestSuperSkyMetric(varargin)
   spa_iff(spa_iff > inc) -= 1;
 
   ## diagonally normalise sky-projected aligned metric
-  [D_spa_ssmetric, Dnorm, iDnorm] = DiagonalNormaliseMetric(spa_ssmetric);
+  [D_spa_ssmetric, DN_spa_ssmetric] = DiagonalNormaliseMetric(spa_ssmetric);
 
   ## compute Cholesky decomposition of diagonally-normalised sky-projected aligned metric
   CD_spa_ssmetric = chol(D_spa_ssmetric);
 
   ## compute transform from surface of unit sphere to surface of sky-projected aligned
   ## metric ellipsoid with maximum mismatch of 'max_mismatch'
-  onto_spa_ssmetric = sqrt(max_mismatch) * Dnorm * inv(CD_spa_ssmetric);
+  onto_spa_ssmetric = sqrt(max_mismatch) * DN_spa_ssmetric * inv(CD_spa_ssmetric);
+
+  ## calculate metric ellipse half-bounding box of frequency coordinates in sky-projected aligned metric
+  spa_ssmetric_iff_hbbox = sqrt(max_mismatch * diag(inv(D_spa_ssmetric)(spa_iff,spa_iff))) .* diag(DN_spa_ssmetric)(spa_iff);
+
+  ## calculate metric ellipse half-bounding box of frequency coordinates in untransformed metric,
+  ## by adding maximum possible frequency/spindown offset due to sky coordinates
+  ssmetric_iff_hbbox = spa_ssmetric_iff_hbbox + max(abs(a_skyoff), [], 2);
+
+  ## determine the maximum frequency band a CW signal at a particular frequency can occupy;
+  ## this is twice the maximum of:
+  ## - the metric ellipse half-bounding box, since this is the box we will search at
+  ##   some random offset of determine the mismatch; and
+  ## - the orbital Doppler modulation, which is the frequency extent of the CW signal
+  orbital_doppler = 2*pi * LAL_AU_SI / LAL_C_SI / LAL_YRSID_SI * fiducial_freq;
+  inj_freq_size = 2 * max(ssmetric_iff_hbbox(1), orbital_doppler);
+
+  ## number of injections to perform per trial block
+  num_inj = floor(fiducial_freq * inj_freq_band_frac / inj_freq_size);
+
+  ## determine the frequency padding required when generating SFTs; this is the sum of
+  ## the maximum frequency deviation due to spindowns, and the orbital Doppler modulation.
+  dT = max(abs(start_time - ref_time), abs(start_time + time_span - ref_time));
+  dT_powers = reshape(dT.^(0:spindowns), size(ssmetric_iff_hbbox));
+  inj_freq_padding = sum(abs(ssmetric_iff_hbbox) .* dT_powers) + orbital_doppler;
+
+  ## create array of injection frequencies, centred on fiducial_freq
+  inj_freqs = inj_freq_size * (0:num_inj-1);
+  inj_freqs = inj_freqs - mean(inj_freqs) + fiducial_freq;
 
   ## create linear phase model metrics from Andrzej Krolak etal's papers
   [results.ssmetric_lpI, sscoordIDs_lpI] = CreatePhaseMetric("coords", "ssky_equ,freq,fdots",
@@ -152,9 +183,12 @@ function results = TestSuperSkyMetric(varargin)
   results.mu_ssmetric_lpI_err_H = Hist(1, {"log", "minrange", err_H_minrange, "binsper10", err_H_binsper10});
   results.mu_ssmetric_lpII_err_H = Hist(1, {"log", "minrange", err_H_minrange, "binsper10", err_H_binsper10});
   results.mu_ssmetric_ad_err_H = Hist(1, {"log", "minrange", err_H_minrange, "binsper10", err_H_binsper10});
+  results.mu_twoF_err_H = Hist(1, {"log", "minrange", err_H_minrange, "binsper10", err_H_binsper10});
 
-  ## iterate over all trials in 'trial_block'-sized blocks
-  trial_block = 1e5;
+  ## determine size of trial block
+  trial_block = num_inj;
+
+  ## iterate over all trials
   while num_trials > 0
     if trial_block > num_trials
       trial_block = num_trials;
@@ -247,9 +281,10 @@ function results = TestSuperSkyMetric(varargin)
     alpha1 = atan2(n1(2, :), n1(1, :));
     alpha2 = atan2(n2(2, :), n2(1, :));
 
-    ## compute declinations delta1 and delta2 from sky positions n1 and n2
-    delta1 = atan2(n1(3, :), sqrt(sumsq(n1(1:2, :))));
-    delta2 = atan2(n2(3, :), sqrt(sumsq(n2(1:2, :))));
+    ## compute declinations delta1 and delta2 from sky positions n1 and n2,
+    ## projected onto upper sky hemisphere
+    delta1 = abs(atan2(n1(3, :), sqrt(sumsq(n1(1:2, :)))));
+    delta2 = abs(atan2(n2(3, :), sqrt(sumsq(n2(1:2, :)))));
 
     ## compute "equivalent" sky position offset in physical coordinates (alpha,delta),
     ## evaluated at (alpha1,delta1). ad_dp is a product of the Jacobian matrix
@@ -273,6 +308,41 @@ function results = TestSuperSkyMetric(varargin)
     ## bin error in metric using physical coordinates compared to untransformed mismatch
     mu_ssmetric_ad_err = mu_ssmetric_ad ./ mu_ssmetric - 1;
     results.mu_ssmetric_ad_err_H = addDataToHist(results.mu_ssmetric_ad_err_H, mu_ssmetric_ad_err(:));
+
+    ## set up injection and search parameters for full software injections in generated SFTs
+    ## - first trial_block of search parameters are exactly at injection parameters
+    ## - second trial_block of search parameters are at mismatched injection parameters
+    inj_alpha = alpha1;
+    inj_delta = delta1;
+    inj_fndot = [inj_freqs(1:trial_block); zeros(spindowns, trial_block)];
+    sch_alpha = [inj_alpha, inj_alpha + dalpha];
+    sch_delta = [inj_delta, inj_delta + ddelta];
+    sch_fndot = [inj_fndot, inj_fndot + dp(iff, :)];
+
+    ## perform software injections
+    inj_results = DoFstatInjections("ref_time", ref_time,
+                                    "start_time", start_time,
+                                    "time_span", time_span,
+                                    "detectors", detectors,
+                                    "ephemerides", ephemerides,
+                                    "inj_alpha", inj_alpha,
+                                    "inj_delta", inj_delta,
+                                    "inj_fndot", inj_fndot,
+                                    "inj_band_pad", inj_freq_padding,
+                                    "sch_alpha", sch_alpha,
+                                    "sch_delta", sch_delta,
+                                    "sch_fndot", sch_fndot);
+
+    ## get 2F values for perform and mismatched injections
+    twoF_perfect = inj_results.sch_twoF(1:trial_block);
+    twoF_mismatch = inj_results.sch_twoF(trial_block + (1:trial_block));
+
+    ## compute mismatch using injections
+    mu_twoF = (twoF_perfect - twoF_mismatch) ./ (twoF_perfect - 4);
+
+    ## bin error in full software injections mismatch compared to untransformed mismatch
+    mu_twoF_err = mu_twoF ./ mu_ssmetric - 1;
+    results.mu_twoF_err_H = addDataToHist(results.mu_twoF_err_H, mu_twoF_err(:));
 
     num_trials -= trial_block;
   endwhile
