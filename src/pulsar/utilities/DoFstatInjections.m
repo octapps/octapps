@@ -51,14 +51,13 @@ function results = DoFstatInjections(varargin)
                {"ephemerides", "a:swig_ref", []},
                {"sft_time_span", "real,strictpos,scalar", 1800},
                {"sft_overlap", "real,positive,scalar", 0},
-               {"inj_h0", "real,strictpos,row", []},
-               {"inj_cosi", "real,row", []},
-               {"inj_psi", "real,row", []},
-               {"inj_phi0", "real,row", []},
-               {"inj_alpha", "real,row", []},
-               {"inj_delta", "real,row", []},
-               {"inj_fndot", "real,matrix", [100]},
-               {"inj_band_pad", "real,strictpos,scalar", 0.1},
+               {"inj_h0", "real,strictpos,scalar", 1.0},
+               {"inj_cosi", "real,scalar", -1 + 2*rand()},
+               {"inj_psi", "real,scalar", 2*pi*rand()},
+               {"inj_phi0", "real,scalar", 2*pi*rand()},
+               {"inj_alpha", "real,scalar", 2*pi*rand()},
+               {"inj_delta", "real,scalar", asin(-1 + 2*rand())},
+               {"inj_fndot", "real,column", [100]},
                {"sch_alpha", "real,row", []},
                {"sch_delta", "real,row", []},
                {"sch_fndot", "real,matrix", []},
@@ -69,19 +68,9 @@ function results = DoFstatInjections(varargin)
     ephemerides = loadEphemerides();
   endif
 
-  ## number of injection and search points
-  assert(numel(inj_fndot) > 0);
-  num_inj = size(inj_fndot, 2);
+  ## check options
   assert(numel(sch_fndot) > 0);
   num_sch = size(sch_fndot, 2);
-
-  ## check options
-  assert(isempty(inj_h0)    || size(inj_h0, 2)    == num_inj);
-  assert(isempty(inj_cosi)  || size(inj_cosi, 2)  == num_inj);
-  assert(isempty(inj_psi)   || size(inj_psi, 2)   == num_inj);
-  assert(isempty(inj_phi0)  || size(inj_phi0, 2)  == num_inj);
-  assert(isempty(inj_alpha) || size(inj_alpha, 2) == num_inj);
-  assert(isempty(inj_delta) || size(inj_delta, 2) == num_inj);
   assert(isempty(sch_alpha) || size(sch_alpha, 2) == num_sch);
   assert(isempty(sch_delta) || size(sch_delta, 2) == num_sch);
 
@@ -91,26 +80,6 @@ function results = DoFstatInjections(varargin)
     start_time = ref_time - 0.5 * time_span;
   endif
   startTime = new_LIGOTimeGPS(start_time);
-
-  ## generate injection parameters as needed
-  if isempty(inj_h0)
-    inj_h0 = ones(1, num_inj);
-  endif
-  if isempty(inj_cosi)
-    inj_cosi = -1 + 2*rand(size(inj_h0));
-  endif
-  if isempty(inj_psi)
-    inj_psi = 2*pi*rand(size(inj_h0));
-  endif
-  if isempty(inj_phi0)
-    inj_phi0 = 2*pi*rand(size(inj_h0));
-  endif
-  if isempty(inj_alpha)
-    inj_alpha = 2*pi*rand(size(inj_h0));
-  endif
-  if isempty(inj_delta)
-    inj_delta = asin(-1 + 2*rand(size(inj_h0)));
-  endif
 
   ## use injection parameters as search parameters, if not given
   if isempty(sch_alpha)
@@ -138,48 +107,21 @@ function results = DoFstatInjections(varargin)
   results.sch_twoF = zeros(1, num_sch);
 
   ## create and fill sources input vector for CWMakeFakeData()
-  MFDsources = CreatePulsarParamsVector(num_inj);
-  for i = 1:num_inj
-    MFDsources.data{i}.Amp.h0   = inj_h0(i);
-    MFDsources.data{i}.Amp.cosi = inj_cosi(i);
-    MFDsources.data{i}.Amp.psi  = inj_psi(i);
-    MFDsources.data{i}.Amp.phi0 = inj_phi0(i);
-    MFDsources.data{i}.Doppler.Alpha = inj_alpha(i);
-    MFDsources.data{i}.Doppler.Delta = inj_delta(i);
-    MFDsources.data{i}.Doppler.fkdot = zeros(size(MFDsources.data{i}.Doppler.fkdot));
-    MFDsources.data{i}.Doppler.fkdot(1:size(inj_fndot, 1)) = inj_fndot(:, i);
-    MFDsources.data{i}.Doppler.refTime = refTime;
-  endfor
-
-  ## parse detector names, and check length of SFT noise sqrt(Sh) vector
-  detNames = CreateStringVector(strsplit(detectors, ","){:});
-
-  ## generate SFT timestamps
-  multiTimestamps = MakeMultiTimestamps(startTime, time_span, sft_time_span, sft_overlap, detNames.length);
-
-  ## create and fill input parameters struct for CWMakeFakeData()
-  MFDparams = new_CWMFDataParams;
-  MFDparams.fMin = min(inj_fndot(1, :)) - inj_band_pad;
-  MFDparams.Band = max(inj_fndot(1, :)) + inj_band_pad - MFDparams.fMin;
-  ParseMultiDetectorInfo(MFDparams.detInfo, detNames, []);
-  MFDparams.multiTimestamps = multiTimestamps;
-  MFDparams.randSeed = 0;
-
-  ## run CWMakeFakeData() to generate SFTs with injections
-  multiSFTs = [];
-  multiSFTs = CWMakeFakeMultiData(multiSFTs, [], MFDsources, MFDparams, ephemerides);
-
-  ## generate multi-detector states
-  multiIFO = ExtractMultiLALDetectorFromSFTs(multiSFTs);
-  multiTS = ExtractMultiTimestampsFromSFTs(multiSFTs);
-  Tsft = 1.0 / multiSFTs.data{1}.data{1}.deltaF;
-  tOffset = 0.5 * Tsft;
-  detStates = GetMultiDetectorStates(multiTS, multiIFO, ephemerides, tOffset);
+  MFDsources = CreatePulsarParamsVector(1);
+  MFDsources.data{1}.Amp.h0   = inj_h0;
+  MFDsources.data{1}.Amp.cosi = inj_cosi;
+  MFDsources.data{1}.Amp.psi  = inj_psi;
+  MFDsources.data{1}.Amp.phi0 = inj_phi0;
+  MFDsources.data{1}.Doppler.Alpha = inj_alpha;
+  MFDsources.data{1}.Doppler.Delta = inj_delta;
+  MFDsources.data{1}.Doppler.fkdot = zeros(size(MFDsources.data{1}.Doppler.fkdot));
+  MFDsources.data{1}.Doppler.fkdot(1:length(inj_fndot)) = inj_fndot;
+  MFDsources.data{1}.Doppler.refTime = refTime;
 
   ## create and fill input parameters struct for ComputeFStat()
   CFSparams = new_ComputeFParams;
   CFSparams.Dterms = 16;
-  CFSparams.SSBprec = SSBPREC_RELATIVISTIC;
+  CFSparams.SSBprec = SSBPREC_RELATIVISTICOPT;
   CFSparams.buffer = [];
   CFSparams.useRAA = false;
   CFSparams.bufferedRAA = false;
@@ -187,6 +129,63 @@ function results = DoFstatInjections(varargin)
   CFSparams.returnAtoms = false;
   CFSparams.returnSingleF = false;
   CFSparams.upsampling = 1;
+
+  ## parse detector names, and check length of SFT noise sqrt(Sh) vector
+  detNames = CreateStringVector(strsplit(detectors, ","){:});
+
+  ## generate SFT timestamps
+  multiTimestamps = MakeMultiTimestamps(startTime, time_span, sft_time_span, sft_overlap, detNames.length);
+
+  ## determine range of frequencies spanned by injections and searches
+  min_freq = min([inj_fndot(1), sch_fndot(1, :)]);
+  max_freq = max([inj_fndot(1), sch_fndot(1, :)]);
+
+  ## if injection includes spindowns, determine what frequency band they cover
+  if length(inj_fndot) > 0
+
+    ## compute range of frequencies covered at beginning and end of SFTs
+    dfreqs = [];
+    spins = [inj_fndot(2:end), sch_fndot(2:end, :)];
+    orders = (1:length(inj_fndot)-1)';
+    inv_facts = 1 ./ factorial(orders);
+    for i = 1:size(spins, 2)
+      dfreqs = [dfreqs, ...
+                sum(spins(:, i) .* inv_facts .* (start_time - ref_time).^orders), ...
+                sum(spins(:, i) .* inv_facts .* (start_time + time_span - ref_time).^orders)];
+    endfor
+
+    ## add spindown range to frequency range
+    min_freq += min(dfreqs);
+    max_freq += max(dfreqs);
+
+  endif
+
+  ## add the maximum frequency modulation due to the orbital Doppler modulation
+  dfreq_orbit = 2*pi * LAL_AU_SI / LAL_C_SI / LAL_YRSID_SI * max_freq;
+  min_freq -= dfreq_orbit;
+  max_freq += dfreq_orbit;
+
+  ## add the minimum number of bins requires by ComputeFStat()
+  min_freq -= (CFSparams.Dterms + 1) / sft_time_span;
+  max_freq += (CFSparams.Dterms + 1) / sft_time_span;
+
+  ## create and fill input parameters struct for CWMakeFakeData()
+  MFDparams = new_CWMFDataParams;
+  MFDparams.fMin = min_freq;
+  MFDparams.Band = max_freq - min_freq;
+  ParseMultiDetectorInfo(MFDparams.detInfo, detNames, []);
+  MFDparams.multiTimestamps = multiTimestamps;
+  MFDparams.randSeed = 0;
+
+  ## run CWMakeFakeData() to generate SFTs with injections
+  multiSFTs = CWMakeFakeMultiData([], [], MFDsources, MFDparams, ephemerides);
+
+  ## generate multi-detector states
+  multiIFO = ExtractMultiLALDetectorFromSFTs(multiSFTs);
+  multiTS = ExtractMultiTimestampsFromSFTs(multiSFTs);
+  Tsft = 1.0 / multiSFTs.data{1}.data{1}.deltaF;
+  tOffset = 0.5 * Tsft;
+  detStates = GetMultiDetectorStates(multiTS, multiIFO, ephemerides, tOffset);
 
   ## create ComputeFStat() input and output structs
   Doppler = new_PulsarDopplerParams;
