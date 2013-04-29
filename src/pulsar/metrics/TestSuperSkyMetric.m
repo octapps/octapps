@@ -14,7 +14,7 @@
 ## along with Octave; see the file COPYING.  If not, see
 ## <http://www.gnu.org/licenses/>.
 
-## Test the super-sky metric with random offsets and full software injections.
+## Test the super-sky metric with random offsets and (optionally) full software injections.
 ## Usage:
 ##   results = TestSuperSkyMetric(...)
 ## where results struct contains:
@@ -31,7 +31,7 @@
 ##     mu_ssmetric_lpI_H  = error in linear phase model I metric compared to untransformed mismatch
 ##     mu_ssmetric_lpII_H = error in linear phase model II metric compared to untransformed mismatch
 ##     mu_ssmetric_ad_H   = error in mismatch using physical coordinates compared to untransformed mismatch
-##     mu_twoF_H          = error in full software injections mismatch compared to untransformed mismatch
+##     mu_twoF_H          = (optional) error in full software injections mismatch compared to untransformed mismatch
 ## Options:
 ##   spindowns: number of frequency spindowns coordinates
 ##   start_time: start time in GPS seconds (default: see CreatePhaseMetric)
@@ -45,6 +45,7 @@
 ##   max_mismatch: maximum prescribed mismatch to test at
 ##   num_injections: number of injections to perform
 ##   num_cpu_seconds: number of CPU seconds to perform injections for
+##   full_injections: whether to perform full software injections (default: true)
 ##   injection_block: number of injections to perform at once (default: 100)
 
 function results = TestSuperSkyMetric(varargin)
@@ -67,6 +68,7 @@ function results = TestSuperSkyMetric(varargin)
                {"max_mismatch", "real,strictpos,scalar", 0.5},
                {"num_injections", "integer,strictpos,scalar", inf},
                {"num_cpu_seconds", "real,strictpos,scalar", inf},
+               {"full_injections", "logical,scalar", true},
                {"injection_block", "integer,strictpos,scalar", 100},
                []);
   if !xor(isfinite(num_injections), isfinite(num_cpu_seconds))
@@ -168,7 +170,9 @@ function results = TestSuperSkyMetric(varargin)
   results.mu_ssmetric_lpI_H = Hist(H_args{:});
   results.mu_ssmetric_lpII_H = Hist(H_args{:});
   results.mu_ssmetric_ad_H = Hist(H_args{:});
-  results.mu_twoF_H = Hist(H_args{:});
+  if full_injections
+    results.mu_twoF_H = Hist(H_args{:});
+  endif
 
   ## start CPU seconds counter
   cputime0 = cputime();
@@ -275,40 +279,44 @@ function results = TestSuperSkyMetric(varargin)
     ## compute mismatch in metric using physical coordinates (alpha,delta)
     mu_ssmetric_ad = dot(ad_dp, results.ssmetric * ad_dp);
 
-    ## iterate over full software injections
-    mu_twoF = zeros(1, injection_block);
-    for n = 1:injection_block
+    if full_injections
 
-      ## set up injection and search parameters
-      inj_alpha = alpha1(n);
-      inj_delta = delta1(n);
-      inj_fndot = [fiducial_freq; zeros(spindowns, 1)];
-      sch_alpha = [inj_alpha, inj_alpha + dalpha(n)];
-      sch_delta = [inj_delta, inj_delta + ddelta(n)];
-      sch_fndot = [inj_fndot, inj_fndot + dp(iff, n)];
+      ## iterate over full software injections
+      mu_twoF = zeros(1, injection_block);
+      for n = 1:injection_block
 
-      ## perform software injections in generated SFTs
-      inj_results = DoFstatInjections("ref_time", ref_time,
-                                      "start_time", start_time,
-                                      "time_span", time_span,
-                                      "detectors", detectors,
-                                      "ephemerides", ephemerides,
-                                      "inj_alpha", inj_alpha,
-                                      "inj_delta", inj_delta,
-                                      "inj_fndot", inj_fndot,
-                                      "sch_alpha", sch_alpha,
-                                      "sch_delta", sch_delta,
-                                      "sch_fndot", sch_fndot);
+        ## set up injection and search parameters
+        inj_alpha = alpha1(n);
+        inj_delta = delta1(n);
+        inj_fndot = [fiducial_freq; zeros(spindowns, 1)];
+        sch_alpha = [inj_alpha, inj_alpha + dalpha(n)];
+        sch_delta = [inj_delta, inj_delta + ddelta(n)];
+        sch_fndot = [inj_fndot, inj_fndot + dp(iff, n)];
 
-      ## get 2F values for perfect and mismatched injections
-      assert(length(inj_results.sch_twoF) == 2);
-      twoF_perfect = inj_results.sch_twoF(1);
-      twoF_mismatch = inj_results.sch_twoF(2);
+        ## perform software injections in generated SFTs
+        inj_results = DoFstatInjections("ref_time", ref_time,
+                                        "start_time", start_time,
+                                        "time_span", time_span,
+                                        "detectors", detectors,
+                                        "ephemerides", ephemerides,
+                                        "inj_alpha", inj_alpha,
+                                        "inj_delta", inj_delta,
+                                        "inj_fndot", inj_fndot,
+                                        "sch_alpha", sch_alpha,
+                                        "sch_delta", sch_delta,
+                                        "sch_fndot", sch_fndot);
 
-      ## compute mismatch using injections
-      mu_twoF(n) = (twoF_perfect - twoF_mismatch) ./ (twoF_perfect - 4);
+        ## get 2F values for perfect and mismatched injections
+        assert(length(inj_results.sch_twoF) == 2);
+        twoF_perfect = inj_results.sch_twoF(1);
+        twoF_mismatch = inj_results.sch_twoF(2);
 
-    endfor
+        ## compute mismatch using injections
+        mu_twoF(n) = (twoF_perfect - twoF_mismatch) ./ (twoF_perfect - 4);
+
+      endfor
+
+    endif
 
     ## build error histogram parameters
     H_par = [alpha1(:), delta1(:)];
@@ -333,9 +341,13 @@ function results = TestSuperSkyMetric(varargin)
     mu_ssmetric_ad_err = mu_ssmetric_ad ./ mu_ssmetric - 1;
     results.mu_ssmetric_ad_H = addDataToHist(results.mu_ssmetric_ad_H, [H_par, mu_ssmetric_ad_err(:)]);
 
-    ## bin error in full software injections mismatch compared to untransformed mismatch
-    mu_twoF_err = mu_twoF ./ mu_ssmetric - 1;
-    results.mu_twoF_H = addDataToHist(results.mu_twoF_H, [H_par, mu_twoF_err(:)]);
+    if full_injections
+
+      ## bin error in full software injections mismatch compared to untransformed mismatch
+      mu_twoF_err = mu_twoF ./ mu_ssmetric - 1;
+      results.mu_twoF_H = addDataToHist(results.mu_twoF_H, [H_par, mu_twoF_err(:)]);
+
+    endif
 
   endwhile
 
