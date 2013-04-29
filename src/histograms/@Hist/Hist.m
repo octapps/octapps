@@ -21,7 +21,12 @@
 ## where:
 ##   hgrm = histogram class
 ##   dim  = dimensionality of the histogram
-##   type = bin types, one per dimension
+##   type = bin types, one per dimension; possible types:
+##          - {"lin", "dbin", <bin width>, ...
+##                    "bin0", <starting bin; default 0>}
+##          - {"log", "minrange", <starting minimal bin range>, ...
+##                    "binsper10", <number of bins to add per decade>}
+##          - [bin, bin, ...]: fixed array of bins, cannot be extended
 
 function hgrm = Hist(dim, varargin)
 
@@ -80,6 +85,9 @@ function hgrm = Hist(dim, varargin)
       ## use given fixed bins
       hgrm.bintype{k} = struct("name", "fixed");
       hgrm.bins{k} = [-inf, reshape(sort(bintypek), 1, []), inf];
+
+    else
+      error("%s: unknown bin type #%i", funcName, k)
 
     endif
 
