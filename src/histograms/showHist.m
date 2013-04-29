@@ -36,33 +36,31 @@ function showHist(hgrm)
 
   ## get size of terminal, and set empty buffer string
   tsize = terminal_size();
-  buffer = "";  
+  buffer = "";
 
-  ## loop over all bins
+  ## loop over all non-zero bins
   dims = size(prob);
-  for n = 1:prod(dims)
+  nn = find(prob(:) > 0);
+  for n = 1:length(nn)
 
-    ## get count in this bin, if it's non-zero ...
-    [subs{1:dim}] = ind2sub(dims, n);
+    ## get count in this bin
+    [subs{1:dim}] = ind2sub(dims, nn(n));
     p = prob(subs{:});
-    if p > 0
 
-      ## form string containing bin ranges in each dimension, and probability density
-      str = "";
-      for k = 1:dim
-        str = strcat(str, sprintf(" [% 6g,% 6g]", binlo{k}(subs{k}), binhi{k}(subs{k})));
-      endfor
-      str = strcat(str, sprintf(" = %0.4e", p));
+    ## form string containing bin ranges in each dimension, and probability density
+    str = "";
+    for k = 1:dim
+      str = strcat(str, sprintf(" [% 6g,% 6g]", binlo{k}(subs{k}), binhi{k}(subs{k})));
+    endfor
+    str = strcat(str, sprintf(" = %0.4e", p));
 
-      ## if buffer would already fill terminal screen, print it and start
-      ## next line with string, otherwise add string to buffer
-      if length(buffer) + length(str) > tsize(2)
-        printf("%s\n", buffer);
-        buffer = str;
-      else
-        buffer = strcat(buffer, str);
-      endif
-
+    ## if buffer would already fill terminal screen, print it and start
+    ## next line with string, otherwise add string to buffer
+    if length(buffer) + length(str) > tsize(2)
+      printf("%s\n", buffer);
+      buffer = str;
+    else
+      buffer = strcat(buffer, str);
     endif
 
   endfor
