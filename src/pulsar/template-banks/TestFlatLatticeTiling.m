@@ -424,6 +424,11 @@ endfunction
 ## Test flat lattice tiling against reference template banks
 
 %!test
+%! try
+%!   lal; lalpulsar;
+%! catch
+%!   disp("*** LALSuite modules not available; skipping test ***"); return;
+%! end_try_catch
 %! parent_dir = fileparts(which("TestFlatLatticeTiling"));
 %! load(fullfile(parent_dir, "TestFlatLatticeTiling_square_ref.h5"));
 %! square = TestFlatLatticeTiling("tiling", {"freq_square", "time_span", 864000, "fndot", [100, -1e-7], "fndot_bands", [1e-8, 1e-7]}, ...
@@ -434,6 +439,11 @@ endfunction
 %! assert(all(abs(dot(dx, square.metric * dx) - square.min_mismatch) < 1e-7 * square.min_mismatch))
 
 %!test
+%! try
+%!   lal; lalpulsar;
+%! catch
+%!   disp("*** LALSuite modules not available; skipping test ***"); return;
+%! end_try_catch
 %! parent_dir = fileparts(which("TestFlatLatticeTiling"));
 %! load(fullfile(parent_dir, "TestFlatLatticeTiling_agebrake_ref.h5"));
 %! agebrake = TestFlatLatticeTiling("tiling", {"freq_agebrake", "time_span", 864000, "freq", 100, "freq_band", 1e-8, ...
