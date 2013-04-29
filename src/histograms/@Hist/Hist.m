@@ -23,8 +23,8 @@
 ##   dim  = dimensionality of the histogram
 ##   type = bin types, one per dimension; possible types:
 ##          - {"lin", "dbin", <bin width>, ...
-##                    "bin0", <starting bin; default 0>}
-##          - {"log", "minrange", <starting minimal bin range>, ...
+##                    "bin0", <starting bin (default 0)>}
+##          - {"log", "minrange", <starting minimal bin range (default: auto)>, ...
 ##                    "binsper10", <number of bins to add per decade>}
 ##          - [bin, bin, ...]: fixed array of bins, cannot be extended
 
@@ -68,13 +68,17 @@ function hgrm = Hist(dim, varargin)
 
           ## parse options
           parseOptions(bintypek(2:end),
-                       {"minrange", "real,strictpos,scalar"},
+                       {"minrange", "real,strictpos,scalar", []},
                        {"binsper10", "integer,strictpos,scalar"},
                        []);
 
           ## set bin type and create bins
           hgrm.bintype{k}.binsper10 = binsper10;
-          hgrm.bins{k} = [-inf, linspace(-minrange, minrange, 2*binsper10 + 1), inf];          
+          if isempty(minrange)
+            hgrm.bins{k} = [-inf, 0, inf];
+          else
+            hgrm.bins{k} = [-inf, linspace(-minrange, minrange, 2*binsper10 + 1), inf];
+          endif
 
         otherwise
           error("%s: unknown bin type '%s'", funcName, hgrm.bintype{k}.name)

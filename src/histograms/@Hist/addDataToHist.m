@@ -75,23 +75,38 @@ function hgrm = addDataToHist(hgrm, data)
         case "log"   ## logarithmic bin generator
           binsper10 = hgrm.bintype{k}.binsper10;
 
-          ## create new lower bins, if needed
-          range = newbinmin = binmin;
-          do
-            range *= 10;
-            binslo = linspace(range, newbinmin, binsper10 + 1);
-            newbinslo = [binslo(1:end-1), newbinslo];
-            newbinmin = newbinslo(1);
-          until !(datamin < newbinmin)
+          ## if no minimum bin range has been created
+          if length(bins) == 1
 
-          ## create new upper bins, if needed
-          range = newbinmax = binmax;
-          do
-            range *= 10;
-            binshi = linspace(newbinmax, range, binsper10 + 1);
-            newbinshi = [newbinshi, binshi(2:end)];
-            newbinmax = newbinshi(end);
-          until !(datamax > newbinmax)
+            ## use range of data + 5% to prevent data being added to Inf bins
+            range = max(abs(datamin), abs(datamax)) * 1.01;
+
+            ## create minimum bins
+            newbins = linspace(0, range, binsper10);
+            newbinslo = -newbins(end:-1:2);
+            newbinshi = +newbins(2:end);
+
+          else
+
+            ## extend lower bins, if needed
+            range = newbinmin = binmin;
+            do
+              range *= 10;
+              binslo = linspace(range, newbinmin, binsper10 + 1);
+              newbinslo = [binslo(1:end-1), newbinslo];
+              newbinmin = newbinslo(1);
+            until !(datamin < newbinmin)
+
+            ## extend upper bins, if needed
+            range = newbinmax = binmax;
+            do
+              range *= 10;
+              binshi = linspace(newbinmax, range, binsper10 + 1);
+              newbinshi = [newbinshi, binshi(2:end)];
+              newbinmax = newbinshi(end);
+            until !(datamax > newbinmax)
+
+          endif
 
         otherwise
           error("%s: unknown bin type '%s'", funcName, hgrm.bintype{k}.name)
