@@ -18,18 +18,20 @@
 ## Usage:
 ##   results = TestSuperSkyMetric(...)
 ## where results struct contains:
-##   ssmetric_lpI           = super-sky metric computed with JKS's linear I phase model
-##   ssmetric_lpII          = super-sky metric computed with JKS's linear II phase model
-##   ssmetric               = super-sky metric
-##   a_ssmetric             = aligned super-sky metric
-##   a_skyoff               = aligned super-sky metric sky offset vectors
-##   a_alignsky             = aligned super-sky metric sky alignment rotation
-##   mu_spa_ssmetric_err_H  = error in sky-projected aligned mismatch compared to untransformed mismatch
-##   mu_a_ssmetric_err_H    = error in aligned mismatch compared to untransformed mismatch
-##   mu_ssmetric_lpI_err_H  = error in linear phase model I metric compared to untransformed mismatch
-##   mu_ssmetric_lpII_err_H = error in linear phase model II metric compared to untransformed mismatch
-##   mu_ssmetric_ad_err_H   = error in mismatch using physical coordinates compared to untransformed mismatch
-##   mu_twoF_err_H          = error in full software injections mismatch compared to untransformed mismatch
+##   metrics:
+##     ssmetric_lpI       = super-sky metric computed with JKS's linear I phase model
+##     ssmetric_lpII      = super-sky metric computed with JKS's linear II phase model
+##     ssmetric           = super-sky metric
+##     a_ssmetric         = aligned super-sky metric
+##     a_skyoff           = aligned super-sky metric sky offset vectors
+##     a_alignsky         = aligned super-sky metric sky alignment rotation
+##   mismatch error histograms parameterised by injection parameters:
+##     mu_spa_ssmetric_H  = error in sky-projected aligned mismatch compared to untransformed mismatch
+##     mu_a_ssmetric_H    = error in aligned mismatch compared to untransformed mismatch
+##     mu_ssmetric_lpI_H  = error in linear phase model I metric compared to untransformed mismatch
+##     mu_ssmetric_lpII_H = error in linear phase model II metric compared to untransformed mismatch
+##     mu_ssmetric_ad_H   = error in mismatch using physical coordinates compared to untransformed mismatch
+##     mu_twoF_H          = error in full software injections mismatch compared to untransformed mismatch
 ## Options:
 ##   spindowns: number of frequency spindowns coordinates
 ##   start_time: start time in GPS seconds (default: see CreatePhaseMetric)
@@ -41,9 +43,6 @@
 ##   sky_coords: sky coordinate system to use (default: equatorial)
 ##   aligned_sky: whether to align sky coordinates (default: true)
 ##   max_mismatch: maximum prescribed mismatch to test at
-##   max_unit_disk: maximum radius of random sky points in unit disk (default: 1.0)
-##   err_H_minrange: minimum range of error histogram bins (default: 0.01)
-##   err_H_binsper10: number of error histogram bins per decade (default: 10)
 ##   num_injections: number of injections to perform
 ##   num_cpu_seconds: number of CPU seconds to perform injections for
 ##   injection_block: number of injections to perform at once (default: 100)
@@ -66,9 +65,6 @@ function results = TestSuperSkyMetric(varargin)
                {"sky_coords", "char", "equatorial"},
                {"aligned_sky", "logical,scalar", true},
                {"max_mismatch", "real,strictpos,scalar", 0.5},
-               {"max_unit_disk", "real,strictpos,scalar", 1.0},
-               {"err_H_minrange", "real,strictpos,scalar", 0.01},
-               {"err_H_binsper10", "integer,strictpos,scalar", 10},
                {"num_injections", "integer,strictpos,scalar", inf},
                {"num_cpu_seconds", "real,strictpos,scalar", inf},
                {"injection_block", "integer,strictpos,scalar", 100},
@@ -159,13 +155,20 @@ function results = TestSuperSkyMetric(varargin)
   ## metric ellipsoid with maximum mismatch of 'max_mismatch'
   onto_spa_ssmetric = sqrt(max_mismatch) * DN_spa_ssmetric * inv(CD_spa_ssmetric);
 
-  ## initalise result histograms
-  results.mu_spa_ssmetric_err_H = Hist(1, {"log", "minrange", err_H_minrange, "binsper10", err_H_binsper10});
-  results.mu_a_ssmetric_err_H = Hist(1, {"log", "minrange", err_H_minrange, "binsper10", err_H_binsper10});
-  results.mu_ssmetric_lpI_err_H = Hist(1, {"log", "minrange", err_H_minrange, "binsper10", err_H_binsper10});
-  results.mu_ssmetric_lpII_err_H = Hist(1, {"log", "minrange", err_H_minrange, "binsper10", err_H_binsper10});
-  results.mu_ssmetric_ad_err_H = Hist(1, {"log", "minrange", err_H_minrange, "binsper10", err_H_binsper10});
-  results.mu_twoF_err_H = Hist(1, {"log", "minrange", err_H_minrange, "binsper10", err_H_binsper10});
+  ## build error histogram dimensionality and bin types
+  H_args = {3, ...
+            {"lin", "dbin", 2*pi/15},			## right ascension
+            {"lin", "dbin", pi/15},			## declination
+            {"log", "minrange", 0.01, "binsper10", 5}	## mismatch
+            };
+
+  ## initialise result histograms
+  results.mu_spa_ssmetric_H = Hist(H_args{:});
+  results.mu_a_ssmetric_H = Hist(H_args{:});
+  results.mu_ssmetric_lpI_H = Hist(H_args{:});
+  results.mu_ssmetric_lpII_H = Hist(H_args{:});
+  results.mu_ssmetric_ad_H = Hist(H_args{:});
+  results.mu_twoF_H = Hist(H_args{:});
 
   ## start CPU seconds counter
   cputime0 = cputime();
@@ -192,7 +195,7 @@ function results = TestSuperSkyMetric(varargin)
     mu_spa_ssmetric = dot(spa_dp, results.spa_ssmetric * spa_dp);
 
     ## create random point in unit disk
-    r = max_unit_disk * rand(1, injection_block);
+    r = rand(1, injection_block);
     th = rand(1, injection_block) * 2*pi;
     x1 = [r .* cos(th); r .* sin(th)];
 
@@ -307,29 +310,32 @@ function results = TestSuperSkyMetric(varargin)
 
     endfor
 
+    ## build error histogram parameters
+    H_par = [alpha1(:), delta1(:)];
+
     ## bin error in sky-projected aligned mismatch compared to untransformed mismatch
     mu_spa_ssmetric_err = mu_spa_ssmetric ./ mu_ssmetric - 1;
-    results.mu_spa_ssmetric_err_H = addDataToHist(results.mu_spa_ssmetric_err_H, mu_spa_ssmetric_err(:));
+    results.mu_spa_ssmetric_H = addDataToHist(results.mu_spa_ssmetric_H, [H_par, mu_spa_ssmetric_err(:)]);
 
     ## bin error in aligned mismatch compared to untransformed mismatch
     mu_a_ssmetric_err = mu_a_ssmetric ./ mu_ssmetric - 1;
-    results.mu_a_ssmetric_err_H = addDataToHist(results.mu_a_ssmetric_err_H, mu_a_ssmetric_err(:));
+    results.mu_a_ssmetric_H = addDataToHist(results.mu_a_ssmetric_H, [H_par, mu_a_ssmetric_err(:)]);
 
     ## bin error in linear phase model I metric compared to untransformed mismatch
     mu_ssmetric_lpI_err = mu_ssmetric_lpI ./ mu_ssmetric - 1;
-    results.mu_ssmetric_lpI_err_H = addDataToHist(results.mu_ssmetric_lpI_err_H, mu_ssmetric_lpI_err(:));
+    results.mu_ssmetric_lpI_H = addDataToHist(results.mu_ssmetric_lpI_H, [H_par, mu_ssmetric_lpI_err(:)]);
 
     ## bin error in linear phase model II metric compared to untransformed mismatch
     mu_ssmetric_lpII_err = mu_ssmetric_lpII ./ mu_ssmetric - 1;
-    results.mu_ssmetric_lpII_err_H = addDataToHist(results.mu_ssmetric_lpII_err_H, mu_ssmetric_lpII_err(:));
+    results.mu_ssmetric_lpII_H = addDataToHist(results.mu_ssmetric_lpII_H, [H_par, mu_ssmetric_lpII_err(:)]);
 
     ## bin error in metric using physical coordinates compared to untransformed mismatch
     mu_ssmetric_ad_err = mu_ssmetric_ad ./ mu_ssmetric - 1;
-    results.mu_ssmetric_ad_err_H = addDataToHist(results.mu_ssmetric_ad_err_H, mu_ssmetric_ad_err(:));
+    results.mu_ssmetric_ad_H = addDataToHist(results.mu_ssmetric_ad_H, [H_par, mu_ssmetric_ad_err(:)]);
 
     ## bin error in full software injections mismatch compared to untransformed mismatch
     mu_twoF_err = mu_twoF ./ mu_ssmetric - 1;
-    results.mu_twoF_err_H = addDataToHist(results.mu_twoF_err_H, mu_twoF_err(:));
+    results.mu_twoF_H = addDataToHist(results.mu_twoF_H, [H_par, mu_twoF_err(:)]);
 
   endwhile
 
