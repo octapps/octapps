@@ -159,9 +159,9 @@ function results = TestSuperSkyMetric(varargin)
 
   ## build error histogram dimensionality and bin types
   H_args = {3, ...
-            {"lin", "dbin", 2*pi/15},			## right ascension
-            {"lin", "dbin", pi/15},			## declination
-            {"log", "minrange", 0.01, "binsper10", 5}	## mismatch
+            {"lin", "dbin", 2*pi/15}, ...			## right ascension
+            {"lin", "dbin", pi/15}, ...				## declination
+            {"log", "minrange", 0.01, "binsper10", 5}, ...	## mismatch
             };
 
   ## initialise result histograms
