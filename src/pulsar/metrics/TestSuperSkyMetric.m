@@ -71,6 +71,7 @@ function results = TestSuperSkyMetric(varargin)
                {"full_injections", "logical,scalar", true},
                {"injection_block", "integer,strictpos,scalar", 100},
                []);
+  assert(any(strcmp(sky_coords, {"equatorial", "ecliptic"})));
   if !xor(isfinite(num_injections), isfinite(num_cpu_seconds))
     error("%s: must give either num_injections or num_cpu_seconds", funcName);
   endif
@@ -114,8 +115,9 @@ function results = TestSuperSkyMetric(varargin)
   assert(all(a_sscoordIDs == sscoordIDs));
 
   ## create linear phase model metrics from Andrzej Krolak etal's papers
+  lp_coords = sprintf("ssky_%s,freq,fdots", sky_coords(1:3));
   [results.ssmetric_lpI, sscoordIDs_lpI] = ...
-      CreatePhaseMetric("coords", "ssky_equ,freq,fdots",
+      CreatePhaseMetric("coords", lp_coords,
                         "spindowns", spindowns,
                         "start_time", start_time,
                         "ref_time", ref_time,
@@ -126,7 +128,7 @@ function results = TestSuperSkyMetric(varargin)
                         "det_motion", "spinxy+orbit");
   assert(all(sscoordIDs_lpI == sscoordIDs));
   [results.ssmetric_lpII, sscoordIDs_lpII] = ...
-      CreatePhaseMetric("coords", "ssky_equ,freq,fdots",
+      CreatePhaseMetric("coords", lp_coords,
                         "spindowns", spindowns,
                         "start_time", start_time,
                         "ref_time", ref_time,
@@ -250,6 +252,12 @@ function results = TestSuperSkyMetric(varargin)
 
     ## compute mismatch in metric with linear phase model II
     mu_ssmetric_lpII = dot(dp, results.ssmetric_lpII * dp);
+
+    ## convert sky positions to equatorial coordinates
+    if strcmp(sky_coords, "ecliptic")
+      n1 = [n1(1,:); n1(2,:)*LAL_COSIEARTH - n1(3,:)*LAL_SINIEARTH; n1(2,:)*LAL_SINIEARTH + n1(3,:)*LAL_COSIEARTH];
+      n2 = [n2(1,:); n2(2,:)*LAL_COSIEARTH - n2(3,:)*LAL_SINIEARTH; n2(2,:)*LAL_SINIEARTH + n2(3,:)*LAL_COSIEARTH];
+    endif
 
     ## compute right ascensions alpha1 and alpha2 from sky positions n1 and n2
     alpha1 = atan2(n1(2, :), n1(1, :));
