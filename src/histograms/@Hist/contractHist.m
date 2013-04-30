@@ -28,8 +28,7 @@ function hgrm = contractHist(hgrm, newdims)
   assert(isHist(hgrm));
   dim = length(hgrm.bins);
   assert(all(1 <= newdims && newdims <= dim));
-  newdims = sort(newdims);
-  assert(all(diff(newdims) > 0), "Elements of 'newdims' must be unique");
+  assert(all(unique(newdims) == sort(newdims)), "Elements of 'newdims' must be unique");
 
   ## contract histogram bins and bin types
   hgrm.bins = hgrm.bins(newdims);
