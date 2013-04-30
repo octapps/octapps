@@ -72,4 +72,8 @@ YRSID_SI	= 31558149.8;		%% Sidereal year (1994), s
 DAYSID_SI	= 86164.09053;		%% Mean sidereal day, s
 LYR_SI		= 9.46052817e15;	%% ``Tropical'' lightyear (1994), m
 
-
+%% Standard 'terrestrial' time units for convenience
+HOURS		= 3600;
+DAYS		= 24 * HOURS;
+YEARS		= YRTROP_SI;		%% also know as the "solar year", ~365.242 days
+MONTHS		= YEARS / 12;
