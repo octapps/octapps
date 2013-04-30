@@ -169,6 +169,21 @@ function job_file = makeCondorJob(varargin)
     exec_files = setdiff(sharedlibdeps(libprefixes, exec_files{:}), func_files);
   endif
 
+  ## find any dependencies that are in class directories;
+  ## need to copy the entire class directory in this case
+  class_dirs = {};
+  for i = 1:length(func_files)
+    [class_dir, class_name] = fileparts(func_files{i});
+    [_, class_dir_name] = fileparts(class_dir);
+    if strcmp(strcat("@", class_name), class_dir_name)
+      class_dirs{end+1} = class_dir;
+    endif
+  endfor
+  for i = 1:length(class_dirs)
+    class_dir = strcat(class_dirs{i}, filesep);
+    func_files(strncmp(func_files, class_dir, length(class_dir))) = [];
+  endfor
+
   ## check that all dependencies exist, resolving symbolic links
   for i = 1:length(func_files)
     if !exist(func_files{i}, "file")
@@ -252,19 +267,16 @@ function job_file = makeCondorJob(varargin)
 
   ## copy input files to input directories
   for i = 1:length(data_files)
-    if !copyRealFile(data_files{i}, job_indir)
-      error("%s: failed to copy '%s' to '%s'", funcName, data_files{i}, job_indir);
-    endif
+    copyFile(data_files{i}, job_indir);
   endfor
   for i = 1:length(exec_files)
-    if !copyRealFile(exec_files{i}, job_inexecdir)
-      error("%s: failed to copy '%s' to '%s'", funcName, exec_files{i}, job_inexecdir);
-    endif
+    copyFile(exec_files{i}, job_inexecdir);
   endfor
   for i = 1:length(func_files)
-    if !copyRealFile(func_files{i}, job_infuncdir)
-      error("%s: failed to copy '%s' to '%s'", funcName, func_files{i}, job_infuncdir);
-    endif
+    copyFile(func_files{i}, job_infuncdir);
+  endfor
+  for i = 1:length(class_dirs)
+    copyFile(class_dirs{i}, job_infuncdir);
   endfor
 
   ## overwrite octapps_gitID.m with static copy of current repository's git ID
@@ -294,14 +306,4 @@ function job_file = makeCondorJob(varargin)
   fprintf(fid, "queue 1\n");
   fclose(fid);
 
-endfunction
-
-
-## copy the real file pointed to by srcdir to the
-## directory destdir, but preserve the name of srcfile
-function status = copyRealFile(srcfile, destdir)
-  [_, srcname, srcext] = fileparts(srcfile);
-  destfile = fullfile(destdir, strcat(srcname, srcext));
-  srcfile = canonicalize_file_name(srcfile);
-  status = copyfile(srcfile, destfile);
 endfunction
