@@ -28,61 +28,87 @@ function varargout = plotHist(hgrm, varargin)
 
   ## check input
   assert(isHist(hgrm));
+  dim = histDim(hgrm);
 
-  ## check histogram is 1D
-  if (histDim(hgrm) > 1)
-    error("%s: can only plot 1D histogram", funcName);
-  endif
-
-  ## get histogram bins and probability densities
-  [xl, xh] = histBins(hgrm, 1, "lower", "upper");
+  ## get histogram probability densities
   p = histProbs(hgrm);
 
-  ## if histogram is empty
-  if sum(p(:)) == 0
+  ## select plot based on dimension
+  switch dim
 
-    ## plot a stem point at zero
-    h = plot([0, 0], [0, 1], varargin{:}, 0, 1, varargin{:});
-    set(h(2), "color", get(h(1), "color"), "marker", "o");
+    case 1
 
-  else
+      ## if histogram is empty
+      if sum(p(:)) == 0
 
-    ## plot histogram as a staircase
+        ## plot a stem point at zero
+        h = plot([0, 0], [0, 1], varargin{:}, 0, 1, varargin{:});
+        set(h(2), "color", get(h(1), "color"), "marker", "o");
 
-    ## find maximum range of non-zero probabilities
-    ii = find(p > 0);
-    ii = min(ii):max(ii);
-    xl = reshape(xl(ii), 1, []);
-    xh = reshape(xh(ii), 1, []);
-    p = reshape(p(ii), 1, []);
+      else
 
-    ## create staircase, with stems for infinite values
-    x = reshape([xl(1), xh; xl, xh(end)], 1, []);
-    y = reshape([0, p; p, 0], 1, []);
-    if isinf(xl(1))
-      x(x == -inf) = xl(2);
-    endif
-    if isinf(xh(end))
-      x(x == +inf) = xh(end-1);
-    endif
+        ## get histogram bins
+        [xl, xh] = histBins(hgrm, 1, "lower", "upper");
 
-    ## plot staircase and possibly stems, delete lines which are not needed
-    h = plot(x, y, varargin{:}, x(2), y(2), varargin{:}, x(end-1), y(end-1), varargin{:});
-    if isinf(xl(1))
-      set(h(2), "color", get(h(1), "color"), "marker", "o");
-    else
-      delete(h(2));
-      h(2) = NaN;
-    endif
-    if isinf(xh(end))
-      set(h(3), "color", get(h(1), "color"), "marker", "o");
-    else
-      delete(h(3));
-      h(3) = NaN;
-    endif
-    h(isnan(h)) = [];
+        ## find maximum range of non-zero probabilities
+        ii = find(p > 0);
+        ii = min(ii):max(ii);
+        xl = reshape(xl(ii), 1, []);
+        xh = reshape(xh(ii), 1, []);
+        p = reshape(p(ii), 1, []);
 
-  endif
+        ## create staircase, with stems for infinite values
+        x = reshape([xl(1), xh; xl, xh(end)], 1, []);
+        y = reshape([0, p; p, 0], 1, []);
+        if isinf(xl(1))
+          x(x == -inf) = xl(2);
+        endif
+        if isinf(xh(end))
+          x(x == +inf) = xh(end-1);
+        endif
+
+        ## plot staircase and possibly stems, delete lines which are not needed
+        h = plot(x, y, varargin{:}, x(2), y(2), varargin{:}, x(end-1), y(end-1), varargin{:});
+        if isinf(xl(1))
+          set(h(2), "color", get(h(1), "color"), "marker", "o");
+        else
+          delete(h(2));
+          h(2) = NaN;
+        endif
+        if isinf(xh(end))
+          set(h(3), "color", get(h(1), "color"), "marker", "o");
+        else
+          delete(h(3));
+          h(3) = NaN;
+        endif
+        h(isnan(h)) = [];
+
+      endif
+
+    case 2
+
+      ## if histogram is empty
+      if sum(p(:)) == 0
+
+        ## plot a circular point at zero
+        h = plot(0, 0, varargin{:});
+        set(h, "marker", "o");
+
+      else
+
+        ## get histogram bins
+        xc = histBinGrids(hgrm, 1, "centre");
+        yc = histBinGrids(hgrm, 2, "centre");
+
+        ## plot contours
+        h = contour(xc, yc, p, varargin{:});
+
+      endif
+
+    otherwise
+      error("%s: cannot plot %iD histograms", funcName, dim);
+
+  endswitch
 
   ## return handles
   if nargout == 1
