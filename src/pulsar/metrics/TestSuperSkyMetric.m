@@ -159,9 +159,9 @@ function results = TestSuperSkyMetric(varargin)
 
   ## build error histogram dimensionality and bin types
   H_args = {3, ...
+            {"log", "minrange", 0.01, "binsper10", 5}, ...	## mismatch
             {"lin", "dbin", 2*pi/15}, ...			## right ascension
             {"lin", "dbin", pi/15}, ...				## declination
-            {"log", "minrange", 0.01, "binsper10", 5}, ...	## mismatch
             };
 
   ## initialise result histograms
@@ -323,29 +323,29 @@ function results = TestSuperSkyMetric(varargin)
 
     ## bin error in sky-projected aligned mismatch compared to untransformed mismatch
     mu_spa_ssmetric_err = mu_spa_ssmetric ./ mu_ssmetric - 1;
-    results.mu_spa_ssmetric_H = addDataToHist(results.mu_spa_ssmetric_H, [H_par, mu_spa_ssmetric_err(:)]);
+    results.mu_spa_ssmetric_H = addDataToHist(results.mu_spa_ssmetric_H, [mu_spa_ssmetric_err(:), H_par]);
 
     ## bin error in aligned mismatch compared to untransformed mismatch
     mu_a_ssmetric_err = mu_a_ssmetric ./ mu_ssmetric - 1;
-    results.mu_a_ssmetric_H = addDataToHist(results.mu_a_ssmetric_H, [H_par, mu_a_ssmetric_err(:)]);
+    results.mu_a_ssmetric_H = addDataToHist(results.mu_a_ssmetric_H, [mu_a_ssmetric_err(:), H_par]);
 
     ## bin error in linear phase model I metric compared to untransformed mismatch
     mu_ssmetric_lpI_err = mu_ssmetric_lpI ./ mu_ssmetric - 1;
-    results.mu_ssmetric_lpI_H = addDataToHist(results.mu_ssmetric_lpI_H, [H_par, mu_ssmetric_lpI_err(:)]);
+    results.mu_ssmetric_lpI_H = addDataToHist(results.mu_ssmetric_lpI_H, [mu_ssmetric_lpI_err(:), H_par]);
 
     ## bin error in linear phase model II metric compared to untransformed mismatch
     mu_ssmetric_lpII_err = mu_ssmetric_lpII ./ mu_ssmetric - 1;
-    results.mu_ssmetric_lpII_H = addDataToHist(results.mu_ssmetric_lpII_H, [H_par, mu_ssmetric_lpII_err(:)]);
+    results.mu_ssmetric_lpII_H = addDataToHist(results.mu_ssmetric_lpII_H, [mu_ssmetric_lpII_err(:), H_par]);
 
     ## bin error in metric using physical coordinates compared to untransformed mismatch
     mu_ssmetric_ad_err = mu_ssmetric_ad ./ mu_ssmetric - 1;
-    results.mu_ssmetric_ad_H = addDataToHist(results.mu_ssmetric_ad_H, [H_par, mu_ssmetric_ad_err(:)]);
+    results.mu_ssmetric_ad_H = addDataToHist(results.mu_ssmetric_ad_H, [mu_ssmetric_ad_err(:), H_par]);
 
     if full_injections
 
       ## bin error in full software injections mismatch compared to untransformed mismatch
       mu_twoF_err = mu_twoF ./ mu_ssmetric - 1;
-      results.mu_twoF_H = addDataToHist(results.mu_twoF_H, [H_par, mu_twoF_err(:)]);
+      results.mu_twoF_H = addDataToHist(results.mu_twoF_H, [mu_twoF_err(:), H_par]);
 
     endif
 
