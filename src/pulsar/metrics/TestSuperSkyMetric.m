@@ -202,16 +202,11 @@ function results = TestSuperSkyMetric(varargin)
     ## create random point offsets on unit sphere surface
     spa_dp = randn(size(spa_ssmetric, 1), injection_block);
     N_spa_dp = norm(spa_dp, "cols");
-    for i = 1:size(spa_dp, 1)
-      spa_dp(i, :) ./= N_spa_dp;
-    endfor
+    spa_dp ./= N_spa_dp(ones(1, size(spa_dp, 1)), :);
 
     ## transform point offsets to surface of sky-projected aligned
     ## metric ellipsoid with maximum mismatch of 'max_mismatch'
     spa_dp = onto_spa_ssmetric * spa_dp;
-
-    ## compute mismatch in sky-projected aligned metric
-    mu_spa_ssmetric = dot(spa_dp, spa_ssmetric * spa_dp);
 
     ## create random point in unit disk
     r = rand(1, injection_block);
@@ -231,11 +226,15 @@ function results = TestSuperSkyMetric(varargin)
     c = ( sqrt(x1_dx.^2 + dx_dx.*(1 - x1_x1)) - x1_dx ) ./ dx_dx;
     c = min(1.0, c);
 
+    ## rescale dx and update random offset
+    dx .*= c([1, 1], :);
+    spa_dp([ina, inb], :) = dx;
+
+    ## compute mismatch in sky-projected aligned metric
+    mu_spa_ssmetric = dot(spa_dp, spa_ssmetric * spa_dp);
+
     ## compute second random point by adding (scaled) offset
-    x2 = x1;
-    for i = 1:2
-      x2(i, :) += c .* dx(i, :);
-    endfor
+    x2 = x1 + dx;
 
     ## project onto (aligned sky) upper hemisphere; use real()
     ## in case points have radius >1 due to numerical roundoff
