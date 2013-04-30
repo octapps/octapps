@@ -57,11 +57,14 @@ function results = DoFstatInjections(varargin)
                {"inj_phi0", "real,scalar", 2*pi*rand()},
                {"inj_alpha", "real,scalar", 2*pi*rand()},
                {"inj_delta", "real,scalar", asin(-1 + 2*rand())},
-               {"inj_fndot", "real,column", [100]},
-               {"sch_alpha", "real,row", []},
-               {"sch_delta", "real,row", []},
+               {"inj_fndot", "real,vector", [100]},
+               {"sch_alpha", "real,vector", []},
+               {"sch_delta", "real,vector", []},
                {"sch_fndot", "real,matrix", []},
                []);
+  assert(size(inj_fndot, 2) == 1);
+  assert(size(sch_alpha, 1) == 1);
+  assert(size(sch_delta, 1) == 1);
 
   ## load ephemerides if not supplied
   if isempty(ephemerides)
