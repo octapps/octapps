@@ -19,19 +19,24 @@
 ##   results = TestSuperSkyMetric(...)
 ## where results struct contains:
 ##   metrics:
+##     sometric           = spin-orbit-decoupled super-sky metric
+##     ssmetric           = super-sky metric
+##     d_ssmetric_equ     = sky-projected unaligned super-sky metric in equatorial coordinates
+##     d_ssmetric_equ     = sky-projected unaligned super-sky metric in ecliptic coordinates
+##     a_ssmetric         = aligned super-sky metric
 ##     ssmetric_lpI       = super-sky metric computed with JKS's linear I phase model
 ##     ssmetric_lpII      = super-sky metric computed with JKS's linear II phase model
-##     ssmetric           = super-sky metric
-##     a_ssmetric         = aligned super-sky metric
-##     a_skyoff           = aligned super-sky metric sky offset vectors
-##     a_alignsky         = aligned super-sky metric sky alignment rotation
-##   mismatch error histograms parameterised by injection parameters:
-##     mu_spa_ssmetric_H  = error in sky-projected aligned mismatch compared to untransformed mismatch
-##     mu_a_ssmetric_H    = error in aligned mismatch compared to untransformed mismatch
-##     mu_ssmetric_lpI_H  = error in linear phase model I metric compared to untransformed mismatch
-##     mu_ssmetric_lpII_H = error in linear phase model II metric compared to untransformed mismatch
-##     mu_ssmetric_ad_H   = error in mismatch using physical coordinates compared to untransformed mismatch
-##     mu_twoF_H          = (optional) error in full software injections mismatch compared to untransformed mismatch
+##   mismatch error histograms, with respect to untransformed mismatch:
+##     mu_spa_ssmetric_H     = error in sky-projected aligned mismatch
+##     mu_spd_ssmetric_equ_H = error in sky-projected un-aligned equatorial mismatch
+##     mu_spd_ssmetric_ecl_H = error in sky-projected un-aligned ecliptic mismatch
+##     mu_d_ssmetric_equ_H   = error in un-aligned equatorial mismatch
+##     mu_d_ssmetric_ecl_H   = error in un-aligned ecliptic mismatch
+##     mu_a_ssmetric_H       = error in aligned mismatch compared to untransformed mismatch
+##     mu_ssmetric_lpI_H     = error in linear phase model I metric compared to untransformed mismatch
+##     mu_ssmetric_lpII_H    = error in linear phase model II metric compared to untransformed mismatch
+##     mu_ssmetric_ad_H      = error in mismatch using physical coordinates compared to untransformed mismatch
+##     mu_twoF_H             = (optional) error in full software injections mismatch compared to untransformed mismatch
 ## Options:
 ##   spindowns: number of frequency spindowns coordinates
 ##   start_time: start time in GPS seconds (default: see CreatePhaseMetric)
@@ -40,8 +45,6 @@
 ##   detectors: comma-separated list of detector names
 ##   ephemerides: Earth/Sun ephemerides from loadEphemerides()
 ##   fiducial_freq: fiducial frequency at which to perform tests
-##   sky_coords: sky coordinate system to use (default: equatorial)
-##   aligned_sky: whether to align sky coordinates (default: true)
 ##   max_mismatch: maximum prescribed mismatch to test at
 ##   num_injections: number of injections to perform
 ##   num_cpu_seconds: number of CPU seconds to perform injections for
@@ -63,15 +66,12 @@ function results = TestSuperSkyMetric(varargin)
                {"detectors", "char"},
                {"ephemerides", "a:swig_ref", []},
                {"fiducial_freq", "real,strictpos,scalar"},
-               {"sky_coords", "char", "equatorial"},
-               {"aligned_sky", "logical,scalar", true},
                {"max_mismatch", "real,strictpos,scalar", 0.5},
                {"num_injections", "integer,strictpos,scalar", inf},
                {"num_cpu_seconds", "real,strictpos,scalar", inf},
                {"full_injections", "logical,scalar", true},
                {"injection_block", "integer,strictpos,scalar", 100},
                []);
-  assert(any(strcmp(sky_coords, {"equatorial", "ecliptic"})));
   if !xor(isfinite(num_injections), isfinite(num_cpu_seconds))
     error("%s: must give either num_injections or num_cpu_seconds", funcName);
   endif
@@ -95,8 +95,7 @@ function results = TestSuperSkyMetric(varargin)
 
   ## construct untransformed super-sky metric
   [results.ssmetric, _, _, sscoordIDs] = ...
-      ConstructSuperSkyMetrics(results.sometric, socoordIDs,
-                               "sky_coords", sky_coords);
+      ConstructSuperSkyMetrics(results.sometric, socoordIDs, "sky_coords", "equatorial");
 
   ## determine indices of super-sky metric coordinates
   ina = find(sscoordIDs == DOPPLERCOORD_N3X_EQU | sscoordIDs == DOPPLERCOORD_N3X_ECL);
@@ -107,17 +106,21 @@ function results = TestSuperSkyMetric(varargin)
          find(sscoordIDs == DOPPLERCOORD_F2DOT), ...
          find(sscoordIDs == DOPPLERCOORD_F3DOT)];
 
+  ## construct un-aligned decoupled super-sky metrics
+  [results.d_ssmetric_equ, d_skyoff_equ, d_alignsky_equ, d_sscoordIDs_equ] = ...
+      ConstructSuperSkyMetrics(results.sometric, socoordIDs, "sky_coords", "equatorial", "decouple_sky", true);
+  assert(all(d_sscoordIDs_equ == sscoordIDs));
+  [results.d_ssmetric_ecl, d_skyoff_ecl, d_alignsky_ecl] = ...
+      ConstructSuperSkyMetrics(results.sometric, socoordIDs, "sky_coords", "ecliptic", "decouple_sky", true);
+
   ## construct aligned super-sky metric
-  [results.a_ssmetric, results.a_skyoff, results.a_alignsky, a_sscoordIDs] = ...
-      ConstructSuperSkyMetrics(results.sometric, socoordIDs,
-                               "sky_coords", sky_coords,
-                               "aligned_sky", aligned_sky);
+  [results.a_ssmetric, a_skyoff, a_alignsky, a_sscoordIDs] = ...
+      ConstructSuperSkyMetrics(results.sometric, socoordIDs, "sky_coords", "equatorial", "aligned_sky", true);
   assert(all(a_sscoordIDs == sscoordIDs));
 
   ## create linear phase model metrics from Andrzej Krolak etal's papers
-  lp_coords = sprintf("ssky_%s,freq,fdots", sky_coords(1:3));
   [results.ssmetric_lpI, sscoordIDs_lpI] = ...
-      CreatePhaseMetric("coords", lp_coords,
+      CreatePhaseMetric("coords", "ssky_equ,freq,fdots",
                         "spindowns", spindowns,
                         "start_time", start_time,
                         "ref_time", ref_time,
@@ -128,7 +131,7 @@ function results = TestSuperSkyMetric(varargin)
                         "det_motion", "spinxy+orbit");
   assert(all(sscoordIDs_lpI == sscoordIDs));
   [results.ssmetric_lpII, sscoordIDs_lpII] = ...
-      CreatePhaseMetric("coords", lp_coords,
+      CreatePhaseMetric("coords", "ssky_equ,freq,fdots",
                         "spindowns", spindowns,
                         "start_time", start_time,
                         "ref_time", ref_time,
@@ -139,18 +142,24 @@ function results = TestSuperSkyMetric(varargin)
                         "det_motion", "orbit");
   assert(all(sscoordIDs_lpII == sscoordIDs));
 
-  ## remove aligned-c direction to create sky-projected aligned super-sky metric
-  results.spa_ssmetric = results.a_ssmetric;
-  results.spa_ssmetric(inc, :) = results.spa_ssmetric(:, inc) = [];
-
-  ## determine indices of sky-projected aligned super-sky metric coordinates
+  ## determine indices of sky-projected super-sky metric coordinates
   assert(ina < inc);
   assert(inb < inc);
-  spa_iff = iff;
-  spa_iff(spa_iff > inc) -= 1;
+  sp_iff = iff;
+  sp_iff(sp_iff > inc) -= 1;
+
+  ## create sky-projected aligned super-sky metric by removing aligned-c direction
+  spa_ssmetric = results.a_ssmetric;
+  spa_ssmetric(inc, :) = spa_ssmetric(:, inc) = [];
+
+  ## create sky-projected un-aligned decoupled super-sky metrics by zeroing equatorial/ecliptic-z directions
+  spd_ssmetric_equ = results.d_ssmetric_equ;
+  spd_ssmetric_equ(inc, :) = spd_ssmetric_equ(:, inc) = 0;
+  spd_ssmetric_ecl = results.d_ssmetric_ecl;
+  spd_ssmetric_ecl(inc, :) = spd_ssmetric_ecl(:, inc) = 0;
 
   ## diagonally normalise sky-projected aligned metric
-  [D_spa_ssmetric, DN_spa_ssmetric] = DiagonalNormaliseMetric(results.spa_ssmetric);
+  [D_spa_ssmetric, DN_spa_ssmetric] = DiagonalNormaliseMetric(spa_ssmetric);
 
   ## compute Cholesky decomposition of diagonally-normalised sky-projected aligned metric
   CD_spa_ssmetric = chol(D_spa_ssmetric);
@@ -168,6 +177,10 @@ function results = TestSuperSkyMetric(varargin)
 
   ## initialise result histograms
   results.mu_spa_ssmetric_H = Hist(H_args{:});
+  results.mu_spd_ssmetric_equ_H = Hist(H_args{:});
+  results.mu_spd_ssmetric_ecl_H = Hist(H_args{:});
+  results.mu_d_ssmetric_equ_H = Hist(H_args{:});
+  results.mu_d_ssmetric_ecl_H = Hist(H_args{:});
   results.mu_a_ssmetric_H = Hist(H_args{:});
   results.mu_ssmetric_lpI_H = Hist(H_args{:});
   results.mu_ssmetric_lpII_H = Hist(H_args{:});
@@ -187,7 +200,7 @@ function results = TestSuperSkyMetric(varargin)
     num_injections -= injection_block;
 
     ## create random point offsets on unit sphere surface
-    spa_dp = randn(size(results.spa_ssmetric, 1), injection_block);
+    spa_dp = randn(size(spa_ssmetric, 1), injection_block);
     N_spa_dp = norm(spa_dp, "cols");
     for i = 1:size(spa_dp, 1)
       spa_dp(i, :) ./= N_spa_dp;
@@ -198,7 +211,7 @@ function results = TestSuperSkyMetric(varargin)
     spa_dp = onto_spa_ssmetric * spa_dp;
 
     ## compute mismatch in sky-projected aligned metric
-    mu_spa_ssmetric = dot(spa_dp, results.spa_ssmetric * spa_dp);
+    mu_spa_ssmetric = dot(spa_dp, spa_ssmetric * spa_dp);
 
     ## create random point in unit disk
     r = rand(1, injection_block);
@@ -232,20 +245,46 @@ function results = TestSuperSkyMetric(varargin)
     ## create point offsets in (non-sky-projected) aligned metric
     a_dp = zeros(size(results.a_ssmetric, 1), injection_block);
     a_dp([ina, inb, inc], :) = a_n2 - a_n1;
-    a_dp(iff, :) = spa_dp(spa_iff, :);
+    a_dp(iff, :) = spa_dp(sp_iff, :);
 
     ## compute mismatch in aligned metric
     mu_a_ssmetric = dot(a_dp, results.a_ssmetric * a_dp);
 
-    ## compute inverse coordinate transform from aligned (residual) coordinates to untransformed super-sky coordinates
-    n1 = results.a_alignsky \ a_n1;
-    n2 = results.a_alignsky \ a_n2;
+    ## compute inverse coordinate transform from aligned coordinates to untransformed super-sky coordinates
+    n1_equ = a_alignsky \ a_n1;
+    n2_equ = a_alignsky \ a_n2;
     dp = zeros(size(a_dp));
-    dp([ina, inb, inc], :) = n2 - n1;
-    dp(iff, :) = a_dp(iff, :) - results.a_skyoff * a_dp([ina, inb, inc], :);
+    dp([ina, inb, inc], :) = n2_equ - n1_equ;
+    dp(iff, :) = a_dp(iff, :) - a_skyoff * a_dp([ina, inb, inc], :);
 
     ## compute mismatch in untransformed metric
     mu_ssmetric = dot(dp, results.ssmetric * dp);
+
+    ## compute coordinate transform from untransformed to un-aligned decoupled equatorial super-sky coordinates
+    d_n1_equ = d_alignsky_equ * n1_equ;
+    d_n2_equ = d_alignsky_equ * n2_equ;
+    d_dp_equ = zeros(size(dp));
+    d_dp_equ([ina, inb, inc], :) = d_n2_equ - d_n1_equ;
+    d_dp_equ(iff, :) = dp(iff, :) + d_skyoff_equ * d_dp_equ([ina, inb, inc], :);
+
+    ## compute mismatch in (sky-projected) un-aligned decoupled equatorial metric
+    mu_d_ssmetric_equ = dot(d_dp_equ, results.d_ssmetric_equ * d_dp_equ);
+    mu_spd_ssmetric_equ = dot(d_dp_equ, spd_ssmetric_equ * d_dp_equ);
+
+    ## convert sky position points from equatorial to ecliptic coordinates
+    n1_ecl = [n1_equ(1,:); n1_equ(2,:)*LAL_COSIEARTH + n1_equ(3,:)*LAL_SINIEARTH; n1_equ(3,:)*LAL_COSIEARTH - n1_equ(2,:)*LAL_SINIEARTH];
+    n2_ecl = [n2_equ(1,:); n2_equ(2,:)*LAL_COSIEARTH + n2_equ(3,:)*LAL_SINIEARTH; n2_equ(3,:)*LAL_COSIEARTH - n2_equ(2,:)*LAL_SINIEARTH];
+
+    ## compute coordinate transform from untransformed to un-aligned decoupled ecliptic super-sky coordinates
+    d_n1_ecl = d_alignsky_ecl * n1_ecl;
+    d_n2_ecl = d_alignsky_ecl * n2_ecl;
+    d_dp_ecl = zeros(size(dp));
+    d_dp_ecl([ina, inb, inc], :) = d_n2_ecl - d_n1_ecl;
+    d_dp_ecl(iff, :) = dp(iff, :) + d_skyoff_ecl * d_dp_ecl([ina, inb, inc], :);
+
+    ## compute mismatch in (sky-projected) un-aligned decoupled ecliptic metric
+    mu_d_ssmetric_ecl = dot(d_dp_ecl, results.d_ssmetric_ecl * d_dp_ecl);
+    mu_spd_ssmetric_ecl = dot(d_dp_ecl, spd_ssmetric_ecl * d_dp_ecl);
 
     ## compute mismatch in metric with linear phase model I
     mu_ssmetric_lpI = dot(dp, results.ssmetric_lpI * dp);
@@ -253,20 +292,14 @@ function results = TestSuperSkyMetric(varargin)
     ## compute mismatch in metric with linear phase model II
     mu_ssmetric_lpII = dot(dp, results.ssmetric_lpII * dp);
 
-    ## convert sky positions to equatorial coordinates
-    if strcmp(sky_coords, "ecliptic")
-      n1 = [n1(1,:); n1(2,:)*LAL_COSIEARTH - n1(3,:)*LAL_SINIEARTH; n1(2,:)*LAL_SINIEARTH + n1(3,:)*LAL_COSIEARTH];
-      n2 = [n2(1,:); n2(2,:)*LAL_COSIEARTH - n2(3,:)*LAL_SINIEARTH; n2(2,:)*LAL_SINIEARTH + n2(3,:)*LAL_COSIEARTH];
-    endif
+    ## compute right ascensions alpha1 and alpha2 from sky positions n1_equ and n2_equ
+    alpha1 = atan2(n1_equ(2, :), n1_equ(1, :));
+    alpha2 = atan2(n2_equ(2, :), n2_equ(1, :));
 
-    ## compute right ascensions alpha1 and alpha2 from sky positions n1 and n2
-    alpha1 = atan2(n1(2, :), n1(1, :));
-    alpha2 = atan2(n2(2, :), n2(1, :));
-
-    ## compute declinations delta1 and delta2 from sky positions n1 and n2,
+    ## compute declinations delta1 and delta2 from sky positions n1_equ and n2_equ,
     ## projected onto upper sky hemisphere
-    delta1 = abs(atan2(n1(3, :), sqrt(sumsq(n1(1:2, :)))));
-    delta2 = abs(atan2(n2(3, :), sqrt(sumsq(n2(1:2, :)))));
+    delta1 = abs(atan2(n1_equ(3, :), sqrt(sumsq(n1_equ(1:2, :)))));
+    delta2 = abs(atan2(n2_equ(3, :), sqrt(sumsq(n2_equ(1:2, :)))));
 
     ## compute "equivalent" sky position offset in physical coordinates (alpha,delta),
     ## evaluated at (alpha1,delta1). ad_dp is a product of the Jacobian matrix
@@ -332,6 +365,22 @@ function results = TestSuperSkyMetric(varargin)
     ## bin error in sky-projected aligned mismatch compared to untransformed mismatch
     mu_spa_ssmetric_err = mu_spa_ssmetric ./ mu_ssmetric - 1;
     results.mu_spa_ssmetric_H = addDataToHist(results.mu_spa_ssmetric_H, [mu_spa_ssmetric_err(:), H_par]);
+
+    ## bin error in sky-projected un-aligned decoupled equatorial mismatch compared to untransformed mismatch
+    mu_spd_ssmetric_equ_err = mu_spd_ssmetric_equ ./ mu_ssmetric - 1;
+    results.mu_spd_ssmetric_equ_H = addDataToHist(results.mu_spd_ssmetric_equ_H, [mu_spd_ssmetric_equ_err(:), H_par]);
+
+    ## bin error in sky-projected un-aligned decoupled ecliptic mismatch compared to untransformed mismatch
+    mu_spd_ssmetric_ecl_err = mu_spd_ssmetric_ecl ./ mu_ssmetric - 1;
+    results.mu_spd_ssmetric_ecl_H = addDataToHist(results.mu_spd_ssmetric_ecl_H, [mu_spd_ssmetric_ecl_err(:), H_par]);
+
+    ## bin error in un-aligned decoupled equatorial mismatch compared to untransformed mismatch
+    mu_d_ssmetric_equ_err = mu_d_ssmetric_equ ./ mu_ssmetric - 1;
+    results.mu_d_ssmetric_equ_H = addDataToHist(results.mu_d_ssmetric_equ_H, [mu_d_ssmetric_equ_err(:), H_par]);
+
+    ## bin error in un-aligned decoupled ecliptic mismatch compared to untransformed mismatch
+    mu_d_ssmetric_ecl_err = mu_d_ssmetric_ecl ./ mu_ssmetric - 1;
+    results.mu_d_ssmetric_ecl_H = addDataToHist(results.mu_d_ssmetric_ecl_H, [mu_d_ssmetric_ecl_err(:), H_par]);
 
     ## bin error in aligned mismatch compared to untransformed mismatch
     mu_a_ssmetric_err = mu_a_ssmetric ./ mu_ssmetric - 1;
