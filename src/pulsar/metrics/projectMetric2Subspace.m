@@ -38,6 +38,8 @@ function gProj_ss = projectMetric2Subspace ( g_ij, sSpace )
 
   gProj_ss = gss - gsk * gkInv * gks;
 
+  gProj_ss = 0.5 * ( gProj_ss + gProj_ss' );	%% re-symmetrize (may be required due to numerical noise)
+
   return;
 
 endfunction
