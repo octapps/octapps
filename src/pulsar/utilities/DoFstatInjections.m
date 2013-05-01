@@ -169,8 +169,12 @@ function results = DoFstatInjections(varargin)
   max_freq += dfreq_orbit;
 
   ## add the minimum number of bins requires by ComputeFStat()
-  min_freq -= (CFSparams.Dterms + 1) / sft_time_span;
-  max_freq += (CFSparams.Dterms + 1) / sft_time_span;
+  min_freq -= CFSparams.Dterms / sft_time_span;
+  max_freq += CFSparams.Dterms / sft_time_span;
+
+  ## round frequencies down/up to nearest SFT bin, and add a few more bins for safety
+  min_freq = (floor(min_freq * sft_time_span) - 5) / sft_time_span;
+  max_freq = (floor(max_freq * sft_time_span) + 5) / sft_time_span;
 
   ## create and fill input parameters struct for CWMakeFakeData()
   MFDparams = new_CWMFDataParams;
