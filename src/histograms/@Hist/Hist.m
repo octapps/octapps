@@ -30,6 +30,13 @@
 
 function hgrm = Hist(dim, varargin)
 
+  ## default options for no-argument constructor, which is called by load()
+  ## when Hist() classes are saved to files, and so must work correctly
+  if nargin == 0
+    dim = 1;
+    varargin = {[0]};
+  endif
+
   ## check input
   assert(isscalar(dim));
   if length(varargin) != dim
