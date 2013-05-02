@@ -83,6 +83,18 @@ function ret = TuneAdaptiveLVPriors ( varargin )
  valid_band = 1;
  iFreq0_old = 0;
 
+ # prepare temporary directory, if it does not exist yet
+ if ( isdir ( params_init.workingdir ) )
+   temp_working_dir = 0;
+ else
+  printf("Working directory '%s' does not exist yet, creating it...\n", params_init.workingdir );
+  [status, msg, msgid] = mkdir ( params_init.workingdir );
+  if ( status != 1 )
+   error (["Failed to create output directory '", params_init.workingdir , "': msg = ", msg, "\n"] );
+  endif
+  temp_working_dir = 1;
+ endif
+
  # main loop over freqbands - break when params_run.FreqMax reached
  while ( ( curr_step < num_freqsteps+offset ) && ( valid_band == 1 ) )
   curr_step++;
@@ -167,6 +179,14 @@ function ret = TuneAdaptiveLVPriors ( varargin )
  # save outliers to file as an ascii matrix with custom header
  write_results_to_file (params_init.outfile, frequencies, freqbins, num_outliers, max_outlier, l, num_steps_done, curr_step, params_run.FreqMax );
 
+ # if we created a temporary working directory, remove it again
+ if ( ( params_init.cleanup == 1 ) && ( temp_working_dir == 1 ) )
+  [status, msg, msgid] = rmdir ( params_init.workingdir );
+  if ( status != 1 )
+   error (["Failed to remove temporary working directory '", params_init.workingdir, "': msg = ", msg, ", msgid = ", msgid, "\n"]);
+  endif
+ endif
+
  ret = 1;
 
 endfunction # TuneAdaptiveLVPriors()
@@ -205,10 +225,6 @@ function [params_init] = check_input_parameters ( params_init )
 
  if ( ( params_init.cleanup != 0 ) && ( params_init.cleanup != 1 ) )
   error(["Invalid input parameter (cleanup): ", int2str(params_init.cleanup), " is neither 0 or 1."])
- endif
-
- if ( !isdir(params_init.workingdir) )
-  error(["Invalid input parameter (workingdir): ", params_init.workingdir, " is not a directory."])
  endif
 
  if ( ( length(params_init.lalpath) > 0 ) && ( !isdir(params_init.lalpath) ) )
