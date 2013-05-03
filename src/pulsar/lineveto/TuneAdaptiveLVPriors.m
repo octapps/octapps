@@ -569,14 +569,18 @@ function write_results_to_file (outfile, frequencies, freqbins, num_outliers, ma
  fprintf ( fid, formatstring, columnlabels{:} );
 
  # body
- if ( ( length(l.H1) == 0 ) || ( num_steps_done < curr_step ) ) # if first band is already outside params_run.FreqMax, this would not be valid -> skip output
-  fprintf ( fid, "%%%% params_run.FreqMax=%.10f reached, no more bands processed.\n", FreqMax );
+ if ( length(l.H1) == 0 ) # if first band is already outside params_run.FreqMax, skip output
+  skip_output = 1;
  else
+  skip_output = 0;
   columnwidths(1) += 3; # now need to pad for leading "%% " in heading also
   formatstring = sprintf("%%%d.2f %%%d.10f %%%d.10f %%%d.10f %%%dd %%%dd %%%dd %%%dd %%%d.6f %%%d.6f %%%d.6f %%%d.6f\n", columnwidths); # pad to standard with; ".2f" and similar must be same numbers of minor digits as above
   for n=1:1:num_steps_done
    fprintf ( fid, formatstring, frequencies.wu_start(n),frequencies.search_start(n),frequencies.psd_start(n),frequencies.psd_band(n),freqbins.H1(n),freqbins.L1(n),num_outliers.H1(n),num_outliers.L1(n),max_outlier.H1(n),max_outlier.L1(n),l.H1(n),l.L1(n) );
   endfor
+ endif
+ if ( ( skip_output == 1 ) || ( num_steps_done < curr_step ) ) # if no output at all or skipped some bands at end of freq range, note so in the file
+  fprintf ( fid, "%%%% params_run.FreqMax=%.10f reached, no more bands processed.\n", FreqMax );
  endif
 
  # done
