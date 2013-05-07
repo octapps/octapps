@@ -3,12 +3,12 @@ SHELL = /bin/bash
 FIND = $(shell type -P find || echo false)
 GIT = $(shell type -P git || echo false)
 MKOCTFILE = $(shell type -P mkoctfile || echo false)
-OCTAVE = $(shell type -P octave || echo false)
+OCTAVE = $(shell type -P octave || echo false) --silent --norc --no-history --no-window-system
 OCTCONFIG = $(shell type -P octave-config || echo false)
 SED = $(shell type -P sed || echo false)
 SWIG = $(shell type -P swig || echo false)
 
-version = $(shell $(OCTAVE) -qfH --eval "disp(OCTAVE_VERSION)")
+version = $(shell $(OCTAVE) --eval "disp(OCTAVE_VERSION)")
 
 verbose = $(verbose_$(V))
 verbose_ = @echo "making $@";
