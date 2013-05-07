@@ -196,7 +196,7 @@ function results = DoFstatInjections(varargin)
 
   ## create ComputeFStat() input and output structs
   Doppler = new_PulsarDopplerParams;
-  Fstat = new_Fcomponents;
+  Fcomp = new_Fcomponents;
 
   ## run ComputeFStat() for each injection point
   CFSbuffer = new_ComputeFBuffer;
@@ -210,10 +210,10 @@ function results = DoFstatInjections(varargin)
     Doppler.refTime = refTime;
 
     ## run ComputeFStat()
-    ComputeFStat(Fstat, Doppler, multiSFTs, [], detStates, CFSparams, CFSbuffer);
+    ComputeFStat(Fcomp, Doppler, multiSFTs, [], detStates, CFSparams, CFSbuffer);
 
     ## return F-statistic values
-    results.sch_twoF(i) = 2 * Fstat.F;
+    results.sch_twoF(i) = 2 * Fcomp.F;
 
   endfor
   EmptyComputeFBuffer(CFSbuffer);
