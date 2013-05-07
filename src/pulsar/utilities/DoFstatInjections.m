@@ -62,27 +62,6 @@ function results = DoFstatInjections(varargin)
                {"sch_delta", "real,vector", []},
                {"sch_fndot", "real,matrix", []},
                []);
-  assert(size(inj_fndot, 2) == 1);
-  assert(size(sch_alpha, 1) == 1);
-  assert(size(sch_delta, 1) == 1);
-
-  ## load ephemerides if not supplied
-  if isempty(ephemerides)
-    ephemerides = loadEphemerides();
-  endif
-
-  ## check options
-  assert(numel(sch_fndot) > 0);
-  num_sch = size(sch_fndot, 2);
-  assert(isempty(sch_alpha) || size(sch_alpha, 2) == num_sch);
-  assert(isempty(sch_delta) || size(sch_delta, 2) == num_sch);
-
-  ## create reference and start times
-  refTime = new_LIGOTimeGPS(ref_time);
-  if isempty(start_time)
-    start_time = ref_time - 0.5 * time_span;
-  endif
-  startTime = new_LIGOTimeGPS(start_time);
 
   ## use injection parameters as search parameters, if not given
   if isempty(sch_alpha)
@@ -94,6 +73,26 @@ function results = DoFstatInjections(varargin)
   if isempty(sch_fndot)
     sch_fndot = inj_fndot;
   endif
+
+  ## check options
+  assert(size(inj_fndot, 2) == 1);
+  assert(size(sch_fndot, 1) == size(sch_fndot, 1));
+  num_sch = size(sch_fndot, 2);
+  assert(num_sch > 0);
+  assert(all(size(sch_alpha) == [1, num_sch]));
+  assert(all(size(sch_delta) == [1, num_sch]));
+
+  ## load ephemerides if not supplied
+  if isempty(ephemerides)
+    ephemerides = loadEphemerides();
+  endif
+
+  ## create reference and start times
+  refTime = new_LIGOTimeGPS(ref_time);
+  if isempty(start_time)
+    start_time = ref_time - 0.5 * time_span;
+  endif
+  startTime = new_LIGOTimeGPS(start_time);
 
   ## create results struct
   results = struct;
@@ -144,7 +143,7 @@ function results = DoFstatInjections(varargin)
   max_freq = max([inj_fndot(1), sch_fndot(1, :)]);
 
   ## if injection includes spindowns, determine what frequency band they cover
-  if length(inj_fndot) > 0
+  if length(inj_fndot) > 1
 
     ## compute range of frequencies covered at beginning and end of SFTs
     dfreqs = [];
