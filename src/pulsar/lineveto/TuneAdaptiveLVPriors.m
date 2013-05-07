@@ -53,6 +53,11 @@ function ret = TuneAdaptiveLVPriors ( varargin )
   params_init
  endif
 
+ lalapps_version_string = getLalAppsVersionInfo ([params_init.lalpath, "lalapps_ComputePSD"]);
+ fid = fopen ( params_init.outfile, "a" ); # append mode
+ fprintf ( fid, lalapps_version_string );
+ fclose ( params_init.outfile );
+
  global SMALL_EPS = 1.0e-6;
 
  # prepare PSD parameters
