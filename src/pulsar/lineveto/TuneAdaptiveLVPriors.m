@@ -160,11 +160,23 @@ function ret = TuneAdaptiveLVPriors ( varargin )
     [err, msg] = unlink (params_psd.outputPSD);
    endif
 
-   # compute the line priors
-   l.H1(curr_step) = max(params_init.LVlmin, num_outliers.H1(curr_step)/(freqbins.H1(curr_step)-num_outliers.H1(curr_step)));
-   l.H1(curr_step) = min(l.H1(curr_step), params_init.LVlmax);
-   l.L1(curr_step) = max(params_init.LVlmin, num_outliers.L1(curr_step)/(freqbins.L1(curr_step)-num_outliers.L1(curr_step)));
-   l.L1(curr_step) = min(l.L1(curr_step), params_init.LVlmax);
+   # compute the line prior for H1
+   num_bins_below_thresh = (freqbins.H1(curr_step)-num_outliers.H1(curr_step));
+   if ( num_bins_below_thresh == 0 ) # avoid division by 0 warnings
+    l.H1(curr_step) = params_init.LVlmax;
+   else
+    l.H1(curr_step) = max(params_init.LVlmin, num_outliers.H1(curr_step)/num_bins_below_thresh);
+    l.H1(curr_step) = min(l.H1(curr_step), params_init.LVlmax);
+   endif
+
+   # same for L1
+   num_bins_below_thresh = (freqbins.L1(curr_step)-num_outliers.L1(curr_step));
+   if ( num_bins_below_thresh == 0 )
+    l.L1(curr_step) = params_init.LVlmax;
+   else
+    l.L1(curr_step) = max(params_init.LVlmin, num_outliers.L1(curr_step)/num_bins_below_thresh);
+    l.L1(curr_step) = min(l.L1(curr_step), params_init.LVlmax);
+   endif
 
   endif # valid_band == 1
 
