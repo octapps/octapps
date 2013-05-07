@@ -52,6 +52,7 @@ function job_file = makeCondorJob(varargin)
                {"exec_files", "cell", {}},
                {"data_files", "cell", {}},
                {"extra_condor", "cell", {}},
+               {"octave_bin", "char", "octave"},
                []);
 
   ## check input
@@ -81,18 +82,22 @@ function job_file = makeCondorJob(varargin)
     error("%s: log directory '%s' does not exist", funcName, log_dir);
   endif
 
-  ## check that job submit file and input/output directories do not exist
+  ## check that job submit file, bootstrap script, and input/output directories do not exist
   job_file = fullfile(parent_dir, strcat(job_name, ".job"));
   if exist(job_file, "file")
-    error("%s: job file '%s' already exists", funcName, job_file);
+    error("%s: job submit file '%s' already exists", funcName, job_file);
+  endif
+  job_boot_file = fullfile(parent_dir, strcat(job_name, ".sh"));
+  if exist(job_boot_file, "file")
+    error("%s: job bootstrap script '%s' already exists", funcName, job_boot_file);
   endif
   job_indir = fullfile(parent_dir, strcat(job_name, ".in"));
   if exist(job_indir, "dir")
-    error("%s: input directory '%s' already exists", funcName, job_indir);
+    error("%s: job input directory '%s' already exists", funcName, job_indir);
   endif
   job_outdir = fullfile(parent_dir, strcat(job_name, ".out"));
   if exist(job_outdir, "dir")
-    error("%s: output directory '%s' already exists", funcName, job_outdir);
+    error("%s: job output directory '%s' already exists", funcName, job_outdir);
   endif
 
   ## resolve locations of executable files
@@ -153,20 +158,21 @@ function job_file = makeCondorJob(varargin)
       end_try_catch
     endif
   endfor
-  oct_files = unique({autoload.file});
-  for i = 1:length(oct_files)
-    if any(cellfun(@(x) strncmp(oct_files{i}, x, length(x)), octprefixes))
+  loaded_oct_files = unique({autoload.file});
+  oct_files = {};
+  for i = 1:length(loaded_oct_files)
+    if any(cellfun(@(x) strncmp(loaded_oct_files{i}, x, length(x)), octprefixes))
       continue;
     endif
-    func_files = {func_files{:}, oct_files{i}};
-    exec_files = {exec_files{:}, oct_files{i}};
+    oct_files = {oct_files{:}, loaded_oct_files{i}};
   endfor
-  func_files = unique(func_files);
-  exec_files = unique(exec_files);
+  oct_files = unique(oct_files);
+  func_files = setdiff(func_files, oct_files);
 
   ## get dependencies of executables and .oct modules
-  if length(exec_files) > 0
-    exec_files = setdiff(sharedlibdeps(libprefixes, exec_files{:}), func_files);
+  if length(exec_files) > 0 || length(oct_files) > 0
+    shlib_files = sharedlibdeps(libprefixes, exec_files{:}, oct_files{:});
+    shlib_files = setdiff(shlib_files, {exec_files{:}, oct_files{:}});
   endif
 
   ## find any dependencies that are in class directories;
@@ -184,30 +190,33 @@ function job_file = makeCondorJob(varargin)
     func_files(strncmp(func_files, class_dir, length(class_dir))) = [];
   endfor
 
-  ## check that all dependencies exist, resolving symbolic links
-  for i = 1:length(func_files)
-    if !exist(func_files{i}, "file")
-      error("%s: could not find required file '%s'", funcName, func_files{i});
-    endif
-  endfor
-  for i = 1:length(exec_files)
-    if !exist(exec_files{i}, "file")
-      error("%s: could not find required file '%s'", funcName, exec_files{i});
-    endif
-  endfor
-
   ## directories where dependent executables/shared libraries and function/.oct files are copied
   execdir = ".exec";
   funcdir = ".func";
-  envpaths = struct("PATH", execdir, "LD_LIBRARY_PATH", execdir, "OCTAVE_PATH", funcdir);
 
-  ## build Octave evaluation string, which sets up environment, calls function, and saves output
-  envpaths = {"PATH", "LD_LIBRARY_PATH"};
-  evalstr = "";
-  for i = 1:length(envpaths)
-    evalstr = sprintf("%sputenv(\"%s\",strcat(fullfile(pwd,\"%s\"),\":\",getenv(\"%s\")));", evalstr, envpaths{i}, execdir, envpaths{i});
+  ## build structure containing environment variables to be set in bootstrap script
+  env_vars = struct;
+  env_vars.LD_PRELOAD = "";
+  for i = 1:length(shlib_files)
+    [shlib_file_path, shlib_file_name, shlib_file_ext] = fileparts(shlib_files{i});
+    env_vars.LD_PRELOAD = strcat(env_vars.LD_PRELOAD, sprintf(" ${PWD}/%s/%s%s", execdir, shlib_file_name, shlib_file_ext));
   endfor
-  evalstr = sprintf("%saddpath(fullfile(pwd,\"%s\"),\"-begin\");", evalstr, funcdir);
+  env_vars.PATH = sprintf("${PWD}/%s:${PATH}", execdir);
+  env_vars.OCTAVE_PATH = sprintf("${PWD}/%s:${OCTAVE_PATH}", funcdir);
+  env_vars.OCTAVE_HISTFILE = "/dev/null";
+
+  ## build bootstrap script, which sets up environment, then executes Octave
+  bootstr = "";
+  env_var_names = fieldnames(env_vars);
+  for i = 1:length(env_var_names)
+    envvarname = env_var_names{i};
+    envvar = env_vars.(envvarname);
+    bootstr = strcat(bootstr, sprintf("%s=\"%s\"\nexport %s\n", envvarname, envvar, envvarname));
+  endfor
+  bootstr = strcat(bootstr, sprintf("exec \"%s\" --silent --norc --no-history --no-window-system --eval \"$1\"\n", octave_bin));
+
+  ## build Octave evaluation string, which calls function, and saves output
+  evalstr = "";
   evalstr = strcat(evalstr, sprintf("arguments=%s;", stringify(arguments)));
   if length(arguments) > 0
     callfuncstr = sprintf("%s(arguments{:})", func_name);
@@ -215,10 +224,10 @@ function job_file = makeCondorJob(varargin)
     callfuncstr = sprintf("%s", func_name);
   endif
   if func_nargout > 0
-    evalstr = sprintf("%stic;[results{1:%i}]=%s;elapsed=toc;", evalstr, func_nargout, callfuncstr);
-    evalstr = sprintf("%ssave(\"-hdf5\",\"stdres.h5\",\"arguments\",\"results\",\"elapsed\");", evalstr);
+    evalstr = strcat(evalstr, sprintf("tic;[results{1:%i}]=%s;elapsed=toc;", func_nargout, callfuncstr));
+    evalstr = strcat(evalstr, sprintf("save(\"-hdf5\",\"stdres.h5\",\"arguments\",\"results\",\"elapsed\");", evalstr));
   else
-    evalstr = sprintf("%s%s;", evalstr, callfuncstr);
+    evalstr = strcat(evalstr, callfuncstr, ";");
   endif
   evalstr = strrep(evalstr, "'", "''");
   evalstr = strrep(evalstr, "\"", "\"\"");
@@ -226,13 +235,12 @@ function job_file = makeCondorJob(varargin)
   ## build Condor job submit file spec
   job_spec = struct;
   job_spec.universe = "vanilla";
-  job_spec.executable = fullfile(octave_config_info("bindir"), "octave");
-  job_spec.arguments = sprintf("\"'-qfH' '--eval' '%s'\"", evalstr);
+  job_spec.executable = job_boot_file;
+  job_spec.arguments = sprintf("\"'%s'\"", evalstr);
   job_spec.initialdir = "";
   job_spec.output = "stdout";
   job_spec.error = "stderr";
   job_spec.log = fullfile(log_dir, strcat(job_name, ".log"));
-  job_spec.environment = "OCTAVE_HISTFILE=/dev/null";
   job_spec.getenv = "false";
   job_spec.should_transfer_files = "yes";
   job_spec.transfer_input_files = strcat(job_indir, filesep);
@@ -265,18 +273,29 @@ function job_file = makeCondorJob(varargin)
     error("%s: failed to make directory '%s'", funcName, job_infuncdir);
   endif
 
-  ## copy input files to input directories
-  for i = 1:length(data_files)
-    copyFile(data_files{i}, job_indir);
-  endfor
-  for i = 1:length(exec_files)
-    copyFile(exec_files{i}, job_inexecdir);
-  endfor
-  for i = 1:length(func_files)
-    copyFile(func_files{i}, job_infuncdir);
-  endfor
-  for i = 1:length(class_dirs)
-    copyFile(class_dirs{i}, job_infuncdir);
+  ## check existence of input files, then copy them to input directories
+  copy_files = { ...
+                { data_files, job_indir }, ...
+                { exec_files, job_inexecdir }, ...
+                { shlib_files, job_inexecdir }, ...
+                { func_files, job_infuncdir }, ...
+                { oct_files, job_infuncdir }, ...
+                { class_dirs, job_infuncdir }
+                };
+  for i = 1:length(copy_files)
+    copy_files_i = copy_files{i}{1};
+    copy_dir_i = copy_files{i}{2};
+    for j = 1:length(copy_files_i)
+      copy_files_ij = copy_files_i{j};
+      if (exist(copy_files_ij, "file") == 2) || (exist(copy_files_ij, "dir") == 7)
+        status = system(sprintf("cp -rH '%s' '%s'", copy_files_ij, copy_dir_i));
+        if status != 0
+          error("%s: could not copy file/directory '%s' to '%s'", funcName, copy_files_ij, copy_dir_i);
+        endif
+      else
+        error("%s: '%s' is neither a file or a directory", funcName, copy_files_ij);
+      endif
+    endfor
   endfor
 
   ## overwrite octapps_gitID.m with static copy of current repository's git ID
@@ -305,5 +324,17 @@ function job_file = makeCondorJob(varargin)
   endfor
   fprintf(fid, "queue 1\n");
   fclose(fid);
+
+  ## write Condor job bootstrap script, and make it executable
+  fid = fopen(job_boot_file, "w");
+  if fid < 0
+    error("%s: could not open file '%s' for writing", funcName, job_boot_file);
+  endif
+  fprintf(fid, "#!/bin/sh\n%s", bootstr);
+  fclose(fid);
+  status = system(sprintf("chmod a+x '%s'", job_boot_file));
+  if status != 0
+    error("%s: could not make file '%s' executable", job_boot_file);
+  endif
 
 endfunction
