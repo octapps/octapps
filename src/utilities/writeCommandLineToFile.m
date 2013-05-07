@@ -25,6 +25,9 @@ function writeCommandLineToFile ( filename, params, scriptname )
  fid = fopen ( filename, "w" );
 
  fprintf ( fid, "%s\n", strftime(save_header_format_string, localtime(time())));
+
+ fprintf ( fid, "# octapps version: %s\n", octapps_gitID().vcsId );
+
  fprintf ( fid, "# commandline:\n" );
  fprintf ( fid, "# octapps_run %s\n", scriptname );
 
@@ -36,7 +39,7 @@ function writeCommandLineToFile ( filename, params, scriptname )
    if ( isnumeric(param_values{n}) ) # values converted to numeric formats by parseOptions have to be converted back
     param_values{n} = num2str(param_values{n});
    endif
-   fprintf ( fid, "# --%s=%s \n", param_fieldnames{n}, param_values{n} );
+   fprintf ( fid, "# --%s=%s\n", param_fieldnames{n}, param_values{n} );
   endif
  endfor
 
