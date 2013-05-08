@@ -26,7 +26,7 @@
 ##   paNt = false alarm probability (per template)
 ##   pd   = false dismissal probability
 ##   Ns   = number of segments
-##   nu   = degrees of freedom of the chi^2 statistic
+##   nu   = degrees of freedom per segment
 
 function [rhob,tms] = AnalyticSensitivityConstSNRChiSqr(paNt, pd, Ns, nu)
   

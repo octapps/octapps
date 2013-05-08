@@ -21,7 +21,7 @@
 ## Options:
 ##   "paNt" = false alarm probability per template
 ##   "sa"   = false alarm threshold
-##   "dof"  = number of degrees of freedom (default: 4)
+##   "dof"  = degrees of freedom per segment (default: 4)
 ##   "norm" = use normal approximation to chi^2 (default: false)
 
 function [pd, Ns, FDP, fdp_vars, fdp_opts] = SensitivityChiSqrFDP(pd, Ns, args)
@@ -63,7 +63,7 @@ endfunction
 ## calculate false dismissal probability
 function pd_rhosqr = ChiSqrFDP(pd, Ns, rhosqr, fdp_vars, fdp_opts)
   
-  ## degrees of freedom of the statistic
+  ## degrees of freedom per segment
   nu = fdp_opts.dof;
 
   ## false alarm threshold
