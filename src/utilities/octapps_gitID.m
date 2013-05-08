@@ -69,7 +69,7 @@ function ID = octapps_gitID ( directory, name )
     error ("%s: unexpectedly failed to get git-author, error was %d", funcName, err );
   endif
 
-  statuscmd = sprintf( "%sgit status --porcelain --untracked-files=no", cdcmd )
+  statuscmd = sprintf( "%sgit status --porcelain --untracked-files=no", cdcmd );
   [ err, msg ] = system ( statuscmd );
   if ( err )
     error ("%s: unexpectedly failed to get git-status, error was %d", funcName, err );
