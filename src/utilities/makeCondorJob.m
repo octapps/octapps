@@ -52,7 +52,6 @@ function job_file = makeCondorJob(varargin)
                {"exec_files", "cell", {}},
                {"data_files", "cell", {}},
                {"extra_condor", "cell", {}},
-               {"octave_bin", "char", "octave"},
                []);
 
   ## check input
@@ -99,6 +98,9 @@ function job_file = makeCondorJob(varargin)
   if exist(job_outdir, "dir")
     error("%s: job output directory '%s' already exists", funcName, job_outdir);
   endif
+
+  ## add Octave executable to list of executable files
+  exec_files{end+1} = fullfile(octave_config_info("bindir"), "octave");
 
   ## resolve locations of executable files
   unmanglePATH;
@@ -213,7 +215,7 @@ function job_file = makeCondorJob(varargin)
     envvar = env_vars.(envvarname);
     bootstr = strcat(bootstr, sprintf("%s=\"%s\"\nexport %s\n", envvarname, envvar, envvarname));
   endfor
-  bootstr = strcat(bootstr, sprintf("exec \"%s\" --silent --norc --no-history --no-window-system --eval \"$1\"\n", octave_bin));
+  bootstr = strcat(bootstr, sprintf("exec octave --silent --norc --no-history --no-window-system --eval \"$1\"\n"));
 
   ## build Octave evaluation string, which calls function, and saves output
   evalstr = "";
