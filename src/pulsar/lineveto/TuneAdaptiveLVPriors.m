@@ -40,7 +40,7 @@ function ret = TuneAdaptiveLVPriors ( varargin )
                      {"SFTpower_fA", "numeric,scalar", 0},
                      {"LVlmin", "numeric,scalar", 0.001},
                      {"LVlmax", "numeric,scalar", 1000},
-                     {"sftwidth", "numeric,scalar", 0.05},
+                     {"sft_width", "numeric,scalar", 0.05},
                      {"timestampsfiles", "char", ""}
                 );
  writeCommandLineToFile ( params_init.outfile, params_init, mfilename );
@@ -119,7 +119,8 @@ function ret = TuneAdaptiveLVPriors ( varargin )
    [sftstartfreq, num_sfts_to_load, rngmedbins_effective] = get_sft_range ( params_init, params_run, frequencies.psd_start(curr_step), frequencies.psd_band(curr_step) );
 
    # load in all required sfts
-   [sfts, firstsft] = get_sft_paths ( params_init, sftstartfreq, num_sfts_to_load );
+   [sfts.h1, firstsft.h1] = get_EatH_sft_paths ( params_init, sftstartfreq, num_sfts_to_load, "h1" );
+   [sfts.l1, firstsft.l1] = get_EatH_sft_paths ( params_init, sftstartfreq, num_sfts_to_load, "l1" );
 
    if ( ( curr_step == 1 ) && ( params_init.SFTpower_fA > 0 ) )
     printf("First band, converting SFTpower_fA=%g to SFTpower_thresh", params_init.SFTpower_fA);
@@ -268,8 +269,8 @@ function [params_init] = check_input_parameters ( params_init )
    error(["Invalid input parameter (LVlmax): ", num2str(params_init.LVlmax), " must be >= LVlmin = ", num2str(params_init.LVlmin), "."])
  endif
 
- if ( params_init.sftwidth <= 0.0 )
-  error(["Invalid input parameter (sftwidth): ", num2str(params_init.sftwidth), " must be > 0."]);
+ if ( params_init.sft_width <= 0.0 )
+  error(["Invalid input parameter (sft_width): ", num2str(params_init.sft_width), " must be > 0."]);
  endif
 
  if ( length(params_init.timestampsfiles) == 0 )
@@ -319,33 +320,6 @@ function params_run = get_params_run ( runconfigfile )
  params_run.FreqMax       = params_run.DataFreqMax - getSidebandAtFreq ( params_run.DataFreqMax, params_run, use_rngmedSideband=1 ) - params_run.sft_dfreq;
 
 endfunction # get_params_run()
-
-
-function [freqstring] = convert_freq_to_string ( freq, leading, trailing )
- ## [freqstring] = convert_freq_to_string ( freq, leading, trailing )
- ## function to convert a frequency value to a string with leading 0s
- freqstring_init = num2str(freq);
- freqstring_split = strsplit(freqstring_init,".");
- if ( length(freqstring_split{1}) > leading ) # too many digits before '.'
-  error(["Error converting frequency ", num2str(freq), " into string ", freqstring_init, ": more leading digits than requested (", int2str(leading), ") - do not want to truncate this."]);
- endif
- freqstring = freqstring_split{1};
- if ( trailing > 0 )
-  freqstring = [freqstring, "."];
-  if ( length(freqstring_split) >= 2 )
-   freqstring = [freqstring, freqstring_split{2}(1:min(length(freqstring_split{2}),trailing))];
-   digits = length(freqstring_split{2});
-  else
-   digits = 0;
-  endif
-  for ( n = 1:1:trailing-digits )
-   freqstring = [freqstring, "0"];
-  endfor
- endif
- for ( n = 1:1:leading-length(freqstring_split{1}) )
-  freqstring = ["0", freqstring];
- endfor
-endfunction # convert_freq_to_string()
 
 
 function sideBand = getSidebandAtFreq ( Freq, params_run, use_rngmedSideband )
@@ -472,7 +446,7 @@ function [sftstartfreq, num_sfts_to_load, rngmedbins_effective] = get_sft_range 
  ## function to compute the necessary SFT start frequency and the number of (contiguous) SFTs starting from there
 
  sftstartfreq = floor(20*startfreq)/20; # round down to get SFT file containing the startfreq
- num_sfts_to_load = ceil ( freqband / params_init.sftwidth );
+ num_sfts_to_load = ceil ( freqband / params_init.sft_width );
  rngmed_wing_normal = fix(params_init.rngmedbins/2 + 1) * params_run.sft_dfreq;
 
  # if Dterms/rngmedbins overlap leads to problems at boundaries, fix by omitting a few bins from the rngmed for that one band
@@ -491,8 +465,8 @@ function [sftstartfreq, num_sfts_to_load, rngmedbins_effective] = get_sft_range 
 
  # load more SFTs if below the lower boundary
  while ( startfreq - rngmed_wing < sftstartfreq + params_run.sft_dfreq )
-  if ( sftstartfreq - params_init.sftwidth >= params_run.DataFreqMin )
-   sftstartfreq -= params_init.sftwidth;
+  if ( sftstartfreq - params_init.sft_width >= params_run.DataFreqMin )
+   sftstartfreq -= params_init.sft_width;
    num_sfts_to_load++;
   else
    printf("NOTE: Required data start frequency %f Hz is closer to DataFreqMin=%f Hz than one SFT bin (%f Hz), cannot add more SFTs below. Next call to lalapps_ComputePSD might fail.\n", startfreq-rngmed_wing, params_run.DataFreqMin, params_run.sft_dfreq);
@@ -500,8 +474,8 @@ function [sftstartfreq, num_sfts_to_load, rngmedbins_effective] = get_sft_range 
   endif
  endwhile
  # load more SFTs if above the upper boundary
- while ( startfreq + freqband + rngmed_wing >= sftstartfreq + num_sfts_to_load*params_init.sftwidth - params_run.sft_dfreq )
-  if ( sftstartfreq + num_sfts_to_load*params_init.sftwidth <= params_run.DataFreqMax )
+ while ( startfreq + freqband + rngmed_wing >= sftstartfreq + num_sfts_to_load*params_init.sft_width - params_run.sft_dfreq )
+  if ( sftstartfreq + num_sfts_to_load*params_init.sft_width <= params_run.DataFreqMax )
    num_sfts_to_load++;
   else
    printf("NOTE: Required data end frequency %f Hz is closer to DataFreqMax=%f Hz than one SFT bin (%f Hz), cannot add more SFTs above. Next call to lalapps_ComputePSD might fail.\n", startfreq+freqband+rngmed_wing, params_run.DataFreqMax, params_run.sft_dfreq);
@@ -510,56 +484,6 @@ function [sftstartfreq, num_sfts_to_load, rngmedbins_effective] = get_sft_range 
  endwhile
 
 endfunction # get_sft_range()
-
-
-function [sfts, firstsft] = get_sft_paths ( params_init, sftstartfreq, num_sfts_to_load )
- ## [sfts, firstsft] = get_sft_paths ( params_init, sftstartfreq, num_sfts_to_load )
- ## function to get the full SFT paths (assuming Atlas-like directory structure) and cat them into argument strings for lalapps_ComputePSD
-
- global SMALL_EPS;
-
- sfts.h1 = [];
- sfts.l1 = [];
-
- for numsft = 1:1:num_sfts_to_load
-
-  currfreqstring = convert_freq_to_string(sftstartfreq + (numsft-1)*params_init.sftwidth,4,2);
-
-  # start with H1
-  sftfile = [params_init.sftdir, filesep, "h1_", currfreqstring, params_init.sft_filenamebit];
-  if ( exist(sftfile,"file") != 2 )
-   freqsubdir = convert_freq_to_string(10*floor((sftstartfreq + (numsft-1)*params_init.sftwidth)/10+SMALL_EPS),4,0); # EatH SFTs on atlas are organized in 0fff subdirs - SMALL_EPS is to make sure 60.000 gets floored to 60 and not 50, as octave can have small numerical inaccuracies here
-   sftfile = [params_init.sftdir, filesep, freqsubdir, filesep, "h1_", currfreqstring, params_init.sft_filenamebit];
-   if ( exist(sftfile,"file") != 2 )
-    error(["Required SFT file ", sftfile, " does not exist."]);
-   endif
-  endif
-  sfts.h1 = [sfts.h1, sftfile];
-  if ( numsft == 1 )
-   firstsft.h1 = sftfile;
-  endif
-
-  # same for L1
-  sftfile = [params_init.sftdir, filesep, "l1_", currfreqstring, params_init.sft_filenamebit];
-  if ( exist(sftfile,"file") != 2 )
-   sftfile = [params_init.sftdir, filesep, freqsubdir, filesep, "l1_", currfreqstring, params_init.sft_filenamebit];
-   if ( exist(sftfile,"file") != 2 )
-    error(["Required SFT file ", sftfile, " does not exist."]);
-   endif
-  endif
-  sfts.l1 = [sfts.l1, sftfile];
-  if ( numsft == 1 )
-   firstsft.l1 = sftfile;
-  endif
-
-  if ( numsft < num_sfts_to_load )
-   sfts.h1 = [sfts.h1, ";"];
-   sfts.l1 = [sfts.l1, ";"];
-  endif
-
- endfor # numsft = 1:1:num_sfts_to_load
-
-endfunction # get_sft_paths()
 
 
 function write_results_to_file (outfile, frequencies, freqbins, num_outliers, max_outlier, l, num_steps_done, curr_step, FreqMax )
