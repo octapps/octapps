@@ -572,7 +572,7 @@ function write_results_to_file (outfile, frequencies, freqbins, num_outliers, ma
  columnlabels = {"wufreq", "searchfreq", "psd_startfreq", "psd_freqband", "freqbins_H1", "freqbins_L1", "num_outliers_H1", "num_outliers_L1", "max_outlier_H1", "max_outlier_L1", "l_H1", "l_L1"};
  majordigits = 4*ones(length(columnlabels),1); # assume only frequencies, bin numbers, power values etc up to 9999
  minordigits = [2,10,10,10,0,0,0,0,6,6,6,6]; # these must be the same as the ".2f" and similar in the body formatstring
- formatstring = "#"; # double-escaped comment marker "%%" for beginning of line
+ formatstring = "#"; # comment marker for beginning of line
  for n = 1:1:length(columnlabels) # pad headings if numbers will be wider
   formatstring = [formatstring, " %%%ds"];
   if ( minordigits(n) == 0 )
@@ -597,7 +597,7 @@ function write_results_to_file (outfile, frequencies, freqbins, num_outliers, ma
   endfor
  endif
  if ( ( skip_output == 1 ) || ( num_steps_done < curr_step ) ) # if no output at all or skipped some bands at end of freq range, note so in the file
-  fprintf ( fid, "%%%% params_run.FreqMax=%.10f reached, no more bands processed.\n", FreqMax );
+  fprintf ( fid, "# params_run.FreqMax=%.10f reached, no more bands processed.\n", FreqMax );
  endif
 
  # done
