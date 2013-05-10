@@ -1,0 +1,181 @@
+/* [wxMaxima batch file version 1] [ DO NOT EDIT BY HAND! ]*/
+/* [ Created with wxMaxima version 0.8.5 ] */
+
+/* [wxMaxima: section start ]
+Preliminaries
+   [wxMaxima: section end   ] */
+
+/* [wxMaxima: input   start ] */
+declare("αβγδεζηθικλμνξπρστυφχψωΓΔΘΛΞΠΣΦχΨΩ", alphabetic)$
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: section start ]
+Phase model of Pletsch, PRD 82 042002 (2010)
+   [wxMaxima: section end   ] */
+
+/* [wxMaxima: input   start ] */
+assume(T > 0, Ω > 0)$
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: subsect start ]
+Equations (42) and (78)
+   [wxMaxima: subsect end   ] */
+
+/* [wxMaxima: input   start ] */
+νlist : [ν, νd, νdd]$
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+Φ : sum( νlist[k+1] * ( 2*(t-t0)/T )^(k+1), k, 0, length(νlist)-1 ) + nx * cos(Ω*t) + ny * sin(Ω*t);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: section start ]
+Phase metric
+   [wxMaxima: section end   ] */
+
+/* [wxMaxima: input   start ] */
+kill(time_average)$
+time_average(x) := (1/T)*integrate(x, t, tj-T/2, tj+T/2)$
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+kill(phase_metric)$
+phase_metric(Φ, x, y) := block([dx,dy],
+    dx : diff(Φ, x),
+    dy : diff(Φ, y),
+    time_average(dx * dy) - time_average(dx) * time_average(dy)
+)$
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: section start ]
+Check metric elements of Pletsch, PRD 82 042002 (2010)
+   [wxMaxima: section end   ] */
+
+/* [wxMaxima: input   start ] */
+φ : Ω*T/2$
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+kill(j0, j1, j2, j3)$
+j0(x) := spherical_bessel_j(0, x)$
+j1(x) := spherical_bessel_j(1, x)$
+j2(x) := spherical_bessel_j(2, x)$
+j3(x) := spherical_bessel_j(3, x)$
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+kill(compare_element)$
+compare_element(Φ, x, y, gref) := block([g,g1,g2],
+    g : ev(phase_metric(Φ, x, y), ratsimp, simp),
+    g1 : trigrat(expand(g)),
+    g2 : trigrat(expand(gref)),
+    if is(is(equal(g1, g2)) = true) then
+       true
+    else
+       [false, g1, g2]
+)$
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: subsect start ]
+Equations (50)
+   [wxMaxima: subsect end   ] */
+
+/* [wxMaxima: input   start ] */
+compare_element(Φ, ν, ν, 1/3);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+compare_element(Φ, ν, νd, 4/3*(tj - t0)/T);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+compare_element(Φ, νd, νd, 4/45 + 16/3*((tj - t0)/T)^2);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+compare_element(Φ, ν, nx, -j1(φ)*sin(Ω*tj));
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+compare_element(Φ, ν, ny, j1(φ)*cos(Ω*tj));
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+compare_element(Φ, νd, nx, -2/3*j2(φ)*cos(Ω*tj) - 4*j1(φ)*((tj - t0)/T)*sin(Ω*tj));
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+compare_element(Φ, νd, ny, -2/3*j2(φ)*sin(Ω*tj) + 4*j1(φ)*((tj - t0)/T)*cos(Ω*tj));
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+compare_element(Φ, nx, nx, 1/2 - 1/2*j0(φ)*cos(φ) - j1(φ)*sin(φ)*cos(Ω*tj)^2);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+compare_element(Φ, nx, ny, -j1(φ)*sin(φ)*sin(Ω*tj)*cos(Ω*tj));
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+compare_element(Φ, ny, ny, 1/2 - 1/2*j0(φ)*cos(φ) - j1(φ)*sin(φ)*sin(Ω*tj)^2);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: subsect start ]
+Equations (80)
+   [wxMaxima: subsect end   ] */
+
+/* [wxMaxima: input   start ] */
+compare_element(Φ, ν, νdd, 1/5 + 4*((tj - t0)/T)^2);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+compare_element(Φ, νd, νdd, 4/3*((tj - t0)/T) + 16*((tj - t0)/T)^3);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+compare_element(Φ, νdd, νdd, 1/7 + 8*((tj - t0)/T)^2 + 48*((tj - t0)/T)^4);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+compare_element(Φ, νdd, nx, (-3/5*j1(φ) + 2/5*j3(φ))*sin(Ω*tj) - 4*j2(φ)*((tj - t0)/T)*cos(Ω*tj)
+                            - 12*j1(φ)*((tj - t0)/T)^2*sin(Ω*tj));
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+compare_element(Φ, νdd, ny, (3/5*j1(φ) - 2/5*j3(φ))*cos(Ω*tj) - 4*j2(φ)*((tj - t0)/T)*sin(Ω*tj)
+                            + 12*j1(φ)*((tj - t0)/T)^2*cos(Ω*tj));
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: section start ]
+Compute numerical metrics for comparison with Octave
+   [wxMaxima: section end   ] */
+
+/* [wxMaxima: input   start ] */
+kill(phase_metric_matrix)$
+phase_metric_matrix(Φ, xx, [sublist]) := apply(matrix,
+    outermap(
+        lambda([x, y],
+            subst(sublist, phase_metric(Φ, x, y))
+        ),
+        xx, xx
+    )
+)$
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+phase_metric_matrix(Φ, [ν, νd, νdd, nx, ny], tj=-1/2, t0=0, Ω=2*π, T=1)$
+%, numer;
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+phase_metric_matrix(Φ, [ν, νd, νdd, nx, ny], tj=0, t0=0, Ω=2*π, T=1)$
+%, numer;
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+phase_metric_matrix(Φ, [ν, νd, νdd, nx, ny], tj=1/3, t0=1/2, Ω=2*π, T=2.5)$
+%, numer;
+/* [wxMaxima: input   end   ] */
+
+/* Maxima can't load/batch files which end with a comment! */
+"Created with wxMaxima"$
