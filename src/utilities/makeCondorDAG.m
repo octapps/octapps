@@ -71,17 +71,11 @@ function dag_file = makeCondorDAG(varargin)
 
   endfor
 
-  ## check that parent directory exists
+  ## check that parent directory and job submit files exist
   if exist(parent_dir, "dir")
     parent_dir = canonicalize_file_name(parent_dir);
   else
     error("%s: parent directory '%s' does not exist", funcName, parent_dir);
-  endif
-
-  ## check that DAG submit file does not exist, and that job submit files do exist
-  dag_file = fullfile(parent_dir, strcat(dag_name, ".dag"));
-  if exist(dag_file, "file")
-    error("%s: DAG file '%s' already exists", funcName, dag_file);
   endif
   for n = 1:length(job_nodes)
     job_nodes(n).file = canonicalize_file_name(job_nodes(n).file);
@@ -90,15 +84,31 @@ function dag_file = makeCondorDAG(varargin)
     endif
   endfor
 
-  ## create job node names, and check that their output directories do not exist
-  job_node_name_fmt = sprintf("%%s.%%0%ii", length(sprintf("%i", length(job_nodes)-1)));
+  ## check that DAG submit file and output base directory do not exist
+  dag_file = fullfile(parent_dir, strcat(dag_name, ".dag"));
+  if exist(dag_file, "file")
+    error("%s: DAG file '%s' already exists", funcName, dag_file);
+  endif
+  job_out_base_dir = fullfile(parent_dir, strcat(dag_name, ".out"));
+  if exist(job_out_base_dir, "dir")
+    error("%s: job output base directory '%s' already exists", funcName, job_out_base_dir);
+  endif
+
+  ## create job node name and output directory names
+  job_out_dirs = {job_out_base_dir};
+  job_num_fmt_len = 2*(1 + floor(log10(max(1, length(job_nodes) - 1)) / 2));
+  job_num_fmt = sprintf("%%0%ii", job_num_fmt_len);
   for n = 1:length(job_nodes)
-    job_nodes(n).name = sprintf(job_node_name_fmt, dag_name, n-1);
-    job_nodes(n).dir = fullfile(parent_dir, sprintf(job_node_name_fmt, strcat(dag_name, ".out"), n-1));
-    if exist(job_nodes(n).dir, "dir")
-      error("%s: job node output directory '%s' already exists", funcName, job_nodes(n).dir);
-    endif
+    job_num = sprintf(job_num_fmt, n-1);
+    job_nodes(n).name = strcat(dag_name, ".", job_num);
+    job_num_split = mat2cell(job_num, 1, 2*ones(1, job_num_fmt_len/2));
+    job_nodes(n).dir = job_out_base_dir;
+    for i = 1:length(job_num_split)
+      job_nodes(n).dir = fullfile(job_nodes(n).dir, job_num_split{i});
+      job_out_dirs{end+1} = job_nodes(n).dir;
+    endfor
   endfor
+  job_out_dirs = unique(job_out_dirs);
 
   ## write Condor DAG submit file
   fid = fopen(dag_file, "w");
@@ -141,9 +151,9 @@ function dag_file = makeCondorDAG(varargin)
   fclose(fid);
 
   ## create job node output directory names, and check that they do not exist
-  for n = 1:length(job_nodes)
-    if !mkdir(job_nodes(n).dir)
-      error("%s: failed to make directory '%s'", funcName, job_nodes(n).dir);
+  for i = 1:length(job_out_dirs)
+    if !mkdir(job_out_dirs{i})
+      error("%s: failed to make directory '%s'", funcName, job_out_dirs{i});
     endif
   endfor
 
