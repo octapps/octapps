@@ -7,6 +7,7 @@ OCTAVE = $(shell type -P octave || echo false) --silent --norc --no-history --no
 OCTCONFIG = $(shell type -P octave-config || echo false)
 SED = $(shell type -P sed || echo false)
 SWIG = $(shell type -P swig || echo false)
+CTAGSEX = $(shell type -P ctags-exuberant || echo false)
 
 version = $(shell $(OCTAVE) --eval "disp(OCTAVE_VERSION)")
 
@@ -86,6 +87,14 @@ check : all
 			$(OCTAVE) -qfH --eval "f='$${mfile}';$${script}" || exit 1; \
 		fi; \
 	done; exit 0
+
+ifneq ($(CTAGSEX),false)
+
+all .PHONY : TAGS
+TAGS :
+	$(verbose)$(GIT) ls-files '*.m' | xargs $(CTAGSEX) -e
+
+endif # neq ($(CTAGSEX),false)
 
 clean :
 	$(verbose)$(GIT) clean -Xdf
