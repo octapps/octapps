@@ -14,10 +14,12 @@
 ## along with Octave; see the file COPYING.  If not, see
 ## <http://www.gnu.org/licenses/>.
 
-## Computes the coherent global correlations transform metric, as
+## Computes the coherent global correlation transform metric, as
 ## given in Pletsch, PRD 82 042002 (2010)
 ## Syntax:
 ##   g = GCTCoherentMetric(...)
+## where:
+##   g = GCT metric
 ## Options:
 ##   "smax":  number of spindowns (up to second spindown)
 ##   "tj":    value of tj, the coherent reference time
@@ -36,20 +38,14 @@ function g = GCTCoherentMetric(varargin)
                {"T", "real,strictpos,scalar"},
                {"Omega", "real,strictpos,scalar", 7.29211585537707e-05},
                []);
+
+  ## check options
   assert(smax <= 2, "Only up to second spindown supported");
 
   ## create coordinate indices
-  nu = nud = nudd = nx = ny = [];
-  i = 0;
-  nu = ++i;
-  if smax > 0
-    nud = ++i;
-    if smax > 1
-      nudd = ++i;
-    endif
-  endif
-  nx = ++i;
-  ny = ++i;
+  [ii{1:5}] = deal([]);
+  ii([1:smax+1,4,5]) = num2cell(1:3+smax);
+  [nu, nud, nudd, nx, ny] = deal(ii{:});
 
   ## various constants for computing elements
   phi = Omega * T / 2;
