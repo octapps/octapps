@@ -15,7 +15,8 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## Transform the bins of a histogram
+## Transform the bins of a histogram.
+## The new bins must be in strictly ascending order.
 ## Syntax:
 ##   hgrm = transformHistBins(hgrm, k, F)
 ## where:
@@ -30,6 +31,14 @@ function hgrm = transformHistBins(hgrm, k, F)
   assert(1 <= k && k <= length(hgrm.bins));
 
   ## transform bins
-  hgrm.bins{k}(2:end-1) = arrayfun(F, hgrm.bins{k}(2:end-1));
+  newbins = arrayfun(F, hgrm.bins{k}(2:end-1));
+
+  ## check that transformed bins are strictly ascending
+  if !all(diff(newbins) > 0)
+    error("%s: function '%s' does not produce strictly-ascending-order bins", funcName, func2str(F));
+  endif
+
+  ## assign new bins
+  hgrm.bins{k}(2:end-1) = newbins;
 
 endfunction
