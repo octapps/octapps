@@ -25,6 +25,10 @@
 
 function ephemerides = loadEphemerides(varargin)
 
+  ## load LAL libraries
+  lal;
+  lalpulsar;
+
   ## parse options
   parseOptions(varargin,
                {"earth_file", "char", "earth00-19-DE405.dat.gz"},
