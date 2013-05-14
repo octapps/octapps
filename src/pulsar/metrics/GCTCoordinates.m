@@ -48,6 +48,7 @@ function varargout = GCTCoordinates(varargin)
                {"fndot", "real,matrix"},
                {"detector", "char"},
                {"ephemerides", "a:swig_ref", []},
+               {"ptolemaic", "logical,scalar", false},
                []);
   smax = size(fndot, 1) - 1;
 
@@ -58,8 +59,8 @@ function varargout = GCTCoordinates(varargin)
   assert(all(size(delta) == [1, size(fndot, 2)]));
   assert(isempty(strfind(detector, ",")), "Only a single detector is supported");
 
-  ## load ephemerides if not supplied
-  if isempty(ephemerides)
+  ## load ephemerides if needed and not supplied
+  if !ptolemaic && isempty(ephemerides)
     ephemerides = loadEphemerides();
   endif
 
@@ -87,10 +88,37 @@ function varargout = GCTCoordinates(varargin)
   fd = fndot(2, :);
   fdd = fndot(3, :);
 
-  ## compute orbital derivatives in equatorial coordinates, and
-  ## dot product of orbital derivatives with sky position vector
-  orbit_deriv = ComputeOrbitalDerivatives(smax+1, t0, ephemerides);
-  xindot_n = orbit_deriv.data * n;
+  ## compute orbital derivatives in equatorial coordinates
+  if !ptolemaic
+    orbit_deriv = ComputeOrbitalDerivatives(smax+1, t0, ephemerides);
+    xindot = orbit_deriv.data(:,:);
+  else
+
+    ## get orbital position of the Earth
+    [_, tAutumn] = GetEarthTimes(t0);
+
+    ## compute various constants required for calculating derivatives
+    Omegao = 2*pi / LAL_YRSID_SI;
+    phio = -Omegao * tAutumn;
+    Ro_cos_phio = LAL_AU_SI / LAL_C_SI * cos(phio);
+    Ro_sin_phio = LAL_AU_SI / LAL_C_SI * sin(phio);
+    ecl_to_equ = [1 0; 0 LAL_COSIEARTH; 0 LAL_SINIEARTH];
+
+    ## compute Ptolemaic derivatives
+    xindot = zeros(smax+2, 3);
+    xindot(1, :) = ecl_to_equ * [Ro_cos_phio; Ro_sin_phio];
+    xindot(2, :) = Omegao * ecl_to_equ * [-Ro_sin_phio; Ro_cos_phio];
+    if smax > 0
+      xindot(3, :) = Omegao^2 * ecl_to_equ * [-Ro_cos_phio; -Ro_sin_phio];
+      if smax > 1
+        xindot(4, :) = Omegao^3 * ecl_to_equ * [Ro_sin_phio; -Ro_cos_phio];
+      endif
+    endif
+
+  endif
+
+  ## compute dot product of orbital derivatives with sky position vector
+  xindot_n = xindot * n;
 
   ## initialise output coordinates
   coord = zeros(3+smax, size(fndot, 2));
