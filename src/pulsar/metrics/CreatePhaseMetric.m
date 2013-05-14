@@ -30,6 +30,8 @@
 ##             "orbit_ecl": orbit sky in x-y-z ecliptic coordinates
 ##             "freq": frequency in SI units
 ##             "fdots": frequency spindowns in SI units
+##             "gct_nu": GCT frequency/spindowns in SI units
+##             "gct_nx_ny_equ": GCT constrained equatorial sky coordinates
 ##   "spindowns": number of frequency spindown coordinates
 ##   "start_time": start time(s) in GPS seconds (default: [ref_time - 0.5*time_span])
 ##   "ref_time": reference time in GPS seconds (default: mean(start_time + 0.5*time_span))
@@ -124,6 +126,20 @@ function [metric, coordIDs, start_time, ref_time] = CreatePhaseMetric(varargin)
         endif
         coordIDs = [coordIDs, ...
                     spindownCoordIDs(1:spindowns)];
+      case "gct_nu"
+        spindownCoordIDs = [DOPPLERCOORD_GC_NU1, ...
+                            DOPPLERCOORD_GC_NU2, ...
+                            DOPPLERCOORD_GC_NU3];
+        if spindowns > length(spindownCoordIDs)
+          error("%s: maximum of %i spindowns supported", funcName, length(spindownCoordIDs));
+        endif
+        coordIDs = [coordIDs, ...
+                    DOPPLERCOORD_GC_NU0, ...
+                    spindownCoordIDs(1:spindowns)];
+      case "gct_nx_ny_equ"
+        coordIDs = [coordIDs, ...
+                    DOPPLERCOORD_N2X_EQU, ...
+                    DOPPLERCOORD_N2Y_EQU];
       otherwise
         error("%s: unknown coordinates '%s'", funcName, coords)
     endswitch
