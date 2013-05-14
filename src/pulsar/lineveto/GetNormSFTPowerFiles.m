@@ -58,10 +58,8 @@ function ret = GetNormSFTPowerFiles ( varargin )
   params_init
  endif
 
- lalapps_version_string = getLalAppsVersionInfo ([params_init.lalpath, "lalapps_ComputePSD"]);
- fid = fopen ( params_init.outfile, "a" ); # append mode
- fprintf ( fid, lalapps_version_string );
- fclose ( params_init.outfile );
+ # save resuls to file as an ascii matrix with custom header
+ formatstring_body = write_header_to_file (params_init );
 
  # prepare PSD code and parameters
  if ( params_init.debug == 0 )
@@ -146,10 +144,13 @@ function ret = GetNormSFTPowerFiles ( varargin )
    [err, msg] = unlink (params_psd.outputPSD);
   endif
 
- endwhile # main loop over freqbands
+  # write results from this band and clear memory
+  write_results_to_file (params_init, formatstring_body, frequencies, normSFTpower, thresh_crossings );
+  normSFTpower     = [];
+  thresh_crossings = [];
+  frequencies      = [];
 
- # save resuls to file as an ascii matrix with custom header
- write_results_to_file (params_init, frequencies, normSFTpower, thresh_crossings );
+ endwhile # main loop over freqbands
 
  # if we created a temporary working directory, remove it again
  if ( ( params_init.cleanup == 1 ) && ( temp_working_dir == 1 ) )
@@ -270,11 +271,15 @@ function [sftstartfreq, num_sfts_to_load] = get_sft_range ( params_init, startfr
 endfunction # get_sft_range()
 
 
-function write_results_to_file ( params_init, frequencies, normSFTpower, thresh_crossings )
- ## write_results_to_file ( params_init, frequencies, normSFTpower, thresh_crossings )
+function formatstring_body = write_header_to_file ( params_init )
+ ## formatstring_body = write_header_to_file ( params_init )
  ## save outliers to file as an ascii matrix with custom header
 
+ lalapps_version_string = getLalAppsVersionInfo ([params_init.lalpath, "lalapps_ComputePSD"]);
+
  fid = fopen ( params_init.outfile, "a" ); # append mode (commandline has already been written into this file)
+
+ fprintf ( fid, lalapps_version_string );
 
  formatstring_body = "";
  m = 0;
@@ -283,9 +288,7 @@ function write_results_to_file ( params_init, frequencies, normSFTpower, thresh_
   columnlabels{m} = "freq";
   if ( params_init.output_align == 1 )
    formatstring_body = [formatstring_body, "%%%d.6f "];
-   majordigits(m)  = 4;
-   minordigits(m)  = 6;
-   columnwidths(m) = majordigits(m)+1+minordigits(m);
+   columnwidths(m) = 11;
   else
    formatstring_body = [formatstring_body, "%.6f "];
   endif
@@ -295,9 +298,7 @@ function write_results_to_file ( params_init, frequencies, normSFTpower, thresh_
   columnlabels{m} = "normSFTpower";
   if ( params_init.output_align == 1 )
    formatstring_body = [formatstring_body, "%%%d.6f "];
-   majordigits(m)  = 4;
-   minordigits(m)  = 6;
-   columnwidths(m) = majordigits(m)+1+minordigits(m);
+   columnwidths(m) = 11;
   else
    formatstring_body = [formatstring_body, "%.6f "];
   endif
@@ -307,9 +308,7 @@ function write_results_to_file ( params_init, frequencies, normSFTpower, thresh_
   columnlabels{m} = ">thresh?";
   if ( params_init.output_align == 1 )
    formatstring_body = [formatstring_body, "%%%dd"];
-   majordigits(m)  = 1;
-   minordigits(m)  = 0;
-   columnwidths(m) = majordigits(m)+0+minordigits(m);
+   columnwidths(m) = 1;
   else
    formatstring_body = [formatstring_body, "%d "];
   endif
@@ -339,13 +338,26 @@ function write_results_to_file ( params_init, frequencies, normSFTpower, thresh_
   fprintf ( fid, formatstring_header, columnlabels{:} );
  endif
 
- # body
+ # prepare body format
  if ( params_init.output_align == 1 )
   if ( params_init.output_column_headings == 1 )
    columnwidths(1) += 2; # now need to pad for leading "# " in heading also
   endif
   formatstring_body = sprintf(formatstring_body, columnwidths); # pad to standard width
  endif
+
+ # done
+ fclose ( params_init.outfile );
+
+endfunction # write_header_to_file()
+
+
+function write_results_to_file ( params_init, formatstring, frequencies, normSFTpower, thresh_crossings )
+ ## write_results_to_file ( params_init, formatstring, frequencies, normSFTpower, thresh_crossings )
+ ## save outliers to file as an ascii matrix with custom header
+
+ fid = fopen ( params_init.outfile, "a" ); # append mode (commandline has already been written into this file)
+
  for n=1:1:length(normSFTpower)
   m = 0;
   if ( params_init.output_freq == 1 )
@@ -360,7 +372,7 @@ function write_results_to_file ( params_init, frequencies, normSFTpower, thresh_
    m++;
    outvalues{m} = thresh_crossings(n);
   endif
-  fprintf ( fid, formatstring_body, outvalues{:} );
+  fprintf ( fid, formatstring, outvalues{:} );
  endfor
 
  # done
