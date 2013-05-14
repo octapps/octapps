@@ -71,14 +71,22 @@ function results = TestSuperSkyMetric(varargin)
                {"num_cpu_seconds", "real,strictpos,scalar", inf},
                {"full_injections", "logical,scalar", true},
                {"injection_block", "integer,strictpos,scalar", 100},
+               {"ptolemaic", "logical,scalar", false},
                []);
   if !xor(isfinite(num_injections), isfinite(num_cpu_seconds))
     error("%s: must give either num_injections or num_cpu_seconds", funcName);
   endif
 
-  ## load ephemerides if not supplied
-  if isempty(ephemerides)
+  ## load ephemerides if needed and not supplied
+  if !ptolemaic && isempty(ephemerides)
     ephemerides = loadEphemerides();
+  endif
+
+  ## create ptolemaic detector motion string
+  if ptolemaic
+    ptole = "ptole";
+  else
+    ptole = "";
   endif
 
   ## create spin-orbit component metric
@@ -91,7 +99,7 @@ function results = TestSuperSkyMetric(varargin)
                         "detectors", detectors,
                         "ephemerides", ephemerides,
                         "fiducial_freq", fiducial_freq,
-                        "det_motion", "spin+orbit");
+                        "det_motion", sprintf("spin+%sorbit", ptole));
 
   ## construct untransformed super-sky metric
   [results.ssmetric, _, _, sscoordIDs] = ...
@@ -128,7 +136,7 @@ function results = TestSuperSkyMetric(varargin)
                         "detectors", detectors,
                         "ephemerides", ephemerides,
                         "fiducial_freq", fiducial_freq,
-                        "det_motion", "spinxy+orbit");
+                        "det_motion", sprintf("spinxy+%sorbit", ptole));
   assert(all(sscoordIDs_lpI == sscoordIDs));
   [results.ssmetric_lpII, sscoordIDs_lpII] = ...
       CreatePhaseMetric("coords", "ssky_equ,freq,fdots",
@@ -139,7 +147,7 @@ function results = TestSuperSkyMetric(varargin)
                         "detectors", detectors,
                         "ephemerides", ephemerides,
                         "fiducial_freq", fiducial_freq,
-                        "det_motion", "orbit");
+                        "det_motion", sprintf("%sorbit", ptole));
   assert(all(sscoordIDs_lpII == sscoordIDs));
 
   ## determine indices of sky-projected super-sky metric coordinates
@@ -168,6 +176,17 @@ function results = TestSuperSkyMetric(varargin)
   ## metric ellipsoid with maximum mismatch of 'max_mismatch'
   onto_spa_ssmetric = sqrt(max_mismatch) * DN_spa_ssmetric * inv(CD_spa_ssmetric);
 
+  ## compute the GCT coherent metric, if possible (spindowns <= 2 and only one detector)
+  if spindowns <= 2 && isempty(strfind(detectors, ","))
+    results.gct_metric = gct_metric = GCTCoherentMetric("smax", spindowns,
+                                                        "tj", start_time + 0.5 * time_span,
+                                                        "t0", ref_time,
+                                                        "T", time_span);
+  else
+    gct_metric = [];
+    fprintf("%s: not computing the GCT metric (spindowns=%i, detectors='%s')\n", funcName, spindowns, detectors);
+  endif
+
   ## build error histogram dimensionality and bin types
   H_args = {3, ...
             {"log", "minrange", 0.01, "binsper10", 5}, ...	## mismatch
@@ -185,6 +204,9 @@ function results = TestSuperSkyMetric(varargin)
   results.mu_ssmetric_lpI_H = Hist(H_args{:});
   results.mu_ssmetric_lpII_H = Hist(H_args{:});
   results.mu_ssmetric_ad_H = Hist(H_args{:});
+  if !isempty(gct_metric)
+    results.mu_gct_H = Hist(H_args{:});
+  endif
   if full_injections
     results.mu_twoF_H = Hist(H_args{:});
   endif
@@ -319,6 +341,36 @@ function results = TestSuperSkyMetric(varargin)
     ## compute mismatch in metric using physical coordinates (alpha,delta)
     mu_ssmetric_ad = dot(ad_dp, results.ssmetric * ad_dp);
 
+    if !isempty(gct_metric)
+
+      ## frequency points for computing GCT coordinates
+      gct_fndot1 = [fiducial_freq*ones(1, injection_block); zeros(spindowns, injection_block)];
+      gct_fndot2 = gct_fndot1 + dp(iff, :);
+
+      ## compute GCT coordinates
+      gct_coord1 = GCTCoordinates("t0", ref_time,
+                                  "T", time_span,
+                                  "alpha", alpha1,
+                                  "delta", delta1,
+                                  "fndot", gct_fndot1,
+                                  "detector", detectors,
+                                  "ephemerides", ephemerides,
+                                  "ptolemaic", ptolemaic);
+      gct_coord2 = GCTCoordinates("t0", ref_time,
+                                  "T", time_span,
+                                  "alpha", alpha2,
+                                  "delta", delta2,
+                                  "fndot", gct_fndot2,
+                                  "detector", detectors,
+                                  "ephemerides", ephemerides,
+                                  "ptolemaic", ptolemaic);
+
+      ## compute mismatch in the GCT metric
+      gct_dcoord = gct_coord2 - gct_coord1;
+      mu_gct = dot(gct_dcoord, gct_metric * gct_dcoord);
+
+    endif
+
     if full_injections
 
       ## iterate over full software injections
@@ -396,6 +448,14 @@ function results = TestSuperSkyMetric(varargin)
     ## bin error in mismatch using physical coordinates compared to untransformed super-sky mismatch
     mu_ssmetric_ad_err = mu_ssmetric_ad ./ mu_ssmetric - 1;
     results.mu_ssmetric_ad_H = addDataToHist(results.mu_ssmetric_ad_H, [mu_ssmetric_ad_err(:), H_par]);
+
+    if !isempty(gct_metric)
+
+      ## bin error in mismatch in the GCT metric compared to untransformed super-sky mismatch
+      mu_gct_err = mu_gct ./ mu_ssmetric - 1;
+      results.mu_gct_H = addDataToHist(results.mu_gct_H, [mu_gct_err(:), H_par]);
+
+    endif
 
     if full_injections
 
