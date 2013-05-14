@@ -84,15 +84,6 @@ function [metric, coordIDs, start_time, ref_time] = CreatePhaseMetric(varargin)
   ## create metric parameters struct
   par = new_DopplerMetricParams;
 
-  ## create list of spindown coordinates
-  spindownCoordIDs = [DOPPLERCOORD_F1DOT, ...
-                      DOPPLERCOORD_F2DOT, ...
-                      DOPPLERCOORD_F3DOT];
-  if spindowns > length(spindownCoordIDs)
-    error("%s: maximum of %i spindowns supported", funcName, length(spindownCoordIDs));
-  endif
-  spindownCoordIDs = spindownCoordIDs(1:spindowns);
-
   ## create coordinate system
   coordIDs = [];
   coord_list = strsplit(coords, ",");
@@ -125,8 +116,14 @@ function [metric, coordIDs, start_time, ref_time] = CreatePhaseMetric(varargin)
         coordIDs = [coordIDs, ...
                     DOPPLERCOORD_FREQ];
       case "fdots"
+        spindownCoordIDs = [DOPPLERCOORD_F1DOT, ...
+                            DOPPLERCOORD_F2DOT, ...
+                            DOPPLERCOORD_F3DOT];
+        if spindowns > length(spindownCoordIDs)
+          error("%s: maximum of %i spindowns supported", funcName, length(spindownCoordIDs));
+        endif
         coordIDs = [coordIDs, ...
-                    spindownCoordIDs];
+                    spindownCoordIDs(1:spindowns)];
       otherwise
         error("%s: unknown coordinates '%s'", funcName, coords)
     endswitch
