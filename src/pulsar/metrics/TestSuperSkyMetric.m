@@ -361,45 +361,45 @@ function results = TestSuperSkyMetric(varargin)
     ## build error histogram parameters
     H_par = [alpha1(:), delta1(:)];
 
-    ## bin error in sky-projected aligned mismatch compared to untransformed mismatch
+    ## bin error in sky-projected aligned mismatch compared to untransformed super-sky mismatch
     mu_spa_ssmetric_err = mu_spa_ssmetric ./ mu_ssmetric - 1;
     results.mu_spa_ssmetric_H = addDataToHist(results.mu_spa_ssmetric_H, [mu_spa_ssmetric_err(:), H_par]);
 
-    ## bin error in sky-projected un-aligned decoupled equatorial mismatch compared to untransformed mismatch
+    ## bin error in sky-projected un-aligned decoupled equatorial mismatch compared to untransformed super-sky mismatch
     mu_spd_ssmetric_equ_err = mu_spd_ssmetric_equ ./ mu_ssmetric - 1;
     results.mu_spd_ssmetric_equ_H = addDataToHist(results.mu_spd_ssmetric_equ_H, [mu_spd_ssmetric_equ_err(:), H_par]);
 
-    ## bin error in sky-projected un-aligned decoupled ecliptic mismatch compared to untransformed mismatch
+    ## bin error in sky-projected un-aligned decoupled ecliptic mismatch compared to untransformed super-sky mismatch
     mu_spd_ssmetric_ecl_err = mu_spd_ssmetric_ecl ./ mu_ssmetric - 1;
     results.mu_spd_ssmetric_ecl_H = addDataToHist(results.mu_spd_ssmetric_ecl_H, [mu_spd_ssmetric_ecl_err(:), H_par]);
 
-    ## bin error in un-aligned decoupled equatorial mismatch compared to untransformed mismatch
+    ## bin error in un-aligned decoupled equatorial mismatch compared to untransformed super-sky mismatch
     mu_d_ssmetric_equ_err = mu_d_ssmetric_equ ./ mu_ssmetric - 1;
     results.mu_d_ssmetric_equ_H = addDataToHist(results.mu_d_ssmetric_equ_H, [mu_d_ssmetric_equ_err(:), H_par]);
 
-    ## bin error in un-aligned decoupled ecliptic mismatch compared to untransformed mismatch
+    ## bin error in un-aligned decoupled ecliptic mismatch compared to untransformed super-sky mismatch
     mu_d_ssmetric_ecl_err = mu_d_ssmetric_ecl ./ mu_ssmetric - 1;
     results.mu_d_ssmetric_ecl_H = addDataToHist(results.mu_d_ssmetric_ecl_H, [mu_d_ssmetric_ecl_err(:), H_par]);
 
-    ## bin error in aligned mismatch compared to untransformed mismatch
+    ## bin error in aligned mismatch compared to untransformed super-sky mismatch
     mu_a_ssmetric_err = mu_a_ssmetric ./ mu_ssmetric - 1;
     results.mu_a_ssmetric_H = addDataToHist(results.mu_a_ssmetric_H, [mu_a_ssmetric_err(:), H_par]);
 
-    ## bin error in linear phase model I metric compared to untransformed mismatch
+    ## bin error in linear phase model I mismatch compared to untransformed super-sky mismatch
     mu_ssmetric_lpI_err = mu_ssmetric_lpI ./ mu_ssmetric - 1;
     results.mu_ssmetric_lpI_H = addDataToHist(results.mu_ssmetric_lpI_H, [mu_ssmetric_lpI_err(:), H_par]);
 
-    ## bin error in linear phase model II metric compared to untransformed mismatch
+    ## bin error in linear phase model II mismatch compared to untransformed super-sky mismatch
     mu_ssmetric_lpII_err = mu_ssmetric_lpII ./ mu_ssmetric - 1;
     results.mu_ssmetric_lpII_H = addDataToHist(results.mu_ssmetric_lpII_H, [mu_ssmetric_lpII_err(:), H_par]);
 
-    ## bin error in metric using physical coordinates compared to untransformed mismatch
+    ## bin error in mismatch using physical coordinates compared to untransformed super-sky mismatch
     mu_ssmetric_ad_err = mu_ssmetric_ad ./ mu_ssmetric - 1;
     results.mu_ssmetric_ad_H = addDataToHist(results.mu_ssmetric_ad_H, [mu_ssmetric_ad_err(:), H_par]);
 
     if full_injections
 
-      ## bin error in full software injections mismatch compared to untransformed mismatch
+      ## bin error in full software injections mismatch compared to untransformed super-sky mismatch
       mu_twoF_err = mu_twoF ./ mu_ssmetric - 1;
       results.mu_twoF_H = addDataToHist(results.mu_twoF_H, [mu_twoF_err(:), H_par]);
 
