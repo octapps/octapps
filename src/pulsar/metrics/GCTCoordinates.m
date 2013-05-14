@@ -20,16 +20,16 @@
 ##   coords         = GCTCoherentMetric(...)
 ##   [nu,...,nx,ny] = GCTCoherentMetric(...)
 ## where:
-##   coords         = vector of GCT coordinates; order matches that of GCTCoherentMetric()
+##   coords         = matrix of GCT coordinates; order matches that of GCTCoherentMetric()
 ##   nu,...         = GCT frequency and spindown coordinates
 ##   nx             = GCT equatorial-x sky coordinate
 ##   ny             = GCT equatorial-y sky coordinate
 ## Options:
 ##   "t0":          value of t0, an overall reference time
 ##   "T":           value of T, the coherent time span
-##   "alpha":       right ascension in radians
-##   "delta":       declination in radians
-##   "fndot":       frequency and spindowns in SI units
+##   "alpha":       row vector of right ascensions in radians
+##   "delta":       row vector of declinations in radians
+##   "fndot":       matrix of frequency and spindowns in SI units
 ##   "detector":    detector name, e.g. H1
 ##   "ephemerides": Earth/Sun ephemerides from loadEphemerides()
 
@@ -43,16 +43,19 @@ function varargout = GCTCoordinates(varargin)
   parseOptions(varargin,
                {"t0", "real,scalar"},
                {"T", "real,strictpos,scalar"},
-               {"alpha", "real,scalar"},
-               {"delta", "real,scalar"},
-               {"fndot", "real,vector"},
+               {"alpha", "real,vector"},
+               {"delta", "real,vector"},
+               {"fndot", "real,matrix"},
                {"detector", "char"},
                {"ephemerides", "a:swig_ref", []},
                []);
-  smax = length(fndot) - 1;
+  smax = size(fndot, 1) - 1;
 
   ## check options
   assert(smax <= 2, "Only up to second spindown supported");
+  assert(size(fndot, 2) > 0);
+  assert(all(size(alpha) == [1, size(fndot, 2)]));
+  assert(all(size(delta) == [1, size(fndot, 2)]));
   assert(isempty(strfind(detector, ",")), "Only a single detector is supported");
 
   ## load ephemerides if not supplied
@@ -75,46 +78,47 @@ function varargout = GCTCoordinates(varargin)
   ## get position of GMT at reference time t0
   zeroLong = mod(GreenwichMeanSiderealTime(LIGOTimeGPS(t0)), 2*pi);
 
-  ## compute sky position vector
-  n = [cos(alpha)*cos(delta), sin(alpha)*cos(delta), sin(delta)];
+  ## compute sky position vector in equatorial coordinates
+  n = [cos(alpha).*cos(delta); sin(alpha).*cos(delta); sin(delta)];
 
   ## extend frequency/spindown vector up to second spindown with zeros
-  fndot(end+1:3) = 0;
-  f = fndot(1);
-  fd = fndot(2);
-  fdd = fndot(3);
+  fndot(end+1:3, :) = 0;
+  f = fndot(1, :);
+  fd = fndot(2, :);
+  fdd = fndot(3, :);
 
-  ## compute dot product of orbital derivatives with sky position vector
+  ## compute orbital derivatives in equatorial coordinates, and
+  ## dot product of orbital derivatives with sky position vector
   orbit_deriv = ComputeOrbitalDerivatives(smax+1, t0, ephemerides);
-  xindot_n = zeros(orbit_deriv.length, 1);
-  for i = 1:orbit_deriv.length
-    xindot_n(i) = dot(orbit_deriv.data(i, :), n);
-  endfor
+  xindot_n = orbit_deriv.data * n;
+
+  ## initialise output coordinates
+  coord = zeros(3+smax, size(fndot, 2));
 
   ## compute GCT sky position coordinates
   tau_E = LAL_REARTH_SI / LAL_C_SI;
-  alphaD = zeroLong + detLong;
-  n_prefac = 2*pi * f * tau_E * cos(detLat) * cos(delta);
-  coord(nx) = n_prefac * cos(alpha - alphaD);
-  coord(ny) = n_prefac * sin(alpha - alphaD);
+  alphaD = detLong + zeroLong;
+  n_prefac = 2*pi .* f .* tau_E .* cos(detLat) .* cos(delta);
+  coord(nx, :) = n_prefac .* cos(alpha - alphaD);
+  coord(ny, :) = n_prefac .* sin(alpha - alphaD);
 
   ## compute GCT frequency coordinates
   nu_prefac = 2*pi * (T / 2).^(1:smax+1);
-  xi_n = xindot_n(1);
-  xid_n = xindot_n(2);
-  coord(nu) = nu_prefac(1) * (f + f*xid_n + fd*xi_n);
+  xi_n = xindot_n(1, :);
+  xid_n = xindot_n(2, :);
+  coord(nu, :) = nu_prefac(1) * (f + f.*xid_n + fd.*xi_n);
   if !isempty(nud)
-    xidd_n = xindot_n(3);
-    coord(nud) = nu_prefac(2) * (1/2*fd + 1/2*f*xidd_n + fd*xid_n + 1/2*fdd*xi_n);
+    xidd_n = xindot_n(3, :);
+    coord(nud, :) = nu_prefac(2) * (1/2.*fd + 1/2.*f.*xidd_n + fd.*xid_n + 1/2.*fdd.*xi_n);
     if !isempty(nudd)
-      xiddd_n = xindot_n(4);
-      coord(nudd) = nu_prefac(3) * (1/6*fdd + 1/6*f*xiddd_n + 1/2*fd*xidd_n + 1/2*fdd*xid_n);
+      xiddd_n = xindot_n(4, :);
+      coord(nudd, :) = nu_prefac(3) * (1/6.*fdd + 1/6.*f*xiddd_n + 1/2.*fd*xidd_n + 1/2.*fdd*xid_n);
     endif
   endif
 
   ## return coordinates, either as multiple output arguments or as a vector
   if nargout > 1
-    varargout = mat2cell(coord, 1, ones(1, length(coord)));
+    varargout = mat2cell(coord, ones(1, size(coord, 1)), size(coord, 2));
   else
     varargout = {coord};
   endif
