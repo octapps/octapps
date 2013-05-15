@@ -17,8 +17,8 @@
 ## Perform full software injections in generated SFTs using LALPulsar functions.
 ##   results = DoFstatInjections(...)
 ## Options (starred options are returned in results):
-##   ref_time: reference time in GPS seconds (default: see CreatePhaseMetric)
-##   start_time: start time in GPS seconds (default: see CreatePhaseMetric)
+##   ref_time: reference time in GPS seconds
+##   start_time: start time in GPS seconds (default: ref_time - 0.5*time_span)
 ##   time_span: observation time-span in seconds
 ##   detectors: comma-separated list of detector names
 ##   ephemerides: Earth/Sun ephemerides from loadEphemerides()

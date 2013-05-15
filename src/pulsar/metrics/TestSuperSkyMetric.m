@@ -50,6 +50,7 @@
 ##   num_cpu_seconds: number of CPU seconds to perform injections for
 ##   full_injections: whether to perform full software injections (default: true)
 ##   injection_block: number of injections to perform at once (default: 100)
+##   ptolemaic: use Ptolemaic orbital motion
 
 function results = TestSuperSkyMetric(varargin)
 

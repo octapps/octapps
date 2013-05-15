@@ -32,6 +32,7 @@
 ##   "fndot":       matrix of frequency and spindowns in SI units
 ##   "detector":    detector name, e.g. H1
 ##   "ephemerides": Earth/Sun ephemerides from loadEphemerides()
+##   "ptolemaic":   use Ptolemaic orbital motion
 
 function varargout = GCTCoordinates(varargin)
 
