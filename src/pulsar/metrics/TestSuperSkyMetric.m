@@ -26,6 +26,7 @@
 ##     a_ssmetric         = aligned super-sky metric
 ##     ssmetric_lpI       = super-sky metric computed with JKS's linear I phase model
 ##     ssmetric_lpII      = super-sky metric computed with JKS's linear II phase model
+##     gct_taylor_metric  = GCT Taylor-expanded metric computed by GCTCoherentTaylorMetric()
 ##   mismatch error histograms, with respect to untransformed mismatch:
 ##     mu_spa_ssmetric_H     = error in sky-projected aligned mismatch
 ##     mu_spd_ssmetric_equ_H = error in sky-projected un-aligned equatorial mismatch
@@ -36,6 +37,8 @@
 ##     mu_ssmetric_lpI_H     = error in linear phase model I metric compared to untransformed mismatch
 ##     mu_ssmetric_lpII_H    = error in linear phase model II metric compared to untransformed mismatch
 ##     mu_ssmetric_ad_H      = error in mismatch using physical coordinates compared to untransformed mismatch
+##     mu_gct_taylor_H       = error in mismatch using GCT Taylor-expanded metric computed by GCTCoherentTaylorMetric()
+##     mu_gct_full_H         = error in mismatch using GCT full metric computed by GCTCoherentFullMetric()
 ##     mu_twoF_H             = (optional) error in full software injections mismatch compared to untransformed mismatch
 ## Options:
 ##   spindowns: number of frequency spindowns coordinates
@@ -178,13 +181,14 @@ function results = TestSuperSkyMetric(varargin)
   onto_spa_ssmetric = sqrt(max_mismatch) * DN_spa_ssmetric * inv(CD_spa_ssmetric);
 
   ## compute the GCT coherent metric, if possible (spindowns <= 2 and only one detector)
-  if spindowns <= 2 && isempty(strfind(detectors, ","))
-    results.gct_metric = gct_metric = GCTCoherentMetric("smax", spindowns,
+  compute_gct = spindowns <= 2 && isempty(strfind(detectors, ","));
+  if compute_gct
+    results.gct_taylor_metric = GCTCoherentTaylorMetric("smax", spindowns,
                                                         "tj", start_time + 0.5 * time_span,
                                                         "t0", ref_time,
                                                         "T", time_span);
+    gct_full_metric_cache = [];
   else
-    gct_metric = [];
     fprintf("%s: not computing the GCT metric (spindowns=%i, detectors='%s')\n", funcName, spindowns, detectors);
   endif
 
@@ -205,8 +209,9 @@ function results = TestSuperSkyMetric(varargin)
   results.mu_ssmetric_lpI_H = Hist(H_args{:});
   results.mu_ssmetric_lpII_H = Hist(H_args{:});
   results.mu_ssmetric_ad_H = Hist(H_args{:});
-  if !isempty(gct_metric)
-    results.mu_gct_H = Hist(H_args{:});
+  if compute_gct
+    results.mu_gct_taylor_H = Hist(H_args{:});
+    results.mu_gct_full_H = Hist(H_args{:});
   endif
   if full_injections
     results.mu_twoF_H = Hist(H_args{:});
@@ -342,7 +347,7 @@ function results = TestSuperSkyMetric(varargin)
     ## compute mismatch in metric using physical coordinates (alpha,delta)
     mu_ssmetric_ad = dot(ad_dp, results.ssmetric * ad_dp);
 
-    if !isempty(gct_metric)
+    if compute_gct
 
       ## frequency points for computing GCT coordinates
       gct_fndot1 = [fiducial_freq*ones(1, injection_block); zeros(spindowns, injection_block)];
@@ -366,9 +371,24 @@ function results = TestSuperSkyMetric(varargin)
                                   "ephemerides", ephemerides,
                                   "ptolemaic", ptolemaic);
 
-      ## compute mismatch in the GCT metric
+      ## compute mismatch in the Taylor-expanded GCT metric
       gct_dcoord = gct_coord2 - gct_coord1;
-      mu_gct = dot(gct_dcoord, gct_metric * gct_dcoord);
+      mu_gct_taylor = dot(gct_dcoord, results.gct_taylor_metric * gct_dcoord);
+
+      ## compute the full GCT metric
+      gct_full_metric = GCTCoherentFullMetric(gct_full_metric_cache,
+                                              "smax", spindowns,
+                                              "tj", start_time + 0.5 * time_span,
+                                              "t0", ref_time,
+                                              "T", time_span,
+                                              "alpha", alpha1,
+                                              "delta", delta1,
+                                              "detector", detectors,
+                                              "ephemerides", ephemerides,
+                                              "ptolemaic", ptolemaic);
+
+      ## compute mismatch in the full GCT metric
+      mu_gct_full = arrayfun(@(n) dot(gct_dcoord(:, n), gct_full_metric(:, :, n) * gct_dcoord(:, n)), 1:injection_block);
 
     endif
 
@@ -450,11 +470,15 @@ function results = TestSuperSkyMetric(varargin)
     mu_ssmetric_ad_err = mu_ssmetric_ad ./ mu_ssmetric - 1;
     results.mu_ssmetric_ad_H = addDataToHist(results.mu_ssmetric_ad_H, [mu_ssmetric_ad_err(:), H_par]);
 
-    if !isempty(gct_metric)
+    if compute_gct
 
-      ## bin error in mismatch in the GCT metric compared to untransformed super-sky mismatch
-      mu_gct_err = mu_gct ./ mu_ssmetric - 1;
-      results.mu_gct_H = addDataToHist(results.mu_gct_H, [mu_gct_err(:), H_par]);
+      ## bin error in mismatch in the Taylor-expanded GCT metric compared to untransformed super-sky mismatch
+      mu_gct_taylor_err = mu_gct_taylor ./ mu_ssmetric - 1;
+      results.mu_gct_taylor_H = addDataToHist(results.mu_gct_taylor_H, [mu_gct_taylor_err(:), H_par]);
+
+      ## bin error in mismatch in the full GCT metric compared to untransformed super-sky mismatch
+      mu_gct_full_err = mu_gct_full ./ mu_ssmetric - 1;
+      results.mu_gct_full_H = addDataToHist(results.mu_gct_full_H, [mu_gct_full_err(:), H_par]);
 
     endif
 
