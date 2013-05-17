@@ -141,7 +141,7 @@ function varargout = GCTCoordinates(varargin)
     coord(nud, :) = nu_prefac(2) * (1/2.*fd + 1/2.*f.*xidd_n + fd.*xid_n + 1/2.*fdd.*xi_n);
     if !isempty(nudd)
       xiddd_n = xindot_n(4, :);
-      coord(nudd, :) = nu_prefac(3) * (1/6.*fdd + 1/6.*f*xiddd_n + 1/2.*fd*xidd_n + 1/2.*fdd*xid_n);
+      coord(nudd, :) = nu_prefac(3) * (1/6.*fdd + 1/6.*f.*xiddd_n + 1/2.*fd.*xidd_n + 1/2.*fdd.*xid_n);
     endif
   endif
 
