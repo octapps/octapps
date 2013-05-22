@@ -21,13 +21,15 @@
 ## where
 ##   dag_file = name of Condor DAG submit file
 ## Options:
-##   "dag_name":	name of Condor DAG, used to name DAG submit file
-##   "parent_dir":	where to write DAG submit file (default: current directory)
-##   "job_nodes":	struct array of job nodes, which has the following fields:
-##			* "file": Condor job submit file for this job
-##			* "vars": struct of variable substitutions to make
-##			* "child": array indexing child job nodes for this node
-##   "retries":		how man times to retry Condor jobs (default: 0)
+##   "dag_name":        name of Condor DAG, used to name DAG submit file
+##   "parent_dir":      where to write DAG submit file (default: current directory)
+##   "job_nodes":       struct array of job nodes, which has the following fields:
+##                      * "base": base directory where job files/directories are located
+##                      * "dir": Condor output directory for this job, relative to "base"
+##                      * "file": Condor submit file for this job, relative to "base"
+##                      * "vars": struct of variable substitutions to make
+##                      * "child": array indexing child job nodes for this node
+##   "retries":         how man times to retry Condor jobs (default: 0)
 
 function dag_file = makeCondorDAG(varargin)
 
@@ -131,7 +133,7 @@ function dag_file = makeCondorDAG(varargin)
         value = stringify(job_node.vars.(vars{i}));
         value = strrep(value, "'", "''");
         value = strrep(value, "\"", "\"\"");
-        value = strrep(value, "\\", "\\\\"); 
+        value = strrep(value, "\\", "\\\\");
         value = strrep(value, "\"", "\\\"");
         fprintf(fid, " %s=\"%s\"", vars{i}, value);
       endfor
@@ -146,7 +148,7 @@ function dag_file = makeCondorDAG(varargin)
       endfor
       fprintf(fid, "\n");
     endif
-      
+
   endfor
   fclose(fid);
 
@@ -155,6 +157,16 @@ function dag_file = makeCondorDAG(varargin)
     if !mkdir(job_out_dirs{i})
       error("%s: failed to make directory '%s'", funcName, job_out_dirs{i});
     endif
+  endfor
+
+  ## strip parent directory from job files/directories prior to saving
+  job_path_field = {"dir", "file"};
+  for i = 1:length(job_nodes);
+    job_nodes(i).base = parent_dir(1:length(parent_dir)-1);
+    for j = 1:length(job_path_fields)
+      assert(strncmp(job_nodes(i).(job_path_field{j}), parent_dir, length(parent_dir)));
+      job_nodes(i).(job_path_field{j}) = job_nodes(i).(job_path_field{j})(length(parent_dir)+1:end);
+    endfor
   endfor
 
   ## save job node data for later use
