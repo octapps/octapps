@@ -27,6 +27,9 @@ If you have SWIG (http://www.swig.org/) installed, running
 $ make
 
 will also build .oct modules which are required by some scripts.
+You will need to install the development features of Octave, i.e.
+whichever package provides the script 'mkoctfile', in order to
+compile .oct modules.
 
 To execute the OctApps test suite, consisting of tests embedded
 in Octave script files, run
