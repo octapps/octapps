@@ -18,6 +18,7 @@
 ## Calculate sensitivity in terms of the root-mean-square SNR
 ## Syntax:
 ##   [rho, pd_rho] = SensitivitySNR(pd, Ns, Rsqr_H, detstat, ...)
+##   ...           = SensitivitySNR(..., "progress")
 ## where:
 ##   rho     = detectable r.m.s. SNR (per segment)
 ##   pd_rho  = calculated false dismissal probability
@@ -31,23 +32,27 @@
 ##         see SensitivityChiSqrFDP for possible options
 ##      "HoughFstat": Hough on the F-statistic
 ##         see SensitivityHoughFstatFDP for possible options
+## options:
+##   "progress": show progress updates
 
 function [rho, pd_rho] = SensitivitySNR(pd, Ns, Rsqr_H, detstat, varargin)
-
-  ## display progress updates?
-  global sensitivity_progress;
-  if isempty(sensitivity_progress)
-    sensitivity_progress = false;
-  endif
-  if sensitivity_progress
-    old_pso = page_screen_output(0);
-    printf("%s: starting\n", funcName);
-  endif
 
   ## check input
   assert(all(pd > 0));
   assert(all(Ns > 0));
   assert(isHist(Rsqr_H) || isscalar(Rsqr_H));
+
+  ## show progress updates?
+  show_progress = false;
+  i = find(strcmp(varargin, "progress"));
+  if !isempty(i)
+    varargin(i) = [];
+    show_progress = true;
+  endif
+  if show_progress
+    old_pso = page_screen_output(0);
+    printf("%s: starting\n", funcName);
+  endif
 
   ## select a detection statistic
   switch detstat
@@ -134,7 +139,7 @@ function [rho, pd_rho] = SensitivitySNR(pd, Ns, Rsqr_H, detstat, varargin)
   do
 
     ## display progress updates?
-    if sensitivity_progress && sum(ii) != sumii
+    if show_progress && sum(ii) != sumii
       sumii = sum(ii);
       printf("%s: finding rhosqr_max (%i left)\n", funcName, sumii);
     endif
@@ -160,7 +165,7 @@ function [rho, pd_rho] = SensitivitySNR(pd, Ns, Rsqr_H, detstat, varargin)
   do
 
     ## display progress updates?
-    if sensitivity_progress && sum(ii) != sumii
+    if show_progress && sum(ii) != sumii
       sumii = sum(ii);
       printf("%s: bifurcation search (%i left)\n", funcName, sumii);
     endif
@@ -199,7 +204,7 @@ function [rho, pd_rho] = SensitivitySNR(pd, Ns, Rsqr_H, detstat, varargin)
   pd_rho = reshape(pd_rho, siz);
   
   ## display progress updates?
-  if sensitivity_progress
+  if show_progress
     printf("%s: done\n", funcName);
     page_screen_output(old_pso);
   endif
