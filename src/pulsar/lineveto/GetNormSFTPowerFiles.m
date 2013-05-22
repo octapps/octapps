@@ -287,30 +287,36 @@ function formatstring_body = write_header_to_file ( params_init )
   m++;
   columnlabels{m} = "freq";
   if ( params_init.output_align == 1 )
-   formatstring_body = [formatstring_body, "%%%d.6f "];
+   formatstring_body = [formatstring_body, "%%%d.6f"];
    columnwidths(m) = 11;
   else
-   formatstring_body = [formatstring_body, "%.6f "];
+   formatstring_body = [formatstring_body, "%.6f"];
   endif
  endif
  if ( params_init.output_normSFT == 1 )
   m++;
   columnlabels{m} = "normSFTpower";
+  if (m > 1 )
+   formatstring_body = [formatstring_body, " "];
+  endif
   if ( params_init.output_align == 1 )
-   formatstring_body = [formatstring_body, "%%%d.6f "];
+   formatstring_body = [formatstring_body, "%%%d.6f"];
    columnwidths(m) = 11;
   else
-   formatstring_body = [formatstring_body, "%.6f "];
+   formatstring_body = [formatstring_body, "%.6f"];
   endif
  endif
  if ( params_init.output_01 == 1 )
   m++;
   columnlabels{m} = ">thresh?";
+  if (m > 1 )
+   formatstring_body = [formatstring_body, " "];
+  endif
   if ( params_init.output_align == 1 )
    formatstring_body = [formatstring_body, "%%%dd"];
    columnwidths(m) = 1;
   else
-   formatstring_body = [formatstring_body, "%d "];
+   formatstring_body = [formatstring_body, "%d"];
   endif
  endif
  formatstring_body = [formatstring_body, "\n"];
