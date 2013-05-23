@@ -123,7 +123,7 @@ function ret = GetNormSFTPowerFiles ( varargin )
   printf("Frequency band %d/%d: processing [%f,%f] Hz...\n", curr_step, num_freqsteps, curr_freq, curr_freq+curr_band );
 
   # get the correct sft range, adding running median sideband
-  [sftstartfreq, num_sfts_to_load] = get_sft_range ( params_init, curr_freq );
+  [sftstartfreq, num_sfts_to_load] = get_sft_range ( params_init, curr_freq, curr_band );
 
   # find all required sfts
   [sfts, firstsft] = get_EatH_sft_paths ( params_init, sftstartfreq, num_sfts_to_load, params_init.IFO );
@@ -259,12 +259,12 @@ function [params_init] = check_input_parameters ( params_init )
 endfunction # check_input_parameters()
 
 
-function [sftstartfreq, num_sfts_to_load] = get_sft_range ( params_init, startfreq )
- ## [sftstartfreq, num_sfts_to_load] = get_sft_range ( params_init, startfreq )
+function [sftstartfreq, num_sfts_to_load] = get_sft_range ( params_init, startfreq, freqband )
+ ## [sftstartfreq, num_sfts_to_load] = get_sft_range ( params_init, startfreq, freqband )
  ## function to compute the necessary SFT start frequency and the number of (contiguous) SFTs starting from there
 
  sftstartfreq = floor(20*startfreq)/20; # round down to get SFT file containing the startfreq
- num_sfts_to_load = ceil ( params_init.freqstep / params_init.sft_width );
+ num_sfts_to_load = ceil ( freqband / params_init.sft_width );
  rngmed_wing = fix(params_init.rngmedbins/2 + 1) * params_init.sft_dfreq;
 
  # load more SFTs if below the lower boundary
@@ -274,7 +274,7 @@ function [sftstartfreq, num_sfts_to_load] = get_sft_range ( params_init, startfr
  endwhile
 
  # load more SFTs if above the upper boundary
- while ( startfreq + params_init.freqstep + rngmed_wing >= sftstartfreq + num_sfts_to_load*params_init.sft_width - params_init.sft_dfreq )
+ while ( startfreq + freqband + rngmed_wing >= sftstartfreq + num_sfts_to_load*params_init.sft_width - params_init.sft_dfreq )
   num_sfts_to_load++;
  endwhile
 
