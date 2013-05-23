@@ -149,9 +149,14 @@ function ret = GetNormSFTPowerFiles ( varargin )
   psd = load(params_psd.outputPSD);
 
   # avoid duplication of boundary bins (might become unnecessary with patches to lalapps_ComputePSD and/or XLALLoadSFTs)
+  first_freq = psd(1,1);
   if ( curr_step > 1 )
-   first_freq = psd(1,1);
    while ( first_freq <= last_freq )
+    psd(1,:)=[];
+    first_freq = psd(1,1);
+   endwhile
+  else
+   while ( first_freq < params_init.freqmin )
     psd(1,:)=[];
     first_freq = psd(1,1);
    endwhile
