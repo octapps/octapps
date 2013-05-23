@@ -77,6 +77,7 @@ function ret = GetNormSFTPowerFiles ( varargin )
  params_psd.outputNormSFT = 1;
  params_psd.PSDmthopSFTs  = 1;
  params_psd.FreqBand      = params_init.freqstep;
+ params_psd.FreqBand += params_init.sft_dfreq; # add an extra bin safety as a workaround to possible one-bin-shift-down in lalapps_ComputePSD / XLALLoadSFTs - will be removed from output afterwards
  params_psd.blocksRngMed  = params_init.rngmedbins;
  if ( length(params_init.timestampsfile) > 0 )
   params_psd.timeStampsFile = params_init.timestampsfile;
@@ -134,12 +135,29 @@ function ret = GetNormSFTPowerFiles ( varargin )
    printf("num_SFTs=%d, threshold=%f\n", num_SFTs, thresh);
   endif
 
-  # get normalized SFT power
+  # get PSD and normalized SFT power
   params_psd.Freq           = curr_freq;
   params_psd.inputData      = sfts;
   params_psd.outputPSD      = [params_init.workingdir, filesep, "psd_med_", num2str(params_psd.blocksRngMed), "_band_", int2str(curr_step), ".dat"];
   runCode ( params_psd, ComputePSD );
   psd = load(params_psd.outputPSD);
+
+  # avoid duplication of boundary bins (might become unnecessary with patches to lalapps_ComputePSD and/or XLALLoadSFTs)
+  if ( curr_step > 1 )
+   first_freq = psd(1,1);
+   while ( first_freq <= last_freq )
+    psd(1,:)=[];
+    first_freq = psd(1,1);
+   endwhile
+  endif
+  last_freq = psd(end,1);
+  # also remove bins higher than the requested range (might happen due to extra safety above)
+  while ( last_freq > params_init.freqmax )
+   psd(end,:)=[];
+   last_freq = psd(end,1);
+  endwhile
+
+  # get the results
   normSFTpower = cat(1,normSFTpower,psd(:,3));
   if ( params_init.output_detail == 1 )
    frequencies = cat(1,frequencies,psd(:,1));
