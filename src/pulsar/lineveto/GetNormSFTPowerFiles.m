@@ -37,17 +37,16 @@ function ret = GetNormSFTPowerFiles ( varargin )
                      {"lalpath", "char", ""},
                      {"outfile", "char", "normSFTpower.dat"},
                      {"rngmedbins", "numeric,scalar", 101},
-                     {"output_column_headings", "numeric,scalar", 1},
-                     {"output_align", "numeric,scalar", 1},
-                     {"output_freq", "numeric,scalar", 1},
-                     {"output_normSFT", "numeric,scalar", 1},
-                     {"output_01", "numeric,scalar", 0},
-                     {"SFTpower_thresh", "numeric,scalar", 0},
-                     {"SFTpower_fA", "numeric,scalar", 0},
+                     {"outfile_detail", "char", ""},
+                     {"SFTpower_thresh", "numeric,scalar", 0}, # only needed for outfile_detail
+                     {"SFTpower_fA", "numeric,scalar", 0}, # only needed for outfile_detail
                      {"debug", "numeric,scalar", 0},
                      {"cleanup", "numeric,scalar", 1}
                 );
  writeCommandLineToFile ( params_init.outfile, params_init, mfilename );
+ if ( length(params_init.outfile_detail) > 0 )
+  writeCommandLineToFile ( params_init.outfile_detail, params_init, mfilename );
+ endif
  params_init = check_input_parameters ( params_init ); # this already processes some of the input params, so have to do output before
 
  format long;
@@ -59,7 +58,15 @@ function ret = GetNormSFTPowerFiles ( varargin )
  endif
 
  # save resuls to file as an ascii matrix with custom header
- formatstring_body = write_header_to_file (params_init );
+ lalapps_version_string = getLalAppsVersionInfo ([params_init.lalpath, "lalapps_ComputePSD"]);
+ fid = fopen ( params_init.outfile, "a" ); # append mode (commandline has already been written into this file)
+ fprintf ( fid, lalapps_version_string );
+ fprintf ( fid, "# startfreq is in first line\n" );
+ fprintf ( fid, "%.6f\n", params_init.freqmin );
+ fclose ( params_init.outfile );
+ if ( params_init.output_detail == 1 )
+  formatstring_body = write_header_to_details_file (params_init.outfile_detail, lalapps_version_string );
+ endif
 
  # prepare PSD code and parameters
  if ( params_init.debug == 0 )
@@ -134,10 +141,8 @@ function ret = GetNormSFTPowerFiles ( varargin )
   runCode ( params_psd, ComputePSD );
   psd = load(params_psd.outputPSD);
   normSFTpower = cat(1,normSFTpower,psd(:,3));
-  if ( params_init.output_freq == 1 )
+  if ( params_init.output_detail == 1 )
    frequencies = cat(1,frequencies,psd(:,1));
-  endif
-  if ( params_init.output_01 == 1 )
    thresh_crossings = cat(1,thresh_crossings,ge(psd(:,3),thresh));
   endif
   if ( params_init.cleanup == 1 )
@@ -145,10 +150,17 @@ function ret = GetNormSFTPowerFiles ( varargin )
   endif
 
   # write results from this band and clear memory
-  write_results_to_file (params_init, formatstring_body, frequencies, normSFTpower, thresh_crossings );
+  fid = fopen ( params_init.outfile, "a" ); # append mode (header has already been written into this file)
+  fprintf ( fid, "%f\n", normSFTpower );
+  fclose ( params_init.outfile );
+  if ( params_init.output_detail == 1 )
+   fid = fopen ( params_init.outfile_detail, "a" ); # append mode (header has already been written into this file)
+   fprintf ( fid, formatstring_body, [frequencies, normSFTpower, thresh_crossings]' ); # fprintf prints matrices/vectors in column-major order, so have to cat and transpose here
+   fclose ( params_init.outfile_detail );
+   thresh_crossings = [];
+   frequencies      = [];
+  endif
   normSFTpower     = [];
-  thresh_crossings = [];
-  frequencies      = [];
 
  endwhile # main loop over freqbands
 
@@ -210,24 +222,10 @@ function [params_init] = check_input_parameters ( params_init )
   error(["Invalid input parameter (timestampsfile): ", params_init.timestampsfile, " is neither 'none' nor an existing file."]);
  endif
 
- if ( ( params_init.output_column_headings != 0 ) && ( params_init.output_column_headings != 1 ) )
-  error(["Invalid input parameter (output_column_headings): ", int2str(params_init.output_column_headings), " is neither 0 or 1."])
- endif
-
- if ( ( params_init.output_align != 0 ) && ( params_init.output_align != 1 ) )
-  error(["Invalid input parameter (output_align): ", int2str(params_init.output_align), " is neither 0 or 1."])
- endif
-
- if ( ( params_init.output_freq != 0 ) && ( params_init.output_freq != 1 ) )
-  error(["Invalid input parameter (output_freq): ", int2str(params_init.output_freq), " is neither 0 or 1."])
- endif
-
- if ( ( params_init.output_normSFT != 0 ) && ( params_init.output_normSFT != 1 ) )
-  error(["Invalid input parameter (output_normSFT): ", int2str(params_init.output_normSFT), " is neither 0 or 1."])
- endif
-
- if ( ( params_init.output_01 != 0 ) && ( params_init.output_01 != 1 ) )
-  error(["Invalid input parameter (output_01): ", int2str(params_init.cleanup), " is neither 0 or 1."])
+ if ( length(params_init.outfile_detail) > 0 ) # set bool variable to avoid checking length every time
+  params_init.output_detail = 1;
+ else
+  params_init.output_detail = 0;
  endif
 
  if ( params_init.SFTpower_thresh < 0 )
@@ -271,117 +269,37 @@ function [sftstartfreq, num_sfts_to_load] = get_sft_range ( params_init, startfr
 endfunction # get_sft_range()
 
 
-function formatstring_body = write_header_to_file ( params_init )
- ## formatstring_body = write_header_to_file ( params_init )
- ## save outliers to file as an ascii matrix with custom header
+function formatstring_body = write_header_to_details_file ( outfile_detail, lalapps_version_string )
+ ## formatstring_body = write_header_to_details_file ( outfile_detail, lalapps_version_string )
+ ## prepare file for detailed results with aligned column headings
+ ## also produce the body formatstring for the main output with correct alignment
 
- lalapps_version_string = getLalAppsVersionInfo ([params_init.lalpath, "lalapps_ComputePSD"]);
-
- fid = fopen ( params_init.outfile, "a" ); # append mode (commandline has already been written into this file)
+ fid = fopen ( outfile_detail, "a" ); # append mode (commandline has already been written into this file)
 
  fprintf ( fid, lalapps_version_string );
 
+ # set up labels and widths
  formatstring_body = "";
- m = 0;
- if ( params_init.output_freq == 1 )
-  m++;
-  columnlabels{m} = "freq";
-  if ( params_init.output_align == 1 )
-   formatstring_body = [formatstring_body, "%%%d.6f"];
-   columnwidths(m) = 11;
-  else
-   formatstring_body = [formatstring_body, "%.6f"];
-  endif
- endif
- if ( params_init.output_normSFT == 1 )
-  m++;
-  columnlabels{m} = "normSFTpower";
-  if (m > 1 )
-   formatstring_body = [formatstring_body, " "];
-  endif
-  if ( params_init.output_align == 1 )
-   formatstring_body = [formatstring_body, "%%%d.6f"];
-   columnwidths(m) = 11;
-  else
-   formatstring_body = [formatstring_body, "%.6f"];
-  endif
- endif
- if ( params_init.output_01 == 1 )
-  m++;
-  columnlabels{m} = ">thresh?";
-  if (m > 1 )
-   formatstring_body = [formatstring_body, " "];
-  endif
-  if ( params_init.output_align == 1 )
-   formatstring_body = [formatstring_body, "%%%dd"];
-   columnwidths(m) = 1;
-  else
-   formatstring_body = [formatstring_body, "%d"];
-  endif
- endif
- formatstring_body = [formatstring_body, "\n"];
+ columnlabels = {"freq","normSFTpower",">thresh?"};
+ columnwidths = [11,11,1]; # 4+6+1 for floats, 1 for int
+ formatstring_body = "%%%d.6f %%%d.6f %%%dd\n";
 
- if ( params_init.output_freq == 0 )
-  fprintf ( fid, "# startfreq is in first line\n" );
-  fprintf ( fid, "%.6f\n", params_init.freqmin );
- endif
-
- if ( params_init.output_column_headings == 1 )
-  fprintf ( fid, "# columns:\n" );
-  formatstring_header = "#";
-  if ( params_init.output_align == 1 ) # pad headings if numbers will be wider
-   for n = 1:1:length(columnlabels)
-    formatstring_header = [formatstring_header, " %%%ds"];
-    columnwidths(n) = max(length(columnlabels{n}),columnwidths(n));
-   endfor
-   formatstring_header = sprintf(formatstring_header, columnwidths);
-  else
-   for n = 1:1:length(columnlabels)
-    formatstring_header = [formatstring_header, " %s"];
-   endfor
-  endif
-  formatstring_header = [formatstring_header, "\n"];
-  fprintf ( fid, formatstring_header, columnlabels{:} );
- endif
-
- # prepare body format
- if ( params_init.output_align == 1 )
-  if ( params_init.output_column_headings == 1 )
-   columnwidths(1) += 2; # now need to pad for leading "# " in heading also
-  endif
-  formatstring_body = sprintf(formatstring_body, columnwidths); # pad to standard width
- endif
-
- # done
- fclose ( params_init.outfile );
-
-endfunction # write_header_to_file()
-
-
-function write_results_to_file ( params_init, formatstring, frequencies, normSFTpower, thresh_crossings )
- ## write_results_to_file ( params_init, formatstring, frequencies, normSFTpower, thresh_crossings )
- ## save outliers to file as an ascii matrix with custom header
-
- fid = fopen ( params_init.outfile, "a" ); # append mode (commandline has already been written into this file)
-
- for n=1:1:length(normSFTpower)
-  m = 0;
-  if ( params_init.output_freq == 1 )
-   m++;
-   outvalues{m} = frequencies(n);
-  endif
-  if ( params_init.output_normSFT == 1 )
-   m++;
-   outvalues{m} = normSFTpower(n);
-  endif
-  if ( params_init.output_01 == 1 )
-   m++;
-   outvalues{m} = thresh_crossings(n);
-  endif
-  fprintf ( fid, formatstring, outvalues{:} );
+ # write the column headings line with alignment
+ fprintf ( fid, "# columns:\n" );
+ formatstring_header = "#";
+ for n = 1:1:length(columnlabels)
+  formatstring_header = [formatstring_header, " %%%ds"];
+  columnwidths(n) = max(length(columnlabels{n}),columnwidths(n));
  endfor
+ formatstring_header = sprintf(formatstring_header, columnwidths);
+ formatstring_header = [formatstring_header, "\n"];
+ fprintf ( fid, formatstring_header, columnlabels{:} );
+
+ # prepare body format with alignment
+ columnwidths(1) += 2; # now need to pad for leading "# " in heading also
+ formatstring_body = sprintf(formatstring_body, columnwidths); # pad to standard width
 
  # done
- fclose ( params_init.outfile );
+ fclose ( outfile_detail );
 
-endfunction # write_results_to_file()
+endfunction # write_header_to_details_file()
