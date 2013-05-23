@@ -76,17 +76,17 @@ function ret = GetNormSFTPowerFiles ( varargin )
  endif
  params_psd.outputNormSFT = 1;
  params_psd.PSDmthopSFTs  = 1;
- params_psd.FreqBand      = params_init.freqstep;
- params_psd.FreqBand += params_init.sft_dfreq; # add an extra bin safety as a workaround to possible one-bin-shift-down in lalapps_ComputePSD / XLALLoadSFTs - will be removed from output afterwards
  params_psd.blocksRngMed  = params_init.rngmedbins;
  if ( length(params_init.timestampsfile) > 0 )
   params_psd.timeStampsFile = params_init.timestampsfile;
  endif
  thresh = params_init.SFTpower_thresh;
 
- # count necessary freqbands and sfts
- # NOTE: rounded down, freqmax may not be reached if freqmax-freqmin is not an integer multiple of freqstep
+ # count necessary freqbands and sfts; last band might be smaller if freqmax-freqmin is not an integer multiple of freqstep
  num_freqsteps = floor ( ( params_init.freqmax - params_init.freqmin ) / params_init.freqstep + SMALL_EPS );
+ if ( params_init.freqmin + num_freqsteps*params_init.freqstep < params_init.freqmax )
+  num_freqsteps++;
+ endif
 
  # prepare output structs and counting variables
  normSFTpower     = [];
@@ -111,8 +111,12 @@ function ret = GetNormSFTPowerFiles ( varargin )
 
   curr_step++;
   curr_freq = params_init.freqmin + (curr_step-1)*params_init.freqstep;
+  curr_band = params_init.freqstep;
+  if ( curr_step == num_freqsteps ) # at upper end, might need a smaller band if freqmax-freqmin is not an integer multiple of freqstep
+   curr_band = params_init.freqmax - curr_freq;
+  endif
 
-  printf("Frequency band %d/%d: processing [%f,%f] Hz...\n", curr_step, num_freqsteps, curr_freq, curr_freq+params_init.freqstep );
+  printf("Frequency band %d/%d: processing [%f,%f] Hz...\n", curr_step, num_freqsteps, curr_freq, curr_freq+curr_band );
 
   # get the correct sft range, adding running median sideband
   [sftstartfreq, num_sfts_to_load] = get_sft_range ( params_init, curr_freq );
@@ -137,6 +141,8 @@ function ret = GetNormSFTPowerFiles ( varargin )
 
   # get PSD and normalized SFT power
   params_psd.Freq           = curr_freq;
+  params_psd.FreqBand       = curr_band;
+  params_psd.FreqBand += params_init.sft_dfreq; # add an extra bin safety as a workaround to possible one-bin-shift-down in lalapps_ComputePSD / XLALLoadSFTs - will be removed from output afterwards
   params_psd.inputData      = sfts;
   params_psd.outputPSD      = [params_init.workingdir, filesep, "psd_med_", num2str(params_psd.blocksRngMed), "_band_", int2str(curr_step), ".dat"];
   runCode ( params_psd, ComputePSD );
