@@ -116,7 +116,7 @@ function ret = GetNormSFTPowerFiles ( varargin )
    curr_band = params_init.freqmax - curr_freq;
   endif
   if ( curr_step > 1 ) # if doing multiple steps, avoid duplicating the boundary bin frequencies
-   curr_freq +=  params_init.sft_dfreq;
+   curr_freq +=  1.01*params_init.sft_dfreq;
    curr_band -=  params_init.sft_dfreq;
   endif
 
