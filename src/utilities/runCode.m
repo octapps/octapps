@@ -16,15 +16,16 @@
 ## <http://www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn {Function File} {} runCode(@var{params}, @var{code})
+## @deftypefn {Function File} {} runCode(@var{params}, @var{code}, [@var{verbose}=false])
 ## @deftypefnx{Function File} {@var{output} =} runCode(@dots{})
 ##
 ## Generic code-running driver: run @var{code}, passing any command-line
 ## options in the struct @var{params}, which are passed to @var{code}
-## in --name=val format.
+## in ---name=val format. Use @var{params}.LAL_DEBUG_LEVEL to set the LAL
+## debug level. If @var{verbose} is true, print command before running it.
 ## @end deftypefn
 
-function output = runCode(params, code)
+function output = runCode(params, code, verbose=false)
 
   ## check input
   if ( !exist("params" ) )
@@ -34,7 +35,13 @@ function output = runCode(params, code)
     error("%s: missing function argument 'code'", funcName);
   endif
 
-  ## build command line
+  ## set LAL debug level to 1 by default
+  if ( !isfield(params, "LAL_DEBUG_LEVEL") )
+    params.LAL_DEBUG_LEVEL = 1;
+  endif
+
+  ## build command line and environment
+  env = "";
   cmdline = code;
   option_names = fieldnames ( params );
   for i = 1:length(option_names)
@@ -52,36 +59,33 @@ function output = runCode(params, code)
       error ("%s: Field '%s' is neither a string, bool or real scalar!\n", funcName, option );
     endif
 
-    if length(option) == 1
+    if strcmp( option, "LAL_DEBUG_LEVEL" )
+      env = sprintf( "export LAL_DEBUG_LEVEL='%s'; ", valstr );
+    elseif length(option) == 1
       cmdline = strcat ( cmdline, " -", option, valstr );
     else
       cmdline = strcat ( cmdline, " --", option, "=", valstr );
     endif
 
   endfor
-
-  ## print command line in debug mode
-  if ( isfield(params, "v") )
-    lalDebugLevel = params.v;
-  elseif ( isfield(params, "d") )
-    lalDebugLevel = params.d;
-  else
-    lalDebugLevel = 0;
-  endif
-  if ( lalDebugLevel )
-    fprintf ( stdout, "%s: executing (%s)\n", funcName, cmdline );
-    fflush ( stdout );
-  endif
+  cmdline = cstrcat(env, cmdline);
 
   ## run command
   unmanglePATH;
+  if ( verbose )
+    fprintf ( stdout, "%s: executing >>> %s <<<\n", funcName, cmdline );
+    fflush ( stdout );
+  endif
   if nargout > 0
     [status, output] = system(cmdline);
   else
     status = system(cmdline);
   endif
   if ( status != 0 )
-    error ("%s: (%s) failed with exit status %i", funcName, cmdline, status);
+    error ("%s: %s failed with exit status %i", funcName, code, status);
+  elseif ( verbose )
+    fprintf ( stdout, "%s: %s completed successfully!\n", funcName, code );
+    fflush ( stdout );
   endif
 
 endfunction
