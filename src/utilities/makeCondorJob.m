@@ -206,6 +206,7 @@ function job_file = makeCondorJob(varargin)
   env_vars.PATH = sprintf("${PWD}/%s:${PATH}", execdir);
   env_vars.OCTAVE_PATH = sprintf("${PWD}/%s:${OCTAVE_PATH}", funcdir);
   env_vars.OCTAVE_HISTFILE = "/dev/null";
+  env_vars.LAL_DEBUG_LEVEL = "1";
 
   ## build bootstrap script, which sets up environment, then executes Octave
   bootstr = "";
