@@ -46,7 +46,7 @@ function hgrmt = addHists(hgrm1, hgrm2)
   for i = 1:dim
 
     ## get cell array of all (finite) histogram bins in this dimension
-    binsi = cellfun(@(h) h.bins{i}(isfinite(h.bins{i})), {hgrm1, hgrm2}, "UniformOutput", false);
+    binsi = {hgrm1.bins{i}(isfinite(hgrm1.bins{i})), hgrm2.bins{i}(isfinite(hgrm2.bins{i}))};
 
     ## round histogram bins to common boundaries
     [binsi{1:length(binsi)}] = roundHistBinBounds(binsi{:});
