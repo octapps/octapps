@@ -217,4 +217,7 @@ function results = DoFstatInjections(varargin)
   endfor
   EmptyComputeFBuffer(CFSbuffer);
 
+  ## change any NaNs in F-statistic to Infs
+  results.sch_twoF(isnan(results.sch_twoF)) = inf;
+
 endfunction
