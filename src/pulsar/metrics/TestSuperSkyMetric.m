@@ -429,6 +429,9 @@ function results = TestSuperSkyMetric(varargin)
 
       endfor
 
+      ## change any NaNs to Infs
+      mu_twoF(isnan(mu_twoF)) = inf;
+
     endif
 
     ## build error histogram parameters
