@@ -15,26 +15,38 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## Adds histograms together.
+## Add two histograms together. If one histogram is [],
+## the other is returned.
 ## Syntax:
-##   hgrmt = addHists(hgrm, hgrm, ...)
+##   hgrmt = addHists(hgrm1, hgrm2)
 ## where:
-##   hgrm  = histogram classes
-##   hgrmt = total histogram
+##   hgrm{1,2} = histograms to add
+##   hgrmt     = total histogram
 
-function hgrm = addHists(varargin)
+function hgrmt = addHists(hgrm1, hgrm2)
 
   ## check input
-  assert(length(varargin) > 0);
-  assert(all(cellfun(@(h) isHist(h), varargin)));
-  dim = unique(cellfun(@(h) length(h.bins), varargin));
-  assert(isscalar(dim));
+  assert(nargin == 2);
+  assert(isHist(hgrm1) || isHist(hgrm2), "One of hgrm{1,2} must be a valid histogram class");
+
+  ## if one histogram is [], return the other.
+  if isempty(hgrm1)
+    hgrmt = hgrm2;
+    return;
+  elseif isempty(hgrm2)
+    hgrmt = hgrm1;
+    return;
+  endif
+
+  ## check histogram dimensions match
+  dim = length(hgrm1.bins);
+  assert(dim == length(hgrm2.bins), "Histograms hgrm{1,2} must have the same dimensionality");
 
   ## iterate over histogram dimensions
   for i = 1:dim
 
     ## get cell array of all (finite) histogram bins in this dimension
-    binsi = cellfun(@(h) h.bins{i}(isfinite(h.bins{i})), varargin, "UniformOutput", false);
+    binsi = cellfun(@(h) h.bins{i}(isfinite(h.bins{i})), {hgrm1, hgrm2}, "UniformOutput", false);
 
     ## round histogram bins to common boundaries
     [binsi{1:length(binsi)}] = roundHistBinBounds(binsi{:});
@@ -47,18 +59,21 @@ function hgrm = addHists(varargin)
 
   endfor
 
-  ## create output histogram with fixed bins
-  hgrm = Hist(dim, bins{:});
+  ## resample 1st histogram to total histogram bins to create total histogram
+  hgrmt = resampleHist(hgrm1, bins{:});
 
-  ## iterate over histograms to add
-  for n = 1:length(varargin)
+  ## resample 2nd histogram to total histogram bins
+  hgrm2 = resampleHist(hgrm2, bins{:});
 
-    ## resample nth histogram to total histogram bins
-    hgrmn = resampleHist(varargin{n}, bins{:});
-
-    ## add probabilities
-    hgrm.counts += hgrmn.counts;
-
-  endfor
+  ## add counts
+  hgrmt.counts += hgrm2.counts;
 
 endfunction
+
+
+%!test
+%! hgrm1 = addDataToHist(Hist(1, 0:12), 0.5 + (0:11)');
+%! hgrm2 = addDataToHist(Hist(1, 0:3:12), 0.5 + (0:11)');
+%! hgrmt = addHists(hgrm1, hgrm2);
+%! p = histProbs(hgrmt);
+%! assert(length(p) == 14 && p(2:end-1) == 1/12);
