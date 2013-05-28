@@ -38,13 +38,7 @@ function varargout = histBinGrids(hgrm, k, varargin)
     binq = histBins(hgrm, k, varargin{i});
 
     ## return binq duplicated over all dimensions != k
-    ## taken from ndgrid.m
-    shape = size(hgrm.counts);
-    r = ones(size(shape));
-    r(k) = shape(k);
-    s = shape;
-    s(k) = 1;
-    varargout{i} = repmat(reshape(binq, r), s);
+    varargout{i} = replOver(binq, setdiff(1:length(hgrm.bins), k), size(hgrm.counts));
 
   endfor
 

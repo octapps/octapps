@@ -34,19 +34,8 @@ function hgrm = contractHist(hgrm, newdims)
   hgrm.bins = hgrm.bins(newdims);
   hgrm.bintype = hgrm.bintype(newdims);
 
-  ## permute count array to new dimensions are first
-  perm = 1:dim;
-  perm(newdims) = [];
-  perm = [newdims, perm];
-  hgrm.counts = permute(hgrm.counts, perm);
-
-  ## flatten dimensions which are being contracted
-  siz = size(hgrm.counts);
-  n = length(newdims);
-  hgrm.counts = reshape(hgrm.counts, [siz(1:n), prod(siz(n+1:end))]);
-
   ## sum up counts over contracted dimensions
-  hgrm.counts = sum(hgrm.counts, n+1);
+  hgrm.counts = sumOver(hgrm.counts, setdiff(1:dim, newdims));
 
 endfunction
 
