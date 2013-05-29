@@ -228,7 +228,7 @@ function job_file = makeCondorJob(varargin)
   endif
   if func_nargout > 0
     evalstr = strcat(evalstr, sprintf("tic;[results{1:%i}]=%s;elapsed=toc;", func_nargout, callfuncstr));
-    evalstr = strcat(evalstr, sprintf("save(\"-hdf5\",\"stdres.h5\",\"arguments\",\"results\",\"elapsed\");", evalstr));
+    evalstr = strcat(evalstr, sprintf("save(\"-zip\",\"stdres.txt.gz\",\"arguments\",\"results\",\"elapsed\");", evalstr));
   else
     evalstr = strcat(evalstr, callfuncstr, ";");
   endif
