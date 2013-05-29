@@ -412,14 +412,14 @@ endfunction
 %! parent_dir = fileparts(which("TestFlatLatticeTiling"));
 %! square_ref = TestFlatLatticeTiling("tiling", {"freq_square", "time_span", 864000, "fndot", [100, -1e-7], "fndot_bands", [1e-8, 1e-7]}, ...
 %!                                    "lattice", "Ans", "max_mismatch", 3.0, "num_injections", 0, "return_points", true);
-%! save("-hdf5", fullfile(parent_dir, "TestFlatLatticeTiling_square_ref.h5"), "square_ref");
+%! save("-zip", fullfile(parent_dir, "TestFlatLatticeTiling_square_ref.txt.gz"), "square_ref");
 
 %!#demo
 %! parent_dir = fileparts(which("TestFlatLatticeTiling"));
 %! agebrake_ref = TestFlatLatticeTiling("tiling", {"freq_agebrake", "time_span", 864000, "freq", 100, "freq_band", 1e-8, ...
 %!                                                 "age", 3e9, "f1dot_brake", [2, 7], "f2dot_brake", [2, 7]}, ...
 %!                                      "lattice", "Ans", "max_mismatch", 3.0, "num_injections", 0, "return_points", true);
-%! save("-hdf5", fullfile(parent_dir, "TestFlatLatticeTiling_agebrake_ref.h5"), "agebrake_ref");
+%! save("-zip", fullfile(parent_dir, "TestFlatLatticeTiling_agebrake_ref.txt.gz"), "agebrake_ref");
 
 ## Test flat lattice tiling against reference template banks
 
@@ -430,7 +430,7 @@ endfunction
 %!   disp("*** LALSuite modules not available; skipping test ***"); return;
 %! end_try_catch
 %! parent_dir = fileparts(which("TestFlatLatticeTiling"));
-%! load(fullfile(parent_dir, "TestFlatLatticeTiling_square_ref.h5"));
+%! load(fullfile(parent_dir, "TestFlatLatticeTiling_square_ref.txt.gz"));
 %! square = TestFlatLatticeTiling("tiling", {"freq_square", "time_span", 864000, "fndot", [100, -1e-7], "fndot_bands", [1e-8, 1e-7]}, ...
 %!                                "lattice", "Ans", "max_mismatch", 3.0, "num_injections", 1000, "return_points", true);
 %! assert(square.num_templates == square_ref.num_templates);
@@ -445,7 +445,7 @@ endfunction
 %!   disp("*** LALSuite modules not available; skipping test ***"); return;
 %! end_try_catch
 %! parent_dir = fileparts(which("TestFlatLatticeTiling"));
-%! load(fullfile(parent_dir, "TestFlatLatticeTiling_agebrake_ref.h5"));
+%! load(fullfile(parent_dir, "TestFlatLatticeTiling_agebrake_ref.txt.gz"));
 %! agebrake = TestFlatLatticeTiling("tiling", {"freq_agebrake", "time_span", 864000, "freq", 100, "freq_band", 1e-8, ...
 %!                                             "age", 3e9, "f1dot_brake", [2, 7], "f2dot_brake", [2, 7]}, ...
 %!                                  "lattice", "Ans", "max_mismatch", 3.0, "num_injections", 1000, "return_points", true);
