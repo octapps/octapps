@@ -160,12 +160,12 @@ function dag_file = makeCondorDAG(varargin)
   endfor
 
   ## strip parent directory from job files/directories prior to saving
-  job_path_field = {"dir", "file"};
+  job_path_fields = {"dir", "file"};
   for i = 1:length(job_nodes);
     job_nodes(i).base = parent_dir(1:length(parent_dir)-1);
     for j = 1:length(job_path_fields)
-      assert(strncmp(job_nodes(i).(job_path_field{j}), parent_dir, length(parent_dir)));
-      job_nodes(i).(job_path_field{j}) = job_nodes(i).(job_path_field{j})(length(parent_dir)+1:end);
+      assert(strncmp(job_nodes(i).(job_path_fields{j}), parent_dir, length(parent_dir)));
+      job_nodes(i).(job_path_fields{j}) = job_nodes(i).(job_path_fields{j})(length(parent_dir)+1:end);
     endfor
   endfor
 
