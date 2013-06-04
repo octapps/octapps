@@ -27,7 +27,11 @@ function x = replOver(x, dims, siz)
 
   ## determine remaining dimensions, and check size of x
   rd = setdiff(1:ndims, dims);
-  assert(all(size(x) == siz(rd)));
+  if length(rd) == 1
+    assert(numel(x) == siz(rd));
+  else
+    assert(all(size(x) == siz(rd)));
+  endif
 
   ## return x duplicated over all dimensions in dims
   ## - taken from ndgrid.m
