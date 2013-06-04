@@ -70,4 +70,9 @@ function ezprint(filename, varargin)
         sprintf("-F:%i", fontsize), ...
         filename);
 
+  ## undo scale figure line widths
+  for i = 1:length(H);
+    set(H(i), "linewidth", get(H(i), "linewidth") / linescale);
+  endfor
+
 endfunction
