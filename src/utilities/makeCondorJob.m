@@ -48,7 +48,7 @@ function job_file = makeCondorJob(varargin)
                {"log_dir", "char", getenv("TMPDIR")},
                {"func_name", "char"},
                {"arguments", "cell,vector", {}},
-               {"func_nargout", "integer"},
+               {"func_nargout", "integer,positive,scalar"},
                {"exec_files", "cell", {}},
                {"data_files", "cell", {}},
                {"extra_condor", "cell", {}},
@@ -208,7 +208,7 @@ function job_file = makeCondorJob(varargin)
   env_vars.OCTAVE_HISTFILE = "/dev/null";
   env_vars.LAL_DEBUG_LEVEL = "1";
 
-  ## build bootstrap script, which sets up environment, then executes Octave
+  ## build bootstrap script, which sets up environment then executes Octave script, which calls function and saves output
   bootstr = "";
   env_var_names = fieldnames(env_vars);
   for i = 1:length(env_var_names)
@@ -216,30 +216,33 @@ function job_file = makeCondorJob(varargin)
     envvar = env_vars.(envvarname);
     bootstr = strcat(bootstr, sprintf("%s=\"%s\"\nexport %s\n", envvarname, envvar, envvarname));
   endfor
-  bootstr = strcat(bootstr, sprintf("exec octave --silent --norc --no-history --no-window-system --eval \"$1\"\n"));
-
-  ## build Octave evaluation string, which calls function, and saves output
-  evalstr = "";
-  evalstr = strcat(evalstr, sprintf("arguments=%s;", stringify(arguments)));
+  bootstr = strcat(bootstr, "cat <<EOF | exec octave --silent --norc --no-history --no-window-system\n");
+  bootstr = strcat(bootstr, "arguments=$1;\nwall_time=tic();\ncpu_time=cputime();\n");
   if length(arguments) > 0
     callfuncstr = sprintf("%s(arguments{:})", func_name);
   else
     callfuncstr = sprintf("%s", func_name);
   endif
   if func_nargout > 0
-    evalstr = strcat(evalstr, sprintf("tic;[results{1:%i}]=%s;elapsed=toc;", func_nargout, callfuncstr));
-    evalstr = strcat(evalstr, sprintf("save(\"-zip\",\"stdres.txt.gz\",\"arguments\",\"results\",\"elapsed\");", evalstr));
+    bootstr = strcat(bootstr, sprintf("[results{1:%i}]=%s;\n", func_nargout, callfuncstr));
   else
-    evalstr = strcat(evalstr, callfuncstr, ";");
+    bootstr = strcat(bootstr, sprintf("results={};\n%s;\n", callfuncstr));
   endif
-  evalstr = strrep(evalstr, "'", "''");
-  evalstr = strrep(evalstr, "\"", "\"\"");
+  bootstr = strcat(bootstr, "wall_time=(double(tic())-double(wall_time))*1e-6;\ncpu_time=cputime()-cpu_time;\n");
+  bootstr = strcat(bootstr, "save(\"-zip\",\"stdres.txt.gz\",\"arguments\",\"results\",\"wall_time\",\"cpu_time\");\n");
+  bootstr = strcat(bootstr, "EOF\n");
+
+  ## build Condor arguments string containing Octave function arguments
+  argstr = stringify(arguments);
+  argstr = strrep(argstr, "'", "''");
+  argstr = strrep(argstr, "\"", "\"\"");
+  argstr = sprintf("\"'%s'\"", argstr);
 
   ## build Condor job submit file spec
   job_spec = struct;
   job_spec.universe = "vanilla";
   job_spec.executable = job_boot_file;
-  job_spec.arguments = sprintf("\"'%s'\"", evalstr);
+  job_spec.arguments = argstr;
   job_spec.initialdir = "";
   job_spec.output = "stdout";
   job_spec.error = "stderr";
