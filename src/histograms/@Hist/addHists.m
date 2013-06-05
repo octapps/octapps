@@ -43,27 +43,37 @@ function hgrmt = addHists(hgrm1, hgrm2)
   assert(dim == length(hgrm2.bins), "Histograms hgrm{1,2} must have the same dimensionality");
 
   ## iterate over histogram dimensions
+  newbins = cell(1, dim);
   for i = 1:dim
 
-    ## get cell array of all (finite) histogram bins in this dimension
-    binsi = {hgrm1.bins{i}(isfinite(hgrm1.bins{i})), hgrm2.bins{i}(isfinite(hgrm2.bins{i}))};
+    ## get finite histogram bins
+    bins1 = hgrm1.bins{i}(2:end-1);
+    bins2 = hgrm2.bins{i}(2:end-1);
 
-    ## round histogram bins to common boundaries
-    [binsi{1:length(binsi)}] = roundHistBinBounds(binsi{:});
+    ## get minimum bin width in to-be-added histograms
+    minwidth = min([diff(bins1), diff(bins2)]);
 
-    ## create set of unique bins
-    binsi = unique(cell2mat(binsi));
+    ## create unique, sorted array of all bins
+    bins = unique([bins1, bins2]);
+
+    ## remove any bins which would create a bin smaller
+    ## than minimum bin width in to-be-added histograms
+    bins([false, diff(bins) < minwidth]) = [];
+
+    ## make sure new bins cover old bins
+    bins(1) = min([bins1, bins2]);
+    bins(end) = max([bins1, bins2]);
 
     ## set total histogram bins for this dimension
-    bins{i} = [-inf, binsi, inf];
+    newbins{i} = bins;
 
   endfor
 
   ## resample 1st histogram to total histogram bins to create total histogram
-  hgrmt = resampleHist(hgrm1, bins{:});
+  hgrmt = resampleHist(hgrm1, newbins{:});
 
   ## resample 2nd histogram to total histogram bins
-  hgrm2 = resampleHist(hgrm2, bins{:});
+  hgrm2 = resampleHist(hgrm2, newbins{:});
 
   ## add counts
   hgrmt.counts += hgrm2.counts;
