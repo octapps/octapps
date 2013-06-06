@@ -204,7 +204,12 @@ function job_file = makeCondorJob(varargin)
     env_vars.LD_PRELOAD = strcat(env_vars.LD_PRELOAD, sprintf(" ${PWD}/%s/%s%s", execdir, shlib_file_name, shlib_file_ext));
   endfor
   env_vars.PATH = sprintf("${PWD}/%s:${PATH}", execdir);
-  env_vars.OCTAVE_PATH = sprintf("${PWD}/%s:${OCTAVE_PATH}", funcdir);
+  env_vars.OCTAVE_PATH = sprintf("${PWD}/%s", funcdir);
+  for i = 1:length(class_dirs)
+    [_, class_dir_name] = fileparts(class_dirs{i});
+    env_vars.OCTAVE_PATH = strcat(env_vars.OCTAVE_PATH, sprintf(":${PWD}/%s/%s", funcdir, class_dir_name));
+  endfor
+  env_vars.OCTAVE_PATH = strcat(env_vars.OCTAVE_PATH, ":${OCTAVE_PATH}");
   env_vars.OCTAVE_HISTFILE = "/dev/null";
   env_vars.LAL_DEBUG_LEVEL = "1";
 
