@@ -54,7 +54,7 @@
 ##   full_injections: whether to perform full software injections (default: true)
 ##   gct_injections: whether to perform GCT injections (default: true for spindowns <= 2 and detectors <= 1)
 ##   injection_block: number of injections to perform at once (default: 100)
-##   ptolemaic: use Ptolemaic orbital motion
+##   ptolemaic: use Ptolemaic orbital motion (default: false)
 
 function results = TestSuperSkyMetric(varargin)
 
