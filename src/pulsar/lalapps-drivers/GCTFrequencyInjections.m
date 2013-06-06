@@ -119,14 +119,11 @@ function results = GCTFrequencyInjections(varargin)
   GCT.gridType1 = 2;
   GCT.Freq = MFD.Freq;
   GCT.dFreq = dfreq;
-  nFreqs = 10;
   GCT.FreqBand = 0.0;
   GCT.f1dot = MFD.f1dot;
-  nf1dots = 10;
   GCT.df1dot = df1dot;
   GCT.f1dotBand = 0.0;
   GCT.f2dot = MFD.f2dot;
-  nf2dots = 10;
   GCT.df2dot = df2dot;
   GCT.f2dotBand = 0.0;
   GCT.segmentList = fullfile(".", GCT_segment_file);
@@ -146,16 +143,28 @@ function results = GCTFrequencyInjections(varargin)
   results.Fstats_no_mismatch = load(GCT.fnameout);
 
   ## run HierarchSearchGCT (with mismatch)
+  ## - search nFreqs frequency bins around injection
+  nFreqs = 10;
   GCT.FreqBand = nFreqs * GCT.dFreq;
+  GCT.Freq += (-0.5+rand())*GCT.dFreq - 0.5*GCT.FreqBand;
+  ## - search either nf1dots first spindown bins around injection, or entire band
+  nf1dots = 10;
   GCT.f1dotBand = nf1dots * GCT.df1dot;
+  if GCT.f1dotBand > f1dot_band || df1dot > f1dot_band
+    GCT.f1dot = f1dot;
+    GCT.f1dotBand = f1dot_band;
+  else
+    GCT.f1dot += (-0.5+rand())*GCT.df1dot - 0.5*GCT.f1dotBand;
+  endif
+  ## - search either nf2dots first spindown bins around injection, or entire band
+  nf2dots = 10;
   GCT.f2dotBand = nf2dots * GCT.df2dot;
-  GCT.Freq += (-1 + 2*rand())*GCT.dFreq - 0.5*GCT.FreqBand;
-  GCT.f1dot += (-1 + 2*rand())*GCT.df1dot - 0.5*GCT.f1dotBand;
-  GCT.f2dot += (-1 + 2*rand())*GCT.df2dot - 0.5*GCT.f2dotBand;
-  GCT.f1dot = max(GCT.f1dot, f1dot);
-  GCT.f2dot = max(GCT.f2dot, f2dot);
-  GCT.f1dotBand = min(GCT.f1dot + GCT.f1dotBand, f1dot + f1dot_band) - GCT.f1dot;
-  GCT.f2dotBand = min(GCT.f2dot + GCT.f2dotBand, f2dot + f2dot_band) - GCT.f2dot;
+  if GCT.f2dotBand > f2dot_band || df2dot > f2dot_band
+    GCT.f2dot = f2dot;
+    GCT.f2dotBand = f2dot_band;
+  else
+    GCT.f2dot += (-0.5+rand())*GCT.df2dot - 0.5*GCT.f2dotBand;
+  endif
   results.GCT_with_mismatch = GCT;
   runCode(GCT, "lalapps_HierarchSearchGCT", true);
 
