@@ -236,10 +236,9 @@ function results = TestSuperSkyMetric(varargin)
     ## metric ellipsoid with maximum mismatch of 'max_mismatch'
     spa_dp = onto_spa_ssmetric * spa_dp;
 
-    ## create random point in unit disk
-    r = rand(1, injection_block);
-    th = rand(1, injection_block) * 2*pi;
-    x1 = [r .* cos(th); r .* sin(th)];
+    ## create random point on surface on unit sphere
+    a_n1 = randPointInNSphere(3, rand(1, injection_block));
+    x1 = a_n1([1, 2], :);
 
     ## get random offset and compute dot products
     dx = spa_dp([ina, inb], :);
@@ -264,10 +263,9 @@ function results = TestSuperSkyMetric(varargin)
     ## compute second random point by adding (scaled) offset
     x2 = x1 + dx;
 
-    ## project onto (aligned sky) upper hemisphere; use real()
-    ## in case points have radius >1 due to numerical roundoff
-    a_n1 = [x1; real(sqrt(1 - sumsq(x1)))];
-    a_n2 = [x2; real(sqrt(1 - sumsq(x2)))];
+    ## project second point onto (aligned) sky sphere; place in same hemisphere as first random point,
+    ## use real() to calculate 3rd component in case points have radius >1 due to numerical roundoff
+    a_n2 = [x2; sign(a_n1(3, :)).*real(sqrt(1 - sumsq(x2)))];
 
     ## create point offsets in (non-sky-projected) aligned metric
     a_dp = zeros(size(results.a_ssmetric, 1), injection_block);
@@ -323,10 +321,9 @@ function results = TestSuperSkyMetric(varargin)
     alpha1 = atan2(n1_equ(2, :), n1_equ(1, :));
     alpha2 = atan2(n2_equ(2, :), n2_equ(1, :));
 
-    ## compute declinations delta1 and delta2 from sky positions n1_equ and n2_equ,
-    ## projected onto upper sky hemisphere
-    delta1 = abs(atan2(n1_equ(3, :), sqrt(sumsq(n1_equ(1:2, :)))));
-    delta2 = abs(atan2(n2_equ(3, :), sqrt(sumsq(n2_equ(1:2, :)))));
+    ## compute declinations delta1 and delta2 from sky positions n1_equ and n2_equ
+    delta1 = atan2(n1_equ(3, :), sqrt(sumsq(n1_equ(1:2, :))));
+    delta2 = atan2(n2_equ(3, :), sqrt(sumsq(n2_equ(1:2, :))));
 
     ## compute "equivalent" sky position offset in physical coordinates (alpha,delta),
     ## evaluated at (alpha1,delta1). ad_dp is a product of the Jacobian matrix
