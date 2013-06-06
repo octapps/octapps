@@ -238,8 +238,8 @@ function results = TestSuperSkyMetric(varargin)
     ## metric ellipsoid with maximum mismatch of 'max_mismatch'
     spa_dp = onto_spa_ssmetric * spa_dp;
 
-    ## create random point on surface on unit sphere
-    a_n1 = randPointInNSphere(3, rand(1, injection_block));
+    ## create random sky point on surface on unit sphere
+    a_n1 = randPointInNSphere(3, ones(1, injection_block));
     x1 = a_n1([1, 2], :);
 
     ## get random offset and compute dot products
