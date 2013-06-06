@@ -147,11 +147,15 @@ function results = GCTFrequencyInjections(varargin)
 
   ## run HierarchSearchGCT (with mismatch)
   GCT.FreqBand = nFreqs * GCT.dFreq;
-  GCT.f1dotBand = min(nf1dots * GCT.df1dot, f1dot_band);
-  GCT.f2dotBand = min(nf2dots * GCT.df2dot, f2dot_band);
+  GCT.f1dotBand = nf1dots * GCT.df1dot;
+  GCT.f2dotBand = nf2dots * GCT.df2dot;
   GCT.Freq += (-1 + 2*rand())*GCT.dFreq - 0.5*GCT.FreqBand;
   GCT.f1dot += (-1 + 2*rand())*GCT.df1dot - 0.5*GCT.f1dotBand;
   GCT.f2dot += (-1 + 2*rand())*GCT.df2dot - 0.5*GCT.f2dotBand;
+  GCT.f1dot = max(GCT.f1dot, f1dot);
+  GCT.f2dot = max(GCT.f2dot, f2dot);
+  GCT.f1dotBand = min(GCT.f1dot + GCT.f1dotBand, f1dot + f1dot_band) - GCT.f1dot;
+  GCT.f2dotBand = min(GCT.f2dot + GCT.f2dotBand, f2dot + f2dot_band) - GCT.f2dot;
   results.GCT_with_mismatch = GCT;
   runCode(GCT, "lalapps_HierarchSearchGCT", true);
 
