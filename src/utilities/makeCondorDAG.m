@@ -112,12 +112,12 @@ function dag_file = makeCondorDAG(varargin)
   endfor
   job_out_dirs = unique(job_out_dirs);
 
-  ## write Condor DAG submit file
+  ## write Condor DAG submit file, with nodes in reverse order
   fid = fopen(dag_file, "w");
   if fid < 0
     error("%s: could not open file '%s' for writing", funcName, dag_file);
   endif
-  for n = 1:length(job_nodes)
+  for n = length(job_nodes):-1:1
     job_node = job_nodes(n);
 
     ## print node
