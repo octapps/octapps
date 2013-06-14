@@ -33,7 +33,7 @@ function x = sumOver(x, dims)
   rd = setdiff(1:ndims, dims);
 
   ## permute array so that remaining dimensions are first
-  perm = 1:ndims;
+  perm = 1:length(size(x));
   perm(rd) = [];
   perm = [rd, perm];
   x = permute(x, perm);
