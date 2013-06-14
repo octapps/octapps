@@ -31,13 +31,16 @@
 ##   "delta":                   declination (radians)
 ##   "ref_time":                GPS reference time
 ##   "freq":                    injection frequency (Hz)
+##   "freq_search_band":        frequency search band (Hz)
 ##   "dfreq":                   frequency spacing (Hz)
 ##   "f1dot":                   first spindown start (Hz/s)
 ##   "f1dot_band":              first spindown band (Hz/s)
+##   "f1dot_search_band":       first spindown search band (Hz)
 ##   "df1dot":                  first spindown spacing (Hz/s)
 ##   "gamma1":                  first spindown refinement
 ##   "f2dot":                   second spindown start (Hz/s^2)
 ##   "f2dot_band":              second spindown band (Hz/s^2)
+##   "f2dot_search_band":       second spindown search band (Hz)
 ##   "df2dot":                  second spindown spacing (Hz/s^2)
 ##   "gamma2":                  second spindown refinement
 
@@ -54,13 +57,16 @@ function results = GCTFrequencyInjections(varargin)
                       {"delta", "real,scalar"},
                       {"ref_time", "real,strictpos,scalar"},
                       {"freq", "real,strictpos,scalar"},
+                      {"freq_search_band", "real,strictpos,scalar"},
                       {"dfreq", "real,strictpos,scalar"},
                       {"f1dot", "real,scalar"},
                       {"f1dot_band", "real,positive,scalar"},
+                      {"f1dot_search_band", "real,strictpos,scalar"},
                       {"df1dot", "real,strictpos,scalar"},
                       {"gamma1", "real,strictpos,scalar"},
                       {"f2dot", "real,scalar"},
                       {"f2dot_band", "real,positive,scalar"},
+                      {"f2dot_search_band", "real,strictpos,scalar"},
                       {"df2dot", "real,strictpos,scalar"},
                       {"gamma2", "real,strictpos,scalar"},
                       []);
@@ -143,33 +149,23 @@ function results = GCTFrequencyInjections(varargin)
   results.Fstats_no_mismatch = load(GCT.fnameout);
 
   ## run HierarchSearchGCT (with mismatch)
-  ## - search nFreqs frequency bins around injection
-  nFreqs = 10;
-  GCT.FreqBand = nFreqs * GCT.dFreq;
+  GCT.FreqBand = max(freq_search_band, dfreq);
   GCT.Freq += (-0.5+rand())*GCT.dFreq - 0.5*GCT.FreqBand;
-  ## - search either nf1dots first spindown bins around injection, or entire band
-  nf1dots = 10;
-  GCT.f1dotBand = nf1dots * GCT.df1dot;
-  if GCT.f1dotBand > f1dot_band || df1dot > f1dot_band
-    GCT.f1dot = f1dot;
-    GCT.f1dotBand = f1dot_band;
-  else
-    GCT.f1dot += (-0.5+rand())*GCT.df1dot - 0.5*GCT.f1dotBand;
-  endif
-  ## - search either nf2dots first spindown bins around injection, or entire band
-  nf2dots = 10;
-  GCT.f2dotBand = nf2dots * GCT.df2dot;
-  if GCT.f2dotBand > f2dot_band || df2dot > f2dot_band
-    GCT.f2dot = f2dot;
-    GCT.f2dotBand = f2dot_band;
-  else
-    GCT.f2dot += (-0.5+rand())*GCT.df2dot - 0.5*GCT.f2dotBand;
-  endif
+  GCT.f1dotBand = max(f1dot_search_band, df1dot);
+  GCT.f1dot += (-0.5+rand())*GCT.df1dot - 0.5*GCT.f1dotBand;
+  GCT.f2dotBand = max(f2dot_search_band, df2dot);
+  GCT.f2dot += (-0.5+rand())*GCT.df2dot - 0.5*GCT.f2dotBand;
   results.GCT_with_mismatch = GCT;
   runCode(GCT, "lalapps_HierarchSearchGCT", true);
 
   ## save with-mismatch Fstat result
   results.Fstats_with_mismatch = load(GCT.fnameout);
+
+  ## compute and print mismatch
+  results.twoF_no_mismatch = results.Fstats_no_mismatch(end);
+  results.twoF_with_mismatch = results.Fstats_with_mismatch(end);
+  results.mismatch = (results.twoF_no_mismatch - results.twoF_with_mismatch) / (results.twoF_no_mismatch - 4);
+  printf("Mismatch: %0.2f\n", results.mismatch);
 
   ## delete temporary files
   for i = 1:length(SFT_files)
