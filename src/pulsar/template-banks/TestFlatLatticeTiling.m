@@ -326,6 +326,10 @@ function results = TestFlatLatticeTiling(varargin)
   ## Count number of templates
   results.num_templates = double(CountTotalFlatLatticePoints(flt));
 
+  ## Return lattice increments
+  gslincrements = GetFlatLatticeIncrements(flt);
+  results.increments = gslincrements.data(:,:);
+
   ## Generate templates, if requested
   if return_points
     results.templates = zeros(dim, results.num_templates);
