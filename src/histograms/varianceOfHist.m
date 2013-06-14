@@ -15,26 +15,24 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## Returns the variance of a histogram.
+## Returns the variance(s) of a histogram.
 ## Syntax:
-##   variance = varianceOfHist(hgrm)
+##   variance = varianceOfHist(hgrm, [k = 1])
 ## where:
 ##   hgrm = histogram class
+##   k    = dimension to calculate variance(s) over
 
-function variance = varianceOfHist(hgrm)
+function variance = varianceOfHist(hgrm, k = 1)
 
   ## check input
   assert(isHist(hgrm));
   dim = histDim(hgrm);
+  assert(isscalar(k) && 1 <= k && k <= dim);
 
-  ## calculate variance
-  variance = zeros(dim, 1);
-  for k = 1:dim
-    n = mean = zeros(dim, 1);
-    n(k) = 1;
-    mean(k) = momentOfHist(hgrm, zeros(dim, 1), n);
-    n(k) = 2;
-    variance(k) = momentOfHist(hgrm, mean, n);
-  endfor
+  ## calculate mean(s) for bin offset(s)
+  x0 = meanOfHist(hgrm, k);
+
+  ## calculate variance(s)
+  variance = momentOfHist(hgrm, k, 2, x0);
 
 endfunction

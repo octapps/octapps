@@ -28,6 +28,6 @@ function area = areaUnderHist(hgrm)
   dim = histDim(hgrm);
 
   ## calculate area
-  area = momentOfHist(hgrm, zeros(dim, 1), zeros(dim, 1));
+  area = momentOfHist(hgrm, 1:dim, zeros(1, dim));
 
 endfunction

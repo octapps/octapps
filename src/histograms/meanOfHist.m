@@ -15,24 +15,21 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## Returns the mean of a histogram.
+## Returns the mean(s) of a histogram.
 ## Syntax:
-##   mean = meanOfHist(hgrm)
+##   mean = meanOfHist(hgrm, [k = 1])
 ## where:
 ##   hgrm = histogram class
+##   k    = dimension to calculate mean(s) over
 
-function mean = meanOfHist(hgrm)
+function mean = meanOfHist(hgrm, k = 1)
 
   ## check input
   assert(isHist(hgrm));
   dim = histDim(hgrm);
+  assert(isscalar(k) && 1 <= k && k <= dim);
 
-  ## calculate mean
-  mean = zeros(dim, 1);
-  for k = 1:dim
-    n = zeros(dim, 1);
-    n(k) = 1;
-    mean(k) = momentOfHist(hgrm, zeros(dim, 1), n);
-  endfor
+  ## calculate mean(s)
+  mean = momentOfHist(hgrm, k, 1);
 
 endfunction

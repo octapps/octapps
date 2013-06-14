@@ -1,4 +1,4 @@
-## Copyright (C) 2010 Karl Wette
+## Copyright (C) 2013 Karl Wette
 ##
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -15,45 +15,56 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## Returns the moment of a histogram,
-##   mu(n) = integrate over x{1} to x{dim} :
-##              p(x{1},...,x{dim}) * (x{1}-x0{1})^n{1} * ...
-##                 * (x{dim}-x0{dim})^n{dim} dx{1} ... dx{dim}
-## taken with respect to a given position.
+## Computes the moments of a histogram:
+##   mu = integral over x{sumdims=sd} of
+##          p(x{sd(1)},...,x{sd(end)}) * (x{sd(1)}-x0{sd(1)})^n{sd(1)} * ...
+##            * (x{sd(end)}-x0{sd(end)})^n{sd(end)} dx{sd(1)} ... dx{sd(end)}
 ## Syntax:
-##   mu   = momentOfHist(hgrm, x0, n)
+##   mu = momentOfHist(hgrm, sumdims, n, [x0 = 0])
 ## where:
-##   hgrm = histogram class
-##   x0   = relative offset in each dimension
-##   n    = moment orders in each dimension
-##   mu   = moment
+##   hgrm    = histogram class
+##   sumdims = dimensions to be summed over
+##   n       = moment orders in each summed dimension
+##   x0      = bin offsets, must either be a scalar or match the sizes
+##             of the histogram dimensions *not* being summed over
 
-function mu = momentOfHist(hgrm, x0, n)
+function mu = momentOfHist(hgrm, sumdims, n, x0 = 0)
 
   ## check input
   assert(isHist(hgrm));
   dim = histDim(hgrm);
-  assert(isvector(x0) && length(x0) == dim);
-  assert(isvector(n)  && length(x0) == dim && all(n >= 0));
+  assert(all(1 <= sumdims && sumdims <= dim));
+  assert(all(unique(sumdims) == sort(sumdims)), "Elements of 'sumdims' must be unique");
+  assert(isvector(n) && length(n) == length(sumdims) && all(n >= 0));
 
   ## get histogram probability densities
-  prob = histProbs(hgrm);
+  mu = histProbs(hgrm);
 
-  ## loop over dimensions
-  for k = 1:dim
+  ## check size of bin offsets, then replicate to correct size
+  siz = size(mu);
+  if isscalar(x0)
+    x0 *= ones(siz);
+  else
+    rd = setdiff(1:dim, sumdims);
+    assert(all(size(x0) == siz(rd)));
+    x0 = replOver(x0, sumdims, siz);
+  endif
 
-    ## get lower and upper bin boundaries, not counting infinite bins
-    [xl, xh] = histBinGrids(hgrm, k, "lower", "upper");
+  ## loop over summed dimensions
+  for i = 1:length(sumdims)
+
+    ## get lower and upper bin boundaries, ignoring infinite bins
+    [xl, xh] = histBinGrids(hgrm, sumdims(i), "lower", "upper");
     xl(isinf(xl)) = 0;
     xh(isinf(xh)) = 0;
 
-    ## integral term for kth dimension:
-    ##    integrate x{k}^n dx{k}, x{k} over all bins in kth dimension
-    prob .*= (((xh - x0(k)).^(n(k)+1) - (xl - x0(k)).^(n(k)+1)) ./ (n(k)+1));
+    ## multiply probability densities by integral term for ith summed dimension
+    nip1 = n(i) + 1;
+    mu .*= ( (xh - x0).^nip1 - (xl - x0).^nip1 ) ./ nip1;
 
   endfor
 
-  ## sum up integral to get final moment
-  mu = sum(prob(:));
+  ## sum moments over given dimensions
+  mu = sumOver(mu, sumdims);
 
 endfunction
