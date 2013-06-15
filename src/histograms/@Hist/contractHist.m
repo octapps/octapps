@@ -35,7 +35,8 @@ function hgrm = contractHist(hgrm, newdims)
   hgrm.bintype = hgrm.bintype(newdims);
 
   ## sum up counts over contracted dimensions
-  hgrm.counts = sumOver(hgrm.counts, setdiff(1:dim, newdims));
+  siz = size(hgrm.counts);
+  hgrm.counts = reshape(sum(hgrm.counts, setdiff(1:dim, newdims)), siz(newdims));
 
 endfunction
 

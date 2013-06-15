@@ -43,10 +43,10 @@ function mu = momentOfHist(hgrm, sumdims, n, x0 = 0)
 
   ## check size of bin offsets, then replicate to correct size
   siz = size(mu);
+  rd = setdiff(1:dim, sumdims);
   if isscalar(x0)
     x0 *= ones(siz);
   else
-    rd = setdiff(1:dim, sumdims);
     if length(rd) == 1
       assert(numel(x0) == siz(rd));
     else
@@ -71,8 +71,8 @@ function mu = momentOfHist(hgrm, sumdims, n, x0 = 0)
   endfor
 
   ## sum moments and norm over given dimensions
-  mu = sumOver(mu, sumdims);
-  norm = sumOver(norm, sumdims);
+  mu = reshape(sum(mu, sumdims), siz(rd));
+  norm = reshape(sum(norm, sumdims), siz(rd));
 
   ## normalise moments
   mu ./= norm;
