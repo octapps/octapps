@@ -19,6 +19,7 @@
 ##   mu = integral over x{sumdims=sd} of
 ##          p(x{sd(1)},...,x{sd(end)}) * (x{sd(1)}-x0{sd(1)})^n{sd(1)} * ...
 ##            * (x{sd(end)}-x0{sd(end)})^n{sd(end)} dx{sd(1)} ... dx{sd(end)}
+## Only moments for finite bins are returned.
 ## Syntax:
 ##   mu = momentOfHist(hgrm, sumdims, n, [x0 = 0])
 ## where:
@@ -37,8 +38,8 @@ function mu = momentOfHist(hgrm, sumdims, n, x0 = 0)
   assert(all(unique(sumdims) == sort(sumdims)), "Elements of 'sumdims' must be unique");
   assert(isvector(n) && length(n) == length(sumdims) && all(n >= 0));
 
-  ## get histogram probability densities
-  mu = histProbs(hgrm);
+  ## get histogram probability densities of finite bins
+  mu = histProbs(hgrm, "finite");
 
   ## check size of bin offsets, then replicate to correct size
   siz = size(mu);
@@ -46,17 +47,19 @@ function mu = momentOfHist(hgrm, sumdims, n, x0 = 0)
     x0 *= ones(siz);
   else
     rd = setdiff(1:dim, sumdims);
-    assert(all(size(x0) == siz(rd)));
+    if length(rd) == 1
+      assert(numel(x0) == siz(rd));
+    else
+      assert(all(size(x0) == siz(rd)));
+    endif
     x0 = replOver(x0, sumdims, siz);
   endif
 
   ## loop over summed dimensions
   for i = 1:length(sumdims)
 
-    ## get lower and upper bin boundaries, ignoring infinite bins
-    [xl, xh] = histBinGrids(hgrm, sumdims(i), "lower", "upper");
-    xl(isinf(xl)) = 0;
-    xh(isinf(xh)) = 0;
+    ## get lower and upper bin boundaries
+    [xl, xh] = histBinGrids(hgrm, sumdims(i), "finite", "lower", "upper");
 
     ## multiply probability densities by integral term for ith summed dimension
     nip1 = n(i) + 1;
