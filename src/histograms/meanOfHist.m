@@ -31,5 +31,6 @@ function mean = meanOfHist(hgrm, k = 1)
 
   ## calculate mean(s)
   mean = momentOfHist(hgrm, k, 1);
+  mean ./= momentOfHist(hgrm, k, 0);
 
 endfunction
