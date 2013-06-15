@@ -34,7 +34,7 @@ function varargout = histBinGrids(hgrm, k, varargin)
   ## determine whether to return finite bin quantities
   siz = size(hgrm.counts);
   if strcmp(varargin{1}, "finite")
-    siz -= 2;
+    siz(siz > 1) -= 2;
     finitearg = varargin(1);
     varargin = varargin(2:end);
   else
