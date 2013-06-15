@@ -33,7 +33,7 @@ function prob = histProbs(hgrm, finite = [])
 
   ## start with counts and normalise by total count
   prob = hgrm.counts;
-  norm = sum(prob);
+  norm = sum(prob(:));
   if norm > 0
     prob ./= norm;
   endif
