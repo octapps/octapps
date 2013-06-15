@@ -39,7 +39,7 @@ function mu = momentOfHist(hgrm, sumdims, n, x0 = 0)
   assert(isvector(n) && length(n) == length(sumdims) && all(n >= 0));
 
   ## get histogram probability densities of finite bins
-  mu = histProbs(hgrm, "finite");
+  mu = norm = histProbs(hgrm, "finite");
 
   ## check size of bin offsets, then replicate to correct size
   siz = size(mu);
@@ -65,9 +65,16 @@ function mu = momentOfHist(hgrm, sumdims, n, x0 = 0)
     nip1 = n(i) + 1;
     mu .*= ( (xh - x0).^nip1 - (xl - x0).^nip1 ) ./ nip1;
 
+    ## calculate normalisation
+    norm .*= xh - xl;
+
   endfor
 
-  ## sum moments over given dimensions
+  ## sum moments and norm over given dimensions
   mu = sumOver(mu, sumdims);
+  norm = sumOver(norm, sumdims);
+
+  ## normalise moments
+  mu ./= norm;
 
 endfunction

@@ -34,7 +34,6 @@ function variance = varianceOfHist(hgrm, k = 1)
 
   ## calculate variance(s)
   variance = momentOfHist(hgrm, k, 2, x0);
-  variance ./= momentOfHist(hgrm, k, 0, x0);
 
 endfunction
 
