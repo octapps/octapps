@@ -19,7 +19,7 @@
 ##   hgrm = contractHist(hgrm, newdims)
 ## where:
 ##   hgrm    = histogram class
-##   newdims = dimensions that will remain after condensation;
+##   newdims = dimensions that will remain after contraction;
 ##             counts in other dimensions will be summed.
 
 function hgrm = contractHist(hgrm, newdims)
@@ -39,7 +39,7 @@ function hgrm = contractHist(hgrm, newdims)
 
 endfunction
 
-## test histogram condensation with Gaussian/uniform histogram
+## test histogram contraction with Gaussian/uniform histogram
 %!test
 %! hgrm = Hist(2, {"lin", "dbin", 0.1}, {"lin", "dbin", 0.1});
 %! hgrm = addDataToHist(hgrm, [normrnd(0, 1, 1e6, 1), rand(1e6, 1)]);
