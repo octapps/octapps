@@ -31,14 +31,24 @@ function varargout = histBinGrids(hgrm, k, varargin)
   assert(isHist(hgrm));
   assert(1 <= k && k <= length(hgrm.bins));
 
+  ## determine whether to return finite bin quantities
+  siz = size(hgrm.counts);
+  if strcmp(varargin{1}, "finite")
+    siz -= 2;
+    finitearg = varargin(1);
+    varargin = varargin(2:end);
+  else
+    finitearg = {};
+  endif
+
   ## loop over requested output
   for i = 1:length(varargin)
 
     ## what do you want?
-    binq = histBins(hgrm, k, varargin{i});
+    binq = histBins(hgrm, k, finitearg{:}, varargin{i});
 
     ## return binq duplicated over all dimensions != k
-    varargout{i} = replOver(binq, setdiff(1:length(hgrm.bins), k), size(hgrm.counts));
+    varargout{i} = replOver(binq, setdiff(1:length(hgrm.bins), k), siz);
 
   endfor
 

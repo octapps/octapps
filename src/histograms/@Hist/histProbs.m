@@ -17,16 +17,19 @@
 
 ## Return the probabily densities of each histogram bin
 ## Syntax:
-##   prob = histProbs(hgrm)
+##   prob  = histProbs(hgrm)
+##   fprob = histProbs(hgrm, "finite")
 ## where:
-##   hgrm = histogram class
-##   prob = probability densities
+##   hgrm  = histogram class
+##   prob  = probability densities of all bins
+##   fprob = probability densities of finite bins
 
-function prob = histProbs(hgrm)
+function prob = histProbs(hgrm, finite = [])
 
   ## check input
   assert(isHist(hgrm));
   dim = length(hgrm.bins);
+  assert(isempty(finite) || strcmp(finite, "finite"));
 
   ## start with counts and normalise by total count
   prob = hgrm.counts;
@@ -49,6 +52,12 @@ function prob = histProbs(hgrm)
   ## so bins with different areas are treated correctly
   prob(nzii) ./= areas(nzii);
 
+  ## if requested, return only probability densities of finite bins
+  if !isempty(finite)
+    ii = cellfun(@(x) 2:length(x)-2, hgrm.bins, "UniformOutput", false);
+    prob = prob(ii{:});
+  endif
+
 endfunction
 
 
@@ -58,5 +67,13 @@ endfunction
 %! hgrm2 = addDataToHist(Hist(1, {"log", "minrange", 0.5, "binsper10", 50}), normrnd(0, 1, 1e6, 1));
 %! p1 = histProbs(hgrm1); c1 = histBinGrids(hgrm1, 1, "centre");
 %! p2 = histProbs(hgrm2); c2 = histBinGrids(hgrm2, 1, "centre");
-%! assert(mean(abs(p1 - normpdf(c1, 0, 1))) < 0.005)
-%! assert(mean(abs(p2 - normpdf(c2, 0, 1))) < 0.005)
+%! assert(mean(abs(p1 - normpdf(c1, 0, 1))) < 0.005);
+%! assert(mean(abs(p2 - normpdf(c2, 0, 1))) < 0.005);
+
+## test return of finite bin probability densities
+%!test
+%! hgrm = Hist(2, {"lin", "dbin", 0.1}, {"lin", "dbin", 0.1});
+%! hgrm = addDataToHist(hgrm, rand(1e6, 2));
+%! prob = histProbs(hgrm);
+%! fprob = histProbs(hgrm, "finite");
+%! assert(all(all(prob(2:end-1, 2:end-1) == fprob)));

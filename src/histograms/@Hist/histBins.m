@@ -17,22 +17,32 @@
 
 ## Return quantities relating to the histogram bin boundaries.
 ## Syntax:
-##   [binq, ...] = histBins(hgrm, k, "type", ...)
+##   [binq,  ...] = histBins(hgrm, k, "type", ...)
+##   [fbinq, ...] = histBins(hgrm, k, "finite", "type", ...)
 ## where:
-##   hgrm = histogram class
-##   k    = dimension along which to return bin quantities
-##   type = one of:
-##            "lower": lower bin boundary
-##            "upper": upper bin boundary
-##            "centre": bin centre
-##            "width": bin width
-##   binq = bin quantities
+##   hgrm  = histogram class
+##   k     = dimension along which to return bin quantities
+##   type  = one of:
+##             "lower":  lower bin boundary
+##             "upper":  upper bin boundary
+##             "centre": bin centre
+##             "width":  bin width
+##   binq  = bin quantities
+##   fbinq = finite bin quantities
 
 function varargout = histBins(hgrm, k, varargin)
 
   ## check input
   assert(isHist(hgrm));
   assert(1 <= k && k <= length(hgrm.bins));
+
+  ## determine whether to return finite bin quantities
+  if strcmp(varargin{1}, "finite")
+    fretn = true;
+    varargin = varargin(2:end);
+  else
+    fretn = false;
+  endif
 
   ## loop over requested output
   for i = 1:length(varargin)
@@ -51,6 +61,9 @@ function varargout = histBins(hgrm, k, varargin)
       otherwise
         error("Invalid bin quantity '%s'!", varargin{i});
     endswitch
+    if fretn
+      binq = binq(2:end-1);
+    endif
 
     ## return binq
     varargout{i} = binq(:);
