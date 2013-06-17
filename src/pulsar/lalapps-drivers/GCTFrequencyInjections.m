@@ -31,16 +31,13 @@
 ##   "delta":                   declination (radians)
 ##   "ref_time":                GPS reference time
 ##   "freq":                    injection frequency (Hz)
-##   "freq_search_band":        frequency search band (Hz)
 ##   "dfreq":                   frequency spacing (Hz)
 ##   "f1dot":                   first spindown start (Hz/s)
 ##   "f1dot_band":              first spindown band (Hz/s)
-##   "f1dot_search_band":       first spindown search band (Hz)
 ##   "df1dot":                  first spindown spacing (Hz/s)
 ##   "gamma1":                  first spindown refinement
 ##   "f2dot":                   second spindown start (Hz/s^2)
 ##   "f2dot_band":              second spindown band (Hz/s^2)
-##   "f2dot_search_band":       second spindown search band (Hz)
 ##   "df2dot":                  second spindown spacing (Hz/s^2)
 ##   "gamma2":                  second spindown refinement
 
@@ -57,16 +54,13 @@ function results = GCTFrequencyInjections(varargin)
                       {"delta", "real,scalar"},
                       {"ref_time", "real,strictpos,scalar"},
                       {"freq", "real,strictpos,scalar"},
-                      {"freq_search_band", "real,strictpos,scalar"},
                       {"dfreq", "real,strictpos,scalar"},
                       {"f1dot", "real,scalar"},
                       {"f1dot_band", "real,positive,scalar"},
-                      {"f1dot_search_band", "real,strictpos,scalar"},
                       {"df1dot", "real,strictpos,scalar"},
                       {"gamma1", "real,strictpos,scalar"},
                       {"f2dot", "real,scalar"},
                       {"f2dot_band", "real,positive,scalar"},
-                      {"f2dot_search_band", "real,strictpos,scalar"},
                       {"df2dot", "real,strictpos,scalar"},
                       {"gamma2", "real,strictpos,scalar"},
                       []);
@@ -95,13 +89,13 @@ function results = GCTFrequencyInjections(varargin)
   MFD.Band = SFT_band;
   MFD.fmin = MFD.Freq - 0.5*MFD.Band;
   MFD.cosi = -1 + 2*rand();
+  MFD.phi0 = 2*pi * rand();
+  MFD.psi = 2*pi * rand();
   MFD.f1dot = f1dot + f1dot_band * rand();
-  MFD.f2dot = f2dot + f2dot_band * rand();
+  MFD.f2dot = 0 + f2dot_band * rand();		## !! Careful: for S6Directe testing, f2dot search band is always [0, f2dotBand]
   MFD.h0 = inject_h0;
   MFD.noiseSqrtSh = sqrt(noise_Sh);
   MFD.outSingleSFT = true;
-  MFD.phi0 = 2*pi * rand();
-  MFD.psi = 2*pi * rand();
   MFD.refTime = ref_time;
   SFT_files = cell(size(SFT_timestamp_files));
   for i = 1:length(SFT_timestamp_files)
@@ -149,12 +143,15 @@ function results = GCTFrequencyInjections(varargin)
   results.Fstats_no_mismatch = load(GCT.fnameout);
 
   ## run HierarchSearchGCT (with mismatch)
-  GCT.FreqBand = max(freq_search_band, dfreq);
-  GCT.Freq += (-0.5+rand())*GCT.dFreq - 0.5*GCT.FreqBand;
-  GCT.f1dotBand = max(f1dot_search_band, df1dot);
-  GCT.f1dot += (-0.5+rand())*GCT.df1dot - 0.5*GCT.f1dotBand;
-  GCT.f2dotBand = max(f2dot_search_band, df2dot);
-  GCT.f2dot += (-0.5+rand())*GCT.df2dot - 0.5*GCT.f2dotBand;
+  GCT.FreqBand = dfreq;
+  GCT.Freq += (-1 + rand())*GCT.dFreq;
+
+  GCT.f1dot 	= f1dot;
+  GCT.f1dotBand = f1dot_band;
+
+  GCT.f2dot 	= f2dot;
+  GCT.f2dotBand = f2dot_band;
+
   results.GCT_with_mismatch = GCT;
   runCode(GCT, "lalapps_HierarchSearchGCT", true);
 
