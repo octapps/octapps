@@ -20,6 +20,7 @@
 ##   ezprint(filename, ...)
 ## Options:
 ##   "width": width of printed figure, in points
+##   "aspect": aspect ratio of height to width (default: 0.75)
 ##   "dpi": resolution of printed figure, in dots per inch (default: 300)
 ##   "fontsize": font size of printed figure, in points (default: 10)
 ##   "linescale": factor to scale line width of figure objects (default: 1)
@@ -29,6 +30,7 @@ function ezprint(filename, varargin)
   ## parse options
   parseOptions(varargin,
                {"width", "real,strictpos,scalar"},
+               {"aspect", "real,strictpos,scalar", 0.75},
                {"dpi", "integer,strictpos,scalar", 300},
                {"fontsize", "integer,strictpos,scalar", 10},
                {"linescale", "real,strictpos,scalar", 1.0},
@@ -45,7 +47,7 @@ function ezprint(filename, varargin)
 
   ## set figure width and height
   paperpos = get(gcf, "paperposition");
-  height = paperpos(4) / paperpos(3) * width;
+  height = aspect * width;
   set(gcf, "paperorientation", "landscape");
   set(gcf, "papertype", "<custom>");
   set(gcf, "papersize", [width, height]);
