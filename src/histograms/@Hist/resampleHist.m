@@ -95,7 +95,7 @@ function hgrm = resampleHist(hgrm, varargin)
       ## resampling is required - just need to extend
       ## probability array with zeros
       newbins_ss = newbins(min(bins) <= newbins & newbins <= max(bins));
-      if length(newbins_ss) == length(bins) && newbins_ss  == bins
+      if length(newbins_ss) == length(bins) && all(newbins_ss == bins)
         nloz = length(newbins(newbins < min(bins)));
         nhiz = length(newbins(newbins > max(bins)));
         newcounts = [zeros(nloz, size(counts, 2));
@@ -151,4 +151,15 @@ function hgrm = resampleHist(hgrm, varargin)
 
   endif
 
+endfunction
+
+
+## Round given histogram bins boundaries to within a small
+## fraction of the smallest overall bin size, so that one
+## can compare floating-point precision bin boundaries robustly.
+function varargout = roundHistBinBounds(varargin)
+  assert(nargin == nargout);
+  dbins = min(cell2mat(cellfun(@(b) min(diff(b)), varargin, "UniformOutput", false)));
+  dbins = 10^(floor(log10(dbins)) - 3);
+  varargout = cellfun(@(b) round(b / dbins) * dbins, varargin, "UniformOutput", false);
 endfunction
