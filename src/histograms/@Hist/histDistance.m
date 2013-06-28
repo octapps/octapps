@@ -30,23 +30,12 @@ function d = histDistance(hgrm1, hgrm2)
   assert(length(hgrm1.bins) == length(hgrm2.bins));
   dim = length(hgrm1.bins);
 
-  ## resample histograms to common bin set
-  for k = 1:dim
+  ## get union of all histogram bins in each dimension
+  ubins = histBinUnions(hgrm1, hgrm2);
 
-    ## get rounded bins
-    [bins1, bins2] = roundHistBinBounds(hgrm1.bins{k}, hgrm2.bins{k});
-    if length(bins1) != length(bins2) || bins1 != bins2
-
-      ## common bin set
-      bins = union(bins1, bins2);
-
-      ## resample histograms
-      hgrm1 = resampleHist(hgrm1, k, bins);
-      hgrm2 = resampleHist(hgrm2, k, bins);
-
-    endif
-
-  endfor
+  ## resample histograms
+  hgrm1 = resampleHist(hgrm1, ubins{:});
+  hgrm2 = resampleHist(hgrm2, ubins{:});
 
   ## get histogram probability densities
   p1 = histProbs(hgrm1);
