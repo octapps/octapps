@@ -15,16 +15,18 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## Returns the range(s) of a histogram class, which are is finite
-## if the histogram is non-empty, and NaNs otherwise.
+## Returns the ranges of a histogram class, which are finite
+## if the histogram is non-empty and NaNs otherwise, and the
+## number of bins in each range.
 ## Syntax:
-##   rng = histRange(hgrm, [kk = 1:dim])
+##   [rng, nbins] = histRange(hgrm, [kk = 1:dim])
 ## where:
-##   hgrm = histogram class
-##   kk   = ranges to return; defaults to all
-##   rng  = range(s) of the histogram
+##   hgrm  = histogram class
+##   kk    = dimensions for which to return ranges; defaults to all
+##   rng   = ranges of the histogram
+##   nbins = number of bins in each range
 
-function rng = histRange(hgrm, kk = [])
+function [rng, nbins] = histRange(hgrm, kk = [])
 
   ## check input
   assert(isHist(hgrm));
@@ -37,6 +39,7 @@ function rng = histRange(hgrm, kk = [])
 
   ## return range
   rng = zeros(length(kk), 2);
+  nbins = zeros(length(kk), 1);
   for i = 1:length(kk)
     h = contractHist(hgrm, kk(i));
     ii = find(h.counts > 0);
@@ -45,6 +48,7 @@ function rng = histRange(hgrm, kk = [])
     else
       rng(i, 1) = h.bins{1}(min(ii));
       rng(i, 2) = h.bins{1}(max(ii)+1);
+      nbins(i) = max(ii) - min(ii) + 1;
     endif
   endfor
 
