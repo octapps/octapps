@@ -1,4 +1,4 @@
-## Copyright (C) 2011 Karl Wette
+## Copyright (C) 2011, 2013 Karl Wette
 ##
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -15,68 +15,56 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## Add two histograms together. If one histogram is [],
-## the other is returned.
+## Add multiple histograms together.
 ## Syntax:
-##   hgrmt = addHists(hgrm1, hgrm2)
+##   hgrmt = addHists(hgrms...)
 ## where:
-##   hgrm{1,2} = histograms to add
-##   hgrmt     = total histogram
+##   hgrms = histograms to add; [] arguments are ignored
+##   hgrmt = total histogram
 
-function hgrmt = addHists(hgrm1, hgrm2)
+function hgrmt = addHists(varargin)
 
   ## check input
-  assert(nargin == 2);
-  assert(isHist(hgrm1) || isHist(hgrm2), "One of hgrm{1,2} must be a valid histogram class");
+  hgrms = {};
+  dim = [];
+  for i = 1:length(varargin)
+    hgrm = varargin{i};
+    if !isempty(hgrm)
+      assert(isHist(hgrm), "Argument #i must be either a valid histogram class, or []", i);
+      if isempty(dim)
+        dim = length(hgrm.bins);
+      else
+        assert(dim == length(hgrm.bins), "Histograms must have the same dimensionality");
+      endif
+      hgrms{end+1} = hgrm;
+    endif
+  endfor
 
-  ## if one histogram is [], return the other.
-  if isempty(hgrm1)
-    hgrmt = hgrm2;
+  ## if no histogram arguments, return []; if only one histogram argument, return it
+  if length(hgrms) == 0
+    hgrmt = [];
     return;
-  elseif isempty(hgrm2)
-    hgrmt = hgrm1;
+  elseif length(hgrms) == 1
+    hgrmt = hgrms{1};
     return;
   endif
 
-  ## check histogram dimensions match
-  dim = length(hgrm1.bins);
-  assert(dim == length(hgrm2.bins), "Histograms hgrm{1,2} must have the same dimensionality");
-
-  ## iterate over histogram dimensions
-  newbins = cell(1, dim);
-  for i = 1:dim
-
-    ## get finite histogram bins
-    bins1 = hgrm1.bins{i}(2:end-1);
-    bins2 = hgrm2.bins{i}(2:end-1);
-
-    ## get minimum bin width in to-be-added histograms
-    minwidth = min([diff(bins1), diff(bins2)]);
-
-    ## create unique, sorted array of all bins
-    bins = unique([bins1, bins2]);
-
-    ## remove any bins which would create a bin smaller
-    ## than minimum bin width in to-be-added histograms
-    bins([false, diff(bins) < minwidth]) = [];
-
-    ## make sure new bins cover old bins
-    bins(1) = min([bins1, bins2]);
-    bins(end) = max([bins1, bins2]);
-
-    ## set total histogram bins for this dimension
-    newbins{i} = bins;
-
-  endfor
+  ## get union of all histogram bins in each dimension
+  ubins = histBinUnions(hgrms{:});
 
   ## resample 1st histogram to total histogram bins to create total histogram
-  hgrmt = resampleHist(hgrm1, newbins{:});
+  hgrmt = resampleHist(hgrms{1}, ubins{:});
 
-  ## resample 2nd histogram to total histogram bins
-  hgrm2 = resampleHist(hgrm2, newbins{:});
+  ## iterate over remaining histograms
+  for i = 2:length(hgrms)
 
-  ## add counts
-  hgrmt.counts += hgrm2.counts;
+    ## resample histogram to total histogram bins
+    hgrm = resampleHist(hgrms{i}, ubins{:});
+
+    ## add counts
+    hgrmt.counts += hgrm.counts;
+
+  endfor
 
 endfunction
 
@@ -87,3 +75,12 @@ endfunction
 %! hgrmt = addHists(hgrm1, hgrm2);
 %! p = histProbs(hgrmt);
 %! assert(length(p) == 14 && p(2:end-1) == 1/12);
+
+%!test
+%! hgrms = arrayfun(@(x) addDataToHist(Hist(1, 0:12), 0.5 + x), 0:11, "UniformOutput", false);
+%! hgrmt = addHists(hgrms{:});
+%! p = histProbs(hgrmt);
+%! assert(length(p) == 14 && p(2:end-1) == 1/12);
+
+%!test
+%! assert(isempty(addHists([])));
