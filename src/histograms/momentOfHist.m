@@ -71,8 +71,14 @@ function mu = momentOfHist(hgrm, sumdims, n, x0 = 0)
   endfor
 
   ## sum moments and norm over given dimensions
-  mu = reshape(sum(mu, sumdims), siz(rd));
-  norm = reshape(sum(norm, sumdims), siz(rd));
+  for k = 1:length(sumdims)
+    mu = sum(mu, sumdims(k));
+    norm = sum(norm, sumdims(k));
+  endfor
+  if !isempty(rd)
+    mu = reshape(mu, siz(rd));
+    norm = reshape(norm, siz(rd));
+  endif
 
   ## normalise moments
   mu ./= norm;
