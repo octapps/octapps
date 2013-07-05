@@ -320,7 +320,7 @@ function results = TestFlatLatticeTiling(varargin)
   results.templates = [];
   results.injections = [];
   results.nearest_index = [];
-  results.min_mismatch = [];
+  results.nearest_mismatch = [];
   results.mismatch_hgrm = [];
 
   ## Count number of templates
@@ -359,13 +359,13 @@ function results = TestFlatLatticeTiling(varargin)
     if return_points
       results.injections = zeros(dim, num_injections);
       results.nearest_index = zeros(1, num_injections);
-      results.min_mismatch = zeros(1, num_injections);
+      results.nearest_mismatch = zeros(1, num_injections);
     endif
 
     ## Initialise arguments to NearestFlatLatticePointToRandomPoints()
     injections = [];
     nearest_index = [];
-    min_mismatch = [];
+    nearest_mismatch = [];
     workspace = [];
 
     ## Create mismatch histogram, if requested
@@ -383,13 +383,13 @@ function results = TestFlatLatticeTiling(varargin)
       endif
 
       ## Generate injections and find nearest template point
-      [injections, nearest_index, min_mismatch, workspace] = ...
+      [injections, nearest_index, nearest_mismatch, workspace] = ...
           NearestFlatLatticePointToRandomPoints(flt, rng, workspace_size, ...
-                                                injections, nearest_index, min_mismatch, workspace);
+                                                injections, nearest_index, nearest_mismatch, workspace);
 
       ## Add minimum mismatches to histogram
       if return_hgrm
-        results.mismatch_hgrm = addDataToHist(results.mismatch_hgrm, min_mismatch.data / max_mismatch);
+        results.mismatch_hgrm = addDataToHist(results.mismatch_hgrm, nearest_mismatch.data / max_mismatch);
       endif
 
       ## Decrement number of remaining injections
@@ -400,7 +400,7 @@ function results = TestFlatLatticeTiling(varargin)
         jj = num_injections + (1:workspace_size);
         results.injections(:, jj) = injections.data;
         results.nearest_index(jj) = 1 + double(nearest_index.data);
-        results.min_mismatch(jj) = min_mismatch.data;
+        results.nearest_mismatch(jj) = nearest_mismatch.data;
       endif
 
     endwhile
@@ -440,7 +440,7 @@ endfunction
 %! assert(square.num_templates == square_ref.num_templates);
 %! assert(all(all(abs(square.templates - square_ref.templates) < 1e-7 * abs(square_ref.templates))));
 %! dx = square.injections - square.templates(:, square.nearest_index);
-%! assert(all(abs(dot(dx, square.metric * dx) - square.min_mismatch) < 1e-7 * square.min_mismatch))
+%! assert(all(abs(dot(dx, square.metric * dx) - square.nearest_mismatch) < 1e-7 * square.nearest_mismatch))
 
 %!test
 %! try
@@ -456,4 +456,4 @@ endfunction
 %! assert(agebrake.num_templates == agebrake_ref.num_templates);
 %! assert(all(all(abs(agebrake.templates - agebrake_ref.templates) < 1e-7 * abs(agebrake_ref.templates))));
 %! dx = agebrake.injections - agebrake.templates(:, agebrake.nearest_index);
-%! assert(all(abs(dot(dx, agebrake.metric * dx) - agebrake.min_mismatch) < 1e-7 * agebrake.min_mismatch))
+%! assert(all(abs(dot(dx, agebrake.metric * dx) - agebrake.nearest_mismatch) < 1e-7 * agebrake.nearest_mismatch))
