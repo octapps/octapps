@@ -36,6 +36,8 @@ function [xx, yy, zz] = metricEllipsoid ( gij, mismatch, Nsteps=20, method=1 )
   assert ( ( dimgij == [2,2] ) || dimgij == [3,3], "%s: Metric 'gij' needs to be 2x2 or 3x3, got %d x %d\n", funcName, dimgij(1), dimgij(2) );
   assert ( issymmetric ( gij ) > 0, "%s: Metric 'gij' needs to be a symmetric matrix!\n", funcName );
 
+  assert( mismatch > 0, "%s: mismatch must be strictly positive!", funcName );
+
   nDim = dimgij(1);
 
   %% sample the unit sphere/circle
