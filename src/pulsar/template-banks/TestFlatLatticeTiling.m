@@ -252,10 +252,17 @@ function results = TestFlatLatticeTiling(varargin)
                                                "det_motion", det_motion);
 
       ## Construct super-sky metrics
-      [ssmetric, skyoff, alignsky] = ConstructSuperSkyMetrics(sometric, coordIDs,
-                                                              "sky_coords", sky_coords,
-                                                              "residual_sky", true,
-                                                              "aligned_sky", align_sky);
+      ssm = ConstructSuperSkyMetrics(sometric, coordIDs,
+                                     "sky_coords", sky_coords,
+                                     "residual_sky", true,
+                                     "aligned_sky", align_sky);
+      if align_sky
+        ssmetric = ssm.assmetric;
+        skyoff = ssm.askyoff;
+      else
+        ssmetric = ssm.dssmetric;
+        skyoff = ssm.dskyoff;
+      endif
       if !offset_sky
         skyoff = zeros(size(skyoff));
       endif
