@@ -17,22 +17,27 @@
 
 ## Construct various super-sky metrics.
 ## Usage:
-##   [ssmetric, skyoff, alignsky, sscoordIDs] = ConstructSuperSkyMetrics(sometric, socoordIDs, ...)
+##   results = ConstructSuperSkyMetrics(sometric, socoordIDs, ...)
 ## where:
-##   sometric = spin-orbit component metric, computed by CreatePhaseMetric()
+##   sometric   = spin-orbit component metric, computed by CreatePhaseMetric()
 ##   socoordIDs = DOPPLERCOORD_... coordinate IDs of spin-orbit component metric
+##   results    = struct which may contain:
+##     sscoordIDs = DOPPLERCOORD_... coordinate IDs of super-sky metric
+##     ssmetric   = super-sky metric
+##     rssmetric  = super-sky metric for residual super-sky coordinates
+##     rskyoff    = sky offset (row) vectors for residual super-sky coordinates
+##     dssmetric  = super-sky metric for decoupled super-sky coordinates
+##     dskyoff    = sky offset (row) vectors for decoupled super-sky coordinates
+##     assmetric  = super-sky metric for aligned super-sky coordinates
+##     askyoff    = sky offset (row) vectors for aligned super-sky coordinates
+##     alignsky   = alignment rotation matrix for aligned super-sky coordinates
 ## Options are:
-##   "sky_coords": super-sky coordinate system (default: equatorial)
+##   "sky_coords":   super-sky coordinate system (default: equatorial)
 ##   "residual_sky": use residual super-sky coordinates (default: false)
-##   "decouple_sky: use decoupled super-sky coordinates (default: false, true implies "residual_sky")
-##   "aligned_sky": use aligned super-sky coordinates (default: false, true implies "decouple_sky")
-## Outputs are:
-##   ssmetric = super-sky metric
-##   skyoff = sky offset (row) vectors for residual (and decoupled) super-sky coordinates
-##   alignsky = alignment rotation matrix for aligned super-sky coordinates
-##   sscoordIDs = DOPPLERCOORD_... coordinate IDs of super-sky metric
+##   "decouple_sky:  use decoupled super-sky coordinates (default: false, true implies "residual_sky")
+##   "aligned_sky":  use aligned super-sky coordinates (default: false, true implies "decouple_sky")
 
-function [ssmetric, skyoff, alignsky, sscoordIDs] = ConstructSuperSkyMetrics(sometric, socoordIDs, varargin)
+function results = ConstructSuperSkyMetrics(sometric, socoordIDs, varargin)
 
   ## parse options
   parseOptions(varargin,
@@ -116,6 +121,10 @@ function [ssmetric, skyoff, alignsky, sscoordIDs] = ConstructSuperSkyMetrics(som
   skyoff = zeros(length(ifs), 3);
   alignsky = eye(3);
 
+  ## set outputs
+  results.sscoordIDs = sscoordIDs;
+  results.ssmetric = 0.5*(ssmetric' + ssmetric);   # ensure metric is exactly symmetric
+
   if residual_sky
 
     ## diagonally normalise spin-orbit component metric
@@ -140,6 +149,10 @@ function [ssmetric, skyoff, alignsky, sscoordIDs] = ConstructSuperSkyMetrics(som
     ## extract sky offset vectors
     skyoff = skyoff - residual(fitting, ss_inn);
 
+    ## set outputs
+    results.rssmetric = 0.5*(ssmetric' + ssmetric);   # ensure metric is exactly symmetric
+    results.rskyoff = skyoff;
+
     if decouple_sky
 
       ## extract sky-sky, sky-frequency, and frequency-frequency blocks
@@ -161,6 +174,10 @@ function [ssmetric, skyoff, alignsky, sscoordIDs] = ConstructSuperSkyMetrics(som
       ssmetric(ss_iff, ss_inn) = 0;
       skyoff = skyoff + decoupleoff;
 
+      ## set outputs
+      results.dssmetric = 0.5*(ssmetric' + ssmetric);   # ensure metric is exactly symmetric
+      results.dskyoff = skyoff;
+
       if aligned_sky
 
         ## eigendecompose residual super-sky metric sky-sky block
@@ -181,13 +198,15 @@ function [ssmetric, skyoff, alignsky, sscoordIDs] = ConstructSuperSkyMetrics(som
         ssmetric = aligned' * ssmetric * aligned;
         skyoff = skyoff * alignsky';
 
+        ## set outputs
+        results.assmetric = 0.5*(ssmetric' + ssmetric);   # ensure metric is exactly symmetric
+        results.askyoff = skyoff;
+        results.alignsky = alignsky;
+
       endif
 
     endif
 
   endif
-
-  ## ensure metric is exactly symmetric
-  ssmetric = 0.5*(ssmetric' + ssmetric);
 
 endfunction
