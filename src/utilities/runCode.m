@@ -82,7 +82,7 @@ function output = runCode(params, code, verbose=false)
     status = system(cmdline);
   endif
   if ( status != 0 )
-    error ("%s: %s failed with exit status %i", funcName, code, status);
+    error ("%s: %s failed with exit status %i. Commandline was:\n%s", funcName, code, status, cmdline);
   elseif ( verbose )
     fprintf ( stdout, "%s: %s completed successfully!\n", funcName, code );
     fflush ( stdout );
