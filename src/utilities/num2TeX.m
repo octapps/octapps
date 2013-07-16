@@ -49,7 +49,7 @@ function tex = num2TeX(num, fmt, varargin)
   for n = 1:numel(num)
 
     ## format number using printf()-style format string
-    texstr = sprintf(strcat("%", fmt), num(n))
+    texstr = sprintf(strcat("%", fmt), num(n));
 
     ## format exponent into TeX
     texstr = regexprep(texstr, "e\\+0*$", "");
