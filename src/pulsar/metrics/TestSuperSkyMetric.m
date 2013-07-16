@@ -19,15 +19,15 @@
 ##   results = TestSuperSkyMetric(...)
 ## where results struct contains:
 ##   metrics:
-##     sometric           = spin-orbit-decoupled super-sky metric
-##     ssmetric           = super-sky metric
-##     d_ssmetric_equ     = sky-projected unaligned super-sky metric in equatorial coordinates
-##     d_ssmetric_equ     = sky-projected unaligned super-sky metric in ecliptic coordinates
-##     a_ssmetric         = aligned super-sky metric
-##     ssmetric_lpI       = super-sky metric computed with JKS's linear I phase model
-##     ssmetric_lpII      = super-sky metric computed with JKS's linear II phase model
-##     gct_taylor_metric  = GCT Taylor-expanded metric computed by GCTCoherentTaylorMetric()
-##   mismatch error histograms, with respect to untransformed mismatch:
+##     sometric              = spin-orbit-decoupled super-sky metric
+##     ssmetric              = super-sky metric
+##     d_ssmetric_equ        = sky-projected unaligned super-sky metric in equatorial coordinates
+##     d_ssmetric_equ        = sky-projected unaligned super-sky metric in ecliptic coordinates
+##     a_ssmetric            = aligned super-sky metric
+##     ssmetric_lpI          = super-sky metric computed with JKS's linear I phase model
+##     ssmetric_lpII         = super-sky metric computed with JKS's linear II phase model
+##     gct_taylor_metric     = GCT Taylor-expanded metric computed by GCTCoherentTaylorMetric()
+##   mismatch error histograms (with respect to untransformed mismatch):
 ##     mu_spa_ssmetric_H     = error in sky-projected aligned mismatch
 ##     mu_spd_ssmetric_equ_H = error in sky-projected un-aligned equatorial mismatch
 ##     mu_spd_ssmetric_ecl_H = error in sky-projected un-aligned ecliptic mismatch
@@ -41,20 +41,20 @@
 ##     mu_gct_full_H         = error in mismatch using GCT full metric computed by GCTCoherentFullMetric()
 ##     mu_twoF_H             = (optional) error in full software injections mismatch compared to untransformed mismatch
 ## Options:
-##   spindowns: number of frequency spindowns coordinates
-##   start_time: start time in GPS seconds (default: see CreatePhaseMetric)
-##   ref_time: reference time in GPS seconds (default: see CreatePhaseMetric)
-##   time_span: observation time-span in seconds
-##   detectors: comma-separated list of detector names
-##   ephemerides: Earth/Sun ephemerides from loadEphemerides()
-##   fiducial_freq: fiducial frequency at which to perform tests
-##   max_mismatch: maximum prescribed mismatch to test at
-##   num_injections: number of injections to perform
+##   spindowns:       number of frequency spindowns coordinates
+##   start_time:      start time in GPS seconds (default: see CreatePhaseMetric)
+##   ref_time:        reference time in GPS seconds (default: see CreatePhaseMetric)
+##   time_span:       observation time-span in seconds
+##   detectors:       comma-separated list of detector names
+##   ephemerides:     Earth/Sun ephemerides from loadEphemerides()
+##   fiducial_freq:   fiducial frequency at which to perform tests
+##   max_mismatch:    maximum prescribed mismatch to test at
+##   num_injections:  number of injections to perform
 ##   num_cpu_seconds: number of CPU seconds to perform injections for
 ##   full_injections: whether to perform full software injections (default: true)
-##   gct_injections: whether to perform GCT injections (default: true for spindowns <= 2 and detectors <= 1)
+##   gct_injections:  whether to perform GCT injections (default: true for spindowns <= 2 and detectors <= 1)
 ##   injection_block: number of injections to perform at once (default: 100)
-##   ptolemaic: use Ptolemaic orbital motion (default: false)
+##   ptolemaic:       use Ptolemaic orbital motion (default: false)
 
 function results = TestSuperSkyMetric(varargin)
 
