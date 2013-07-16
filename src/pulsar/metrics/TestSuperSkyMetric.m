@@ -107,30 +107,26 @@ function results = TestSuperSkyMetric(varargin)
                         "fiducial_freq", fiducial_freq,
                         "det_motion", sprintf("spin+%sorbit", ptole));
 
-  ## construct untransformed super-sky metric
-  [results.ssmetric, _, _, sscoordIDs] = ...
-      ConstructSuperSkyMetrics(results.sometric, socoordIDs, "sky_coords", "equatorial");
+  ## construct super-sky metrics
+  ssm_equ = ConstructSuperSkyMetrics(results.sometric, socoordIDs, "sky_coords", "equatorial", "aligned_sky", true);
+  ssm_ecl = ConstructSuperSkyMetrics(results.sometric, socoordIDs, "sky_coords", "ecliptic", "aligned_sky", true);
+  results.ssmetric = ssm_equ.ssmetric;
+  results.d_ssmetric_equ = ssm_equ.dssmetric;
+  d_skyoff_equ = ssm_equ.dskyoff;
+  results.d_ssmetric_ecl = ssm_ecl.dssmetric;
+  d_skyoff_ecl = ssm_ecl.dskyoff;
+  results.a_ssmetric = ssm_equ.assmetric;
+  a_skyoff = ssm_equ.askyoff;
+  a_alignsky = ssm_equ.alignsky;
 
   ## determine indices of super-sky metric coordinates
-  ina = find(sscoordIDs == DOPPLERCOORD_N3X_EQU | sscoordIDs == DOPPLERCOORD_N3X_ECL);
-  inb = find(sscoordIDs == DOPPLERCOORD_N3Y_EQU | sscoordIDs == DOPPLERCOORD_N3Y_ECL);
-  inc = find(sscoordIDs == DOPPLERCOORD_N3Z_EQU | sscoordIDs == DOPPLERCOORD_N3Z_ECL);
-  iff = [find(sscoordIDs == DOPPLERCOORD_FREQ), ...
-         find(sscoordIDs == DOPPLERCOORD_F1DOT), ...
-         find(sscoordIDs == DOPPLERCOORD_F2DOT), ...
-         find(sscoordIDs == DOPPLERCOORD_F3DOT)];
-
-  ## construct un-aligned decoupled super-sky metrics
-  [results.d_ssmetric_equ, d_skyoff_equ, d_alignsky_equ, d_sscoordIDs_equ] = ...
-      ConstructSuperSkyMetrics(results.sometric, socoordIDs, "sky_coords", "equatorial", "decouple_sky", true);
-  assert(all(d_sscoordIDs_equ == sscoordIDs));
-  [results.d_ssmetric_ecl, d_skyoff_ecl, d_alignsky_ecl] = ...
-      ConstructSuperSkyMetrics(results.sometric, socoordIDs, "sky_coords", "ecliptic", "decouple_sky", true);
-
-  ## construct aligned super-sky metric
-  [results.a_ssmetric, a_skyoff, a_alignsky, a_sscoordIDs] = ...
-      ConstructSuperSkyMetrics(results.sometric, socoordIDs, "sky_coords", "equatorial", "aligned_sky", true);
-  assert(all(a_sscoordIDs == sscoordIDs));
+  ina = find(ssm_equ.sscoordIDs == DOPPLERCOORD_N3X_EQU & ssm_ecl.sscoordIDs == DOPPLERCOORD_N3X_ECL);
+  inb = find(ssm_equ.sscoordIDs == DOPPLERCOORD_N3Y_EQU & ssm_ecl.sscoordIDs == DOPPLERCOORD_N3Y_ECL);
+  inc = find(ssm_equ.sscoordIDs == DOPPLERCOORD_N3Z_EQU & ssm_ecl.sscoordIDs == DOPPLERCOORD_N3Z_ECL);
+  iff = [find(ssm_equ.sscoordIDs == DOPPLERCOORD_FREQ), ...
+         find(ssm_equ.sscoordIDs == DOPPLERCOORD_F1DOT), ...
+         find(ssm_equ.sscoordIDs == DOPPLERCOORD_F2DOT), ...
+         find(ssm_equ.sscoordIDs == DOPPLERCOORD_F3DOT)];
 
   ## create linear phase model metrics from Andrzej Krolak etal's papers
   [results.ssmetric_lpI, sscoordIDs_lpI] = ...
@@ -143,7 +139,7 @@ function results = TestSuperSkyMetric(varargin)
                         "ephemerides", ephemerides,
                         "fiducial_freq", fiducial_freq,
                         "det_motion", sprintf("spinxy+%sorbit", ptole));
-  assert(all(sscoordIDs_lpI == sscoordIDs));
+  assert(all(sscoordIDs_lpI == ssm_equ.sscoordIDs));
   [results.ssmetric_lpII, sscoordIDs_lpII] = ...
       CreatePhaseMetric("coords", "ssky_equ,freq,fdots",
                         "spindowns", spindowns,
@@ -154,7 +150,7 @@ function results = TestSuperSkyMetric(varargin)
                         "ephemerides", ephemerides,
                         "fiducial_freq", fiducial_freq,
                         "det_motion", sprintf("%sorbit", ptole));
-  assert(all(sscoordIDs_lpII == sscoordIDs));
+  assert(all(sscoordIDs_lpII == ssm_equ.sscoordIDs));
 
   ## determine indices of sky-projected super-sky metric coordinates
   assert(ina < inc);
@@ -286,10 +282,8 @@ function results = TestSuperSkyMetric(varargin)
     mu_ssmetric = dot(dp, results.ssmetric * dp);
 
     ## compute coordinate transform from untransformed to un-aligned decoupled equatorial super-sky coordinates
-    d_n1_equ = d_alignsky_equ * n1_equ;
-    d_n2_equ = d_alignsky_equ * n2_equ;
     d_dp_equ = zeros(size(dp));
-    d_dp_equ([ina, inb, inc], :) = d_n2_equ - d_n1_equ;
+    d_dp_equ([ina, inb, inc], :) = n2_equ - n1_equ;
     d_dp_equ(iff, :) = dp(iff, :) + d_skyoff_equ * d_dp_equ([ina, inb, inc], :);
 
     ## compute mismatch in (sky-projected) un-aligned decoupled equatorial metric
@@ -301,10 +295,8 @@ function results = TestSuperSkyMetric(varargin)
     n2_ecl = [n2_equ(1,:); n2_equ(2,:)*LAL_COSIEARTH + n2_equ(3,:)*LAL_SINIEARTH; n2_equ(3,:)*LAL_COSIEARTH - n2_equ(2,:)*LAL_SINIEARTH];
 
     ## compute coordinate transform from untransformed to un-aligned decoupled ecliptic super-sky coordinates
-    d_n1_ecl = d_alignsky_ecl * n1_ecl;
-    d_n2_ecl = d_alignsky_ecl * n2_ecl;
     d_dp_ecl = zeros(size(dp));
-    d_dp_ecl([ina, inb, inc], :) = d_n2_ecl - d_n1_ecl;
+    d_dp_ecl([ina, inb, inc], :) = n2_ecl - n1_ecl;
     d_dp_ecl(iff, :) = dp(iff, :) + d_skyoff_ecl * d_dp_ecl([ina, inb, inc], :);
 
     ## compute mismatch in (sky-projected) un-aligned decoupled ecliptic metric
