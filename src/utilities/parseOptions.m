@@ -17,7 +17,8 @@
 
 ## Kitchen-sink options parser.
 ## Syntax:
-##   paropts = parseOptions(opts, optspec, optspec, ...)
+##   parseOptions(opts, optspec, optspec, ...)
+##   paropts = parseOptions(...)
 ## where:
 ##   opts    = function options
 ##   optspec = option specification, one of:
@@ -28,10 +29,11 @@
 ##         types    = datatype specification of option:
 ##                    'type,type,...'
 ##         defvalue = default value given to <name>
-##   paropts = parsed function options (optional)
+##   paropts = struct of parsed function options (optional)
 ## Notes:
-##   * <name> will be assigned values in the context of
-##     the calling function
+##   * using the first syntax, <name> will be assigned in
+##     the context of the calling function; using the second
+##     syntax, <name> will be assigned in the return struct.
 ##   * each 'type' in <types> must correspond to a function
 ##     'istype': each function will be called to check that
 ##     a value is valid. For example, if
@@ -45,7 +47,7 @@
 ##     assigned in the order they were given as <optspec>s;
 ##     regular options may also be given as keyword-values.
 
-function paropts = parseOptions(opts, varargin)
+function varargout = parseOptions(opts, varargin)
 
   ## check for option specifications
   if length(varargin) == 0
@@ -251,10 +253,14 @@ function paropts = parseOptions(opts, varargin)
 
   endfor
 
-  ## assign values to option variables in caller namespace
-  paroptnames = fieldnames(paropts);
-  for n = 1:length(paroptnames)
-    assignin("caller", paroptnames{n}, paropts.(paroptnames{n}));
-  endfor
+  ## return options struct, or assign to option variables in caller namespace
+  if nargout > 0
+    varargout = {paropts};
+  else
+    paroptnames = fieldnames(paropts);
+    for n = 1:length(paroptnames)
+      assignin("caller", paroptnames{n}, paropts.(paroptnames{n}));
+    endfor
+  endif
 
 endfunction
