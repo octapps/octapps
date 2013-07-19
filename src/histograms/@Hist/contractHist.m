@@ -40,7 +40,7 @@ function hgrm = contractHist(hgrm, newdims)
   for k = 1:length(rd)
     hgrm.counts = sum(hgrm.counts, rd(k));
   endfor
-  hgrm.counts = reshape(hgrm.counts, siz(newdims));
+  hgrm.counts = reshape(hgrm.counts, [siz(newdims), 1]);
 
 endfunction
 
