@@ -80,3 +80,17 @@ MONTHS		= YEARS / 12;
 
 %% Standard astronomical time units for convenience
 ANNUM           = 31557600;             %% Julian year of 365.25 days * 86400 seconds
+
+%% Common astronomical coordinate transformation matrices:
+%% - convert from equatorial to ecliptic coordinates:
+%%     n_ecl = EQU2ECL * n_equ
+%%   where n_equ and n_ecl are (matrices of) column vectors
+EQU2ECL = [1, 0, 0;
+           0, cos(IEARTH), sin(IEARTH);
+           0, -sin(IEARTH), cos(IEARTH)];
+%% - convert from ecliptic to equatorial coordinates:
+%%     n_equ = ECL2EQU * n_ecl
+%%   where n_equ and n_ecl are (matrices of) column vectors
+ECL2EQU = [1, 0, 0;
+           0, cos(IEARTH), -sin(IEARTH);
+           0, sin(IEARTH), cos(IEARTH)];
