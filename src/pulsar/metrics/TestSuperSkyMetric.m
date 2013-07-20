@@ -62,6 +62,9 @@ function results = TestSuperSkyMetric(varargin)
   lal;
   lalpulsar;
 
+  ## load constants
+  UnitsConstants;
+
   ## parse options
   parseOptions(varargin,
                {"spindowns", "integer,positive,scalar"},
@@ -291,8 +294,8 @@ function results = TestSuperSkyMetric(varargin)
     mu_spd_ssmetric_equ = dot(d_dp_equ, spd_ssmetric_equ * d_dp_equ);
 
     ## convert sky position points from equatorial to ecliptic coordinates
-    n1_ecl = [n1_equ(1,:); n1_equ(2,:)*LAL_COSIEARTH + n1_equ(3,:)*LAL_SINIEARTH; n1_equ(3,:)*LAL_COSIEARTH - n1_equ(2,:)*LAL_SINIEARTH];
-    n2_ecl = [n2_equ(1,:); n2_equ(2,:)*LAL_COSIEARTH + n2_equ(3,:)*LAL_SINIEARTH; n2_equ(3,:)*LAL_COSIEARTH - n2_equ(2,:)*LAL_SINIEARTH];
+    n1_ecl = EQU2ECL * n1_equ;
+    n2_ecl = EQU2ECL * n2_equ;
 
     ## compute coordinate transform from untransformed to un-aligned decoupled ecliptic super-sky coordinates
     d_dp_ecl = zeros(size(dp));
