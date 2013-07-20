@@ -320,6 +320,12 @@ function results = TestSuperSkyMetric(varargin)
     delta1 = atan2(n1_equ(3, :), sqrt(sumsq(n1_equ(1:2, :))));
     delta2 = atan2(n2_equ(3, :), sqrt(sumsq(n2_equ(1:2, :))));
 
+    ## compute differences in right ascension (accounting for wrap-around) and declination
+    dalpha = alpha2 - alpha1;
+    dalpha(dalpha > +pi) -= 2*pi;
+    dalpha(dalpha < -pi) += 2*pi;
+    ddelta = delta2 - delta1;
+
     ## compute "equivalent" sky position offset in physical coordinates (alpha,delta),
     ## evaluated at (alpha1,delta1). ad_dp is a product of the Jacobian matrix
     ##   \partial(\cos\alpha\cos\delta, \sin\alpha\cos\delta, \sin\delta)/\partial(\alpha,\delta)
@@ -329,8 +335,6 @@ function results = TestSuperSkyMetric(varargin)
     sinalpha = sin(alpha1);
     cosdelta = cos(delta1);
     sindelta = sin(delta1);
-    dalpha = alpha2 - alpha1;
-    ddelta = delta2 - delta1;
     ad_dp = dp;
     ad_dp(ina, :) = -sinalpha.*cosdelta.*dalpha - cosalpha.*sindelta.*ddelta;
     ad_dp(inb, :) = cosalpha.*cosdelta.*dalpha - sinalpha.*sindelta.*ddelta;
