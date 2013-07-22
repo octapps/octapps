@@ -430,10 +430,10 @@ function results = TestSuperSkyMetric(varargin)
         if !isfield(results, res_fn)
           results.(res_fn) = struct;
           results.(res_fn).hgrm = Hist(4, ...
-                                       {"lin", "dbin", 0.01}, ...				## mismatch error
+                                       {"lin", "dbin", 0.02}, ...				## mismatch error
                                        {"log", "minrange", 0.01, "binsper10", 10}, ...		## reference mismatch
-                                       {"lin", "dbin", 2*pi/30}, ...				## right ascension
-                                       {"lin", "dbin", pi/30} ...				## declination
+                                       {"lin", "dbin", 2*pi/20}, ...				## right ascension
+                                       {"lin", "dbin", pi/20} ...				## declination
                                        );
           results.(res_fn).min.mu_err = inf;
           results.(res_fn).max.mu_err = -inf;
