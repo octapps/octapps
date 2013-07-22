@@ -219,8 +219,8 @@ function results = TestSuperSkyMetric(varargin)
     endif
     num_injections -= injection_block;
 
-    ## create random point offsets on unit sphere surface
-    spa_dp = randPointInNSphere(size(spa_ssmetric, 1), ones(1, injection_block));
+    ## create random point offsets within unit sphere
+    spa_dp = randPointInNSphere(size(spa_ssmetric, 1), rand(1, injection_block));
 
     ## transform point offsets to surface of sky-projected aligned
     ## metric ellipsoid with maximum mismatch of 'max_mismatch'
