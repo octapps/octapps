@@ -286,8 +286,8 @@ function results = TestSuperSkyMetric(varargin)
     mism.ssmetric_lpII = dot(dp, ssmetric_lpII * dp);
 
     ## compute right ascensions alpha1 and alpha2 from sky positions n1_equ and n2_equ
-    alpha1 = atan2(n1_equ(2, :), n1_equ(1, :));
-    alpha2 = atan2(n2_equ(2, :), n2_equ(1, :));
+    alpha1 = mod(atan2(n1_equ(2, :), n1_equ(1, :)), 2*pi);
+    alpha2 = mod(atan2(n2_equ(2, :), n2_equ(1, :)), 2*pi);
 
     ## compute declinations delta1 and delta2 from sky positions n1_equ and n2_equ
     delta1 = atan2(n1_equ(3, :), sqrt(sumsq(n1_equ(1:2, :))));
