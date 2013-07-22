@@ -18,15 +18,6 @@
 ## Usage:
 ##   results = TestSuperSkyMetric(...)
 ## where results struct contains:
-##   metrics:
-##     sometric              = spin-orbit-decoupled super-sky metric
-##     ssmetric              = super-sky metric
-##     d_ssmetric_equ        = sky-projected unaligned super-sky metric in equatorial coordinates
-##     d_ssmetric_equ        = sky-projected unaligned super-sky metric in ecliptic coordinates
-##     a_ssmetric            = aligned super-sky metric
-##     ssmetric_lpI          = super-sky metric computed with JKS's linear I phase model
-##     ssmetric_lpII         = super-sky metric computed with JKS's linear II phase model
-##     gct_taylor_metric     = GCT Taylor-expanded metric computed by GCTCoherentTaylorMetric()
 ##   mismatch error histograms (with respect to untransformed mismatch):
 ##     mu_spa_ssmetric_H     = error in sky-projected aligned mismatch
 ##     mu_spd_ssmetric_equ_H = error in sky-projected un-aligned equatorial mismatch
@@ -99,7 +90,7 @@ function results = TestSuperSkyMetric(varargin)
   endif
 
   ## create spin-orbit component metric
-  [results.sometric, socoordIDs, start_time, ref_time] = ...
+  [sometric, socoordIDs, start_time, ref_time] = ...
       CreatePhaseMetric("coords", "spin_equ,orbit_ecl,freq,fdots",
                         "spindowns", spindowns,
                         "start_time", start_time,
@@ -111,14 +102,14 @@ function results = TestSuperSkyMetric(varargin)
                         "det_motion", sprintf("spin+%sorbit", ptole));
 
   ## construct super-sky metrics
-  ssm_equ = ConstructSuperSkyMetrics(results.sometric, socoordIDs, "sky_coords", "equatorial", "aligned_sky", true);
-  ssm_ecl = ConstructSuperSkyMetrics(results.sometric, socoordIDs, "sky_coords", "ecliptic", "aligned_sky", true);
-  results.ssmetric = ssm_equ.ssmetric;
-  results.d_ssmetric_equ = ssm_equ.dssmetric;
+  ssm_equ = ConstructSuperSkyMetrics(sometric, socoordIDs, "sky_coords", "equatorial", "aligned_sky", true);
+  ssm_ecl = ConstructSuperSkyMetrics(sometric, socoordIDs, "sky_coords", "ecliptic", "aligned_sky", true);
+  ssmetric = ssm_equ.ssmetric;
+  d_ssmetric_equ = ssm_equ.dssmetric;
   d_skyoff_equ = ssm_equ.dskyoff;
-  results.d_ssmetric_ecl = ssm_ecl.dssmetric;
+  d_ssmetric_ecl = ssm_ecl.dssmetric;
   d_skyoff_ecl = ssm_ecl.dskyoff;
-  results.a_ssmetric = ssm_equ.assmetric;
+  a_ssmetric = ssm_equ.assmetric;
   a_skyoff = ssm_equ.askyoff;
   a_alignsky = ssm_equ.alignsky;
 
@@ -132,7 +123,7 @@ function results = TestSuperSkyMetric(varargin)
          find(ssm_equ.sscoordIDs == DOPPLERCOORD_F3DOT)];
 
   ## create linear phase model metrics from Andrzej Krolak etal's papers
-  [results.ssmetric_lpI, sscoordIDs_lpI] = ...
+  [ssmetric_lpI, sscoordIDs_lpI] = ...
       CreatePhaseMetric("coords", "ssky_equ,freq,fdots",
                         "spindowns", spindowns,
                         "start_time", start_time,
@@ -143,7 +134,7 @@ function results = TestSuperSkyMetric(varargin)
                         "fiducial_freq", fiducial_freq,
                         "det_motion", sprintf("spinxy+%sorbit", ptole));
   assert(all(sscoordIDs_lpI == ssm_equ.sscoordIDs));
-  [results.ssmetric_lpII, sscoordIDs_lpII] = ...
+  [ssmetric_lpII, sscoordIDs_lpII] = ...
       CreatePhaseMetric("coords", "ssky_equ,freq,fdots",
                         "spindowns", spindowns,
                         "start_time", start_time,
@@ -162,13 +153,13 @@ function results = TestSuperSkyMetric(varargin)
   sp_iff(sp_iff > inc) -= 1;
 
   ## create sky-projected aligned super-sky metric by removing aligned-c direction
-  spa_ssmetric = results.a_ssmetric;
+  spa_ssmetric = a_ssmetric;
   spa_ssmetric(inc, :) = spa_ssmetric(:, inc) = [];
 
   ## create sky-projected un-aligned decoupled super-sky metrics by zeroing equatorial/ecliptic-z directions
-  spd_ssmetric_equ = results.d_ssmetric_equ;
+  spd_ssmetric_equ = d_ssmetric_equ;
   spd_ssmetric_equ(inc, :) = spd_ssmetric_equ(:, inc) = 0;
-  spd_ssmetric_ecl = results.d_ssmetric_ecl;
+  spd_ssmetric_ecl = d_ssmetric_ecl;
   spd_ssmetric_ecl(inc, :) = spd_ssmetric_ecl(:, inc) = 0;
 
   ## diagonally normalise sky-projected aligned metric
@@ -186,10 +177,10 @@ function results = TestSuperSkyMetric(varargin)
     gct_injections = (spindowns <= 2 && isempty(strfind(detectors, ",")));
   endif
   if gct_injections
-    results.gct_taylor_metric = GCTCoherentTaylorMetric("smax", spindowns,
-                                                        "tj", start_time + 0.5 * time_span,
-                                                        "t0", ref_time,
-                                                        "T", time_span);
+    gct_taylor_metric = GCTCoherentTaylorMetric("smax", spindowns,
+                                                "tj", start_time + 0.5 * time_span,
+                                                "t0", ref_time,
+                                                "T", time_span);
     gct_full_metric_cache = [];
   endif
 
@@ -267,12 +258,12 @@ function results = TestSuperSkyMetric(varargin)
     a_n2 = [x2; sign(a_n1(3, :)).*real(sqrt(1 - sumsq(x2)))];
 
     ## create point offsets in (non-sky-projected) aligned metric
-    a_dp = zeros(size(results.a_ssmetric, 1), injection_block);
+    a_dp = zeros(size(a_ssmetric, 1), injection_block);
     a_dp([ina, inb, inc], :) = a_n2 - a_n1;
     a_dp(iff, :) = spa_dp(sp_iff, :);
 
     ## compute mismatch in aligned metric
-    mu_a_ssmetric = dot(a_dp, results.a_ssmetric * a_dp);
+    mu_a_ssmetric = dot(a_dp, a_ssmetric * a_dp);
 
     ## compute inverse coordinate transform from aligned coordinates to untransformed super-sky coordinates
     n1_equ = a_alignsky \ a_n1;
@@ -282,7 +273,7 @@ function results = TestSuperSkyMetric(varargin)
     dp(iff, :) = a_dp(iff, :) - a_skyoff * a_dp([ina, inb, inc], :);
 
     ## compute mismatch in untransformed metric
-    mu_ssmetric = dot(dp, results.ssmetric * dp);
+    mu_ssmetric = dot(dp, ssmetric * dp);
 
     ## compute coordinate transform from untransformed to un-aligned decoupled equatorial super-sky coordinates
     d_dp_equ = zeros(size(dp));
@@ -290,7 +281,7 @@ function results = TestSuperSkyMetric(varargin)
     d_dp_equ(iff, :) = dp(iff, :) + d_skyoff_equ * d_dp_equ([ina, inb, inc], :);
 
     ## compute mismatch in (sky-projected) un-aligned decoupled equatorial metric
-    mu_d_ssmetric_equ = dot(d_dp_equ, results.d_ssmetric_equ * d_dp_equ);
+    mu_d_ssmetric_equ = dot(d_dp_equ, d_ssmetric_equ * d_dp_equ);
     mu_spd_ssmetric_equ = dot(d_dp_equ, spd_ssmetric_equ * d_dp_equ);
 
     ## convert sky position points from equatorial to ecliptic coordinates
@@ -303,14 +294,14 @@ function results = TestSuperSkyMetric(varargin)
     d_dp_ecl(iff, :) = dp(iff, :) + d_skyoff_ecl * d_dp_ecl([ina, inb, inc], :);
 
     ## compute mismatch in (sky-projected) un-aligned decoupled ecliptic metric
-    mu_d_ssmetric_ecl = dot(d_dp_ecl, results.d_ssmetric_ecl * d_dp_ecl);
+    mu_d_ssmetric_ecl = dot(d_dp_ecl, d_ssmetric_ecl * d_dp_ecl);
     mu_spd_ssmetric_ecl = dot(d_dp_ecl, spd_ssmetric_ecl * d_dp_ecl);
 
     ## compute mismatch in metric with linear phase model I
-    mu_ssmetric_lpI = dot(dp, results.ssmetric_lpI * dp);
+    mu_ssmetric_lpI = dot(dp, ssmetric_lpI * dp);
 
     ## compute mismatch in metric with linear phase model II
-    mu_ssmetric_lpII = dot(dp, results.ssmetric_lpII * dp);
+    mu_ssmetric_lpII = dot(dp, ssmetric_lpII * dp);
 
     ## compute right ascensions alpha1 and alpha2 from sky positions n1_equ and n2_equ
     alpha1 = atan2(n1_equ(2, :), n1_equ(1, :));
@@ -341,7 +332,7 @@ function results = TestSuperSkyMetric(varargin)
     ad_dp(inc, :) = cosdelta.*ddelta;
 
     ## compute mismatch in metric using physical coordinates (alpha,delta)
-    mu_ssmetric_ad = dot(ad_dp, results.ssmetric * ad_dp);
+    mu_ssmetric_ad = dot(ad_dp, ssmetric * ad_dp);
 
     if gct_injections
 
@@ -369,7 +360,7 @@ function results = TestSuperSkyMetric(varargin)
 
       ## compute mismatch in the Taylor-expanded GCT metric
       gct_dcoord = gct_coord2 - gct_coord1;
-      mu_gct_taylor = dot(gct_dcoord, results.gct_taylor_metric * gct_dcoord);
+      mu_gct_taylor = dot(gct_dcoord, gct_taylor_metric * gct_dcoord);
 
       ## compute the full GCT metric
       gct_full_metric = GCTCoherentFullMetric(gct_full_metric_cache,
