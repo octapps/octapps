@@ -391,7 +391,7 @@ function results = TestSuperSkyMetric(varargin)
     if full_injections
 
       ## iterate over full software injections
-      mu_twoF = zeros(1, injection_block);
+      twoF_perfect = twoF_mismatch = zeros(1, injection_block);
       for n = 1:injection_block
 
         ## set up injection and search parameters
@@ -417,15 +417,13 @@ function results = TestSuperSkyMetric(varargin)
 
         ## get 2F values for perfect and mismatched injections
         assert(length(inj_results.sch_twoF) == 2);
-        twoF_perfect = inj_results.sch_twoF(1);
-        twoF_mismatch = inj_results.sch_twoF(2);
-
-        ## compute mismatch using injections
-        mu_twoF(n) = (twoF_perfect - twoF_mismatch) ./ (twoF_perfect - 4);
+        twoF_perfect(n) = inj_results.sch_twoF(1);
+        twoF_mismatch(n) = inj_results.sch_twoF(2);
 
       endfor
 
-      ## change any NaNs to Infs
+      ## compute mismatch using injections; change any NaNs to Infs
+      mu_twoF = (twoF_perfect - twoF_mismatch) ./ (twoF_perfect - 4);
       mu_twoF(isnan(mu_twoF)) = inf;
 
     endif
