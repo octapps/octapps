@@ -17,20 +17,6 @@
 ## Test the super-sky metric with random offsets and (optionally) full software injections.
 ## Usage:
 ##   results = TestSuperSkyMetric(...)
-## where results struct contains:
-##   mismatch error histograms (with respect to untransformed mismatch):
-##     mu_spa_ssmetric_H     = error in sky-projected aligned mismatch
-##     mu_spd_ssmetric_equ_H = error in sky-projected un-aligned equatorial mismatch
-##     mu_spd_ssmetric_ecl_H = error in sky-projected un-aligned ecliptic mismatch
-##     mu_d_ssmetric_equ_H   = error in un-aligned equatorial mismatch
-##     mu_d_ssmetric_ecl_H   = error in un-aligned ecliptic mismatch
-##     mu_a_ssmetric_H       = error in aligned mismatch compared to untransformed mismatch
-##     mu_ssmetric_lpI_H     = error in linear phase model I metric compared to untransformed mismatch
-##     mu_ssmetric_lpII_H    = error in linear phase model II metric compared to untransformed mismatch
-##     mu_ssmetric_ad_H      = error in mismatch using physical coordinates compared to untransformed mismatch
-##     mu_gct_taylor_H       = error in mismatch using GCT Taylor-expanded metric computed by GCTCoherentTaylorMetric()
-##     mu_gct_full_H         = error in mismatch using GCT full metric computed by GCTCoherentFullMetric()
-##     mu_twoF_H             = (optional) error in full software injections mismatch compared to untransformed mismatch
 ## Options:
 ##   spindowns:       number of frequency spindowns coordinates
 ##   start_time:      start time in GPS seconds (default: see CreatePhaseMetric)
@@ -46,6 +32,23 @@
 ##   gct_injections:  whether to perform GCT injections (default: true for spindowns <= 2 and detectors <= 1)
 ##   injection_block: number of injections to perform at once (default: 100)
 ##   ptolemaic:       use Ptolemaic orbital motion (default: false)
+## Results struct contains sub-structures:
+##   <mismatch>_wrt_<ref_mismatch>_err
+## where <mismatch> can be mismatch computed using:
+##   spa_ssmetric:     sky-projected aligned super-sky metric
+##   spd_ssmetric_equ: sky-projected un-aligned equatorial super-sky metric
+##   spd_ssmetric_ecl: sky-projected un-aligned ecliptic super-sky metric
+##   d_ssmetric_equ:   un-aligned equatorial super-sky metric
+##   d_ssmetric_ecl:   un-aligned ecliptic super-sky metric
+##   a_ssmetric:       aligned super-sky metric
+##   ssmetric_lpI:     super-sky metric using linear phase model I
+##   ssmetric_lpII:    super-sky metric using linear phase model II
+##   ssmetric_ad:      super-sky metric using right ascension and declination as sky coordinates
+##   gct_taylor:       GCT Taylor-expanded metric computed by GCTCoherentTaylorMetric()
+##   gct_full:         GCT full metric computed by GCTCoherentFullMetric()
+## and <mismatch_ref> can be mismatch computed using:
+##   ssmetric:         un-transformed super-sky metric
+##   twoF:             2F computed using full software injections
 
 function results = TestSuperSkyMetric(varargin)
 
@@ -184,30 +187,9 @@ function results = TestSuperSkyMetric(varargin)
     gct_full_metric_cache = [];
   endif
 
-  ## build error histogram dimensionality and bin types
-  H_args = {3, ...
-            {"log", "minrange", 0.01, "binsper10", 5}, ...	## mismatch
-            {"lin", "dbin", 2*pi/15}, ...			## right ascension
-            {"lin", "dbin", pi/15}, ...				## declination
-            };
-
-  ## initialise result histograms
-  results.mu_spa_ssmetric_H = Hist(H_args{:});
-  results.mu_spd_ssmetric_equ_H = Hist(H_args{:});
-  results.mu_spd_ssmetric_ecl_H = Hist(H_args{:});
-  results.mu_d_ssmetric_equ_H = Hist(H_args{:});
-  results.mu_d_ssmetric_ecl_H = Hist(H_args{:});
-  results.mu_a_ssmetric_H = Hist(H_args{:});
-  results.mu_ssmetric_lpI_H = Hist(H_args{:});
-  results.mu_ssmetric_lpII_H = Hist(H_args{:});
-  results.mu_ssmetric_ad_H = Hist(H_args{:});
-  if gct_injections
-    results.mu_gct_taylor_H = Hist(H_args{:});
-    results.mu_gct_full_H = Hist(H_args{:});
-  endif
-  if full_injections
-    results.mu_twoF_H = Hist(H_args{:});
-  endif
+  ## initialise structs
+  results = mism = struct;
+  mism_ref_fnames = {"ssmetric", "twoF"};
 
   ## start CPU seconds counter
   cputime0 = cputime();
@@ -248,7 +230,7 @@ function results = TestSuperSkyMetric(varargin)
     spa_dp([ina, inb], :) = dx;
 
     ## compute mismatch in sky-projected aligned metric
-    mu_spa_ssmetric = dot(spa_dp, spa_ssmetric * spa_dp);
+    mism.spa_ssmetric = dot(spa_dp, spa_ssmetric * spa_dp);
 
     ## compute second random point by adding (scaled) offset
     x2 = x1 + dx;
@@ -263,45 +245,45 @@ function results = TestSuperSkyMetric(varargin)
     a_dp(iff, :) = spa_dp(sp_iff, :);
 
     ## compute mismatch in aligned metric
-    mu_a_ssmetric = dot(a_dp, a_ssmetric * a_dp);
+    mism.a_ssmetric = dot(a_dp, a_ssmetric * a_dp);
 
-    ## compute inverse coordinate transform from aligned coordinates to untransformed super-sky coordinates
+    ## compute inverse coordinate transform from aligned coordinates to un-transformed super-sky coordinates
     n1_equ = a_alignsky \ a_n1;
     n2_equ = a_alignsky \ a_n2;
     dp = zeros(size(a_dp));
     dp([ina, inb, inc], :) = n2_equ - n1_equ;
     dp(iff, :) = a_dp(iff, :) - a_skyoff * a_dp([ina, inb, inc], :);
 
-    ## compute mismatch in untransformed metric
-    mu_ssmetric = dot(dp, ssmetric * dp);
+    ## compute mismatch in un-transformed metric
+    mism.ssmetric = dot(dp, ssmetric * dp);
 
-    ## compute coordinate transform from untransformed to un-aligned decoupled equatorial super-sky coordinates
+    ## compute coordinate transform from un-transformed to un-aligned decoupled equatorial super-sky coordinates
     d_dp_equ = zeros(size(dp));
     d_dp_equ([ina, inb, inc], :) = n2_equ - n1_equ;
     d_dp_equ(iff, :) = dp(iff, :) + d_skyoff_equ * d_dp_equ([ina, inb, inc], :);
 
     ## compute mismatch in (sky-projected) un-aligned decoupled equatorial metric
-    mu_d_ssmetric_equ = dot(d_dp_equ, d_ssmetric_equ * d_dp_equ);
-    mu_spd_ssmetric_equ = dot(d_dp_equ, spd_ssmetric_equ * d_dp_equ);
+    mism.d_ssmetric_equ = dot(d_dp_equ, d_ssmetric_equ * d_dp_equ);
+    mism.spd_ssmetric_equ = dot(d_dp_equ, spd_ssmetric_equ * d_dp_equ);
 
     ## convert sky position points from equatorial to ecliptic coordinates
     n1_ecl = EQU2ECL * n1_equ;
     n2_ecl = EQU2ECL * n2_equ;
 
-    ## compute coordinate transform from untransformed to un-aligned decoupled ecliptic super-sky coordinates
+    ## compute coordinate transform from un-transformed to un-aligned decoupled ecliptic super-sky coordinates
     d_dp_ecl = zeros(size(dp));
     d_dp_ecl([ina, inb, inc], :) = n2_ecl - n1_ecl;
     d_dp_ecl(iff, :) = dp(iff, :) + d_skyoff_ecl * d_dp_ecl([ina, inb, inc], :);
 
     ## compute mismatch in (sky-projected) un-aligned decoupled ecliptic metric
-    mu_d_ssmetric_ecl = dot(d_dp_ecl, d_ssmetric_ecl * d_dp_ecl);
-    mu_spd_ssmetric_ecl = dot(d_dp_ecl, spd_ssmetric_ecl * d_dp_ecl);
+    mism.d_ssmetric_ecl = dot(d_dp_ecl, d_ssmetric_ecl * d_dp_ecl);
+    mism.spd_ssmetric_ecl = dot(d_dp_ecl, spd_ssmetric_ecl * d_dp_ecl);
 
     ## compute mismatch in metric with linear phase model I
-    mu_ssmetric_lpI = dot(dp, ssmetric_lpI * dp);
+    mism.ssmetric_lpI = dot(dp, ssmetric_lpI * dp);
 
     ## compute mismatch in metric with linear phase model II
-    mu_ssmetric_lpII = dot(dp, ssmetric_lpII * dp);
+    mism.ssmetric_lpII = dot(dp, ssmetric_lpII * dp);
 
     ## compute right ascensions alpha1 and alpha2 from sky positions n1_equ and n2_equ
     alpha1 = atan2(n1_equ(2, :), n1_equ(1, :));
@@ -332,20 +314,20 @@ function results = TestSuperSkyMetric(varargin)
     ad_dp(inc, :) = cosdelta.*ddelta;
 
     ## compute mismatch in metric using physical coordinates (alpha,delta)
-    mu_ssmetric_ad = dot(ad_dp, ssmetric * ad_dp);
+    mism.ssmetric_ad = dot(ad_dp, ssmetric * ad_dp);
+
+    ## calculate injection and offset frequencies
+    fndot1 = [fiducial_freq*ones(1, injection_block); zeros(spindowns, injection_block)];
+    fndot2 = fndot1 + dp(iff, :);
 
     if gct_injections
-
-      ## frequency points for computing GCT coordinates
-      gct_fndot1 = [fiducial_freq*ones(1, injection_block); zeros(spindowns, injection_block)];
-      gct_fndot2 = gct_fndot1 + dp(iff, :);
 
       ## compute GCT coordinates
       gct_coord1 = GCTCoordinates("t0", ref_time,
                                   "T", time_span,
                                   "alpha", alpha1,
                                   "delta", delta1,
-                                  "fndot", gct_fndot1,
+                                  "fndot", fndot1,
                                   "detector", detectors,
                                   "ephemerides", ephemerides,
                                   "ptolemaic", ptolemaic);
@@ -353,14 +335,14 @@ function results = TestSuperSkyMetric(varargin)
                                   "T", time_span,
                                   "alpha", alpha2,
                                   "delta", delta2,
-                                  "fndot", gct_fndot2,
+                                  "fndot", fndot2,
                                   "detector", detectors,
                                   "ephemerides", ephemerides,
                                   "ptolemaic", ptolemaic);
 
       ## compute mismatch in the Taylor-expanded GCT metric
       gct_dcoord = gct_coord2 - gct_coord1;
-      mu_gct_taylor = dot(gct_dcoord, gct_taylor_metric * gct_dcoord);
+      mism.gct_taylor = dot(gct_dcoord, gct_taylor_metric * gct_dcoord);
 
       ## compute the full GCT metric
       gct_full_metric = GCTCoherentFullMetric(gct_full_metric_cache,
@@ -375,7 +357,7 @@ function results = TestSuperSkyMetric(varargin)
                                               "ptolemaic", ptolemaic);
 
       ## compute mismatch in the full GCT metric
-      mu_gct_full = arrayfun(@(n) dot(gct_dcoord(:, n), gct_full_metric(:, :, n) * gct_dcoord(:, n)), 1:injection_block);
+      mism.gct_full = arrayfun(@(n) dot(gct_dcoord(:, n), gct_full_metric(:, :, n) * gct_dcoord(:, n)), 1:injection_block);
 
     endif
 
@@ -388,10 +370,10 @@ function results = TestSuperSkyMetric(varargin)
         ## set up injection and search parameters
         inj_alpha = alpha1(n);
         inj_delta = delta1(n);
-        inj_fndot = [fiducial_freq; zeros(spindowns, 1)];
-        sch_alpha = [inj_alpha, inj_alpha + dalpha(n)];
-        sch_delta = [inj_delta, inj_delta + ddelta(n)];
-        sch_fndot = [inj_fndot, inj_fndot + dp(iff, n)];
+        inj_fndot = fndot1(:, n);
+        sch_alpha = [inj_alpha, alpha2(n)];
+        sch_delta = [inj_delta, delta2(n)];
+        sch_fndot = [inj_fndot, fndot2(:, n)];
 
         ## perform software injections in generated SFTs
         inj_results = DoFstatInjections("ref_time", ref_time,
@@ -414,69 +396,82 @@ function results = TestSuperSkyMetric(varargin)
       endfor
 
       ## compute mismatch using injections; change any NaNs to Infs
-      mu_twoF = (twoF_perfect - twoF_mismatch) ./ (twoF_perfect - 4);
-      mu_twoF(isnan(mu_twoF)) = inf;
+      mism.twoF = (twoF_perfect - twoF_mismatch) ./ (twoF_perfect - 4);
+      mism.twoF(isnan(mism.twoF)) = inf;
 
     endif
 
-    ## build error histogram parameters
-    H_par = [alpha1(:), delta1(:)];
+    ## iterate over computed and reference mismatches
+    mism_fnames = fieldnames(mism);
+    for i = 1:length(mism_fnames)
+      for j = 1:length(mism_ref_fnames)
+        mism_fn = mism_fnames{i};
+        mism_ref_fn = mism_ref_fnames{j};
 
-    ## bin error in sky-projected aligned mismatch compared to untransformed super-sky mismatch
-    mu_spa_ssmetric_err = mu_spa_ssmetric ./ mu_ssmetric - 1;
-    results.mu_spa_ssmetric_H = addDataToHist(results.mu_spa_ssmetric_H, [mu_spa_ssmetric_err(:), H_par]);
+        ## exclude non-computed reference mismatches
+        if !isfield(mism, mism_ref_fn)
+          continue
+        endif
 
-    ## bin error in sky-projected un-aligned decoupled equatorial mismatch compared to untransformed super-sky mismatch
-    mu_spd_ssmetric_equ_err = mu_spd_ssmetric_equ ./ mu_ssmetric - 1;
-    results.mu_spd_ssmetric_equ_H = addDataToHist(results.mu_spd_ssmetric_equ_H, [mu_spd_ssmetric_equ_err(:), H_par]);
+        ## select distinct pairs of mismatches
+        if strcmp(mism_fn, mism_ref_fn)
+          continue
+        endif
 
-    ## bin error in sky-projected un-aligned decoupled ecliptic mismatch compared to untransformed super-sky mismatch
-    mu_spd_ssmetric_ecl_err = mu_spd_ssmetric_ecl ./ mu_ssmetric - 1;
-    results.mu_spd_ssmetric_ecl_H = addDataToHist(results.mu_spd_ssmetric_ecl_H, [mu_spd_ssmetric_ecl_err(:), H_par]);
+        ## get mismatches and compute mismatch error
+        mu = mism.(mism_fn);
+        mu_ref = mism.(mism_ref_fn);
+        mu_err = (mu - mu_ref) ./ (0.5 .* (abs(mu) + abs(mu_ref)));
 
-    ## bin error in un-aligned decoupled equatorial mismatch compared to untransformed super-sky mismatch
-    mu_d_ssmetric_equ_err = mu_d_ssmetric_equ ./ mu_ssmetric - 1;
-    results.mu_d_ssmetric_equ_H = addDataToHist(results.mu_d_ssmetric_equ_H, [mu_d_ssmetric_equ_err(:), H_par]);
+        ## get name of error histogram field
+        res_fn = sprintf("%s_wrt_%s_err", mism_fn, mism_ref_fn);
 
-    ## bin error in un-aligned decoupled ecliptic mismatch compared to untransformed super-sky mismatch
-    mu_d_ssmetric_ecl_err = mu_d_ssmetric_ecl ./ mu_ssmetric - 1;
-    results.mu_d_ssmetric_ecl_H = addDataToHist(results.mu_d_ssmetric_ecl_H, [mu_d_ssmetric_ecl_err(:), H_par]);
+        ## create error field if it does not already exist
+        if !isfield(results, res_fn)
+          results.(res_fn) = struct;
+          results.(res_fn).hgrm = Hist(4, ...
+                                       {"lin", "dbin", 0.01}, ...				## mismatch error
+                                       {"log", "minrange", 0.01, "binsper10", 10}, ...		## reference mismatch
+                                       {"lin", "dbin", 2*pi/30}, ...				## right ascension
+                                       {"lin", "dbin", pi/30} ...				## declination
+                                       );
+          results.(res_fn).min.mu_err = inf;
+          results.(res_fn).max.mu_err = -inf;
+        endif
 
-    ## bin error in aligned mismatch compared to untransformed super-sky mismatch
-    mu_a_ssmetric_err = mu_a_ssmetric ./ mu_ssmetric - 1;
-    results.mu_a_ssmetric_H = addDataToHist(results.mu_a_ssmetric_H, [mu_a_ssmetric_err(:), H_par]);
+        ## add mismatch error data to histogram
+        results.(res_fn).hgrm = addDataToHist(results.(res_fn).hgrm, [mu_err(:), mu_ref(:), alpha1(:), delta1(:)]);
 
-    ## bin error in linear phase model I mismatch compared to untransformed super-sky mismatch
-    mu_ssmetric_lpI_err = mu_ssmetric_lpI ./ mu_ssmetric - 1;
-    results.mu_ssmetric_lpI_H = addDataToHist(results.mu_ssmetric_lpI_H, [mu_ssmetric_lpI_err(:), H_par]);
+        ## record minimum values of mismatch error
+        [~, k] = min(mu_err);
+        if mu_err(k) < results.(res_fn).min.mu_err
+          results.(res_fn).min.mu_err = mu_err(k);
+          results.(res_fn).min.mu     = mu(k);
+          results.(res_fn).min.mu_ref = mu_ref(k);
+          results.(res_fn).min.alpha1 = alpha1(k);
+          results.(res_fn).min.delta1 = delta1(k);
+          results.(res_fn).min.fndot1 = fndot1(:, k);
+          results.(res_fn).min.alpha2 = alpha2(k);
+          results.(res_fn).min.delta2 = delta2(k);
+          results.(res_fn).min.fndot2 = fndot2(:, k);
+        endif
 
-    ## bin error in linear phase model II mismatch compared to untransformed super-sky mismatch
-    mu_ssmetric_lpII_err = mu_ssmetric_lpII ./ mu_ssmetric - 1;
-    results.mu_ssmetric_lpII_H = addDataToHist(results.mu_ssmetric_lpII_H, [mu_ssmetric_lpII_err(:), H_par]);
+        ## record maximum values of mismatch error
+        [~, k] = max(mu_err);
+        if mu_err(k) > results.(res_fn).max.mu_err
+          results.(res_fn).max.mu_err = mu_err(k);
+          results.(res_fn).max.mu     = mu(k);
+          results.(res_fn).max.mu_ref = mu_ref(k);
+          results.(res_fn).max.alpha1 = alpha1(k);
+          results.(res_fn).max.delta1 = delta1(k);
+          results.(res_fn).max.fndot1 = fndot1(:, k);
+          results.(res_fn).max.alpha2 = alpha2(k);
+          results.(res_fn).max.delta2 = delta2(k);
+          results.(res_fn).max.fndot2 = fndot2(:, k);
+        endif
 
-    ## bin error in mismatch using physical coordinates compared to untransformed super-sky mismatch
-    mu_ssmetric_ad_err = mu_ssmetric_ad ./ mu_ssmetric - 1;
-    results.mu_ssmetric_ad_H = addDataToHist(results.mu_ssmetric_ad_H, [mu_ssmetric_ad_err(:), H_par]);
-
-    if gct_injections
-
-      ## bin error in mismatch in the Taylor-expanded GCT metric compared to untransformed super-sky mismatch
-      mu_gct_taylor_err = mu_gct_taylor ./ mu_ssmetric - 1;
-      results.mu_gct_taylor_H = addDataToHist(results.mu_gct_taylor_H, [mu_gct_taylor_err(:), H_par]);
-
-      ## bin error in mismatch in the full GCT metric compared to untransformed super-sky mismatch
-      mu_gct_full_err = mu_gct_full ./ mu_ssmetric - 1;
-      results.mu_gct_full_H = addDataToHist(results.mu_gct_full_H, [mu_gct_full_err(:), H_par]);
-
-    endif
-
-    if full_injections
-
-      ## bin error in full software injections mismatch compared to untransformed super-sky mismatch
-      mu_twoF_err = mu_twoF ./ mu_ssmetric - 1;
-      results.mu_twoF_H = addDataToHist(results.mu_twoF_H, [mu_twoF_err(:), H_par]);
-
-    endif
+      endfor
+    endfor
 
   endwhile
 
