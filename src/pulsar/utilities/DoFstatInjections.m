@@ -199,6 +199,7 @@ function results = DoFstatInjections(varargin)
 
   ## run ComputeFStat() for each injection point
   CFSbuffer = new_ComputeFBuffer;
+  Fnormsqr = 1 / (0.5 * Tsft);
   for i = 1:num_sch
 
     ## fill input Doppler parameters struct for ComputeFStat()
@@ -211,8 +212,8 @@ function results = DoFstatInjections(varargin)
     ## run ComputeFStat()
     ComputeFStat(Fcomp, Doppler, multiSFTs, [], detStates, CFSparams, CFSbuffer);
 
-    ## return F-statistic values
-    results.sch_twoF(i) = 2 * Fcomp.F;
+    ## return F-statistic values, properly normalised for signal-only case
+    results.sch_twoF(i) = 2 * (2 + Fcomp.F * Fnormsqr);
 
   endfor
   EmptyComputeFBuffer(CFSbuffer);
