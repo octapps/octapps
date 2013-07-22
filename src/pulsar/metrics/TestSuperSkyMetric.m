@@ -443,7 +443,7 @@ function results = TestSuperSkyMetric(varargin)
         results.(res_fn).hgrm = addDataToHist(results.(res_fn).hgrm, [mu_err(:), mu_ref(:), alpha1(:), delta1(:)]);
 
         ## record minimum values of mismatch error
-        [~, k] = min(mu_err);
+        [_, k] = min(mu_err);
         if mu_err(k) < results.(res_fn).min.mu_err
           results.(res_fn).min.mu_err = mu_err(k);
           results.(res_fn).min.mu     = mu(k);
@@ -457,7 +457,7 @@ function results = TestSuperSkyMetric(varargin)
         endif
 
         ## record maximum values of mismatch error
-        [~, k] = max(mu_err);
+        [_, k] = max(mu_err);
         if mu_err(k) > results.(res_fn).max.mu_err
           results.(res_fn).max.mu_err = mu_err(k);
           results.(res_fn).max.mu     = mu(k);
