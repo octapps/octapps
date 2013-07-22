@@ -77,3 +77,6 @@ HOURS		= 3600;
 DAYS		= 24 * HOURS;
 YEARS		= YRTROP_SI;		%% also know as the "solar year", ~365.242 days
 MONTHS		= YEARS / 12;
+
+%% Standard astronomical time units for convenience
+ANNUM           = 31557600;             %% Julian year of 365.25 days * 86400 seconds
