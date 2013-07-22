@@ -92,7 +92,7 @@ function hgrm = addDataToHist(hgrm, data)
             range = newbinmin = binmin;
             do
               range *= 10;
-              binslo = linspace(range, newbinmin, binsper10 + 1);
+              binslo = linspace(range, newbinmin, binsper10);
               newbinslo = [binslo(1:end-1), newbinslo];
               newbinmin = newbinslo(1);
             until !(datamin < newbinmin)
@@ -101,7 +101,7 @@ function hgrm = addDataToHist(hgrm, data)
             range = newbinmax = binmax;
             do
               range *= 10;
-              binshi = linspace(newbinmax, range, binsper10 + 1);
+              binshi = linspace(newbinmax, range, binsper10);
               newbinshi = [newbinshi, binshi(2:end)];
               newbinmax = newbinshi(end);
             until !(datamax > newbinmax)
