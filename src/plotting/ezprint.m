@@ -48,7 +48,11 @@ function ezprint(filename, varargin)
   ## set figure width and height
   paperpos = get(gcf, "paperposition");
   height = aspect * width;
-  set(gcf, "paperorientation", "landscape");
+  if width > height
+    set(gcf, "paperorientation", "landscape");
+  else
+    set(gcf, "paperorientation", "portrait");
+  endif
   set(gcf, "papertype", "<custom>");
   set(gcf, "papersize", [width, height]);
   set(gcf, "paperposition", [0, 0, width, height]);
