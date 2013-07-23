@@ -24,6 +24,9 @@
 ##   ephemerides: Earth/Sun ephemerides from loadEphemerides()
 ##   sft_time_span: SFT time-span in seconds (default: 1800)
 ##   sft_overlap: SFT overlap in seconds (default: 0)
+##   sft_band: SFT band-width in Hz (default: automatically determined)
+##             - Minimum and maximum SFT frequencies SFT_min_freq and
+##               SFT_max_freq are returned in results
 ##  *inj_h0: injected h0 strain amplitude (default: 1.0)
 ##  *inj_cosi: injected cosine of inclination angle (default: random)
 ##  *inj_psi: injected polarisation angle (default: random)
@@ -31,7 +34,6 @@
 ##  *inj_alpha: injected right ascension (default: random)
 ##  *inj_delta: injected declination (default: random)
 ##  *inj_fndot: injected frequency/spindowns (default: 100 Hz)
-##   inj_band_pad: padding to add to SFTs either side of injections (default: 0.1 Hz)
 ##  *sch_alpha: searched right ascension (default: same as injected)
 ##  *sch_delta: searched declination (default: same as injected)
 ##  *sch_fndot: searched frequency/spindowns (default: same as injected)
@@ -51,6 +53,7 @@ function results = DoFstatInjections(varargin)
                {"ephemerides", "a:swig_ref", []},
                {"sft_time_span", "real,strictpos,scalar", 1800},
                {"sft_overlap", "real,positive,scalar", 0},
+               {"sft_band", "real,strictpos,scalar", []},
                {"inj_h0", "real,strictpos,scalar", 1.0},
                {"inj_cosi", "real,scalar", -1 + 2*rand()},
                {"inj_psi", "real,scalar", 2*pi*rand()},
@@ -138,42 +141,56 @@ function results = DoFstatInjections(varargin)
   ## generate SFT timestamps
   multiTimestamps = MakeMultiTimestamps(startTime, time_span, sft_time_span, sft_overlap, detNames.length);
 
-  ## determine range of frequencies spanned by injections and searches
-  min_freq = min([inj_fndot(1), sch_fndot(1, :)]);
-  max_freq = max([inj_fndot(1), sch_fndot(1, :)]);
+  if isempty(sft_band)
 
-  ## if injection includes spindowns, determine what frequency band they cover
-  if length(inj_fndot) > 1
+    ## determine range of frequencies spanned by injections and searches
+    min_freq = min([inj_fndot(1), sch_fndot(1, :)]);
+    max_freq = max([inj_fndot(1), sch_fndot(1, :)]);
 
-    ## compute range of frequencies covered at beginning and end of SFTs
-    dfreqs = [];
-    spins = [inj_fndot(2:end), sch_fndot(2:end, :)];
-    orders = (1:length(inj_fndot)-1)';
-    inv_facts = 1 ./ factorial(orders);
-    for i = 1:size(spins, 2)
-      dfreqs = [dfreqs, ...
-                sum(spins(:, i) .* inv_facts .* (start_time - ref_time).^orders), ...
-                sum(spins(:, i) .* inv_facts .* (start_time + time_span - ref_time).^orders)];
-    endfor
+    ## if injection includes spindowns, determine what frequency band they cover
+    if length(inj_fndot) > 1
 
-    ## add spindown range to frequency range
-    min_freq += min(dfreqs);
-    max_freq += max(dfreqs);
+      ## compute range of frequencies covered at beginning and end of SFTs
+      dfreqs = [];
+      spins = [inj_fndot(2:end), sch_fndot(2:end, :)];
+      orders = (1:length(inj_fndot)-1)';
+      inv_facts = 1 ./ factorial(orders);
+      for i = 1:size(spins, 2)
+        dfreqs = [dfreqs, ...
+                  sum(spins(:, i) .* inv_facts .* (start_time - ref_time).^orders), ...
+                  sum(spins(:, i) .* inv_facts .* (start_time + time_span - ref_time).^orders)];
+      endfor
+
+      ## add spindown range to frequency range
+      min_freq += min(dfreqs);
+      max_freq += max(dfreqs);
+
+    endif
+
+    ## add the maximum frequency modulation due to the orbital Doppler modulation
+    dfreq_orbit = 2*pi * LAL_AU_SI / LAL_C_SI / LAL_YRSID_SI * max_freq;
+    min_freq -= dfreq_orbit;
+    max_freq += dfreq_orbit;
+
+    ## add the minimum number of bins requires by ComputeFStat()
+    min_freq -= CFSparams.Dterms / sft_time_span;
+    max_freq += CFSparams.Dterms / sft_time_span;
+
+    ## round frequencies down/up to nearest SFT bin, and add a few more bins for safety
+    min_freq = (floor(min_freq * sft_time_span) - 5) / sft_time_span;
+    max_freq = (floor(max_freq * sft_time_span) + 5) / sft_time_span;
+
+  else
+
+    ## use the supplied band around the injection frequency
+    min_freq = inj_fndot(1,1) - 0.5*sft_band;
+    max_freq = inj_fndot(1,1) + 0.5*sft_band;
 
   endif
 
-  ## add the maximum frequency modulation due to the orbital Doppler modulation
-  dfreq_orbit = 2*pi * LAL_AU_SI / LAL_C_SI / LAL_YRSID_SI * max_freq;
-  min_freq -= dfreq_orbit;
-  max_freq += dfreq_orbit;
-
-  ## add the minimum number of bins requires by ComputeFStat()
-  min_freq -= CFSparams.Dterms / sft_time_span;
-  max_freq += CFSparams.Dterms / sft_time_span;
-
-  ## round frequencies down/up to nearest SFT bin, and add a few more bins for safety
-  min_freq = (floor(min_freq * sft_time_span) - 5) / sft_time_span;
-  max_freq = (floor(max_freq * sft_time_span) + 5) / sft_time_span;
+  ## save frequency range in results
+  results.SFT_min_freq = min_freq;
+  results.SFT_max_freq = max_freq;
 
   ## create and fill input parameters struct for CWMakeFakeData()
   MFDparams = new_CWMFDataParams;
