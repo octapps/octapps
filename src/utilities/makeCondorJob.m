@@ -234,7 +234,7 @@ function job_file = makeCondorJob(varargin)
     bootstr = strcat(bootstr, sprintf("results={};\n%s;\n", callfuncstr));
   endif
   bootstr = strcat(bootstr, "wall_time=(double(tic())-double(wall_time))*1e-6;\ncpu_time=cputime()-cpu_time;\n");
-  bootstr = strcat(bootstr, "save(\"-zip\",\"stdres.txt.gz\",\"arguments\",\"results\",\"wall_time\",\"cpu_time\");\n");
+  bootstr = strcat(bootstr, "save(\"-binary\",\"-zip\",\"stdres.bin.gz\",\"arguments\",\"results\",\"wall_time\",\"cpu_time\");\n");
   bootstr = strcat(bootstr, "EOF\n");
 
   ## build Condor arguments string containing Octave function arguments
