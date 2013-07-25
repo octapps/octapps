@@ -71,7 +71,7 @@ function results = TestSuperSkyMetric(varargin)
                {"num_injections", "integer,strictpos,scalar", inf},
                {"full_injections", "logical,scalar", true},
                {"gct_injections", "logical,scalar", []},
-               {"injection_block", "integer,strictpos,scalar", 100},
+               {"injection_block", "integer,strictpos,scalar", 50000},
                {"ptolemaic", "logical,scalar", false},
                []);
 
