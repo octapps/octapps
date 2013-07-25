@@ -27,7 +27,6 @@
 ##   fiducial_freq:   fiducial frequency at which to perform tests
 ##   max_mismatch:    maximum prescribed mismatch to test at
 ##   num_injections:  number of injections to perform
-##   num_cpu_seconds: number of CPU seconds to perform injections for
 ##   full_injections: whether to perform full software injections (default: true)
 ##   gct_injections:  whether to perform GCT injections (default: true for spindowns <= 2 and detectors <= 1)
 ##   injection_block: number of injections to perform at once (default: 100)
@@ -70,15 +69,11 @@ function results = TestSuperSkyMetric(varargin)
                {"fiducial_freq", "real,strictpos,scalar"},
                {"max_mismatch", "real,strictpos,scalar", 0.5},
                {"num_injections", "integer,strictpos,scalar", inf},
-               {"num_cpu_seconds", "real,strictpos,scalar", inf},
                {"full_injections", "logical,scalar", true},
                {"gct_injections", "logical,scalar", []},
                {"injection_block", "integer,strictpos,scalar", 100},
                {"ptolemaic", "logical,scalar", false},
                []);
-  if !xor(isfinite(num_injections), isfinite(num_cpu_seconds))
-    error("%s: must give either num_injections or num_cpu_seconds", funcName);
-  endif
 
   ## load ephemerides if needed and not supplied
   if !ptolemaic && isempty(ephemerides)
@@ -187,19 +182,34 @@ function results = TestSuperSkyMetric(varargin)
     gct_full_metric_cache = [];
   endif
 
-  ## initialise structs
-  results = mism = struct;
-  mism_ref_fnames = {"ssmetric", "twoF"};
+  ## initialise results struct
+  results = struct;
+  results.mu_spa_ssmetric = nan(1, num_injections);
+  results.mu_a_ssmetric = nan(1, num_injections);
+  results.mu_ssmetric = nan(1, num_injections);
+  results.mu_d_ssmetric_equ = nan(1, num_injections);
+  results.mu_spd_ssmetric_equ = nan(1, num_injections);
+  results.mu_d_ssmetric_ecl = nan(1, num_injections);
+  results.mu_spd_ssmetric_ecl = nan(1, num_injections);
+  results.mu_ssmetric_lpI = nan(1, num_injections);
+  results.mu_ssmetric_lpII = nan(1, num_injections);
+  results.mu_ssmetric_ad = nan(1, num_injections);
+  results.mu_gct_taylor = nan(1, num_injections);
+  results.mu_gct_full = nan(1, num_injections);
+  results.mu_twoF = nan(1, num_injections);
+  results.alpha1 = nan(1, num_injections);
+  results.alpha2 = nan(1, num_injections);
+  results.delta1 = nan(1, num_injections);
+  results.delta2 = nan(1, num_injections);
+  results.dfndot = nan(spindowns+1, num_injections);
 
-  ## start CPU seconds counter
-  cputime0 = cputime();
-
-  ## iterate over all injections, or as long as CPU second limit allows
-  while num_injections > 0 && num_cpu_seconds > (cputime() - cputime0)
-    if injection_block > num_injections
-      injection_block = num_injections;
-    endif
-    num_injections -= injection_block;
+  ## iterate over all injections
+  start_injection = 1;
+  while start_injection <= num_injections
+    end_injection = min(start_injection + injection_block - 1, num_injections);
+    ii = start_injection:end_injection;
+    injection_block = length(ii);
+    start_injection = end_injection + 1;
 
     ## create random point offsets within unit sphere
     spa_dp = randPointInNSphere(size(spa_ssmetric, 1), rand(1, injection_block));
@@ -230,7 +240,7 @@ function results = TestSuperSkyMetric(varargin)
     spa_dp([ina, inb], :) = dx;
 
     ## compute mismatch in sky-projected aligned metric
-    mism.spa_ssmetric = dot(spa_dp, spa_ssmetric * spa_dp);
+    results.mu_spa_ssmetric(ii) = dot(spa_dp, spa_ssmetric * spa_dp);
 
     ## compute second random point by adding (scaled) offset
     x2 = x1 + dx;
@@ -245,7 +255,7 @@ function results = TestSuperSkyMetric(varargin)
     a_dp(iff, :) = spa_dp(sp_iff, :);
 
     ## compute mismatch in aligned metric
-    mism.a_ssmetric = dot(a_dp, a_ssmetric * a_dp);
+    results.mu_a_ssmetric(ii) = dot(a_dp, a_ssmetric * a_dp);
 
     ## compute inverse coordinate transform from aligned coordinates to un-transformed super-sky coordinates
     n1_equ = a_alignsky \ a_n1;
@@ -255,7 +265,7 @@ function results = TestSuperSkyMetric(varargin)
     dp(iff, :) = a_dp(iff, :) - a_skyoff * a_dp([ina, inb, inc], :);
 
     ## compute mismatch in un-transformed metric
-    mism.ssmetric = dot(dp, ssmetric * dp);
+    results.mu_ssmetric(ii) = dot(dp, ssmetric * dp);
 
     ## compute coordinate transform from un-transformed to un-aligned decoupled equatorial super-sky coordinates
     d_dp_equ = zeros(size(dp));
@@ -263,8 +273,8 @@ function results = TestSuperSkyMetric(varargin)
     d_dp_equ(iff, :) = dp(iff, :) + d_skyoff_equ * d_dp_equ([ina, inb, inc], :);
 
     ## compute mismatch in (sky-projected) un-aligned decoupled equatorial metric
-    mism.d_ssmetric_equ = dot(d_dp_equ, d_ssmetric_equ * d_dp_equ);
-    mism.spd_ssmetric_equ = dot(d_dp_equ, spd_ssmetric_equ * d_dp_equ);
+    results.mu_d_ssmetric_equ(ii) = dot(d_dp_equ, d_ssmetric_equ * d_dp_equ);
+    results.mu_spd_ssmetric_equ(ii) = dot(d_dp_equ, spd_ssmetric_equ * d_dp_equ);
 
     ## convert sky position points from equatorial to ecliptic coordinates
     n1_ecl = EQU2ECL * n1_equ;
@@ -276,14 +286,14 @@ function results = TestSuperSkyMetric(varargin)
     d_dp_ecl(iff, :) = dp(iff, :) + d_skyoff_ecl * d_dp_ecl([ina, inb, inc], :);
 
     ## compute mismatch in (sky-projected) un-aligned decoupled ecliptic metric
-    mism.d_ssmetric_ecl = dot(d_dp_ecl, d_ssmetric_ecl * d_dp_ecl);
-    mism.spd_ssmetric_ecl = dot(d_dp_ecl, spd_ssmetric_ecl * d_dp_ecl);
+    results.mu_d_ssmetric_ecl(ii) = dot(d_dp_ecl, d_ssmetric_ecl * d_dp_ecl);
+    results.mu_spd_ssmetric_ecl(ii) = dot(d_dp_ecl, spd_ssmetric_ecl * d_dp_ecl);
 
     ## compute mismatch in metric with linear phase model I
-    mism.ssmetric_lpI = dot(dp, ssmetric_lpI * dp);
+    results.mu_ssmetric_lpI(ii) = dot(dp, ssmetric_lpI * dp);
 
     ## compute mismatch in metric with linear phase model II
-    mism.ssmetric_lpII = dot(dp, ssmetric_lpII * dp);
+    results.mu_ssmetric_lpII(ii) = dot(dp, ssmetric_lpII * dp);
 
     ## compute right ascensions alpha1 and alpha2 from sky positions n1_equ and n2_equ
     alpha1 = mod(atan2(n1_equ(2, :), n1_equ(1, :)), 2*pi);
@@ -314,7 +324,7 @@ function results = TestSuperSkyMetric(varargin)
     ad_dp(inc, :) = cosdelta.*ddelta;
 
     ## compute mismatch in metric using physical coordinates (alpha,delta)
-    mism.ssmetric_ad = dot(ad_dp, ssmetric * ad_dp);
+    results.mu_ssmetric_ad(ii) = dot(ad_dp, ssmetric * ad_dp);
 
     ## calculate injection and offset frequencies
     fndot1 = [fiducial_freq*ones(1, injection_block); zeros(spindowns, injection_block)];
@@ -342,7 +352,7 @@ function results = TestSuperSkyMetric(varargin)
 
       ## compute mismatch in the Taylor-expanded GCT metric
       gct_dcoord = gct_coord2 - gct_coord1;
-      mism.gct_taylor = dot(gct_dcoord, gct_taylor_metric * gct_dcoord);
+      results.mu_gct_taylor(ii) = dot(gct_dcoord, gct_taylor_metric * gct_dcoord);
 
       ## compute the full GCT metric
       gct_full_metric = GCTCoherentFullMetric(gct_full_metric_cache,
@@ -357,7 +367,7 @@ function results = TestSuperSkyMetric(varargin)
                                               "ptolemaic", ptolemaic);
 
       ## compute mismatch in the full GCT metric
-      mism.gct_full = arrayfun(@(n) dot(gct_dcoord(:, n), gct_full_metric(:, :, n) * gct_dcoord(:, n)), 1:injection_block);
+      results.mu_gct_full(ii) = arrayfun(@(n) dot(gct_dcoord(:, n), gct_full_metric(:, :, n) * gct_dcoord(:, n)), 1:injection_block);
 
     endif
 
@@ -395,83 +405,17 @@ function results = TestSuperSkyMetric(varargin)
 
       endfor
 
-      ## compute mismatch using injections; change any NaNs to Infs
-      mism.twoF = (twoF_perfect - twoF_mismatch) ./ (twoF_perfect - 4);
-      mism.twoF(isnan(mism.twoF)) = inf;
+      ## compute mismatch using injections
+      results.mu_twoF(ii) = (twoF_perfect - twoF_mismatch) ./ (twoF_perfect - 4);
+
+      ## save sky positions and frequency/spindown offsets of injections
+      results.alpha1(ii) = alpha1;
+      results.alpha2(ii) = alpha2;
+      results.delta1(ii) = delta1;
+      results.delta2(ii) = delta2;
+      results.dfndot(:, ii) = dp(iff, :);
 
     endif
-
-    ## iterate over computed and reference mismatches
-    mism_fnames = fieldnames(mism);
-    for i = 1:length(mism_fnames)
-      for j = 1:length(mism_ref_fnames)
-        mism_fn = mism_fnames{i};
-        mism_ref_fn = mism_ref_fnames{j};
-
-        ## exclude non-computed reference mismatches
-        if !isfield(mism, mism_ref_fn)
-          continue
-        endif
-
-        ## select distinct pairs of mismatches
-        if strcmp(mism_fn, mism_ref_fn)
-          continue
-        endif
-
-        ## get mismatches and compute mismatch error
-        mu = mism.(mism_fn);
-        mu_ref = mism.(mism_ref_fn);
-        mu_err = (mu - mu_ref) ./ (0.5 .* (abs(mu) + abs(mu_ref)));
-
-        ## get name of error histogram field
-        res_fn = sprintf("%s_wrt_%s_err", mism_fn, mism_ref_fn);
-
-        ## create error field if it does not already exist
-        if !isfield(results, res_fn)
-          results.(res_fn) = struct;
-          results.(res_fn).hgrm = Hist(4, ...
-                                       {"lin", "dbin", 0.02}, ...				## mismatch error
-                                       {"log", "minrange", 0.01, "binsper10", 10}, ...		## reference mismatch
-                                       {"lin", "dbin", 2*pi/20}, ...				## right ascension
-                                       {"lin", "dbin", pi/20} ...				## declination
-                                       );
-          results.(res_fn).min.mu_err = inf;
-          results.(res_fn).max.mu_err = -inf;
-        endif
-
-        ## add mismatch error data to histogram
-        results.(res_fn).hgrm = addDataToHist(results.(res_fn).hgrm, [mu_err(:), mu_ref(:), alpha1(:), delta1(:)]);
-
-        ## record minimum values of mismatch error
-        [_, k] = min(mu_err);
-        if mu_err(k) < results.(res_fn).min.mu_err
-          results.(res_fn).min.mu_err = mu_err(k);
-          results.(res_fn).min.mu     = mu(k);
-          results.(res_fn).min.mu_ref = mu_ref(k);
-          results.(res_fn).min.alpha1 = alpha1(k);
-          results.(res_fn).min.delta1 = delta1(k);
-          results.(res_fn).min.fndot1 = fndot1(:, k);
-          results.(res_fn).min.alpha2 = alpha2(k);
-          results.(res_fn).min.delta2 = delta2(k);
-          results.(res_fn).min.fndot2 = fndot2(:, k);
-        endif
-
-        ## record maximum values of mismatch error
-        [_, k] = max(mu_err);
-        if mu_err(k) > results.(res_fn).max.mu_err
-          results.(res_fn).max.mu_err = mu_err(k);
-          results.(res_fn).max.mu     = mu(k);
-          results.(res_fn).max.mu_ref = mu_ref(k);
-          results.(res_fn).max.alpha1 = alpha1(k);
-          results.(res_fn).max.delta1 = delta1(k);
-          results.(res_fn).max.fndot1 = fndot1(:, k);
-          results.(res_fn).max.alpha2 = alpha2(k);
-          results.(res_fn).max.delta2 = delta2(k);
-          results.(res_fn).max.fndot2 = fndot2(:, k);
-        endif
-
-      endfor
-    endfor
 
   endwhile
 
