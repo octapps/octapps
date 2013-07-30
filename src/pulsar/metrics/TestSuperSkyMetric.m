@@ -194,9 +194,13 @@ function results = TestSuperSkyMetric(varargin)
   results.mu_ssmetric_lpI = nan(1, num_injections);
   results.mu_ssmetric_lpII = nan(1, num_injections);
   results.mu_ssmetric_ad = nan(1, num_injections);
-  results.mu_gct_taylor = nan(1, num_injections);
-  results.mu_gct_full = nan(1, num_injections);
-  results.mu_twoF = nan(1, num_injections);
+  if gct_injections
+    results.mu_gct_taylor = nan(1, num_injections);
+    results.mu_gct_full = nan(1, num_injections);
+  endif
+  if full_injections
+    results.mu_twoF = nan(1, num_injections);
+  endif
   results.alpha1 = nan(1, num_injections);
   results.alpha2 = nan(1, num_injections);
   results.delta1 = nan(1, num_injections);
