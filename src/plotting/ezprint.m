@@ -17,7 +17,7 @@
 
 ## Print a figure to a file, with some common options.
 ## Usage:
-##   ezprint(filename, ...)
+##   ezprint(filepath, ...)
 ## Options:
 ##   "width": width of printed figure, in points
 ##   "aspect": aspect ratio of height to width (default: 0.75)
@@ -25,7 +25,7 @@
 ##   "fontsize": font size of printed figure, in points (default: 10)
 ##   "linescale": factor to scale line width of figure objects (default: 1)
 
-function ezprint(filename, varargin)
+function ezprint(filepath, varargin)
 
   ## parse options
   parseOptions(varargin,
@@ -57,16 +57,16 @@ function ezprint(filename, varargin)
   set(gcf, "papersize", [width, height]);
   set(gcf, "paperposition", [0, 0, width, height]);
 
-  ## select device from filename extension
-  fileext = filename(max(strfind(filename, "."))+1:end);
+  ## select printing device from file extension
+  [filedir, filename, fileext] = fileparts(filepath);
   if isempty(fileext)
-    error("%s: filename '%s' has no extension", funcName, filename);
+    error("%s: file '%s' has no extension", funcName, filepath);
   else
     switch fileext
-      case "tex"
+      case ".tex"
         device = "epslatexstandalone";
       otherwise
-        device = fileext;
+        device = fileext(2:end);
     endswitch
   endif
 
@@ -74,11 +74,26 @@ function ezprint(filename, varargin)
   print(sprintf("-d%s", device), ...
         sprintf("-r%d", dpi), ...
         sprintf("-F:%i", fontsize), ...
-        filename);
+        filepath);
 
   ## undo scale figure line widths
   for i = 1:length(H);
     set(H(i), "linewidth", get(H(i), "linewidth") / linescale);
   endfor
+
+  if strcmp(fileext, ".tex")
+
+    ## get the name of the just-printed EPS file
+    epsfilepath = fullfile(filedir, strcat(filename, "-inc.eps"));
+
+    ## remove the CreationDate information from the EPS file, so that re-generated
+    ## figures do not show up as changed in e.g. git unless their content has changed
+    sedcmd = sprintf("sed --in-place '\\!^\\(%%%%\\| */\\)CreationDate!d' %s", epsfilepath);
+    [sedstatus, sedoutput] = system(sedcmd);
+    if sedstatus != 0
+      error("%s: command '%s' failed", funcName, sedcmd);
+    endif
+
+  endif
 
 endfunction
