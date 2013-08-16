@@ -71,9 +71,6 @@
 }
 
 // GSL quasi-random number generator
-%header %{
-#define gsl_qrng_init gsl_qrng__init
-%}
 typedef struct {
   %extend {
     gsl_qrng(const gsl_qrng* qrng) {
@@ -102,8 +99,8 @@ typedef struct {
         return NULL;
       }
     }
-    void init() {
-      (gsl_qrng_init)($self);
+    void reset() {
+      gsl_qrng_init($self);
     }
     gsl_matrix* get(size_t n = 1) {
       gsl_matrix *m = gsl_matrix_alloc($self->dimension, n);
