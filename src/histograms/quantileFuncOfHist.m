@@ -20,7 +20,7 @@
 ##   Q = quantileFuncOfHist(hgrm, p, [k = 1])
 ## where:
 ##   hgrm = histogram class
-##   p    = quantile probability, in the range (0, 1)
+##   p    = quantile probability, in the range [0, 1]
 ##   k    = dimension over which to to evaluate quantile function
 
 function Q = quantileFuncOfHist(hgrm, p, k = 1)
@@ -28,7 +28,7 @@ function Q = quantileFuncOfHist(hgrm, p, k = 1)
   ## check input
   assert(isHist(hgrm));
   dim = histDim(hgrm);
-  assert(isscalar(p) && 0 < p && p < 1);
+  assert(isscalar(p) && 0 <= p && p <= 1);
   assert(isscalar(k) && 1 <= k && k <= dim);
 
   ## get probability densities
@@ -58,7 +58,14 @@ function Q = quantileFuncOfHist(hgrm, p, k = 1)
 
   ## get lower and upper cumulative probabilities containing 'p'
   [subs{1:length(siz)}] = ndgrid(arrayfun(@(n) 1:n, ifelse(1:dim == k, 1, siz), "UniformOutput", false){:});
-  subs{k} = subsk = sum(cumprob < p, k);
+  norm1 = norm(sub2ind(siz, subs{:}));
+  if p == 1
+    subsk = sum(cumprob < 1, k);
+  else
+    subsk = sum(cumprob <= p, k);
+  endif
+  subsk(find(norm1 == 0.0)) = 1;
+  subs{k} = subsk;
   cumproblower = cumprob(sub2ind(siz, subs{:}));
   subs{k} += 1;
   cumprobupper = cumprob(sub2ind(siz, subs{:}));
