@@ -19,15 +19,21 @@
 ## Command-line options may be given as:
 ##   --name <value>   or   --name=<value>
 ## Syntax:
-##   opts = parseCommandLine(delim)
+##   opts = parseCommandLine(delim, cmdline)
 ## where
 ##   delim = remove all command-line arguments that appear before this
 ##           argument, if it is given on the command line (optional)
+##   cmdline = optional command-line like string,
+##             if not passed: get directly from actual commandline
 
-function opts = parseCommandLine(delim=[])
+function opts = parseCommandLine(delim=[], cmdline=[])
 
   ## get command-line arguments passed to Octave
-  args = evalin("base", "argv()(1:nargin)");
+  if ( length(cmdline) == 0 ) # no fake commandline-in-a-string passed, get arguments from actual commandline
+   args = evalin("base", "argv()(1:nargin)");
+  else # use fake  commandline-in-a-string
+   args = cmdline;
+  endif
 
   ## remove all command-line arguments that appear before delim,
   ## if it is given on the command line.
