@@ -87,8 +87,9 @@ function ezprint(filepath, varargin)
     epsfilepath = fullfile(filedir, strcat(filename, "-inc.eps"));
 
     ## remove the CreationDate information from the EPS file, so that re-generated
-    ## figures do not show up as changed in e.g. git unless their content has changed
-    sedcmd = sprintf("sed --in-place '\\!^\\(%%%%\\| */\\)CreationDate!d' %s", epsfilepath);
+    ## figures do not show up as changed in e.g. git unless their content has changed,
+    ## and add an Orientation comment to try to prevent image being rotated
+    sedcmd = sprintf("sed --in-place '\\!^\\(%%%%\\| */\\)CreationDate!d;\\!^%%%%BoundingBox!a %%%%Orientation: Portrait' %s", epsfilepath);
     [sedstatus, sedoutput] = system(sedcmd);
     if sedstatus != 0
       error("%s: command '%s' failed", funcName, sedcmd);
