@@ -14,7 +14,7 @@
 ## along with Octave; see the file COPYING.  If not, see
 ## <http://www.gnu.org/licenses/>.
 
-## Generate colour maps where the mean RGB intensity decreases
+## Generate colour maps where the "luma" (brightness) decreases
 ## linearly as a function of colour map index; these maps should
 ## therefore be printable in grey-scale. Colours range from white
 ## to the first colour of "name", via the second colour of "name".
@@ -31,27 +31,52 @@ function map = greyScaleReady(name, n=64)
   assert(ischar(name));
   assert(n > 0);
 
-  ## create interpolation matrices
-  a = [0 1; 1 1];
-  b = [0 1; 0.5 1; 1 0];
-  c = [0 1; 0.5 0; 1 0];
+  ## Rec. 601 luma coefficients
+  lr = 0.299;
+  lg = 0.587;
+  lb = 0.114;
 
-  ## generate colour map
+  ## target minimum and maximum intensities
+  iM = 1.0;
+  im = 0.35;
+
+  ## choose interpolation constants
+  rx = gx = bx = ry = gy = by = iM;
   switch name
     case "red-yellow"
-      map = makeColourMap(a, b, c, n);
+      x = lb;
+      y = lb + lg;
+      bx = by = gy = im;
     case "red-magenta"
-      map = makeColourMap(a, c, b, n);
+      x = lg;
+      y = lg + lb;
+      gx = gy = by = im;
     case "green-yellow"
-      map = makeColourMap(b, a, c, n);
+      x = lb;
+      y = lb + lr;
+      bx = by = ry = im;
     case "blue-magenta"
-      map = makeColourMap(b, c, a, n);
+      x = lg;
+      y = lg + lr;
+      gx = gy = ry = im;
     case "green-cyan"
-      map = makeColourMap(c, a, b, n);
+      x = lr;
+      y = lr + lb2;
+      rx = ry = by = im;
     case "blue-cyan"
-      map = makeColourMap(c, b, a, n);
+      x = lr;
+      y = lr + lg;
+      rx = ry = gy = im;
     otherwise
       error("%s: unknown colour map name '%s'", funcName, name);
   endswitch
+
+  ## create interpolation matrices
+  r = [0, iM; x, rx; y, ry; 1, im];
+  g = [0, iM; x, gx; y, gy; 1, im];
+  b = [0, iM; x, bx; y, by; 1, im];
+
+  ## generate colour map
+  map = makeColourMap(r, g, b, n);
 
 endfunction
