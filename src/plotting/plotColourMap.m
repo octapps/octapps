@@ -14,31 +14,49 @@
 ## along with Octave; see the file COPYING.  If not, see
 ## <http://www.gnu.org/licenses/>.
 
-## Visualise a color map.
+## Visualise a colour map.
 ## Usage:
-##   plotColourMap(map)
+##   plotColourMap(map, [name])
 ## where
-##   map = colour map
+##   map  = colour map
+##   name = optional colour map name
 
-function plotColourMap(map)
+function plotColourMap(map, name="")
 
   ## check input
   assert(ismatrix(map) && size(map, 2) == 3);
   assert(min(map) >= 0 && max(map) <= 1);
 
+  ## Rec. 601 luma coefficients
+  lr = 0.299;
+  lg = 0.587;
+  lb = 0.114;
+
+  ## calculate colour map components and luma
+  n = size(map,1);
+  x = linspace(0, 1, n);
+  r = map(:, 1);
+  g = map(:, 2);
+  b = map(:, 3);
+  lum = r * 0.299 + g * 0.587 + b * 0.114;
+
   ## visualise colour map
   clf reset;
-  subplot(1,2,1);
-  n = size(map,1);
-  image(1:n, linspace(0, 1, n), repmat(1:n, n, 1)');
+  subplot(1, 2, 1);
+  image(1:n, x, repmat(1:n, n, 1)');
   axis([1, n, 0, 1], "ticy", "xy");
   colormap(map);
-  xlabel("Colour");
+  if !isempty(name)
+    xlabel(sprintf("Colour map '%s'", name));
+  else
+    xlabel("Colour map");
+  endif
   ylabel("Colour map index");
-  subplot(1,2,2);
-  x = linspace(0, 1, n);
-  plot(x, map(:,1), "r-", x, map(:,2), "g-", x, map(:,3), "b-", x, mean(map,2), "k-");
-  legend("Red", "Green", "Blue", "Mean");
+
+  ## plot colour map components and luma
+  subplot(1, 2, 2);
+  plot(x, map(:,1), "r-", x, map(:,2), "g-", x, map(:,3), "b-", x, lum, "k-");
+  legend("Red", "Green", "Blue", "Luma");
   xlabel("Colour map index");
   ylabel("Intensity");
 
