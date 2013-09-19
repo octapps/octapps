@@ -54,7 +54,7 @@ function Rsqr_H = SqrSNRGeometricFactorHist(varargin)
 
   ## check mismatch histogram bins are positive
   if ~isempty(mism_hgrm)
-    xl = histBinGrids(mism_hgrm, 1, "xl");
+    xl = histBinGrids(mism_hgrm, 1, "finite", "lower");
     if xl(1) < 0
       error("%s: mismatch histogram bins must be positive", funcName);
     endif
@@ -131,7 +131,6 @@ function Rsqr_H = SqrSNRGeometricFactorHist(varargin)
 
   ## calculate histogram of squared SNR geometric factor
   Rsqr_H = Hist(1, {"lin", "dbin", hist_dx});
-  mism_hgrm_wksp = [];
   do
 
     ## new random source amplitude parameters
@@ -145,7 +144,7 @@ function Rsqr_H = SqrSNRGeometricFactorHist(varargin)
     
     ## if using mismatch histogram, reduce R^2 by randomly-chosen mismatch
     if ~isempty(mism_hgrm)
-      [mismatch, mism_hgrm_wksp] = drawFromHist(mism_hgrm, N, mism_hgrm_wksp);
+      mismatch = drawFromHist(mism_hgrm, N);
       Rsqr .*= ( 1 - mismatch' );
     endif
 
