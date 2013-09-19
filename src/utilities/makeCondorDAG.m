@@ -17,7 +17,7 @@
 
 ## Set up a Condor DAG for running Condor jobs.
 ## Usage:
-##   dag_file = makeCondorDAG(...)
+##   dag_file = makeCondorDAG("opt", val, ...)
 ## where
 ##   dag_file = name of Condor DAG submit file
 ## Options:

@@ -15,7 +15,7 @@
 ## <http://www.gnu.org/licenses/>.
 
 ## Perform full software injections in generated SFTs using LALPulsar functions.
-##   results = DoFstatInjections(...)
+##   results = DoFstatInjections("opt", val, ...)
 ## Options (starred options are returned in results):
 ##   ref_time: reference time in GPS seconds
 ##   start_time: start time in GPS seconds (default: ref_time - 0.5*time_span)

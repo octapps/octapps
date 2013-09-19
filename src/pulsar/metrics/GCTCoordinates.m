@@ -17,8 +17,8 @@
 ## Computes the coherent global correlation coordinates, as
 ## given in Pletsch, PRD 82 042002 (2010)
 ## Syntax:
-##   coords         = GCTCoherentMetric(...)
-##   [nu,...,nx,ny] = GCTCoherentMetric(...)
+##   coords         = GCTCoherentMetric("opt", val, ...)
+##   [nu,...,nx,ny] = GCTCoherentMetric("opt", val, ...)
 ## where:
 ##   coords         = matrix of GCT coordinates; order matches that of GCTCoherentMetric()
 ##   nu,...         = GCT frequency and spindown coordinates

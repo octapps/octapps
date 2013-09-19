@@ -17,7 +17,7 @@
 
 ## Set up a Condor job for running Octave scripts.
 ## Usage:
-##   job_file = makeCondorJob(...)
+##   job_file = makeCondorJob("opt", val, ...)
 ## where
 ##   job_file = name of Condor job submit file
 ## Options:

@@ -18,7 +18,7 @@
 ## given in Pletsch, PRD 82 042002 (2010), which Taylor-expands the
 ## Earth's orbital motion.
 ## Syntax:
-##   g = GCTCoherentTaylorMetric(...)
+##   g = GCTCoherentTaylorMetric("opt", val, ...)
 ## where:
 ##   g = GCT metric using Taylor-expanded phase model
 ## Options:

@@ -17,7 +17,7 @@
 
 ## Create various flat Doppler phase metrics.
 ## Usage:
-##   [metric, coordIDs] = CreatePhaseMetric(...)
+##   [metric, coordIDs] = CreatePhaseMetric("opt", val, ...)
 ## where:
 ##   metric   = Doppler metric
 ##   coordIDs = coordinate IDs of the chosen coordinates

@@ -17,7 +17,7 @@
 ## Compute the spin, orbital, and total components of a detector's
 ## position and velocity at a list of GPS times, using LALPulsar
 ## Usage:
-##   [p, v, sp, sv, op, ov] = getDetectorPosVel(...)
+##   [p, v, sp, sv, op, ov] = getDetectorPosVel("opt", val, ...)
 ## where:
 ##   p  = detector positions, in equatorial coordinates
 ##   v  = detector velocities, in equatorial coordinates

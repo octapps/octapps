@@ -17,7 +17,7 @@
 
 ## Calculate a histogram of the squared SNR "geometric factor", R^2
 ## Syntax:
-##   Rsqr_H      = SqrSNRGeometricFactorHist(options...)
+##   Rsqr_H      = SqrSNRGeometricFactorHist("opt", val, ...)
 ## where:
 ##   Rsqr_H      = histogram of R^2
 ## and where options are:

@@ -16,7 +16,7 @@
 
 ## Load Earth and Sun ephemerides from LALPulsar.
 ## Syntax:
-##   ephemerides = loadEphemerides(...)
+##   ephemerides = loadEphemerides("opt", val, ...)
 ## where:
 ##   ephemerides = structure containing ephemerides
 ## Options:

@@ -16,7 +16,7 @@
 
 ## Format a number in TeX format.
 ## Usage:
-##   tex = num2TeX(num, fmt, ...)
+##   tex = num2TeX(num, fmt, "opt", val, ...)
 ## where:
 ##   tex = cell array of TeX strings (or string if numel(num) == 1)
 ##   num = any-dimensional array of numbers

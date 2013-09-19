@@ -17,7 +17,7 @@
 
 ## Test the LALSuite FlatLatticeTiling algorithm with injection points.
 ## Usage:
-##   results = TestFlatLatticeTiling(...)
+##   results = TestFlatLatticeTiling("opt", val, ...)
 ## where:
 ##   results = struct containing:
 ##     num_templates = number of generated templates

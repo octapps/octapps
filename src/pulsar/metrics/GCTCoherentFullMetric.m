@@ -18,7 +18,7 @@
 ## implemented by LALPulsar/UniversalDopplerMetric, which computes
 ## the un-Taylor-expanded phase metric in GCT coordinates
 ## Syntax:
-##   [g, gcache] = GCTCoherentFullMetric(gcache, ...)
+##   [g, gcache] = GCTCoherentFullMetric(gcache, "opt", val, ...)
 ## where:
 ##   g      = GCT metric using full phase model, at (alpha,delta)
 ##   gcache = cached GCT metric using full phase model, independent

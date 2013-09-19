@@ -16,7 +16,7 @@
 
 ## Test the super-sky metric with random offsets and (optionally) full software injections.
 ## Usage:
-##   results = TestSuperSkyMetric(...)
+##   results = TestSuperSkyMetric("opt", val, ...)
 ## Options:
 ##   spindowns:       number of frequency spindowns coordinates
 ##   start_time:      start time in GPS seconds (default: see CreatePhaseMetric)

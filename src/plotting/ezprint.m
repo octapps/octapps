@@ -17,7 +17,7 @@
 
 ## Print a figure to a file, with some common options.
 ## Usage:
-##   ezprint(filepath, ...)
+##   ezprint(filepath, "opt", val, ...)
 ## Options:
 ##   "width": width of printed figure, in points
 ##   "aspect": aspect ratio of height to width (default: 0.75)
