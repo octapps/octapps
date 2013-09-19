@@ -52,3 +52,15 @@ function sensSigma = SensFactStackSlide ( varargin )
   sensSigma = 1 ./ sensSigmaInv;
 
 endfunction
+
+
+## a basic example to test functionality
+%!test
+%! Nseg = 20;
+%! Tdata = 60*3600*Nseg;
+%! misHist = createDeltaHist(0.1);
+%! pFD = 0.1;
+%! pFA = [1e-14, 1e-12, 1e-10];
+%! dets = "HL";
+%! sigma = SensFactStackSlide("Nseg", Nseg, "Tdata", Tdata, "misHist", misHist, "pFD", pFD, "pFA", pFA, "detectors", dets);
+%! assert(max(abs(sigma - [38.038, 40.114, 42.682])) < 0.01);

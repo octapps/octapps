@@ -54,3 +54,16 @@ function sensSigma = SensFactHoughF ( varargin )
   sensSigma = 1 ./ sensSigmaInv;
 
 endfunction
+
+
+## a basic example to test functionality
+%!test
+%! Nseg = 20;
+%! Tdata = 60*3600*Nseg;
+%! misHist = createDeltaHist(0.1);
+%! pFD = 0.1;
+%! pFA = [1e-10, 1e-8, 1e-6];
+%! Fth = 2.5;
+%! dets = "HL";
+%! sigma = SensFactHoughF("Nseg", Nseg, "Tdata", Tdata, "misHist", misHist, "pFD", pFD, "pFA", pFA, "Fth", Fth, "detectors", dets);
+%! assert(max(abs(sigma - [27.629, 35.970, 42.702])) < 0.01);
