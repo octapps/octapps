@@ -1,33 +1,56 @@
-function sensFact = SensFactHoughF ( varargin )
-  %% estimate 'Hough-on-Fstat' sensitivity factor
-  %% input arguments:
-  %% 'Nseg':    	number of StackSlide segments
-  %% 'Tdata':   	total amount of data used, in seconds
-  %% 'misHist': 	mismatch histogram, produced using addDataToHist()
-  %% 'pFD':     	false-dismissal probability = 1 - pDet
-  %% 'pFA':     	false-alarm probability (-ies) *per template* [can be a vector]
-  %% 'detectors': 	string containing detector-network to use 'H'=Hanford, 'L'=Livingston, 'V'=Virgo
-  %% 'Fth': 	F-stat threshold (on F, not 2F!) in each segment for 'pixel' selection
+## Copyright (C) 2012 Reinhard Prix
+##
+## This program is free software; you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation; either version 2 of the License, or
+## (at your option) any later version.
+##
+## This program is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License
+## along with with program; see the file COPYING. If not, write to the
+## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+## MA  02111-1307  USA
 
-  %% ----- parse commandline
+## Estimate Hough-on-Fstat sensitivity depth sensSigma = sqrt(Sh)/h0
+## Usage:
+##   sensSigma = SensFactHoughF("opt", val, ...)
+## Options are:
+##   "Nseg":            number of StackSlide segments
+##   "Tdata":           total amount of data used, in seconds
+##   "misHist":         mismatch histogram, produced using Hist()
+##   "pFD":             false-dismissal probability = 1 - pDet
+##   "pFA":             false-alarm probability (-ies) *per template* (can be a vector)
+##   "Fth":             F-stat threshold (on F, not 2F!) in each segment for "pixel" selection
+##   "detectors":       string containing detector-network to use ("H"=Hanford, "L"=Livingston, "V"=Virgo)
+##   "alpha":           source right ascension in radians (default: all-sky)
+##   "delta":           source declination (default: all-sky)
+
+function sensSigma = SensFactHoughF ( varargin )
+
+  ## parse options
   uvar = parseOptions ( varargin,
-                       {'Nseg', 'scalar', 1 },		%% number of StackSlide segments
-                       {'Tdata', 'scalar' },  		%% total amount of data used, in seconds
-                       {'misHist', 'Hist' },		%% mismatch histogram, produced using addDataToHist()
-                       {'pFD', 'scalar', 0.1},		%% false-dismissal probability = 1 - pDet
-                       {'pFA', 'vector'},		%% false-alarm probability (-ies) per template
-                       {'detectors', 'char', "HL" },	%% string containing detector-network to use 'H'=Hanford, 'L'=Livingston, 'V'=Virgo
-                       {'Fth', 'scalar', 5.2 / 2 }	%% F-stat threshold (on F, not 2F!) in each segment for 'pixel' selection
-                       );
+                       {"Nseg", "integer,strictpos,scalar", 1 },
+                       {"Tdata", "real,strictpos,scalar" },
+                       {"misHist", "Hist" },
+                       {"pFD", "real,strictpos,scalar", 0.1},
+                       {"pFA", "real,strictpos,vector"},
+                       {"Fth", "real,strictpos,scalar", 5.2/2 },
+                       {"detectors", "char", "HL" },
+                       {"alpha", "real,vector", [0, 2*pi]},
+                       {"delta", "real,vector", [-1, 1]},
+                       []);
 
-  Rsqr = SqrSNRGeometricFactorHist ( "detectors", uvar.detectors, "mism_hgrm", uvar.misHist );
+  ## compute sensitivity SNR
+  Rsqr = SqrSNRGeometricFactorHist("detectors", uvar.detectors, "mism_hgrm", uvar.misHist, "alpha", uvar.alpha, "sdelta", sin(uvar.delta) );
   rho = SensitivitySNR ( uvar.pFD, uvar.Nseg, Rsqr, "HoughFstat", "paNt", uvar.pFA, "Fth", uvar.Fth);
 
+  ## convert to sensitivity depth
   TdataSeg = uvar.Tdata / uvar.Nseg;
-  sensFactInv = 5/2 * rho * TdataSeg^(-1/2);
-
-  sensFact = 1 ./ sensFactInv;
-
-  return;
+  sensSigmaInv = 5/2 .* rho .* TdataSeg.^(-1/2);
+  sensSigma = 1 ./ sensSigmaInv;
 
 endfunction
