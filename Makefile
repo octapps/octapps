@@ -1,11 +1,22 @@
 SHELL = /bin/bash
 
-FIND = $(shell type -P find || echo false)
+OS = $(shell uname -s)
+
+ifeq ($(OS),Linux)
+GUNPREFIX =
+else ifeq ($(OS),Darwin)
+GNUPREFIX = g
+else
+$(error Unknown operating system '$(OS)')
+endif
+
+FIND = $(shell type -P $(GNUPREFIX)find || echo false)
+SED = $(shell type -P $(GNUPREFIX)sed || echo false)
+
 GIT = $(shell type -P git || echo false)
 MKOCTFILE = $(shell type -P mkoctfile || echo false)
 OCTAVE = $(shell type -P octave || echo false) --silent --norc --no-history --no-window-system
 OCTCONFIG = $(shell type -P octave-config || echo false)
-SED = $(shell type -P sed || echo false)
 SWIG = $(shell type -P swig || echo false)
 CTAGSEX = $(shell type -P ctags-exuberant || echo false)
 
