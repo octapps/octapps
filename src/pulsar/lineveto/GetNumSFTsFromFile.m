@@ -1,4 +1,4 @@
-function num_SFTs = get_num_SFTs_from_file ( sftfile )
+function num_SFTs = GetNumSFTsFromFile ( sftfile )
 
  % safety measure to work around lalapps_dumpSFT bug: check if sftfile is a pattern matching several files, and if it is, just use the first one.
  [status, output] = system(["find ", sftfile]);
@@ -10,4 +10,4 @@ function num_SFTs = get_num_SFTs_from_file ( sftfile )
 
  num_SFTs = str2num(output);
 
-endfunction # get_num_SFTs_from_file()
+endfunction # GetNumSFTsFromFile()
