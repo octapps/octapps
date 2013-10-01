@@ -133,12 +133,12 @@ function ret = TuneAdaptiveLVPriors ( varargin )
     else # get number of SFT bins needed to convert from fA to thresh
      printf(" using num_SFTs from input SFTs...\n");
      printf("Getting num_SFTs from input file '%s' ...\n", firstsft.h1);
-     num_SFTs.H1 = get_num_SFTs_from_file ( firstsft.h1 );
+     num_SFTs.H1 = GetNumSFTsFromFile ( firstsft.h1 );
      printf("Getting num_SFTs from input file '%s' ...\n", firstsft.l1);
-     num_SFTs.L1 = get_num_SFTs_from_file ( firstsft.l1 );
+     num_SFTs.L1 = GetNumSFTsFromFile ( firstsft.l1 );
     endif
-    thresh.H1 = compute_SFT_power_threshold_from_fA ( params_init.SFTpower_fA, num_SFTs.H1 );
-    thresh.L1 = compute_SFT_power_threshold_from_fA ( params_init.SFTpower_fA, num_SFTs.L1 );
+    thresh.H1 = ComputeSFTPowerThresholdFromFA ( params_init.SFTpower_fA, num_SFTs.H1 );
+    thresh.L1 = ComputeSFTPowerThresholdFromFA ( params_init.SFTpower_fA, num_SFTs.L1 );
     printf("H1: num_SFTs=%d, threshold=%f\n", num_SFTs.H1, thresh.H1);
     printf("L1: num_SFTs=%d, threshold=%f\n", num_SFTs.L1, thresh.L1);
    endif
