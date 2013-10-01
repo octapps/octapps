@@ -1,5 +1,5 @@
-function lX = EstimateLinePriorsFromNormSFT ( psdfiles, thresh, LVlmin, LVlmax )
- %% lX = EstimateLinePriorsFromNormSFT ( psdfiles, thresh, LVlmin, LVlmax )
+function [lX, freqmin, freqmax, freqbins, num_outliers, max_outlier] = EstimateLinePriorsFromNormSFT ( psdfiles, thresh, LVlmin, LVlmax )
+ %% [lX, freqmin, freqmax, freqbins, num_outliers, max_outlier] = EstimateLinePriorsFromNormSFT ( psdfiles, thresh, LVlmin, LVlmax )
  %% function to estimate line priors from normalized SFT power values in files computed by lalapps_ComputePSD
  %% psdfiles must be a cell array of existing files of length numDet
  %% thresh must be a numDet*T matrix, where T is an arbitrary number of thresh values per IFO, so that lX will be returned as a numDet*T matrix also
