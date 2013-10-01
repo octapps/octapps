@@ -207,9 +207,16 @@ function [params_init] = check_input_parameters ( params_init )
   error(["Incompatible input arguments: IFOs has length ", int2str(params_init.numDet), " but SFTs has length ", int2str(length(params_init.SFTs)), "."]);
  endif
 
- params_init.psdfiles = strsplit(params_init.psdfiles,",");
- if ( length(params_init.psdfiles) != params_init.numDet )
-  error(["Incompatible input arguments: IFOs has length ", int2str(params_init.numDet), " but psdfiles has length ", int2str(length(params_init.psdfiles)), "."]);
+ if ( length(params_init.psdfiles) > 0 )
+  params_init.psdfiles = strsplit(params_init.psdfiles,",");
+  if ( length(params_init.psdfiles) != params_init.numDet )
+   error(["Incompatible input arguments: IFOs has length ", int2str(params_init.numDet), " but psdfiles has length ", int2str(length(params_init.psdfiles)), "."]);
+  endif
+ else
+  params_init.psdfiles = [];
+  for X=1:1:params_init.numDet
+   params_init.psdfiles{X} = ["./temp_psd_", params_init.IFOs{X}, ".dat"];
+  endfor
  endif
 
  % options for ComputePSD
