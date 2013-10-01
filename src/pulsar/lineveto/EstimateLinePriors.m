@@ -56,10 +56,10 @@ function ret = EstimateLinePriors ( varargin )
 
  % set up timestamps, if requested
  timestamps.Tsft       = params_init.Tsft;
+ timestamps.timestampsfiles = [];
  if ( ( params_init.startTime >= 0 ) && ( params_init.duration > 0 ) )
   timestamps.startTime = params_init.startTime;
   timestamps.duration  = params_init.duration;
-  timestamps.timestampsfiles = [];
  elseif ( strcmp(params_init.timestampsfiles,"none") != 1 )
   timestamps.endTime   = 0;
   timestamps.startTime = Inf;
@@ -78,11 +78,12 @@ function ret = EstimateLinePriors ( varargin )
   segments = load(params_init.segmentsfile);
   timestamps.startTime = min(segments(:,1));
   timestamps.duration  = max(segments(:,2)) - timestamps.startTime;
-  timestamps.timestampsfiles = [];
- else
-  error("Invalid input parameters: Need either startTime, duration or timestampsfiles or segmentsfiles.");
+ elseif ( params_init.getgctband == 1 )
+  error("Incompatible input parameters: For getgctband=1, Need either startTime, duration or timestampsfiles or segmentsfiles.");
  endif
- timestamps.midTime = timestamps.startTime + 0.5*timestamps.duration;
+ if ( params_init.getgctband == 1 )
+  timestamps.midTime = timestamps.startTime + 0.5*timestamps.duration;
+ endif
 
  % set common ComputePSD parameters
  ComputePSD      = [params_init.lalpath, "lalapps_ComputePSD"];
