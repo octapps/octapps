@@ -22,7 +22,7 @@ function [lX, freqmin, freqmax, freqbins, num_outliers, max_outlier] = EstimateL
 
   # get PSD power outlier count and maximum
   for n = 1:1:length(thresh(X,:))
-   num_outliers(X,n) = length(psd(psd(:,3)>thresh(n),3));
+   num_outliers(X,n) = length(psd(psd(:,3)>thresh(X,n),3));
   endfor
   max_outlier(X)  = max(psd(:,3));
   freqmin(X)      = psd(1,1);

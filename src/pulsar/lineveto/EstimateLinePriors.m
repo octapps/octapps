@@ -38,8 +38,8 @@ function ret = EstimateLinePriors ( varargin )
                      {"timestampsfiles", "char", "none"},
                      {"segmentsfile", "char", "none"},
  # directly line-prior related options
-                     {"SFTpower_thresh", "char", "0"},
-                     {"SFTpower_fA", "char", "0"},
+                     {"SFTpower_thresh", "char", ""},
+                     {"SFTpower_fA", "char", ""},
                      {"LVlmin", "numeric,scalar", 0.001}, # enforces lower cutoff; negative value will be used to determine from numfreqbins
                      {"LVlmax", "numeric,scalar", 1000}, # enforces upper cutoff; negative value will be used to determine from numfreqbins
  # misc options
@@ -116,53 +116,73 @@ function ret = EstimateLinePriors ( varargin )
   runCode ( params_psd, ComputePSD );
  endfor #  X = 1:1:length(IFOs)
 
- if ( params_init.SFTpower_fA(1) > 0 ) # get number of SFT bins needed to convert from fA to thresh
+ if ( length(params_init.SFTpower_fA) > 0 ) # get number of SFT bins needed to convert from fA to thresh
 
-  printf("Converting fA to thresh...\n");
+  if ( params_init.debug == 1 )
+   printf("Converting fA to thresh...\n");
+  endif
 
   if ( length(timestamps.timestampsfiles) > 0 )
    if ( iscell(timestamps.timestampsfiles) )
     for X=1:1:numDet
-     num_SFTs(X,1) = length(load(timestamps.timestampsfiles{X}));
+     num_SFTs(X) = length(load(timestamps.timestampsfiles{X}));
     endfor
    else
     num_SFTs = length(load(timestamps.timestampsfiles));
    endif
   else # length(timestamps.timestampsfiles) == 0
    for X=1:1:params_init.numDet
-    num_SFTs(X,1) = GetNumSFTsFromFile ( params_init.SFTs{X} );
+    num_SFTs(X) = GetNumSFTsFromFile ( params_init.SFTs{X} );
    endfor
   endif # length(timestamps.timestampsfiles) > 0
 
   if ( length(num_SFTs) > 1 )
    for X=1:1:params_init.numDet
-    thresh(X,1) = ComputeSFTPowerThresholdFromFA ( params_init.SFTpower_fA, num_SFTs(X,1) );
+    thresh(X,:) = ComputeSFTPowerThresholdFromFA ( params_init.SFTpower_fA, num_SFTs(X) );
    endfor
   else
-   thresh = ComputeSFTPowerThresholdFromFA ( params_init.SFTpower_fA, num_SFTs ) * ones(params_init.numDet,1);
+   for n=1:1:length(params_init.SFTpower_fA)
+    thresh(:,n) = ComputeSFTPowerThresholdFromFA ( params_init.SFTpower_fA, num_SFTs ) * ones(params_init.numDet,1);
+   endfor
   endif # length(num_SFTs) > 1
 
- else # params_init.SFTpower_fA(1) == 0
+ else # length(params_init.SFTpower_fA) == 0
 
-  thresh = params_init.SFTpower_thresh * ones(params_init.numDet,1);
+  thresh = params_init.SFTpower_thresh;
 
- endif # params_init.SFTpower_fA(1) > 0
+ endif # length(params_init.SFTpower_fA) > 0
 
- printf("Obtaining lX priors from normalized SFT power...\n");
+ if ( params_init.debug == 1 )
+  printf("Obtaining lX priors from normalized SFT power...\n");
+ endif
  [lX, freqmin, freqmax, freqbins, num_outliers, max_outlier] = EstimateLinePriorsFromNormSFT (params_init.psdfiles, thresh, params_init.LVlmin, params_init.LVlmax);
 
  for n = 1:1:length(thresh(1,:))
-  if ( params_init.SFTpower_fA(1) > 0 )
+  if ( ( params_init.debug == 1 ) && ( length(params_init.SFTpower_fA) > 0 ) )
    printf("fA=%g:\n", params_init.SFTpower_fA(n));
+  elseif ( n > 1 )
+   printf(";");
   endif
   for X=1:1:params_init.numDet;
-   printf("%s: feff=[%f,%f] Hz, freqbins=%d, thresh=%f: lX=oLGX=%.9f\n", params_init.IFOs{X}, freqmin(X), freqmax(X), freqbins(X), thresh(X,n), lX(X,n));
+   if ( params_init.debug == 1 ) 
+    printf("%s: feff=[%f,%f] Hz, freqbins=%d, thresh=%f: num_outliers=%d, lX=oLGX=%.9f\n", params_init.IFOs{X}, freqmin(X), freqmax(X), freqbins(X), thresh(X,n), num_outliers(X,n), lX(X,n));
+   else
+    if ( X > 1 )
+     printf(",");
+    endif
+    printf("%.9f", lX(X,n));
+   endif
   endfor
  endfor
+ if ( params_init.debug == 0 )
+  printf("\n");
+ endif
 
  % Clean up temporary files
  if ( params_init.cleanup == 1 )
-  printf("Cleaning up temporary PSD files...\n");
+  if ( params_init.debug == 1 )
+   printf("Cleaning up temporary PSD files...\n");
+  endif
   for X=1:1:length(params_init.psdfiles)
    [err, msg] = unlink (params_init.psdfiles{X});
   endfor
@@ -256,36 +276,50 @@ function [params_init] = check_input_parameters ( params_init )
 
  % directly line-prior related options
 
- vectsplit = strsplit(params_init.SFTpower_thresh,",");
- params_init.SFTpower_thresh = zeros(1,length(vectsplit));
- for n=1:1:length(vectsplit)
-  value_n = str2num(vectsplit{n});
-  if ( length(value_n) == 0 )
-   error(["Invalid input parameter (SFTpower_thresh): value ", num2str(n), " of ", num2str(length(vectsplit)), " in comma-separated list is '", vectsplit{n}, "' which is not a numeric value."]);
-  else
-   params_init.SFTpower_thresh(n) = value_n;
-   if ( params_init.SFTpower_thresh(n) < 0 )
-    error(["Invalid input parameter (SFTpower_thresh): value ", num2str(n), " of ", num2str(length(vectsplit)), " in comma-separated list is '", vectsplit{n}, "' which is negative."]);
+ if ( length(params_init.SFTpower_thresh) > 0 )
+  vectsplit = strsplit(params_init.SFTpower_thresh,";");
+  params_init.SFTpower_thresh = zeros(params_init.numDet,length(vectsplit));
+  for n=1:1:length(vectsplit)
+   vectsplit2 = strsplit(vectsplit{n},",");
+   if ( length(vectsplit2) != params_init.numDet )
+    error(["Incompatible input arguments: IFOs has length ", int2str(params_init.numDet), " but SFTpower_thresh has length ", int2str(length(vectsplit2)), " (;-separated group ", int2str(n), "/", int2str(length(vectsplit)), ")."]);
    endif
-  endif
- endfor
+   for X=1:1:length(vectsplit2)
+    valueX = str2num(vectsplit2{X});
+    if ( length(valueX) == 0 )
+     error(["Invalid input parameter (SFTpower_thresh): value ", num2str(X), " of ", num2str(length(vectsplit2)), " in comma-separated list is '", vectsplit2{X}, "' which is not a numeric value (;-separated group ", int2str(n), "/", int2str(length(vectsplit)), ")."]);
+    else
+     params_init.SFTpower_thresh(X,n) = valueX;
+     if ( params_init.SFTpower_thresh(X,n) < 0 )
+      error(["Invalid input parameter (SFTpower_thresh): value ", num2str(X), " of ", num2str(length(vectsplit2)), " in comma-separated list is '", vectsplit2{X}, "' which is negative (;-separated group ", int2str(n), "/", int2str(length(vectsplit)), ")."]);
+     endif
+    endif
+   endfor # X=1:1:length(vectsplit2)
+  endfor # n=1:1:length(vectsplit)
+ endif # ength(params_init.SFTpower_thresh) > 0
 
- vectsplit = strsplit(params_init.SFTpower_fA,",");
- params_init.SFTpower_fA = zeros(1,length(vectsplit));
- for n=1:1:length(vectsplit)
-  value_n = str2num(vectsplit{n});
-  if ( length(value_n) == 0 )
-   error(["Invalid input parameter (SFTpower_fA): value ", num2str(n), " of ", num2str(length(vectsplit)), " in comma-separated list is '", vectsplit{n}, "' which is not a numeric value."]);
-  else
-   params_init.SFTpower_fA(n) = value_n;
-   if ( params_init.SFTpower_fA(n) < 0 )
-    error(["Invalid input parameter (SFTpower_fA): value ", num2str(n), " of ", num2str(length(vectsplit)), " in comma-separated list is '", vectsplit{n}, "' which is negative."]);
+ if ( length(params_init.SFTpower_fA) > 0 )
+  vectsplit = strsplit(params_init.SFTpower_fA,",");
+  params_init.SFTpower_fA = zeros(1,length(vectsplit));
+  for n=1:1:length(vectsplit)
+   value_n = str2num(vectsplit{n});
+   if ( length(value_n) == 0 )
+    error(["Invalid input parameter (SFTpower_fA): value ", num2str(n), " of ", num2str(length(vectsplit)), " in comma-separated list is '", vectsplit{n}, "' which is not a numeric value."]);
+   else
+    params_init.SFTpower_fA(n) = value_n;
+    if ( params_init.SFTpower_fA(n) < 0 )
+     error(["Invalid input parameter (SFTpower_fA): value ", num2str(n), " of ", num2str(length(vectsplit)), " in comma-separated list is '", vectsplit{n}, "' which is negative."]);
+    endif
    endif
-  endif
- endfor
+  endfor
+ endif # length(params_init.SFTpower_fA) > 0
 
- if ( ( params_init.SFTpower_thresh(1) > 0 ) && ( params_init.SFTpower_fA(1) > 0 ) )
-  error(["Incompatible input parameters: can't have both SFTpower_thresh > 0 and SFTpower_fA > 0."])
+ if ( ( length(params_init.SFTpower_thresh) == 0 ) && ( length(params_init.SFTpower_fA) == 0 ) )
+  error(["Incompatible input parameters: need either SFTpower_thresh or SFTpower_fA."])
+ endif
+
+ if ( ( length(params_init.SFTpower_thresh) > 0 ) && ( length(params_init.SFTpower_fA) > 0 ) )
+  error(["Incompatible input parameters: can't have both SFTpower_thresh and SFTpower_fA."])
  endif
 
  % misc options
