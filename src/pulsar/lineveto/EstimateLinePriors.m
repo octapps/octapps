@@ -125,7 +125,7 @@ function ret = EstimateLinePriors ( varargin )
 
   if ( length(timestamps.timestampsfiles) > 0 )
    if ( iscell(timestamps.timestampsfiles) )
-    for X=1:1:numDet
+    for X=1:1:params_init.numDet
      num_SFTs(X) = length(load(timestamps.timestampsfiles{X}));
     endfor
    else
