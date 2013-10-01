@@ -4,6 +4,11 @@ function [gct_freq_min, gct_freq_band] = PredictGCTFreqband ( freq, freqband, dF
  %% based on code snippets from LALSuite program HierarchSearchGCT
  %% NOTE: deltaFsft is usually 1.0/Tsft
 
+ % input checks
+ if ( dFreq == 0 )
+  error("dFreq=0 will lead to divisions by 0 in calculating extraBinsFstat.");
+ endif
+
  % copy user specified spin variables at reftime 
  % NOTE: different index conventions between lalapps and octave - (k) here corresponds to [k-1] in LALExtrapolatePulsarSpinRange
  fkdot_reftime(1) = freq;  # frequency
