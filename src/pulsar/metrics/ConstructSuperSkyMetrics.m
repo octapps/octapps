@@ -91,7 +91,7 @@ function results = ConstructSuperSkyMetrics(sometric, socoordIDs, varargin)
       skyreconstruct = [1, 0, 0;
                         0, 1, 0;
                         1, 0, 0;
-                        0, LAL_COSIEARTH, LAL_SINIEARTH,
+                        0, LAL_COSIEARTH, LAL_SINIEARTH;
                         0, -LAL_SINIEARTH, LAL_COSIEARTH];
       sscoordIDs([inx, iny, inz]) = [DOPPLERCOORD_N3X_EQU,
                                      DOPPLERCOORD_N3Y_EQU,
@@ -100,7 +100,7 @@ function results = ConstructSuperSkyMetrics(sometric, socoordIDs, varargin)
       skyreconstruct = [1, 0, 0;
                         0, LAL_COSIEARTH, -LAL_SINIEARTH;
                         1, 0, 0;
-                        0, 1, 0,
+                        0, 1, 0;
                         0, 0, 1];
       sscoordIDs([inx, iny, inz]) = [DOPPLERCOORD_N3X_ECL,
                                      DOPPLERCOORD_N3Y_ECL,
