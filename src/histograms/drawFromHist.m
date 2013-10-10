@@ -46,7 +46,7 @@ function x = drawFromHist(hgrm, N)
   x = zeros(N, dim);
   for k = 1:dim
     dbin = binhi{k}(ii{k}) - binlo{k}(ii{k});
-    x(:,k) = binlo{k}(ii{k}) + rand(size(ii{k})).*dbin;
+    x(:,k) = binlo{k}(ii{k}) + rand(size(ii{k}))'.*dbin;
   endfor
 
 endfunction

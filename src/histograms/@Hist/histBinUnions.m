@@ -42,7 +42,7 @@ function ubins = histBinUnions(varargin)
   for i = 1:dim
 
     ## get finite histogram bins
-    allbins_i = cellfun(@(H) reshape(H.bins{i}(2:end-1), 1, []), varargin, "UniformOutput", false);
+    allbins_i = cellfun(@(H) reshape(struct(H).bins{i}(2:end-1), 1, []), varargin, "UniformOutput", false);
 
     ## get minimum bin width
     minwidth = min(cell2mat(cellfun(@(b) min(diff(b)), allbins_i, "UniformOutput", false)));
