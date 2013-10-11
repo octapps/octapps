@@ -41,11 +41,12 @@ function hgrm = createGaussianHist ( varargin )
   ## create 1D histogram class
   hgrm = Hist( 1, {"lin", "dbin", uvar.binsize} );
 
-  ## iterate, adding N samples every round, and continue until histogram has converged
-  ## to within the given tolerance of 'err'
+  ## iterate, adding N samples every round, and continue until
+  ## histogram has converged to within the given tolerance 'err'
   N = 1e6;
   do
-    ## generate values of ap, ax, Fp, and Fx
+
+    ## generate random values
     newsamples = normrnd ( uvar.mean, uvar.std, N, 1);     ## N-vector of Gaussian random draws
 
     ## add new values to histogram
