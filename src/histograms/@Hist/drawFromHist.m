@@ -1,4 +1,4 @@
-## Copyright (C) 2010 Karl Wette
+## Copyright (C) 2010, 2013 Karl Wette
 ##
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -28,21 +28,28 @@ function x = drawFromHist(hgrm, N)
 
   ## check input
   assert(isHist(hgrm));
-  dim = histDim(hgrm);
+  dim = length(hgrm.bins);
 
-  ## get histogram bins and probability densities
+  ## get histogram probabilities
+  prob = hgrm.counts;
+  total = sum(hgrm.counts(:));
+  if total == 0
+    x = nan(N, dim);
+    return;
+  endif
+  prob /= total;
+
+  ## get histogram bins
   binlo = binhi = cell(1, dim);
   for k = 1:dim
     [binlo{k}, binhi{k}] = histBins(hgrm, k, "lower", "upper");
   endfor
-  prob = histProbs(hgrm);
 
   ## generate random indices to histogram bins, with appropriate probabilities
   [ii{1:dim}] = ind2sub(size(prob), discrete_rnd(1:numel(prob), prob(:)', N, 1));
 
-  ## start with the lower bound of each randomly
-  ## chosen bin and add a uniformly-distributed
-  ## offset within that bin
+  ## start with the lower bound of each randomly chosen bin and
+  ## add a uniformly-distributed offset within that bin
   x = zeros(N, dim);
   for k = 1:dim
     dbin = binhi{k}(ii{k}) - binlo{k}(ii{k});
@@ -52,9 +59,34 @@ function x = drawFromHist(hgrm, N)
 endfunction
 
 
-## generate Gaussian histogram and test reproducing it
+## create histograms for testing
+%!shared hgrmA, hgrmB, hgrmC, N
+%! hgrmA = Hist(1, {"lin", "dbin", 0.1});
+%! hgrmB = Hist(1, {"log", "minrange", 0.1, "binsper10", 8});
+%! hgrmC = Hist(2, {"lin", "dbin", 0.1}, {"log", "minrange", 1.0, "binsper10", 8});
+%! N = 1e6;
+%! do
+%!   x = randn(N, 2);
+%!   oldhgrmA = hgrmA;
+%!   hgrmA = addDataToHist(hgrmA, x(:,1));
+%!   hgrmB = addDataToHist(hgrmB, x(:,1));
+%!   hgrmC = addDataToHist(hgrmC, x(:,1:2));
+%!   histerr = histDistance(oldhgrmA, hgrmA);
+%! until histerr < 1e-2
+
+## test reproducing histograms
 %!test
-%! hgrm1 = createGaussianHist(1.2, 3.4, "err", 1e-3, "binsize", 0.1);
-%! x = drawFromHist(hgrm1, 1e6);
-%! hgrm2 = addDataToHist(Hist(1, {"lin", "dbin", 0.1}), x(:));
-%! assert(histDistance(hgrm1, hgrm2) < 0.05)
+%! thgrmA = Hist(1, {"lin", "dbin", 0.1});
+%! x = drawFromHist(hgrmA, N);
+%! thgrmA = addDataToHist(thgrmA, x);
+%! assert(histDistance(hgrmA, thgrmA) < 0.01);
+%!test
+%! thgrmB = Hist(1, {"log", "minrange", 0.1, "binsper10", 8});
+%! x = drawFromHist(hgrmB, N);
+%! thgrmB = addDataToHist(thgrmB, x);
+%! assert(histDistance(hgrmB, thgrmB) < 0.01);
+%!test
+%! thgrmC = Hist(2, {"lin", "dbin", 0.1}, {"log", "minrange", 1.0, "binsper10", 8});
+%! x = drawFromHist(hgrmC, 20*N);
+%! thgrmC = addDataToHist(thgrmC, x);
+%! assert(histDistance(hgrmC, thgrmC) < 0.01);
