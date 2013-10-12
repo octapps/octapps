@@ -57,7 +57,6 @@ function hgrm = createGaussianHist ( varargin )
     histerr = histDistance ( hgrm, oldhgrm );
 
     ## continue until error is small enough
-    ## (exit after 1 iteration if all parameters are constant)
   until histerr < uvar.err
 
 endfunction
