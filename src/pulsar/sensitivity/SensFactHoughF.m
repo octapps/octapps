@@ -66,4 +66,4 @@ endfunction
 %! Fth = 2.5;
 %! dets = "HL";
 %! sigma = SensFactHoughF("Nseg", Nseg, "Tdata", Tdata, "misHist", misHist, "pFD", pFD, "pFA", pFA, "Fth", Fth, "detectors", dets);
-%! assert(max(abs(sigma - [27.629, 35.970, 42.702])) < 0.01);
+%! assert(max(abs(sigma - [27.629, 35.970, 42.702])) < 0.05);
