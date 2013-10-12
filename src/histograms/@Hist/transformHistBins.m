@@ -17,7 +17,7 @@
 
 ## Transform the bins of a histogram.
 ## Syntax:
-##   hgrm = transformHistBins(hgrm, F)
+##   hgrm = transformHistBins(hgrm, F, [err])
 ## where:
 ##   hgrm = histogram class
 ##   F    = function to apply to bins:
@@ -25,69 +25,45 @@
 ##            an array whose columns are vectorised outputs
 ##          - number of input/output arguments must match
 ##            histogram dimensionality
+##   err  = convergence requirement on histogram (default = 1e-2)
 
-function hgrm = transformHistBins(hgrm, F)
+function thgrm = transformHistBins(hgrm, F, err = 1e-2)
 
   ## check input
   assert(isHist(hgrm));
   assert(is_function_handle(F));
   dim = length(hgrm.bins);
 
-  ## load GSL module, and create quasi-random number generator
-  gsl;
-  qrng = new_gsl_qrng("halton", dim);
+  ## copy histogram, but zero out contents
+  thgrm = shgrm = hgrm;
+  thgrm.counts = shgrm.counts = zeros(size(hgrm.counts));
 
-  ## get histogram bins and counts as column vectors
-  lo = hi = cell(1, dim);
-  for k = 1:dim
-    lo{k} = reshape(histBinGrids(hgrm, k, "lower"), [], 1);
-    hi{k} = reshape(histBinGrids(hgrm, k, "upper"), [], 1);
-  endfor
-  counts = reshape(hgrm.counts, [], 1);
+  ## draw samples from histogram, add to sample histogram,
+  ## transform them, add them to transformed histogram, and
+  ## continue until original histogram equals sampled histogram
+  N = 1e6;
+  do
 
-  ## zero out histogram contents
-  hgrm.counts = zeros(size(hgrm.counts));
+    ## draw samples from histogram, add to sample histogram
+    x = drawFromHist(hgrm, N);
+    shgrm = addDataToHist(shgrm, x);
 
-  ## loop over non-zero counts
-  ii = reshape(find(counts > 0), 1, []);
-  for i = ii
+    ## transform samples
+    Fargs = mat2cell(x, N, ones(1, dim));
+    tx = F(Fargs{:});
+    assert(ismatrix(tx));
+    assert(size(tx) == size(x));
 
-    ## get quasi-random numbers for each count
-    qrng.reset();
-    r = qrng.get(counts(i));
-    assert(size(r) == [dim, counts(i)]);
+    ## add transformed samples to transformed histogram
+    thgrm = addDataToHist(thgrm, tx);
 
-    ## generate data samples for function
-    Fargs = cell(1, dim);
-    for k = 1:dim
-      switch hgrm.bintype{k}.name
+    ## calculate distance between original and sample histograms
+    histerr = histDistance(hgrm, shgrm);
 
-        case "log"   ## logarithmic bins
-          l = log10(abs(lo{k}(i)) + eps);
-          h = log10(abs(hi{k}(i)) + eps);
-          s = sign(0.5*(lo{k}(i) + hi{k}(i)));
-          x = s .* 10.^( l + (h - l).*r(k,:) );
-
-        otherwise   ## assume linear bins
-          l = lo{k}(i);
-          h = hi{k}(i);
-          x = l + (h - l).*r(k,:);
-
-      endswitch
-      Fargs{k} = reshape(x, [], 1);
-    endfor
-
-    ## transform data samples
-    Fout = F(Fargs{:});
-    assert(ismatrix(Fout));
-    assert(size(Fout) == [counts(i), dim]);
-
-    ## add data to histogram
-    hgrm = addDataToHist(hgrm, Fout);
-
-  endfor
+  until histerr < err
 
 endfunction
+
 
 ## create 1-D histograms for testing
 %!shared hgrmA, hgrmA1, hgrmA2, hgrmA3
@@ -100,24 +76,28 @@ endfunction
 %!   hgrmA1 = addDataToHist(hgrmA1, abs(x));
 %!   hgrmA2 = addDataToHist(hgrmA2, x.^2 - 3);
 %!   hgrmA3 = addDataToHist(hgrmA3, sin(x));
-%!   err = histDistance(oldhgrmA, hgrmA);
-%! until err < 1e-2
+%!   histerr = histDistance(oldhgrmA, hgrmA);
+%! until histerr < 1e-2
 
 ## test 1-D histograms
 %!test
 %! t_hgrmA = transformHistBins(hgrmA, @(x) x);
+%! assert(histDistance(hgrmA, t_hgrmA) < 0.01);
+%!test
 %! t_hgrmA1 = transformHistBins(hgrmA, @(x) abs(x));
-%! t_hgrmA2 = transformHistBins(hgrmA, @(x) x.^2 - 3);
-%! t_hgrmA3 = transformHistBins(hgrmA, @(x) sin(x));
-%! assert(histDistance(hgrmA, t_hgrmA) < 1e-4);
 %! assert(histDistance(hgrmA1, t_hgrmA1) < 0.05);
+%!test
+%! t_hgrmA2 = transformHistBins(hgrmA, @(x) x.^2 - 3);
 %! assert(histDistance(hgrmA2, t_hgrmA2) < 0.05);
+%!test
+%! t_hgrmA3 = transformHistBins(hgrmA, @(x) sin(x));
 %! assert(histDistance(hgrmA3, t_hgrmA3) < 0.05);
+
 
 ## create 2-D histograms for testing
 %!shared hgrmB, hgrmB1, hgrmB2, hgrmB3
 %! hgrmB = hgrmB1 = hgrmB2 = hgrmB3 = Hist(2, {"lin", "dbin", 0.1}, {"log", "minrange", 1.0, "binsper10", 8});
-%! N = 1e6;
+%! N = 1e7;
 %! do
 %!   x = randn(N, 1);
 %!   y = sign(x) .* 10.^(-1 + 3*rand(N, 1));
@@ -126,16 +106,19 @@ endfunction
 %!   hgrmB1 = addDataToHist(hgrmB1, [abs(x), 10.*y]);
 %!   hgrmB2 = addDataToHist(hgrmB2, [x.^2 - 3, y.^3]);
 %!   hgrmB3 = addDataToHist(hgrmB3, [sin(x), cos(y)]);
-%!   err = histDistance(oldhgrmB, hgrmB);
-%! until err < 1e-2
+%!   histerr = histDistance(oldhgrmB, hgrmB);
+%! until histerr < 1e-2
 
 ## test 2-D histograms
 %!test
 %! t_hgrmB = transformHistBins(hgrmB, @(x,y) [x, y]);
+%! assert(histDistance(hgrmB, t_hgrmB) < 0.05)
+%!test
 %! t_hgrmB1 = transformHistBins(hgrmB, @(x,y) [abs(x), 10.*y]);
+%! assert(histDistance(hgrmB1, t_hgrmB1) < 0.1);
+%!test
 %! t_hgrmB2 = transformHistBins(hgrmB, @(x,y) [x.^2 - 3, y.^3]);
+%! assert(histDistance(hgrmB2, t_hgrmB2) < 0.1);
+%!test
 %! t_hgrmB3 = transformHistBins(hgrmB, @(x,y) [sin(x), cos(y)]);
-# %! assert(histDistance(hgrmB, t_hgrmB) < 1e-4);
-# %! assert(histDistance(hgrmB1, t_hgrmB1) < 0.05);
-# %! assert(histDistance(hgrmB2, t_hgrmB2) < 0.05);
-# %! assert(histDistance(hgrmB3, t_hgrmB3) < 0.05);
+%! assert(histDistance(hgrmB3, t_hgrmB3) < 0.1)'
