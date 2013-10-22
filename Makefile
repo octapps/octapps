@@ -1,32 +1,34 @@
 SHELL = /bin/bash
+.DELETE_ON_ERROR :
 
-OS = $(shell uname -s)
-
-ifeq ($(OS),Linux)
-GUNPREFIX =
-else ifeq ($(OS),Darwin)
-GNUPREFIX = g
-else
-$(error Unknown operating system '$(OS)')
-endif
-
-FIND = $(shell type -P $(GNUPREFIX)find || echo false)
-SED = $(shell type -P $(GNUPREFIX)sed || echo false)
-
-GIT = $(shell type -P git || echo false)
-MKOCTFILE = $(shell type -P mkoctfile || echo false)
-OCTAVE = $(shell type -P octave || echo false) --silent --norc --no-history --no-window-system
-OCTCONFIG = $(shell type -P octave-config || echo false)
-SWIG = $(shell type -P swig || echo false)
-CTAGSEX = $(shell type -P ctags-exuberant || echo false)
-
-version = $(shell $(OCTAVE) --eval "disp(OCTAVE_VERSION)")
-
+# use "make V=1" to display verbose output
 verbose = $(verbose_$(V))
 verbose_ = @echo "making $@";
 
+# check for a program in a list using type -P, or return false
+CheckProg = $(if $(1), \
+	      $(if $(shell type -P $(firstword $(1))), \
+		$(firstword $(1)), \
+		$(call CheckProg,$(wordlist 2, $(words $(1)), $(1))) \
+	       ), \
+	       false \
+	      )
+
+# required programs
+CTAGSEX = $(call CheckProg, ctags-exuberant)
+FIND = $(call CheckProg, gfind find)
+GIT = $(call CheckProg, git)
+MKOCTFILE = $(call CheckProg, mkoctfile)
+OCTAVE = $(call CheckProg, octave) --silent --norc --no-history --no-window-system
+SED = $(call CheckProg, gsed sed)
+SWIG = $(call CheckProg, swig)
+
+# Octave version
+version = $(shell $(OCTAVE) --eval "disp(OCTAVE_VERSION)")
+
 .PHONY : all check clean
 
+# generate environment scripts
 all .PHONY : octapps-user-env.sh octapps-user-env.csh
 octapps-user-env.sh octapps-user-env.csh : Makefile
 	$(verbose)echo "# source this file to access OctApps" > $@; \
@@ -57,38 +59,39 @@ octapps-user-env.sh octapps-user-env.csh : Makefile
 			;; \
 	esac
 
+# build extension modules
 ifneq ($(MKOCTFILE),false)
 
-all : oct/$(version)
+oct_modules = \
+	depends
 
-oct/$(version) :
-	@mkdir -p $@
-
+# generate SWIG extension modules
 ifneq ($(SWIG),false)
 
-all : oct/$(version)/gsl.oct
+oct_modules += \
+	gsl
 
-oct/$(version)/gsl.oct : oct/$(version)/gsl_wrap.o
-	$(verbose)$(MKOCTFILE) -g -lgsl -o $@ $<
+gsl_ldflags = -lgsl
 
-oct/$(version)/%_wrap.o : oct/$(version)/%_wrap.cpp
-	$(verbose)$(MKOCTFILE) -c -o $@ $<
-
-oct/$(version)/%_wrap.cpp : oct/%.i Makefile
+oct/%.cpp : oct/%.i Makefile
 	$(verbose)$(SWIG) -octave -c++ -globals "$*cvar" -o $@ $<
 
 endif # neq ($(SWIG),false)
 
-all : oct/$(version)/depends.oct
+all : oct/$(version) $(addprefix oct/$(version)/, $(addsuffix .oct, $(oct_modules)))
 
-oct/$(version)/depends.oct : oct/$(version)/depends.o Makefile
-	$(verbose)$(MKOCTFILE) -g -o $@ $<
+oct/$(version) :
+	@mkdir -p $@
+
+oct/$(version)/%.oct : oct/$(version)/%.o Makefile
+	$(verbose)$(MKOCTFILE) -g -o $@ $< $($*_ldflags)
 
 oct/$(version)/%.o : oct/%.cpp Makefile
 	$(verbose)$(MKOCTFILE) -g -c -o $@ $<
 
 endif # neq ($(MKOCTFILE),false)
 
+# run test scripts
 check : all
 	@source octapps-user-env.sh; \
 	mfiles=`$(FIND) $${PWD}/src -name deprecated -prune -or -name '*.m' -printf '%p\n'`; \
@@ -99,6 +102,7 @@ check : all
 		fi; \
 	done; exit 0
 
+# generate tags
 ifneq ($(CTAGSEX),false)
 
 all .PHONY : TAGS
@@ -107,5 +111,6 @@ TAGS :
 
 endif # neq ($(CTAGSEX),false)
 
+# cleanup
 clean :
 	$(verbose)$(GIT) clean -Xdf
