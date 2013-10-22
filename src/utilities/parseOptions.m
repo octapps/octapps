@@ -111,7 +111,11 @@ function varargout = parseOptions(opts, varargin)
       else
         switch typefuncarg
           case "integer"
-            typefuncstr = strcat(typefuncstr, "isnumeric(x)&&all(fix(x)==x)");
+            typefuncstr = strcat(typefuncstr, "isnumeric(x)&&all(mod(x,1)==0)");
+          case "evenint"
+            typefuncstr = strcat(typefuncstr, "isnumeric(x)&&all(mod(x,2)==0)");
+          case "oddint"
+            typefuncstr = strcat(typefuncstr, "isnumeric(x)&&all(mod(x,2)==1)");
           case "nonzero"
             typefuncstr = strcat(typefuncstr, "isnumeric(x)&&all(x!=0)");
           case "positive"
