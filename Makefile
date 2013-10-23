@@ -6,22 +6,24 @@ verbose = $(verbose_$(V))
 verbose_ = @echo "making $@";
 
 # check for a program in a list using type -P, or return false
-CheckProg = $(if $(1), \
-	      $(if $(shell type -P $(firstword $(1))), \
-		$(firstword $(1)), \
-		$(call CheckProg,$(wordlist 2, $(words $(1)), $(1))) \
-	       ), \
-	       false \
-	      )
+CheckProg = $(strip \
+              $(if $(1), \
+                $(if $(shell type -P $(firstword $(1))), \
+                  $(firstword $(1)), \
+                  $(call CheckProg,$(strip $(wordlist 2, $(words $(1)), $(1)))) \
+                 ), \
+                 false \
+                ) \
+              )
 
 # required programs
-CTAGSEX = $(call CheckProg, ctags-exuberant)
-FIND = $(call CheckProg, gfind find)
-GIT = $(call CheckProg, git)
-MKOCTFILE = $(call CheckProg, mkoctfile)
-OCTAVE = $(call CheckProg, octave) --silent --norc --no-history --no-window-system
-SED = $(call CheckProg, gsed sed)
-SWIG = $(call CheckProg, swig)
+CTAGSEX := $(call CheckProg, ctags-exuberant)
+FIND := $(call CheckProg, gfind find)
+GIT := $(call CheckProg, git)
+MKOCTFILE := $(call CheckProg, mkoctfile)
+OCTAVE := $(call CheckProg, octave) --silent --norc --no-history --no-window-system
+SED := $(call CheckProg, gsed sed)
+SWIG := $(call CheckProg, swig)
 
 # Octave version
 version = $(shell $(OCTAVE) --eval "disp(OCTAVE_VERSION)")
