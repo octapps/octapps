@@ -59,32 +59,42 @@ octapps-user-env.sh octapps-user-env.csh : Makefile
 # build extension modules
 ifneq ($(MKOCTFILE),false)
 
-oct_modules = \
+VPATH = $(srcpath)
+
+COMPILE = $(MKOCTFILE) -g -c -o $@ $<
+LINK = $(MKOCTFILE) -g -o $@ $< $($*_ldflags)
+
+octs = \
 	depends
+
+all : $(octdir) $(octs:%=$(octdir)/%.oct)
+
+$(octdir) :
+	@mkdir -p $@
+
+$(octs:%=$(octdir)/%.o) : $(octdir)/%.o : %.cpp Makefile
+	$(verbose)$(COMPILE)
 
 # generate SWIG extension modules
 ifneq ($(SWIG),false)
 
-oct_modules += \
+swig_octs = \
 	gsl
 
 gsl_ldflags = -lgsl
 
-oct/%.cpp : oct/%.i Makefile
+all : $(swig_octs:%=$(octdir)/%.oct)
+
+$(swig_octs:%=$(octdir)/%.o) : $(octdir)/%.o : $(octbasedir)/%_wrap.cpp Makefile
+	$(verbose)$(COMPILE)
+
+$(swig_octs:%=$(octbasedir)/%_wrap.cpp) : $(octbasedir)/%_wrap.cpp : %.i Makefile
 	$(verbose)$(SWIG) -octave -c++ -globals "$*cvar" -o $@ $<
 
 endif # neq ($(SWIG),false)
 
-all : oct/$(version) $(addprefix oct/$(version)/, $(addsuffix .oct, $(oct_modules)))
-
-oct/$(version) :
-	@mkdir -p $@
-
-oct/$(version)/%.oct : oct/$(version)/%.o Makefile
-	$(verbose)$(MKOCTFILE) -g -o $@ $< $($*_ldflags)
-
-oct/$(version)/%.o : oct/%.cpp Makefile
-	$(verbose)$(MKOCTFILE) -g -c -o $@ $<
+$(octdir)/%.oct : $(octdir)/%.o Makefile
+	$(verbose)$(LINK)
 
 endif # neq ($(MKOCTFILE),false)
 
