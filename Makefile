@@ -34,37 +34,27 @@ version := $(shell $(OCTAVE) --eval "disp(OCTAVE_VERSION)")
 srcpath := $(shell $(FIND) $(CURDIR)/src -type d ! \( -name private -or -name deprecated \) -printf '%p:')
 srcfiles := $(shell $(FIND) `echo $(srcpath) | $(SED) 's/:/ /g'` -type f -name '*.m')
 
+# OctApps extension module path
+octbasedir := $(CURDIR)/oct
+octdir := $(octbasedir)/$(version)
+
 .PHONY : all check clean
 
 # generate environment scripts
 all .PHONY : octapps-user-env.sh octapps-user-env.csh
 octapps-user-env.sh octapps-user-env.csh : Makefile
-	$(verbose)echo "# source this file to access OctApps" > $@; \
+	$(verbose)case $@ in \
+		*.csh) empty='?'; setenv='setenv'; equals=' ';; \
+		*) empty='#'; setenv='export'; equals='=';; \
+	esac; \
 	cleanpath="$(SED) -e 's/^/:/;s/$$/:/;:A;s/:\([^:]*\)\(:.*\|\):\1:/:\1:\2:/g;s/:::*/:/g;tA;s/^:*//;s/:*$$//'"; \
-	octave_path="$${PWD}/oct/$(version):$(srcpath)\$${OCTAVE_PATH}"; \
-	path="$${PWD}/bin:\$${PATH}"; \
-	case $@ in \
-		*.csh) \
-			echo "if ( ! \$${?OCTAVE_PATH} ) setenv PATH" >> $@; \
-			echo "setenv OCTAVE_PATH \`echo $${octave_path} | $${cleanpath}\`" >>$@; \
-			echo "if ( ! \$${?PATH} ) setenv PATH" >> $@; \
-			echo "setenv PATH \`echo $${path} | $${cleanpath}\`" >>$@; \
-			echo "complete octapps_run 'p|1|\`$(FIND) $${PWD}/src -type f -name \"*.m\" -printf \"%f \"\`|'" >> $@; \
-			;; \
-		*.sh) \
-			echo "OCTAVE_PATH=\`echo $${octave_path} | $${cleanpath}\`" >>$@; \
-			echo "export OCTAVE_PATH" >>$@; \
-			echo "PATH=\`echo $${path} | $${cleanpath}\`" >>$@; \
-			echo "export PATH" >>$@; \
-			echo "_octapps_run() {" >>$@; \
-			echo "  COMPREPLY=()" >>$@; \
-			echo "  if [ \$${COMP_CWORD} -eq 1 ]; then" >>$@; \
-			echo "    COMPREPLY=( \`$(FIND) $${PWD}/src -type f -name \"\$${COMP_WORDS[COMP_CWORD]}*.m\" -printf '%f\n'\` )" >>$@; \
-			echo "  fi" >>$@; \
-			echo "}" >>$@; \
-			echo "complete -F _octapps_run octapps_run" >>$@; \
-			;; \
-	esac
+	octave_path="$(octdir):$(srcpath)\$${OCTAVE_PATH}"; \
+	path="$(CURDIR)/bin:\$${PATH}"; \
+	echo "# source this file to access OctApps" > $@; \
+	echo "test \$${$${empty}OCTAVE_PATH} -eq 0 && $${setenv} OCTAVE_PATH" >>$@; \
+	echo "$${setenv} OCTAVE_PATH$${equals}\`echo $${octave_path} | $${cleanpath}\`" >>$@; \
+	echo "test \$${$${empty}PATH} -eq 0 && $${setenv} PATH" >>$@; \
+	echo "$${setenv} PATH$${equals}\`echo $${path} | $${cleanpath}\`" >>$@
 
 # build extension modules
 ifneq ($(MKOCTFILE),false)
