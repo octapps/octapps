@@ -34,9 +34,8 @@ version := $(shell $(OCTAVE) --eval "disp(OCTAVE_VERSION)")
 srcpath := $(shell $(FIND) $(CURDIR)/src -type d ! \( -name private -or -name deprecated \) -printf '%p:')
 srcfiles := $(shell $(FIND) `echo $(srcpath) | $(SED) 's/:/ /g'` -type f -name '*.m')
 
-# OctApps extension module path
-octbasedir := $(CURDIR)/oct
-octdir := $(octbasedir)/$(version)
+# OctApps extension module directory
+octdir := oct/$(version)
 
 .PHONY : all check clean
 
@@ -48,7 +47,7 @@ octapps-user-env.sh octapps-user-env.csh : Makefile
 		*) empty='#'; setenv='export'; equals='=';; \
 	esac; \
 	cleanpath="$(SED) -e 's/^/:/;s/$$/:/;:A;s/:\([^:]*\)\(:.*\|\):\1:/:\1:\2:/g;s/:::*/:/g;tA;s/^:*//;s/:*$$//'"; \
-	octave_path="$(octdir):$(srcpath)\$${OCTAVE_PATH}"; \
+	octave_path="$(CURDIR)/$(octdir):$(srcpath)\$${OCTAVE_PATH}"; \
 	path="$(CURDIR)/bin:\$${PATH}"; \
 	echo "# source this file to access OctApps" > $@; \
 	echo "test \$${$${empty}OCTAVE_PATH} -eq 0 && $${setenv} OCTAVE_PATH" >>$@; \
@@ -85,10 +84,10 @@ gsl_ldflags = -lgsl
 
 all : $(swig_octs:%=$(octdir)/%.oct)
 
-$(swig_octs:%=$(octdir)/%.o) : $(octdir)/%.o : $(octbasedir)/%_wrap.cpp Makefile
+$(swig_octs:%=$(octdir)/%.o) : $(octdir)/%.o : oct/%_wrap.cpp Makefile
 	$(verbose)$(COMPILE)
 
-$(swig_octs:%=$(octbasedir)/%_wrap.cpp) : $(octbasedir)/%_wrap.cpp : %.i Makefile
+$(swig_octs:%=oct/%_wrap.cpp) : oct/%_wrap.cpp : %.i Makefile
 	$(verbose)$(SWIG) -octave -c++ -globals "$*cvar" -o $@ $<
 
 endif # neq ($(SWIG),false)
