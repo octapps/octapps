@@ -7,15 +7,7 @@ verbose_ = $(verbose_0)
 verbose_0 = @echo "making $@";
 
 # check for a program in a list using type -P, or return false
-CheckProg = $(strip \
-              $(if $(1), \
-                $(if $(shell type -P $(firstword $(1))), \
-                  $(firstword $(1)), \
-                  $(call CheckProg,$(strip $(wordlist 2, $(words $(1)), $(1)))) \
-                 ), \
-                 false \
-                ) \
-              )
+CheckProg = $(strip $(shell $(1:%=type -P % || ) echo false))
 
 # required programs
 CTAGSEX := $(call CheckProg, ctags-exuberant)
