@@ -31,7 +31,6 @@ function thgrm = transformHistBins(hgrm, F, err = 1e-2)
 
   ## check input
   assert(isHist(hgrm));
-  assert(is_function_handle(F));
   dim = length(hgrm.bins);
 
   ## copy histogram, but zero out contents
@@ -50,7 +49,7 @@ function thgrm = transformHistBins(hgrm, F, err = 1e-2)
 
     ## transform samples
     Fargs = mat2cell(x, N, ones(1, dim));
-    tx = F(Fargs{:});
+    tx = feval(F, Fargs{:});
     assert(ismatrix(tx));
     assert(size(tx) == size(x));
 
