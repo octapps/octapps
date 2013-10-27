@@ -38,7 +38,7 @@ function sa = invFalseAlarm_chi2_asym(pa, k)
 
   ## for large false alarm probabilities, fall back on
   ## numerical chi^2 inverse function
-  ii = pa < 0.1;
+  ii = (pa < 0.1);
   if any(!ii(:))
     sa(!ii) = invFalseAlarm_chi2(pa(!ii), k(!ii));
   endif
