@@ -211,7 +211,7 @@ public:
     std::list<tree_argument_list *> l = t.arg_lists();
     std::list<tree_argument_list *>::iterator p = l.begin();
     std::string s = t.type_tags();
-    for (int i = 0; i < s.length(); ++i) {
+    for (size_t i = 0; i < s.length(); ++i) {
       switch (s[i]) {
       case '(':
       case '{':
