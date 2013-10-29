@@ -16,26 +16,33 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn {Function File} {} randu([@var{min} @var{max}])
-## @deftypefnx{Function File} {} randu(@var{min}, @var{max})
+## @deftypefn{Function File} {@var{x} =} randu(@var{xmin}, @var{xmax}, @var{dims}...)
 ##
-## Return random values uniformly distributed over a given
-## range. @var{min} and @var{max} may be scalars (first usage),
-## or equi-dimensional matrices (second usage).
+## Return an array of size @var{dims} of random values
+## uniformly distributed between @var{xmin} and @var{xmax}.
 ## @end deftypefn
 
-function x = randu(varargin)
+function x = randu(xmin, xmax, varargin)
 
-  if nargin == 1
-    m = min(varargin{1});
-    M = max(varargin{1});
-  elseif nargin == 2
-    m = min(varargin{1}, varargin{2});
-    M = max(varargin{1}, varargin{2});
+  ## check input
+  assert(nargin >= 2);
+  if nargin == 2
+    if !isscalar(xmax)
+      siz = size(xmax);
+    else
+      siz = size(xmin);
+    endif
+  elseif nargin == 3
+    assert(isvector(varargin{1}));
+    siz = varargin{1};
   else
-    print_usage();
+    assert(all(cellfun("isscalar", varargin)));
+    siz = [varargin{:}];
   endif
+  assert(isscalar(xmin) || all(size(xmin) == siz));
+  assert(isscalar(xmax) || all(size(xmax) == siz));
 
-  x = m + rand(size(m)) .* (M - m);
+  ## generate random values
+  x = xmin + rand(siz) .* (xmax - xmin);
 
 endfunction
