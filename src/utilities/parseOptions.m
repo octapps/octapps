@@ -93,18 +93,18 @@ function varargout = parseOptions(opts, varargin)
         switch typefunccmd
           case "a"
             typefuncstr = strcat(typefuncstr, "isa(x,\"", typefuncarg, "\")");
-          case "numel"
-            x = str2num(typefuncarg);
-            if isempty(x) || fix(x) != x || x < 0
-              error("%s: argument to type specification command '%s' is not an integer", funcName, typefunccmd);
-            endif
-            typefuncstr = strcat(typefuncstr, "numel(x)==[", typefuncarg, "]");
           case "size"
             x = str2num(typefuncarg);
-            if isempty(x) || fix(x) != x || x < 0
-              error("%s: argument to type specification command '%s' is not an integer", funcName, typefunccmd);
+            if !isvector(x) || any(mod(x,1) != 0) || any(x < 0)
+              error("%s: argument to type specification command '%s' is not an integer vector", funcName, typefunccmd);
             endif
             typefuncstr = strcat(typefuncstr, "all(size(x)==[", typefuncarg, "])");
+          case "numel"
+            x = str2num(typefuncarg);
+            if !isscalar(x) || mod(x,1) != 0 || x < 0
+              error("%s: argument to type specification command '%s' is not an integer scalar", funcName, typefunccmd);
+            endif
+            typefuncstr = strcat(typefuncstr, "numel(x)==[", typefuncarg, "]");
           otherwise
             error("%s: unknown type specification command '%s'", funcName, typefunccmd);
         endswitch
