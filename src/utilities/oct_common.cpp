@@ -21,6 +21,14 @@
 #include <octave/parse.h>
 #include <octave/oct-map.h>
 
+// For Octave 3.2.4 compatibility
+#ifndef OCTAVE_API_VERSION_NUMBER
+#define OCTAVE_API_VERSION_NUMBER 0
+#endif
+#if OCTAVE_API_VERSION_NUMBER < 40
+#define octave_map Octave_map
+#endif
+
 OptMap callParseOptions(const octave_value_list& opts, const OptSpec optspecs[]) {
 
   // Create argument list for parseOptions()
