@@ -52,8 +52,8 @@ ifneq ($(MKOCTFILE),false)
 
 VPATH = $(srcpath)
 
-COMPILE = $(MKOCTFILE) -g -c -o $@ $<
-LINK = $(MKOCTFILE) -g -o $@ $< $($*_ldflags)
+COMPILE = $(MKOCTFILE) -g -c -o $@ -I$(CURDIR)/src $<
+LINK = $(MKOCTFILE) -g -o $@ $(filter %.o,$^) -lgsl
 
 octs = \
 	depends
@@ -63,16 +63,17 @@ all : $(octdir) $(octs:%=$(octdir)/%.oct)
 $(octdir) :
 	@mkdir -p $@
 
-$(octs:%=$(octdir)/%.o) : $(octdir)/%.o : %.cpp Makefile
-	$(verbose)$(COMPILE)
+$(octdir)/%.o : %.cpp Makefile
+	$(verbose)$(COMPILE) -Wall
+
+$(octdir)/%.oct : $(octdir)/%.o $(octdir)/oct_common.o Makefile
+	$(verbose)$(LINK)
 
 # generate SWIG extension modules
 ifneq ($(SWIG),false)
 
 swig_octs = \
 	gsl
-
-gsl_ldflags = -lgsl
 
 all : $(swig_octs:%=$(octdir)/%.oct)
 
@@ -82,10 +83,10 @@ $(swig_octs:%=$(octdir)/%.o) : $(octdir)/%.o : oct/%_wrap.cpp Makefile
 $(swig_octs:%=oct/%_wrap.cpp) : oct/%_wrap.cpp : %.i Makefile
 	$(verbose)$(SWIG) -octave -c++ -globals "$*cvar" -o $@ $<
 
-endif # neq ($(SWIG),false)
-
-$(octdir)/%.oct : $(octdir)/%.o Makefile
+$(swig_octs:%=$(octdir)/%.oct) : $(octdir)/%.oct : $(octdir)/%.o Makefile
 	$(verbose)$(LINK)
+
+endif # neq ($(SWIG),false)
 
 endif # neq ($(MKOCTFILE),false)
 
