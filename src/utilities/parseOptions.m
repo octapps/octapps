@@ -122,6 +122,10 @@ function varargout = parseOptions(opts, varargin)
         endswitch
       else
         switch typefuncarg
+          case "complex"
+            typefuncstr = strcat(typefuncstr, "isnumeric(x)&&iscomplex(x)");
+          case "real"
+            typefuncstr = strcat(typefuncstr, "isnumeric(x)&&isreal(x)");
           case "integer"
             typefuncstr = strcat(typefuncstr, "isnumeric(x)&&all(mod(x,1)==0)");
           case "evenint"
@@ -217,11 +221,10 @@ function varargout = parseOptions(opts, varargin)
     ## if option does not accept a 'char' value, but option value is a 'char',
     ## try evaluating it (this is used when parsing arguments from the command line)
     if !feval(typefunc.(optkey), "string") && ischar(optval) && !isobject(optval)
-      try
-        eval(sprintf("optval=[%s];", optval));
-      catch
+      [optval, state] = str2num(optval);
+      if !state
         error("%s: Could not create a value from '--%s=%s'", funcName, optkey, optval);
-      end_try_catch
+      endif
     endif
 
     ## assign option value, if it's the right type
