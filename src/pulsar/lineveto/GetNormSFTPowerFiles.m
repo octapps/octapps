@@ -69,11 +69,8 @@ function ret = GetNormSFTPowerFiles ( varargin )
  endif
 
  # prepare PSD code and parameters
- if ( params_init.debug == 0 )
-  ComputePSD      = [params_init.lalpath, "lalapps_ComputePSD -v0"];
- else
-  ComputePSD      = [params_init.lalpath, "lalapps_ComputePSD -v1"];
- endif
+ ComputePSD      = [params_init.lalpath, "lalapps_ComputePSD"];
+
  params_psd.outputNormSFT = 1;
  params_psd.PSDmthopSFTs  = 1;
  params_psd.blocksRngMed  = params_init.rngmedbins;
@@ -137,9 +134,9 @@ function ret = GetNormSFTPowerFiles ( varargin )
    else # get number of SFT bins needed to convert from fA to thresh
     printf(" using num_SFTs from input SFTs...\n");
     printf("Getting num_SFTs from input file '%s' ...\n", firstsft);
-    num_SFTs = get_num_SFTs_from_file ( firstsft );
+    num_SFTs = GetNumSFTsFromFile ( firstsft );
    endif
-   thresh = compute_SFT_power_threshold_from_fA ( params_init.SFTpower_fA, num_SFTs );
+   thresh = ComputeSFTPowerThresholdFromFA ( params_init.SFTpower_fA, num_SFTs );
    printf("num_SFTs=%d, threshold=%f\n", num_SFTs, thresh);
   endif
 
