@@ -34,11 +34,7 @@ function [num_outliers, max_outlier, freqbins] = CountSFTPowerOutliers ( params_
  # additionally, the following are relevant, but optional (as good defaults exist): PSDmthopSFTs, PSDmthopIFOs, blocksRngMed
  params_psd.outputNormSFT = 1; # this one we ALWAYS need to get the power statistic
 
- if ( debug == 0 )
-  ComputePSD      = [lalpath, "lalapps_ComputePSD -v0"];
- else
-  ComputePSD      = [lalpath, "lalapps_ComputePSD -v1"];
- endif
+ ComputePSD      = [lalpath, "lalapps_ComputePSD"];
 
  if ( debug == 1 )
   printf("Computing PSDs for a running median window of %d bins.\n", params_psd.blocksRngMed);
