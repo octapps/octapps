@@ -1,10 +1,11 @@
 SHELL = /bin/bash
 .DELETE_ON_ERROR :
+.SECONDARY :
 
 # use "make V=1" to display verbose output
 verbose = $(verbose_$(V))
 verbose_ = $(verbose_0)
-verbose_0 = @echo "making $@";
+verbose_0 = @echo "Making $@";
 
 # check for a program in a list using type -P, or return false
 CheckProg = $(strip $(shell $(1:%=type -P % || ) echo false))
@@ -34,7 +35,7 @@ octdir := oct/$(version)
 # generate environment scripts
 all .PHONY : octapps-user-env.sh octapps-user-env.csh
 octapps-user-env.sh octapps-user-env.csh : Makefile
-	$(verbose)case $@ in \
+	$(verbose_0)case $@ in \
 		*.csh) empty='?'; setenv='setenv'; equals=' ';; \
 		*) empty='#'; setenv='export'; equals='=';; \
 	esac; \
@@ -66,7 +67,7 @@ $(octdir) :
 $(octdir)/%.o : %.cpp Makefile
 	$(verbose)$(COMPILE) -Wall
 
-$(octdir)/%.oct : $(octdir)/%.o $(octdir)/oct_common.o Makefile
+$(octdir)/%.oct : $(octdir)/%.o Makefile
 	$(verbose)$(LINK)
 
 # generate SWIG extension modules
@@ -92,7 +93,7 @@ endif # neq ($(MKOCTFILE),false)
 
 # run test scripts
 check : all
-	$(verbose)source octapps-user-env.sh; \
+	@source octapps-user-env.sh; \
 	script='printf("testing %s ...\n",f);[n,m]=test(f); printf("... passed %i of %i\n",n,m); exit(!(0<n && n==m));'; \
 	for mfile in `$(GREP) -l '^%!' $(srcfiles) /dev/null`; do \
 		$(OCTAVE) -qfH --eval "f='$${mfile}';$${script}" || exit 1; \
@@ -103,10 +104,10 @@ ifneq ($(CTAGSEX),false)
 
 all .PHONY : TAGS
 TAGS :
-	$(verbose)$(CTAGSEX) -e $(srcfiles)
+	$(verbose_0)$(CTAGSEX) -e $(srcfiles)
 
 endif # neq ($(CTAGSEX),false)
 
 # cleanup
 clean :
-	$(verbose)$(GIT) clean -Xdf
+	@$(GIT) clean -Xdf
