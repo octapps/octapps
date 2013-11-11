@@ -15,15 +15,15 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## Evaluates the quantile function 'Q(p)' of a histogram at a given point 'p'.
+## Evaluate the quantile function (q.f.) of a histogram.
 ## Syntax:
-##   Q = quantileFuncOfHist(hgrm, p, [k = 1])
+##   q.f. = quantileFuncOfHist(hgrm, p, [k = 1])
 ## where:
 ##   hgrm = histogram class
 ##   p    = quantile probability, in the range [0, 1]
-##   k    = dimension over which to to evaluate quantile function
+##   k    = dimension over which to evaluate the q.f.
 
-function Q = quantileFuncOfHist(hgrm, p, k = 1)
+function qf = quantileFuncOfHist(hgrm, p, k = 1)
 
   ## check input
   assert(isHist(hgrm));
@@ -44,12 +44,13 @@ function Q = quantileFuncOfHist(hgrm, p, k = 1)
   siz = size(prob);
   siz(k) += 1;
   cumprob = zeros(siz);
-  [subs{1:length(siz)}] = ndgrid(arrayfun(@(n) 1:n, size(prob), "UniformOutput", false){:});
+  sizii = 1:length(siz);
+  [subs{sizii}] = ndgrid(arrayfun(@(n) 1:n, size(prob), "UniformOutput", false){:});
   subs{k} += 1;
   cumprob(sub2ind(siz, subs{:})) = cumsum(prob, k);
 
   ## calculate normalisation from total probability of dimension k
-  [subs{1:length(siz)}] = ndgrid(arrayfun(@(n) 1:n, siz, "UniformOutput", false){:});
+  [subs{sizii}] = ndgrid(arrayfun(@(n) 1:n, siz, "UniformOutput", false){:});
   subs{k} = siz(k)*ones(siz);
   norm = cumprob(sub2ind(siz, subs{:}));
 
@@ -57,7 +58,7 @@ function Q = quantileFuncOfHist(hgrm, p, k = 1)
   cumprob ./= norm;
 
   ## get lower and upper cumulative probabilities containing 'p'
-  [subs{1:length(siz)}] = ndgrid(arrayfun(@(n) 1:n, ifelse(1:dim == k, 1, siz), "UniformOutput", false){:});
+  [subs{sizii}] = ndgrid(arrayfun(@(n) 1:n, ifelse(sizii == k, 1, siz), "UniformOutput", false){:});
   norm1 = norm(sub2ind(siz, subs{:}));
   if p == 1
     subsk = sum(cumprob < 1, k);
@@ -74,14 +75,17 @@ function Q = quantileFuncOfHist(hgrm, p, k = 1)
   [xl, dx] = histBins(hgrm, k, "finite", "lower", "width");
   xlk = reshape(xl(subsk), size(cumproblower));
   dxk = reshape(dx(subsk), size(cumproblower));
-  Q = squeeze(xlk + dxk .* (p - cumproblower) ./ (cumprobupper - cumproblower));
+  qf = squeeze(xlk + dxk .* (p - cumproblower) ./ (cumprobupper - cumproblower));
 
 endfunction
 
 
-## generate standard normal histogram and calculate some quantiles
+## test quantile function with Gaussian/uniform histogram
 %!test
-%! hgrm = createGaussianHist(0, 1, "err", 1e-3, "binsize", 0.1);
-%! assert(abs(quantileFuncOfHist(hgrm, normcdf(-1)) - (-1)) < 0.005);
-%! assert(abs(quantileFuncOfHist(hgrm, normcdf( 0)) - ( 0)) < 0.005);
-%! assert(abs(quantileFuncOfHist(hgrm, normcdf(+1)) - (+1)) < 0.005);
+%! hgrm = Hist(2, {"lin", "dbin", 0.1}, {"lin", "dbin", 0.1});
+%! hgrm = addDataToHist(hgrm, [normrnd(1.7, sqrt(2.3), 1e7, 1), rand(1e7, 1)]);
+%! assert(abs(quantileFuncOfHist(hgrm, normcdf(-1), 1) - (1.7 - sqrt(2.3))) < 0.01)
+%! assert(abs(quantileFuncOfHist(hgrm, normcdf( 0), 1) - (1.7)) < 0.01)
+%! assert(abs(quantileFuncOfHist(hgrm, normcdf(+1), 1) - (1.7 + sqrt(2.3))) < 0.01)
+%! assert(max(abs(quantileFuncOfHist(hgrm, 0.33, 2)(30:end-30) - 0.33)) < 0.06)
+%! assert(max(abs(quantileFuncOfHist(hgrm, 0.77, 2)(30:end-30) - 0.77)) < 0.06)
