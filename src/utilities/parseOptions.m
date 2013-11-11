@@ -179,35 +179,35 @@ function varargout = parseOptions(opts, varargin)
     endif
 
   endfor
-      
+
   ## split function arguments into regular options and keyword-value pairs
   [regopts, kvopts] = parseparams(opts);
-  
+
   ## check if there's more regular options than required options
   if length(regopts) > length(reqnames)
     error("%s: Too many regular arguments; maximum is %i", funcName, length(reqnames))
   endif
-  
+
   ## assign regular options in order given by 'reqnames'
   for n = 1:length(regopts)
-    
+
     ## assign option value, if it's the right type
     if !feval(typefunc.(reqnames{n}), regopts{n})
       error("%s: Value of '%s' must satisfy: %s", funcName, reqnames{n}, formula(typefunc.(reqnames{n})));
     endif
     paropts.(reqnames{n}) = regopts{n};
-    
+
     ## mark that this option has been used
     --allowed.(reqnames{n});
     --required.(reqnames{n});
-    
+
   endfor
-  
+
   ## check that there's an even number of items in the keyword-value list
   if mod(length(kvopts), 2) != 0
     error("%s: Expected 'key',value pairs following regular options in args", funcName);
   endif
-  
+
   ## assign keyword-value options
   for n = 1:2:length(kvopts)
     optkey = kvopts{n};
@@ -241,15 +241,15 @@ function varargout = parseOptions(opts, varargin)
     else
       paropts.(optkey) = optval;
     endif
-    
+
     ## mark that this option has been used
     --allowed.(optkey);
     if isfield(required, optkey)
       --required.(optkey);
     endif
-    
+
   endfor
-  
+
   ## check that options have been used correctly
   allnames = fieldnames(allowed);
   for n = 1:length(allnames)
