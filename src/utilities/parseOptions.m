@@ -94,25 +94,25 @@ function varargout = parseOptions(opts, varargin)
           case "a"
             typefuncstr = strcat(typefuncstr, "isa(x,\"", typefuncarg, "\")");
           case "size"
-            x = str2num(typefuncarg);
+            x = str2double(typefuncarg);
             if !isvector(x) || any(mod(x,1) != 0) || any(x < 0)
               error("%s: argument to type specification command '%s' is not an integer vector", funcName, typefunccmd);
             endif
             typefuncstr = strcat(typefuncstr, "all(size(x)==[", typefuncarg, "])");
           case "numel"
-            x = str2num(typefuncarg);
+            x = str2double(typefuncarg);
             if !isscalar(x) || mod(x,1) != 0 || x < 0
               error("%s: argument to type specification command '%s' is not an integer scalar", funcName, typefunccmd);
             endif
             typefuncstr = strcat(typefuncstr, "numel(x)==[", typefuncarg, "]");
           case "rows"
-            x = str2num(typefuncarg);
+            x = str2double(typefuncarg);
             if !isscalar(x) || mod(x,1) != 0 || x < 0
               error("%s: argument to type specification command '%s' is not an integer scalar", funcName, typefunccmd);
             endif
             typefuncstr = strcat(typefuncstr, "rows(x)==[", typefuncarg, "]");
           case "cols"
-            x = str2num(typefuncarg);
+            x = str2double(typefuncarg);
             if !isscalar(x) || mod(x,1) != 0 || x < 0
               error("%s: argument to type specification command '%s' is not an integer scalar", funcName, typefunccmd);
             endif
@@ -221,10 +221,13 @@ function varargout = parseOptions(opts, varargin)
     ## if option does not accept a 'char' value, but option value is a 'char',
     ## try evaluating it (this is used when parsing arguments from the command line)
     if !feval(typefunc.(optkey), "string") && ischar(optval) && !isobject(optval)
-      [optval, state] = str2num(optval);
-      if !state
+      try
+        ## convert string expression to number, but evaluate it inside a
+        ## temporary function so that it cannot access local variables
+        eval(sprintf("function x = __tmp__; x = [%s]; endfunction; optval = __tmp__(); clear __tmp__;", optval));
+      catch
         error("%s: Could not create a value from '--%s=%s'", funcName, optkey, optval);
-      endif
+      end_try_catch
     endif
 
     ## assign option value, if it's the right type
