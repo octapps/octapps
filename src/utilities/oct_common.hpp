@@ -20,6 +20,7 @@
 #include <string>
 #include <map>
 #include <octave/oct.h>
+#include <octave/quit.h>
 
 // Struct for specifying parseOptions() option specs
 typedef struct {
@@ -37,3 +38,6 @@ typedef struct {
 // C++ interface to OctApps parseOptions() function
 typedef std::map<std::string, octave_value> OptMap;
 OptMap callParseOptions(const octave_value_list& opts, const OptSpec optspecs[]);
+
+// C++ interface to Octave common_size() function
+octave_value_list callCommonSize(const octave_value_list& args);

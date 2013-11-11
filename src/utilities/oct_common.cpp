@@ -57,3 +57,14 @@ OptMap callParseOptions(const octave_value_list& opts, const OptSpec optspecs[])
   return map;
 
 }
+
+octave_value_list callCommonSize(const octave_value_list& args) {
+
+  // Call common_size() and return common-size arguments
+  octave_value_list common_args = feval("common_size", args, args.length() + 1);
+  if (common_args(0).int_value() != 0) {
+    return octave_value_list();
+  }
+  return common_args.slice(1, args.length());
+
+}
