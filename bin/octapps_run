@@ -18,8 +18,9 @@
 ## MA  02111-1307  USA
 
 ## Run Octave function from the command line.
-## Command-line options may be given as:
+## Command-line options of the form:
 ##   --name <value>   or   --name=<value>
+## are converted into option-value pairs; other options are unchanged.
 
 ## Get function name, or print usage
 function="$1"

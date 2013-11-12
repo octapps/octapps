@@ -15,14 +15,15 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## Return command-line options in format expected by parseOptions().
-## Command-line options may be given as:
+## Return command-line options in form expected by parseOptions().
+## Command-line options of the form:
 ##   --name <value>   or   --name=<value>
+## are converted into option-value pairs; other options are unchanged.
 ## Syntax:
 ##   opts = parseCommandLine(delim, cmdline)
 ## where
-##   delim = remove all command-line arguments that appear before this
-##           argument, if it is given on the command line (optional)
+##   delim   = remove all command-line arguments that appear before this
+##             argument, if it is given on the command line (optional)
 ##   cmdline = optional command-line like string,
 ##             if not passed: get directly from actual commandline
 
@@ -51,13 +52,6 @@ function opts = parseCommandLine(delim=[], cmdline=[])
     arg = args{n++};
     argvalstr = [];
 
-    ## if argument is '--', just parse it along, since
-    ## it might be being used as an option separator
-    if strcmp(arg, "--")
-      opts{end+1} = arg;
-      continue
-    endif
-    
     ## check that argument begins with '--'
     if strncmp(arg, "--", 2)
       
@@ -70,9 +64,18 @@ function opts = parseCommandLine(delim=[], cmdline=[])
         ## otherwise just store the name
         argcmdname = arg(3:end);
       endif
+
+      ## check for non-empty name/values
+      if isempty(argcmdname) == isempty(argvalstr)
+        error("%s: Empty name/value in argument '%s'", funcName, arg);
+      endif
       
     else
-      error("%s: Could not parse argument '%s'", funcName, arg);
+
+      ## pass option along unchanged
+      opts{end+1} = arg;
+      continue
+
     endif
     
     ## replace '-' with '_' to make a valid Octave variable name
