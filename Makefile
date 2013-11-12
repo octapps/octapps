@@ -94,10 +94,7 @@ endif # neq ($(MKOCTFILE),false)
 # run test scripts
 check : all
 	@source octapps-user-env.sh; \
-	script='printf("testing %s ...\n",f);[n,m]=test(f); printf("... passed %i of %i\n",n,m); exit(!(0<n && n==m));'; \
-	for mfile in `$(GREP) -l '^%!' $(srcfiles) /dev/null`; do \
-		$(OCTAVE) -qfH --eval "f='$${mfile}';$${script}" || exit 1; \
-	done; exit 0
+	octapps_run octapps_check `$(GREP) -l '^%!' $(srcfiles) /dev/null`
 
 # generate tags
 ifneq ($(CTAGSEX),false)
