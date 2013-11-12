@@ -14,11 +14,22 @@
 ## along with Octave; see the file COPYING.  If not, see
 ## <http://www.gnu.org/licenses/>.
 
-function hgrm = restrictHist(hgrm, rfunc)
+## Extract histogram restricted to subregion of bins, as determined
+## by the function 'F'.
+## Usage
+##   rhgrm = restrictHist(hgrm, F)
+## where:
+##   rhgrm = restricted histogram class
+##   hgrm  = original histogram class
+##   F     = restriction function; selects bins where
+##             F([xl1, xh1], [xl2, xh2], ...)
+##           evaluates true; xlk, xhk are the bin boundaries
+##           of each bin in dimension 'k'.
+
+function hgrm = restrictHist(hgrm, F)
 
   ## check input
   assert(isHist(hgrm));
-  assert(is_function_handle(rfunc));
 
   ## build bin boundary pairs
   dim = length(hgrm.bins);
@@ -37,7 +48,7 @@ function hgrm = restrictHist(hgrm, rfunc)
   endfor
 
   ## evaluate restrict function for all bin boundary pairs over all dimensions
-  r = cellfun(rfunc, args{:});
+  r = cellfun(F, args{:});
 
   ## zero out bins where restrict function was false
   hgrm.counts(find(!r)) = 0;
