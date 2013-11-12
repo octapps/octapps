@@ -24,8 +24,8 @@ SWIG := $(call CheckProg, swig)
 version := $(shell $(OCTAVE) --eval "disp(OCTAVE_VERSION)")
 
 # OctApps source path and file list
-srcpath := $(shell $(FIND) $(CURDIR)/src -type d ! \( -name private -or -name deprecated \) -printf '%p:')
-srcfiles := $(shell $(FIND) $(CURDIR)/src -type f -regex '.*\.\(m\|i\|cpp\)$$' )
+srcpath := $(shell $(FIND) $(CURDIR)/src -type d ! \( -name private -or -name deprecated \) | sort -f)
+srcfiles := $(wildcard $(srcpath:%=%/*.m) $(srcpath:%=%/*.cpp))
 
 # OctApps extension module directory
 octdir := oct/$(version)
@@ -40,7 +40,7 @@ octapps-user-env.sh octapps-user-env.csh : Makefile
 		*) empty='#'; setenv='export'; equals='=';; \
 	esac; \
 	cleanpath="$(SED) -e 's/^/:/;s/$$/:/;:A;s/:\([^:]*\)\(:.*\|\):\1:/:\1:\2:/g;s/:::*/:/g;tA;s/^:*//;s/:*$$//'"; \
-	octave_path="$(CURDIR)/$(octdir):$(srcpath)\$${OCTAVE_PATH}"; \
+	octave_path="$(CURDIR)/$(octdir):`echo $(srcpath) | $(SED) 's/  */:/g'`:\$${OCTAVE_PATH}"; \
 	path="$(CURDIR)/bin:\$${PATH}"; \
 	echo "# source this file to access OctApps" > $@; \
 	echo "test \$${$${empty}OCTAVE_PATH} -eq 0 && $${setenv} OCTAVE_PATH" >>$@; \
@@ -94,7 +94,7 @@ endif # neq ($(MKOCTFILE),false)
 # run test scripts
 check : all
 	@source octapps-user-env.sh; \
-	octapps_run octapps_check `$(GREP) -l '^%!' $(srcfiles) /dev/null`
+	octapps_run octapps_check `$(GREP) -l '^%!' $(srcfiles) /dev/null | sort -f`
 
 # generate tags
 ifneq ($(CTAGSEX),false)
