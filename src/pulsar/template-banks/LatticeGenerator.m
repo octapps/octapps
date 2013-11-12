@@ -1,28 +1,25 @@
+%% Copyright (C) 2008 Reinhard Prix
+%%
+%% This program is free software; you can redistribute it and/or modify
+%% it under the terms of the GNU General Public License as published by
+%% the Free Software Foundation; either version 2 of the License, or
+%% (at your option) any later version.
+%%
+%% This program is distributed in the hope that it will be useful,
+%% but WITHOUT ANY WARRANTY; without even the implied warranty of
+%% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+%% GNU General Public License for more details.
+%%
+%% You should have received a copy of the GNU General Public License
+%% along with with program; see the file COPYING. If not, write to the
+%% Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+%% MA  02111-1307  USA
+
 %% [ gen, rot ] = LatticeGenerator ( dim, lattice )
 %%
 %% return an nxn full-rank generating matrix for the specified lattice
 %% This is just a wrapper to the lower-level lattice-specific functions.
 %% lattice is one of the strings { "Zn", "An", "Ans" }
-%%
-
-%%
-%% Copyright (C) 2008 Reinhard Prix
-%%
-%%  This program is free software; you can redistribute it and/or modify
-%%  it under the terms of the GNU General Public License as published by
-%%  the Free Software Foundation; either version 2 of the License, or
-%%  (at your option) any later version.
-%%
-%%  This program is distributed in the hope that it will be useful,
-%%  but WITHOUT ANY WARRANTY; without even the implied warranty of
-%%  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-%%  GNU General Public License for more details.
-%%
-%%  You should have received a copy of the GNU General Public License
-%%  along with with program; see the file COPYING. If not, write to the
-%%  Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
-%%  MA  02111-1307  USA
-%%
 
 function [ gen, rot ] = LatticeGenerator ( dim, lattice )
 
