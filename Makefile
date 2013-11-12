@@ -94,7 +94,7 @@ endif # neq ($(MKOCTFILE),false)
 # run test scripts
 check : all
 	@source octapps-user-env.sh; \
-	octapps_run octapps_check `$(GREP) -l '^%!' $(srcfiles) /dev/null | sort -f`
+	octapps_run octapps_check `$(GREP) -l '^%!' $(srcfiles) /dev/null | LC_ALL=C sort -f`
 
 # generate tags
 ifneq ($(CTAGSEX),false)
