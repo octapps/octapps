@@ -20,13 +20,13 @@
 ##   octapps_check <filepath...>
 
 function octapps_check(varargin)
-  page_screen_output(0, "local");
   names = cell(1, length(varargin));
   for i = 1:length(varargin)
     [_, names{i}] = fileparts(varargin{i});
   endfor
   names = char(names);
   failed = false;
+  pso = page_screen_output(0);
   for i = 1:length(varargin)
     printf("(%3i/%3i) %s : ", i, length(varargin), names(i,:));
     [n, m] = test(varargin{i});
@@ -37,6 +37,7 @@ function octapps_check(varargin)
       printf("PASSED %3i tests\n", n);
     endif
   endfor
+  page_screen_output(pso);
   if failed
     error("failed tests!\n");
   endif

@@ -26,7 +26,7 @@ function g_aa = projectSuperskyMetric2Sky ( g_nn, alpha0, delta0 )
   %% input metric 'g_nn' and the output metric has a = [alpha,delta] as the first 2 coordinates
   %%
 
-  assert ( issymmetric ( g_nn ), "Input supersky metric 'g_nn' must be a symmetric square matrix" );
+  assert ( issymmetric ( g_nn ) > 0, "Input supersky metric 'g_nn' must be a symmetric square matrix" );
   nDim = columns(g_nn);
   assert ( nDim >= 3, "Input supersky metric must be at least 3x3 (got %dx%d)", nDim, nDim);
 

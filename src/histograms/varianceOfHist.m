@@ -42,5 +42,5 @@ endfunction
 %!shared hgrm
 %! hgrm = Hist(2, {"lin", "dbin", 0.01}, {"lin", "dbin", 0.1});
 %! hgrm = addDataToHist(hgrm, [normrnd(1.7, sqrt(2.3), 1e7, 1), rand(1e7, 1)]);
-%!assert(abs(meanOfHist(hgrm) - 1.7) < 1e-2)
-%!assert(abs(varianceOfHist(hgrm) - 2.3) < 1e-2)
+%!assert(abs(meanOfHist(hgrm) - 1.7) < 5e-2)
+%!assert(abs(varianceOfHist(hgrm) - 2.3) < 5e-2)

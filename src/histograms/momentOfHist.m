@@ -75,10 +75,8 @@ function mu = momentOfHist(hgrm, sumdims, n, x0 = 0)
     mu = sum(mu, sumdims(k));
     norm = sum(norm, sumdims(k));
   endfor
-  if !isempty(rd)
-    mu = reshape(mu, siz(rd));
-    norm = reshape(norm, siz(rd));
-  endif
+  mu = squeeze(mu);
+  norm = squeeze(norm);
 
   ## normalise moments
   mu ./= norm;

@@ -25,7 +25,7 @@ function gOut_ij = projectMetric ( g_ij, c=1 )
   %% Returns a 'projected' n x n metric, where the projected-out dimension 'c' is replaced
   %% by zeros, consistent with the behavior of XLALProjectMetric()
 
-  assert ( issymmetric ( g_ij ), "Input metric 'g_ij' must be a symmetric square matrix" );
+  assert ( issymmetric ( g_ij ) > 0, "Input metric 'g_ij' must be a symmetric square matrix" );
 
   n = columns ( g_ij );
 

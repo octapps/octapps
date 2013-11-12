@@ -39,7 +39,7 @@ function gProj_ss = projectMetric2Subspace ( g_ij, sSpace )
   %% Note 3: gProj_{ss'} is just the Schur complement of g_{kk'}, see https://en.wikipedia.org/wiki/Schur_complement
   %%
 
-  assert ( issymmetric ( g_ij ), "Input metric 'g_ij' must be a symmetric square matrix" );
+  assert ( issymmetric ( g_ij ) > 0, "Input metric 'g_ij' must be a symmetric square matrix" );
 
   n = columns ( g_ij );
 

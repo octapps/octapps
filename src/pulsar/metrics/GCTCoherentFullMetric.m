@@ -169,6 +169,7 @@ endfunction
 %! # check that LALSuite wrappings are available
 %! try
 %!   lal; lalpulsar;
+%!   ephemerides = loadEphemerides();
 %! catch
 %!   disp("*** LALSuite modules not available; skipping test ***"); return;
 %! end_try_catch
@@ -180,7 +181,6 @@ endfunction
 %! alpha1 = 1.3;
 %! delta1 = 0.3;
 %! detector = "H1";
-%! ephemerides = loadEphemerides();
 %! fiducial_freq = 100;
 %!
 %! # loop over ptolemaic and tj offset

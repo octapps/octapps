@@ -58,7 +58,9 @@ function qf = quantileFuncOfHist(hgrm, p, k = 1)
   cumprob ./= norm;
 
   ## get lower and upper cumulative probabilities containing 'p'
-  [subs{sizii}] = ndgrid(arrayfun(@(n) 1:n, ifelse(sizii == k, 1, siz), "UniformOutput", false){:});
+  nn = siz;
+  nn(sizii == k) = 1;
+  [subs{sizii}] = ndgrid(arrayfun(@(n) 1:n, nn, "UniformOutput", false){:});
   norm1 = norm(sub2ind(siz, subs{:}));
   if p == 1
     subsk = sum(cumprob < 1, k);
@@ -87,5 +89,5 @@ endfunction
 %!assert(abs(quantileFuncOfHist(hgrm, normcdf(-1), 1) - (1.7 - sqrt(2.3))) < 0.01)
 %!assert(abs(quantileFuncOfHist(hgrm, normcdf( 0), 1) - (1.7)) < 0.01)
 %!assert(abs(quantileFuncOfHist(hgrm, normcdf(+1), 1) - (1.7 + sqrt(2.3))) < 0.01)
-%!assert(max(abs(quantileFuncOfHist(hgrm, 0.33, 2)(30:end-30) - 0.33)) < 0.1)
-%!assert(max(abs(quantileFuncOfHist(hgrm, 0.77, 2)(30:end-30) - 0.77)) < 0.1)
+%!assert(max(abs(quantileFuncOfHist(hgrm, 0.33, 2)(50:end-50) - 0.33)) < 0.05)
+%!assert(max(abs(quantileFuncOfHist(hgrm, 0.77, 2)(50:end-50) - 0.77)) < 0.05)

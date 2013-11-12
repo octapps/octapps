@@ -48,7 +48,7 @@ function results = ConstructSuperSkyMetrics(sometric, socoordIDs, varargin)
                []);
 
   ## check input
-  assert(issymmetric(sometric));
+  assert(issymmetric(sometric) > 0);
   assert(isvector(socoordIDs));
   assert(length(unique(socoordIDs)) == length(socoordIDs));
   if aligned_sky
