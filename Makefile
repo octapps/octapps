@@ -18,13 +18,14 @@ GREP := $(call CheckProg, grep)
 MKOCTFILE := $(call CheckProg, mkoctfile)
 OCTAVE := $(call CheckProg, octave) --silent --norc --no-history --no-window-system
 SED := $(call CheckProg, gsed sed)
+SORT := LC_ALL=C $(call CheckProg, sort) -f
 SWIG := $(call CheckProg, swig)
 
 # Octave version
 version := $(shell $(OCTAVE) --eval "disp(OCTAVE_VERSION)")
 
 # OctApps source path and file list
-srcpath := $(shell $(FIND) $(CURDIR)/src -type d ! \( -name private -or -name deprecated \) | sort -f)
+srcpath := $(shell $(FIND) $(CURDIR)/src -type d ! \( -name private -or -name deprecated \) | $(SORT))
 srcfiles := $(wildcard $(srcpath:%=%/*.m) $(srcpath:%=%/*.cpp))
 
 # OctApps extension module directory
@@ -94,7 +95,7 @@ endif # neq ($(MKOCTFILE),false)
 # run test scripts
 check : all
 	@source octapps-user-env.sh; \
-	octapps_run octapps_check `$(GREP) -l '^%!' $(srcfiles) /dev/null | LC_ALL=C sort -f`
+	octapps_run octapps_check `$(GREP) -l '^%!' $(srcfiles) /dev/null | $(SORT)`
 
 # generate tags
 ifneq ($(CTAGSEX),false)
