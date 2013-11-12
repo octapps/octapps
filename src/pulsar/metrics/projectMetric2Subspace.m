@@ -45,15 +45,18 @@ function gProj_ss = projectMetric2Subspace ( g_ij, sSpace )
 endfunction
 
 
-%!test
+%!shared gij, tol
 %! rand("seed", 2); tmp = rand(4,4); gij = (tmp + tmp'); %% 4x4 pos-definite matrix, det~3.6, cond~9
 %! tol = 10*eps;
-%!
+
+%!test
 %! sSpace1 = [2,3,4]; g1_old = projectMetric ( gij, 1 )(sSpace1,sSpace1); g1_new = projectMetric2Subspace(gij, sSpace1);
 %! assert ( g1_old, g1_new, tol );
-%!
+
+%!test
 %! sSpace2 = [1,3,4]; g2_old = projectMetric ( gij, 2 )(sSpace2,sSpace2); g2_new = projectMetric2Subspace(gij, sSpace2);
 %! assert ( g2_old, g2_new, tol );
-%!
+
+%!test
 %! sSpace12 = [3,4]; g12_old = projectMetric( projectMetric ( gij, 2 ), 1)(sSpace12,sSpace12); g12_new = projectMetric2Subspace(gij, sSpace12);
 %! assert ( g12_old, g12_new, tol );

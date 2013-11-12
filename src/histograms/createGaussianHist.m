@@ -63,7 +63,7 @@ endfunction
 
 
 ## generate Gaussian histogram and check its properties
-%!test
+%!shared hgrm
 %! hgrm = createGaussianHist(1.2, 3.4, "err", 1e-2, "binsize", 0.1);
-%! assert(abs(meanOfHist(hgrm) - 1.2) < 0.1)
-%! assert(abs(sqrt(varianceOfHist(hgrm)) - 3.4) < 0.1)
+%!assert(abs(meanOfHist(hgrm) - 1.2) < 0.1)
+%!assert(abs(sqrt(varianceOfHist(hgrm)) - 3.4) < 0.1)

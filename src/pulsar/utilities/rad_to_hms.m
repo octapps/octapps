@@ -21,7 +21,6 @@ endfunction
 %! rads = hms_to_rad ( "10:11:12.345" );
 %! [hh, mm, ss] = rad_to_hms ( rads );
 %! assert ( hh, 10 ); assert ( mm, 11 ); assert ( ss, 12.345, 1e4*eps );
-%!
 
 %!test
 %! rads = hms_to_rad ( "0:11:12.345" );
