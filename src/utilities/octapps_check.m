@@ -27,15 +27,17 @@ function octapps_check(varargin)
   names = char(names);
   failed = false;
   pso = page_screen_output(0);
+  t = tic;
   for i = 1:length(varargin)
     printf("(%3i/%3i) %s : ", i, length(varargin), names(i,:));
     [n, m] = test(varargin{i});
     if n == 0 || n < m
       failed = true;
-      printf("FAILED\n");
+      printf("FAILED");
     else
-      printf("PASSED %3i tests\n", n);
+      printf("PASSED %3i tests", n);
     endif
+    printf(" (%0.1fs elapsed)\n", double(tic() - t) * 1e-6);
   endfor
   page_screen_output(pso);
   if failed
