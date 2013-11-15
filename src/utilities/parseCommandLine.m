@@ -66,7 +66,7 @@ function opts = parseCommandLine(delim=[], cmdline=[])
       endif
 
       ## check for non-empty name/values
-      if isempty(argcmdname) == isempty(argvalstr)
+      if isempty(argcmdname) || isempty(argvalstr)
         error("%s: Empty name/value in argument '%s'", funcName, arg);
       endif
       
