@@ -88,10 +88,15 @@ function ezprint(filepath, varargin)
 
     ## remove the CreationDate information from the EPS file, so that re-generated
     ## figures do not show up as changed in e.g. git unless their content has changed
-    sedcmd = sprintf("sed --in-place '\\!^\\(%%%%\\| */\\)CreationDate!d' %s", epsfilepath);
-    [sedstatus, sedoutput] = system(sedcmd);
-    if sedstatus != 0
-      error("%s: command '%s' failed", funcName, sedcmd);
+    [status, output] = system(cstrcat("sed -i '\\!^\\(%%\\| */\\)CreationDate!d' ", epsfilepath));
+    if status != 0
+      error("%s: 'sed' failed", funcName);
+    endif
+
+    ## replace 10^0 with 1, and 10^1 with 10, in plot tick labels in the TeX file
+    [status, output] = system(cstrcat("sed -i 's|\\$10\\^{0}\\$|$1$|g;s|\\$10\\^{1}\\$|$10$|g' ", filepath));
+    if status != 0
+      error("%s: 'sed' failed", funcName);
     endif
 
   endif
