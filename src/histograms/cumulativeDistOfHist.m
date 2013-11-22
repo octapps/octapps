@@ -28,6 +28,7 @@ function cdf = cumulativeDistOfHist(hgrm, x, k = 1)
   ## check input
   assert(isHist(hgrm));
   dim = histDim(hgrm);
+  assert(isscalar(x));
   assert(isscalar(k) && 1 <= k && k <= dim);
 
   ## get probability densities
@@ -49,7 +50,8 @@ function cdf = cumulativeDistOfHist(hgrm, x, k = 1)
   endfor
 
   ## compute cumulative probability up to bin containing 'x'
-  i = min(find(x < xl));
+  i = find(xl <= x & x < xh);
+  assert(isscalar(i));
   sizii = 1:length(siz);
   nn = siz;
   nn(sizii == k) = i-1;
