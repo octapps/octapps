@@ -1,4 +1,5 @@
 ## Copyright (C) 2013 Karl Wette
+## Copyright (C) 2013 Paola Leaci
 ##
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -37,6 +38,18 @@
 ##  *sch_alpha: searched right ascension (default: same as injected)
 ##  *sch_delta: searched declination (default: same as injected)
 ##  *sch_fndot: searched frequency/spindowns (default: same as injected)
+##  OrbitParams: option that needs to be set to 'true' to be able to specify the orbital parameters (default: false)
+##  *inj_orbitasini: injected orbital projected semi-major axis (normalised by the speed of light) in seconds (default: random)
+##  *inj_orbitEcc: injected orbital eccentricity (default: random)
+##  *inj_orbitTpSSBsec: injected (SSB) time of periapsis passage (in seconds) (default: random)
+##  *inj_orbitPeriod: injected orbital period (seconds) (default: random)
+##  *inj_orbitArgp: injected argument of periapsis (radians) (default: random)
+##  *sch_orbitasini: searched orbital projected semi-major axis (normalised by the speed of light) in seconds (default: same as injected)
+##  *sch_orbitEcc: searched orbital eccentricity (default: same as injected)
+##  *sch_orbitTpSSBsec: searched (SSB) time of periapsis passage (in seconds) (default: same as injected)
+##  *sch_orbitPeriod: searched orbital period (seconds) (default: same as injected)
+##  *sch_orbitArgp: searched argument of periapsis (radians) (default: same as injected)
+##  dopplermax: maximal possible doppler-effect (default: 1.05e-4)
 
 function results = DoFstatInjections(varargin)
 
@@ -64,6 +77,18 @@ function results = DoFstatInjections(varargin)
                {"sch_alpha", "real,vector", []},
                {"sch_delta", "real,vector", []},
                {"sch_fndot", "real,matrix", []},
+               {"OrbitParams", "logical,scalar", false},
+               {"inj_orbitasini", "real,scalar", unifrnd(1.0,3.0)},
+               {"inj_orbitEcc", "real,scalar", unifrnd(0.0,1.0)},
+               {"inj_orbitTpSSBsec", "integer,scalar", fix(unifrnd(6e8,6.5e8))},
+               {"inj_orbitPeriod", "real,scalar", unifrnd(3600.0,86400.0)},
+               {"inj_orbitArgp", "real,scalar", unifrnd(0.0,2*pi)},
+               {"sch_orbitasini", "real,vector", []},
+               {"sch_orbitEcc", "real,vector", []},
+               {"sch_orbitTpSSBsec", "integer,vector", []},
+               {"sch_orbitPeriod", "real,vector", []},
+               {"sch_orbitArgp", "real,vector", []},
+               {"dopplermax", "real,scalar",1.05e-4},
                []);
 
   ## use injection parameters as search parameters, if not given
@@ -76,14 +101,38 @@ function results = DoFstatInjections(varargin)
   if isempty(sch_fndot)
     sch_fndot = inj_fndot;
   endif
+  if OrbitParams
+    if isempty(sch_orbitasini)
+      sch_orbitasini = inj_orbitasini;
+    endif
+    if isempty(sch_orbitEcc)
+      sch_orbitEcc = inj_orbitEcc;
+    endif
+    if isempty(sch_orbitTpSSBsec)
+      sch_orbitTpSSBsec = inj_orbitTpSSBsec;
+    endif
+    if isempty(sch_orbitPeriod)
+      sch_orbitPeriod = inj_orbitPeriod;
+    endif
+    if isempty(sch_orbitArgp)
+      sch_orbitArgp = inj_orbitArgp;
+    endif
+  endif
 
   ## check options
   assert(size(inj_fndot, 2) == 1);
-  assert(size(sch_fndot, 1) == size(sch_fndot, 1));
+  assert(size(inj_fndot, 1) == size(sch_fndot, 1));
   num_sch = size(sch_fndot, 2);
   assert(num_sch > 0);
   assert(all(size(sch_alpha) == [1, num_sch]));
   assert(all(size(sch_delta) == [1, num_sch]));
+  if OrbitParams
+    assert(all(size(sch_orbitasini) == [1, num_sch]));
+    assert(all(size(sch_orbitEcc) == [1, num_sch]));
+    assert(all(size(sch_orbitTpSSBsec) == [1, num_sch]));
+    assert(all(size(sch_orbitPeriod) == [1, num_sch]));
+    assert(all(size(sch_orbitArgp) == [1, num_sch]));
+  endif
 
   ## load ephemerides if not supplied
   if isempty(ephemerides)
@@ -109,6 +158,18 @@ function results = DoFstatInjections(varargin)
   results.sch_alpha = sch_alpha;
   results.sch_delta = sch_delta;
   results.sch_fndot = sch_fndot;
+  if OrbitParams
+    results.inj_orbitasini = inj_orbitasini;
+    results.inj_orbitEcc = inj_orbitEcc;
+    results.inj_orbitTpSSBsec = inj_orbitTpSSBsec;
+    results.inj_orbitPeriod = inj_orbitPeriod;
+    results.inj_orbitArgp = inj_orbitArgp;
+    results.sch_orbitasini = sch_orbitasini;
+    results.sch_orbitEcc = sch_orbitEcc;
+    results.sch_orbitTpSSBsec = sch_orbitTpSSBsec;
+    results.sch_orbitPeriod = sch_orbitPeriod;
+    results.sch_orbitArgp = sch_orbitArgp;
+  endif
   results.sch_twoF = zeros(1, num_sch);
 
   ## create and fill sources input vector for CWMakeFakeData()
@@ -122,6 +183,14 @@ function results = DoFstatInjections(varargin)
   MFDsources.data{1}.Doppler.fkdot = zeros(size(MFDsources.data{1}.Doppler.fkdot));
   MFDsources.data{1}.Doppler.fkdot(1:length(inj_fndot)) = inj_fndot;
   MFDsources.data{1}.Doppler.refTime = refTime;
+  if OrbitParams
+    MFDsources.data{1}.Doppler.orbit = new_BinaryOrbitParams;
+    MFDsources.data{1}.Doppler.orbit.asini = inj_orbitasini;
+    MFDsources.data{1}.Doppler.orbit.ecc = inj_orbitEcc;
+    MFDsources.data{1}.Doppler.orbit.tp = inj_orbitTpSSBsec;
+    MFDsources.data{1}.Doppler.orbit.period = inj_orbitPeriod;
+    MFDsources.data{1}.Doppler.orbit.argp = inj_orbitArgp;
+  endif
 
   ## create and fill input parameters struct for ComputeFStat()
   CFSparams = new_ComputeFParams;
@@ -168,9 +237,10 @@ function results = DoFstatInjections(varargin)
     endif
 
     ## add the maximum frequency modulation due to the orbital Doppler modulation
-    dfreq_orbit = 2*pi * LAL_AU_SI / LAL_C_SI / LAL_YRSID_SI * max_freq;
-    min_freq -= dfreq_orbit;
-    max_freq += dfreq_orbit;
+    dfreq_orbitSourcePl = dopplermax * max_freq;
+    max_freq += dfreq_orbitSourcePl;
+    dfreq_orbitSourceMn = dopplermax * min_freq;
+    min_freq -= dfreq_orbitSourceMn;
 
     ## add the minimum number of bins requires by ComputeFStat()
     min_freq -= CFSparams.Dterms / sft_time_span;
@@ -212,6 +282,9 @@ function results = DoFstatInjections(varargin)
 
   ## create ComputeFStat() input and output structs
   Doppler = new_PulsarDopplerParams;
+  if OrbitParams
+    Doppler.orbit = new_BinaryOrbitParams;
+  endif
   Fcomp = new_Fcomponents;
 
   ## run ComputeFStat() for each injection point
@@ -225,6 +298,13 @@ function results = DoFstatInjections(varargin)
     Doppler.fkdot = zeros(size(Doppler.fkdot));
     Doppler.fkdot(1:size(sch_fndot, 1)) = sch_fndot(:, i);
     Doppler.refTime = refTime;
+    if OrbitParams
+      Doppler.orbit.asini = sch_orbitasini(i);
+      Doppler.orbit.ecc = sch_orbitEcc(i);
+      Doppler.orbit.tp = sch_orbitTpSSBsec(i);
+      Doppler.orbit.period = sch_orbitPeriod(i);
+      Doppler.orbit.argp = sch_orbitArgp(i);
+    endif
 
     ## run ComputeFStat()
     ComputeFStat(Fcomp, Doppler, multiSFTs, [], detStates, CFSparams, CFSbuffer);
