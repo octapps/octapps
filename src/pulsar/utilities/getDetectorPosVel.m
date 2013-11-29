@@ -50,10 +50,10 @@ function [p, v, sp, sv, op, ov] = getDetectorPosVel(varargin)
   endif
 
   ## parse detector string
-  detInfo = new_MultiDetectorInfo();
+  multiIFO = new_MultiLALDetector();
   detNames = CreateStringVector(detector);
-  ParseMultiDetectorInfo(detInfo, detNames, []);
-  if detInfo.length != 1
+  ParseMultiLALDetector(multiIFO, detNames, []);
+  if multiIFO.length != 1
     error("%s: can only return positions and velocities for a single detector", funcName);
   endif
 
@@ -69,7 +69,7 @@ function [p, v, sp, sv, op, ov] = getDetectorPosVel(varargin)
   for i = 1:length(gps_times)
 
     ## get detector spin and orbital position and velocity at given GPS time
-    DetectorPosVel(spv, opv, LIGOTimeGPS(gps_times(i)), detInfo.sites{1}, ephemerides, detMotion);
+    DetectorPosVel(spv, opv, LIGOTimeGPS(gps_times(i)), multiIFO.sites{1}, ephemerides, detMotion);
 
     ## store spin position and velocity, converting to physical units
     sp(:, i) = spv.pos * LAL_C_SI;

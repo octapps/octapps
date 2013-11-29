@@ -272,7 +272,8 @@ function [results, multiSFTs, multiTser] = DoFstatInjections(varargin)
   MFDparams.Band = max_freq - min_freq;
   ParseMultiDetectorInfo(MFDparams.detInfo, detNames, []);
   if !isempty(detSqrtSn)
-    MFDparams.detInfo.sqrtSn(1:detNames.length) = detSqrtSn;
+    MFDparams.noiseFloor.length = detNames.length;
+    MFDparams.noiseFloor.sqrtSn(1:detNames.length) = detSqrtSn;
   endif
   MFDparams.multiTimestamps = multiTimestamps;
   MFDparams.randSeed = randSeed;

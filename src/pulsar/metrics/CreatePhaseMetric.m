@@ -151,7 +151,8 @@ function [metric, coordIDs, start_time, ref_time] = CreatePhaseMetric(varargin)
 
   ## set detector information
   detNames = CreateStringVector(strsplit(detectors, ",", true){:});
-  ParseMultiDetectorInfo(par.detInfo, detNames, []);
+  ParseMultiLALDetector(par.multiIFO, detNames);
+  par.multiNoiseFloor.length = 0; ## zero here means unspecified noise-floors, and therefore unit-weights
 
   ## set detector motion
   try
