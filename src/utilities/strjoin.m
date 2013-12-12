@@ -24,6 +24,7 @@
 function s = strjoin(cstr, sep)
 
   ## check input
+  assert(nargin == 2);
   assert(iscell(cstr));
   assert(all(cellfun(@ischar, cstr)));
   assert(ischar(sep));
