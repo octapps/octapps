@@ -38,6 +38,14 @@
 ##                      where ENVPATH is the name of an environment path
 ##   "extra_condor":    extra commands to write to Condor submit file, in form:
 ##                      {"command", "value", ...}
+##   "output_format":   output format of file containg saved outputs from function:
+##                      * "Oct(Text|Bin)(Z)": Octave (text|binary) (zipped) format
+##                        - file extension will be .(txt|bin)(.gz)
+##                      * "HDF5": Hierarchical Data Format version 5 format
+##                        - file extension will be .hdf5
+##                      * "Mat": Matlab (version 6) binary format
+##                        - file extension will be .mat
+##                      Default is "OctBinZ"
 
 function job_file = makeCondorJob(varargin)
 
@@ -52,6 +60,7 @@ function job_file = makeCondorJob(varargin)
                {"exec_files", "cell", {}},
                {"data_files", "cell", {}},
                {"extra_condor", "cell", {}},
+               {"output_format", "char", "OctBinZ"},
                []);
 
   ## check input
@@ -68,6 +77,18 @@ function job_file = makeCondorJob(varargin)
       error("%s: element %i of 'data_files' must be a cell array of at least 2 elements", funcName, i);
     endif
   endfor
+
+  ## check output format
+  switch output_format
+    case "OctText";  save_args = {"-text"};           save_ext = "txt";
+    case "OctTextZ"; save_args = {"-text", "-zip"};   save_ext = "txt.gz";
+    case "OctBin";   save_args = {"-binary"};         save_ext = "bin";
+    case "OctBinZ";  save_args = {"-binary", "-zip"}; save_ext = "bin.gz";
+    case "HDF5";     save_args = {"-hdf5"};           save_ext = "hdf5";
+    case "Mat";      save_args = {"-mat-binary"};     save_ext = "mat";
+    otherwise
+      error("%s: unknown output format '%s'", funcName, output_format);
+  endswitch
 
   ## check that parent and log directories exist
   if exist(parent_dir, "dir")
@@ -234,7 +255,8 @@ function job_file = makeCondorJob(varargin)
     bootstr = strcat(bootstr, sprintf("results={};\n%s;\n", callfuncstr));
   endif
   bootstr = strcat(bootstr, "wall_time=(double(tic())-double(wall_time))*1e-6;\ncpu_time=cputime()-cpu_time;\n");
-  bootstr = strcat(bootstr, "save(\"-binary\",\"-zip\",\"stdres.bin.gz\",\"arguments\",\"results\",\"wall_time\",\"cpu_time\");\n");
+  bootstr = strcat(bootstr, sprintf("save(\"%s\",\"stdres.%s\",\"arguments\",\"results\",\"wall_time\",\"cpu_time\");\n", ...
+                                    strjoin(save_args, "\",\""), save_ext));
   bootstr = strcat(bootstr, "EOF\n");
 
   ## build Condor arguments string containing Octave function arguments
