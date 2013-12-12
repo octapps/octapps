@@ -21,23 +21,23 @@
 ## where
 ##   job_file = name of Condor job submit file
 ## Options:
-##   "job_name":	name of Condor job, used to name submit file
-##			and input/output directories
-##   "parent_dir":	where to write submit file and input/output
-##			directories (default: current directory)
-##   "log_dir":		where to write Condor log files (default: $TMPDIR")
-##   "func_name":	name of Octave function to run
-##   "arguments":	cell array of arguments to pass to function.
-##			use condorVar() to insert reference to a Condor variable.
-##   "func_nargout":	how many outputs returned by the function to save
-##   "exec_files":	cell array of executable files required by the function
-##   "data_files":	cell array of data files required by the function;
+##   "job_name":        name of Condor job, used to name submit file
+##                      and input/output directories
+##   "parent_dir":      where to write submit file and input/output
+##                      directories (default: current directory)
+##   "log_dir":         where to write Condor log files (default: $TMPDIR")
+##   "func_name":       name of Octave function to run
+##   "arguments":       cell array of arguments to pass to function.
+##                      use condorVar() to insert reference to a Condor variable.
+##   "func_nargout":    how many outputs returned by the function to save
+##   "exec_files":      cell array of executable files required by the function
+##   "data_files":      cell array of data files required by the function;
 ##                      elements of cell array may be either:
-##			* "file_path", or
-##			* {"ENVPATH", "file_name_in_ENVPATH", ...}
-##			where ENVPATH is the name of an environment path
-##   "extra_condor":	extra commands to write to Condor submit file, in form:
-##			{"command", "value", ...}
+##                      * "file_path", or
+##                      * {"ENVPATH", "file_name_in_ENVPATH", ...}
+##                      where ENVPATH is the name of an environment path
+##   "extra_condor":    extra commands to write to Condor submit file, in form:
+##                      {"command", "value", ...}
 
 function job_file = makeCondorJob(varargin)
 
