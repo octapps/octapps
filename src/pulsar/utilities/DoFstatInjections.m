@@ -67,7 +67,7 @@ function results = DoFstatInjections(varargin)
                {"sft_time_span", "real,strictpos,scalar", 1800},
                {"sft_overlap", "real,positive,scalar", 0},
                {"sft_band", "real,strictpos,scalar", []},
-               {"inj_h0", "real,strictpos,scalar", 1.0},
+               {"inj_h0", "real,positive,scalar", 1.0},
                {"inj_cosi", "real,scalar", -1 + 2*rand()},
                {"inj_psi", "real,scalar", 2*pi*rand()},
                {"inj_phi0", "real,scalar", 2*pi*rand()},
