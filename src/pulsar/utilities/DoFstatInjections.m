@@ -22,6 +22,7 @@
 ##   start_time: start time in GPS seconds (default: ref_time - 0.5*time_span)
 ##   time_span: observation time-span in seconds
 ##   detectors: comma-separated list of detector names
+##   detSqrtSn: vector of noise levels [as sqrt(single-sided PSD)] for each detector
 ##   ephemerides: Earth/Sun ephemerides from loadEphemerides()
 ##   sft_time_span: SFT time-span in seconds (default: 1800)
 ##   sft_overlap: SFT overlap in seconds (default: 0)
@@ -63,6 +64,7 @@ function results = DoFstatInjections(varargin)
                {"start_time", "real,strictpos,scalar", []},
                {"time_span", "real,strictpos,scalar"},
                {"detectors", "char"},
+               {"detSqrtSn", "real,positive,vector", []},
                {"ephemerides", "a:swig_ref", []},
                {"sft_time_span", "real,strictpos,scalar", 1800},
                {"sft_overlap", "real,positive,scalar", 0},
@@ -206,6 +208,13 @@ function results = DoFstatInjections(varargin)
 
   ## parse detector names, and check length of SFT noise sqrt(Sh) vector
   detNames = CreateStringVector(strsplit(detectors, ","){:});
+  if !isempty(detSqrtSn)
+    if isscalar(detSqrtSn)
+      detSqrtSn = detSqrtSn .* ones(1, detNames.length);
+    else
+      assert(length(detSqrtSn) == detNames.length);
+    endif
+  endif
 
   ## generate SFT timestamps
   multiTimestamps = MakeMultiTimestamps(startTime, time_span, sft_time_span, sft_overlap, detNames.length);
@@ -267,8 +276,9 @@ function results = DoFstatInjections(varargin)
   MFDparams.fMin = min_freq;
   MFDparams.Band = max_freq - min_freq;
   ParseMultiDetectorInfo(MFDparams.detInfo, detNames, []);
+  MFDparams.detInfo.sqrtSn(1:detNames.length) = detSqrtSn;
   MFDparams.multiTimestamps = multiTimestamps;
-  MFDparams.randSeed = 0;
+  MFDparams.randSeed = floor(unifrnd(0, 2^32 - 1));
 
   ## run CWMakeFakeData() to generate SFTs with injections
   multiSFTs = CWMakeFakeMultiData([], [], MFDsources, MFDparams, ephemerides);
