@@ -16,7 +16,12 @@
 ## <http://www.gnu.org/licenses/>.
 
 ## Perform full software injections in generated SFTs using LALPulsar functions.
-##   results = DoFstatInjections("opt", val, ...)
+##   [results, multiSFTs, multiTser] = DoFstatInjections("opt", val, ...)
+##
+## where:
+##   result    = results structure
+##   multiSFTs = multi-vector of SFTs containing simulated signal
+##   multiTser = multi-time series vector containing simulated signal
 ## Options (starred options are returned in results):
 ##   ref_time: reference time in GPS seconds
 ##   start_time: start time in GPS seconds (default: ref_time - 0.5*time_span)
@@ -52,7 +57,7 @@
 ##  *sch_orbitArgp: searched argument of periapsis (radians) (default: same as injected)
 ##  dopplermax: maximal possible doppler-effect (default: 1.05e-4)
 
-function results = DoFstatInjections(varargin)
+function [results, multiSFTs, multiTser] = DoFstatInjections(varargin)
 
   ## load LAL libraries
   lal;
@@ -281,7 +286,7 @@ function results = DoFstatInjections(varargin)
   MFDparams.randSeed = floor(unifrnd(0, 2^32 - 1));
 
   ## run CWMakeFakeData() to generate SFTs with injections
-  multiSFTs = CWMakeFakeMultiData([], [], MFDsources, MFDparams, ephemerides);
+  [multiSFTs, multiTser] = CWMakeFakeMultiData([], [], MFDsources, MFDparams, ephemerides);
 
   ## generate multi-detector states
   multiIFO = ExtractMultiLALDetectorFromSFTs(multiSFTs);
