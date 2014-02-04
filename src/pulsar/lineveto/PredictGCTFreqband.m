@@ -39,11 +39,12 @@ function [gct_freq_min, gct_freq_band] = PredictGCTFreqband ( freq, freqband, dF
  extraBinsFstat = floor( 0.25*duration*(df1dot+duration*df2dot)/dFreq + 1e-6) + 1;
 
  % get frequency and fdot bands at start / mid / end time of sfts by extrapolating from reftime
- [fkdot_starttime, fkdotband_starttime] = ExtrapolatePulsarSpinRange ( reftime, starttime, fkdot_reftime, fkdotband_reftime, 1 );
+ numSpins = 2; # used in ExtrapolatePulsarSpinRange with counting from 0, thus 2 = freq + 2 spindowns
+ [fkdot_starttime, fkdotband_starttime] = ExtrapolatePulsarSpinRange ( reftime, starttime, fkdot_reftime, fkdotband_reftime, numSpins );
  midtime = starttime + 0.5*duration;
- [fkdot_midtime, fkdotband_midtime]     = ExtrapolatePulsarSpinRange ( reftime, midtime, fkdot_reftime, fkdotband_reftime, 1 );
+ [fkdot_midtime, fkdotband_midtime]     = ExtrapolatePulsarSpinRange ( reftime, midtime, fkdot_reftime, fkdotband_reftime, numSpins );
  endtime = starttime + duration;
- [fkdot_endtime, fkdotband_endtime]     = ExtrapolatePulsarSpinRange ( reftime, endtime, fkdot_reftime, fkdotband_reftime, 1 );
+ [fkdot_endtime, fkdotband_endtime]     = ExtrapolatePulsarSpinRange ( reftime, endtime, fkdot_reftime, fkdotband_reftime, numSpins );
 
  % calculate total number of bins for Fstat
  binsFstatSearch = floor(fkdotband_midtime(1)/dFreq + 1e-6) + 1;
