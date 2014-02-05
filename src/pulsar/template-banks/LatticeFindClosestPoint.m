@@ -15,25 +15,25 @@
 %% Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 %% MA  02111-1307  USA
 
-%% closest = LatticeFindClosestPoint ( dim, lattice )
-%% [can handle vector input in 'dim']
+%% closest = LatticeFindClosestPoint ( x, lattice )
+%% [can handle vector input in 'x']
 %%
 %% return the closest point of the lattice to the given point x in R^n
 %% This is just a wrapper to the lower-level lattice-specific functions.
 %% lattice is one of the strings { "Zn", "An", "Ans" }
 
-function closest = LatticeFindClosestPoint ( dim, lattice )
+function closest = LatticeFindClosestPoint ( x, lattice )
 
   valid = { "Zn", "An", "Ans" };
 
   if ( strcmp ( lattice, valid{1}) )		%% Zn
-    closest = ZnFindClosestPoint ( dim );
+    closest = ZnFindClosestPoint ( x );
     return;
   elseif ( strcmp ( lattice, valid{2} ) ) 	%% An
-    closest = AnFindClosestPoint ( dim );
+    closest = AnFindClosestPoint ( x );
     return;
   elseif ( strcmp ( lattice, valid{3} ) )	%% An*
-    closest = AnsFindClosestPoint ( dim );
+    closest = AnsFindClosestPoint ( x );
     return;
   else
     printf ("Unknown lattice-type, must be one of: ");
