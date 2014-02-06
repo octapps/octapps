@@ -31,23 +31,23 @@
 ##   gct_injections:  whether to perform GCT injections (default: true for spindowns <= 2 and detectors <= 1)
 ##   injection_block: number of injections to perform at once (default: 100)
 ##   ptolemaic:       use Ptolemaic orbital motion (default: false)
-## Results struct contains sub-structures:
-##   <mismatch>_wrt_<ref_mismatch>_err
-## where <mismatch> can be mismatch computed using:
-##   spa_ssmetric:     sky-projected aligned super-sky metric
-##   spd_ssmetric_equ: sky-projected un-aligned equatorial super-sky metric
-##   spd_ssmetric_ecl: sky-projected un-aligned ecliptic super-sky metric
-##   d_ssmetric_equ:   un-aligned equatorial super-sky metric
-##   d_ssmetric_ecl:   un-aligned ecliptic super-sky metric
-##   a_ssmetric:       aligned super-sky metric
-##   ssmetric_lpI:     super-sky metric using linear phase model I
-##   ssmetric_lpII:    super-sky metric using linear phase model II
-##   ssmetric_ad:      super-sky metric using right ascension and declination as sky coordinates
-##   gct_taylor:       GCT Taylor-expanded metric computed by GCTCoherentTaylorMetric()
-##   gct_full:         GCT full metric computed by GCTCoherentFullMetric()
-## and <mismatch_ref> can be mismatch computed using:
-##   ssmetric:         un-transformed super-sky metric
-##   twoF:             2F computed using full software injections
+## Results struct contains arrays:
+##   mu_spa_ssmetric:     mismatch w.r.t sky-projected aligned super-sky metric
+##   mu_a_ssmetric:       mismatch w.r.t aligned super-sky metric
+##   mu_ssmetric:         mismatch w.r.t un-transformed super-sky metric
+##   mu_d_ssmetric_equ:   mismatch w.r.t un-aligned equatorial super-sky metric
+##   mu_spd_ssmetric_equ: mismatch w.r.t sky-projected un-aligned equatorial super-sky metric
+##   mu_d_ssmetric_ecl:   mismatch w.r.t un-aligned ecliptic super-sky metric
+##   mu_spd_ssmetric_ecl: mismatch w.r.t sky-projected un-aligned ecliptic super-sky metric
+##   mu_ssmetric_lpI:     mismatch w.r.t super-sky metric using linear phase model I
+##   mu_ssmetric_lpII:    mismatch w.r.t super-sky metric using linear phase model II
+##   mu_ssmetric_ad:      mismatch w.r.t super-sky metric using right ascension and declination as sky coordinates
+##   mu_gct_taylor:       mismatch w.r.t GCT Taylor-expanded metric computed by GCTCoherentTaylorMetric() (if gct_injections==true)
+##   mu_gct_full:         mismatch w.r.t GCT full metric computed by GCTCoherentFullMetric() (if gct_injections==true)
+##   mu_twoF:             mismatch w.r.t 2F computed using full software injections (if full_injections==true)
+##   alpha1, alpha2:      right ascensions of simulated template pairs
+##   delta1, delta2:      declinations of simulated template pairs
+##   dfndot:              frequency/spindown offsets of simulated template pairs
 
 function results = TestSuperSkyMetric(varargin)
 
