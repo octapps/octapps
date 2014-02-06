@@ -68,7 +68,7 @@ function results = TestSuperSkyMetric(varargin)
                {"ephemerides", "a:swig_ref", []},
                {"fiducial_freq", "real,strictpos,scalar"},
                {"max_mismatch", "real,strictpos,scalar", 0.5},
-               {"num_injections", "integer,strictpos,scalar", inf},
+               {"num_injections", "integer,strictpos,scalar", 1},
                {"full_injections", "logical,scalar", true},
                {"gct_injections", "logical,scalar", []},
                {"injection_block", "integer,strictpos,scalar", 50000},
