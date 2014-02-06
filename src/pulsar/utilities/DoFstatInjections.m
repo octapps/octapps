@@ -69,7 +69,7 @@ function [results, multiSFTs, multiTser] = DoFstatInjections(varargin)
                {"start_time", "real,strictpos,scalar", []},
                {"time_span", "real,strictpos,scalar"},
                {"detectors", "char"},
-               {"detSqrtSn", "real,positive,vector", []},
+               {"detSqrtSn", "real,positive,vector", 0},
                {"ephemerides", "a:swig_ref", []},
                {"sft_time_span", "real,strictpos,scalar", 1800},
                {"sft_overlap", "real,positive,scalar", 0},
