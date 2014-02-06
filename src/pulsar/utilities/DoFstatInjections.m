@@ -34,6 +34,7 @@
 ##   sft_band: SFT band-width in Hz (default: automatically determined)
 ##             - Minimum and maximum SFT frequencies SFT_min_freq and
 ##               SFT_max_freq are returned in results
+##   sft_noise_window: number of bins used when estimating SFT noise (default: 50)
 ##  *inj_h0: injected h0 strain amplitude (default: 1.0)
 ##  *inj_cosi: injected cosine of inclination angle (default: random)
 ##  *inj_psi: injected polarisation angle (default: random)
@@ -69,11 +70,12 @@ function [results, multiSFTs, multiTser] = DoFstatInjections(varargin)
                {"start_time", "real,strictpos,scalar", []},
                {"time_span", "real,strictpos,scalar"},
                {"detectors", "char"},
-               {"detSqrtSn", "real,positive,vector", 0},
+               {"detSqrtSn", "real,strictpos,vector", []},
                {"ephemerides", "a:swig_ref", []},
                {"sft_time_span", "real,strictpos,scalar", 1800},
                {"sft_overlap", "real,positive,scalar", 0},
                {"sft_band", "real,strictpos,scalar", []},
+               {"sft_noise_window", "integer,strictpos,scalar", 50},
                {"inj_h0", "real,positive,scalar", 1.0},
                {"inj_cosi", "real,scalar", -1 + 2*rand()},
                {"inj_psi", "real,scalar", 2*pi*rand()},
@@ -139,6 +141,12 @@ function [results, multiSFTs, multiTser] = DoFstatInjections(varargin)
     assert(all(size(sch_orbitTpSSBsec) == [1, num_sch]));
     assert(all(size(sch_orbitPeriod) == [1, num_sch]));
     assert(all(size(sch_orbitArgp) == [1, num_sch]));
+  endif
+
+  ## parse detector names and check size of detSqrtSn
+  detNames = CreateStringVector(strsplit(detectors, ","){:});
+  if !isempty(detSqrtSn)
+    assert(isscalar(detSqrtSn) || length(detSqrtSn) == detNames.length);
   endif
 
   ## load ephemerides if not supplied
@@ -211,16 +219,6 @@ function [results, multiSFTs, multiTser] = DoFstatInjections(varargin)
   CFSparams.returnSingleF = false;
   CFSparams.upsampling = 1;
 
-  ## parse detector names, and check length of SFT noise sqrt(Sh) vector
-  detNames = CreateStringVector(strsplit(detectors, ","){:});
-  if !isempty(detSqrtSn)
-    if isscalar(detSqrtSn)
-      detSqrtSn = detSqrtSn .* ones(1, detNames.length);
-    else
-      assert(length(detSqrtSn) == detNames.length);
-    endif
-  endif
-
   ## generate SFT timestamps
   multiTimestamps = MakeMultiTimestamps(startTime, time_span, sft_time_span, sft_overlap, detNames.length);
 
@@ -281,12 +279,23 @@ function [results, multiSFTs, multiTser] = DoFstatInjections(varargin)
   MFDparams.fMin = min_freq;
   MFDparams.Band = max_freq - min_freq;
   ParseMultiDetectorInfo(MFDparams.detInfo, detNames, []);
-  MFDparams.detInfo.sqrtSn(1:detNames.length) = detSqrtSn;
+  if !isempty(detSqrtSn)
+    MFDparams.detInfo.sqrtSn(1:detNames.length) = detSqrtSn;
+  endif
   MFDparams.multiTimestamps = multiTimestamps;
   MFDparams.randSeed = floor(unifrnd(0, 2^32 - 1));
 
   ## run CWMakeFakeData() to generate SFTs with injections
   [multiSFTs, multiTser] = CWMakeFakeMultiData([], [], MFDsources, MFDparams, ephemerides);
+
+  ## if SFTs contain noise, calculate noise weights
+  if isempty(detSqrtSn)
+    multiWeights = [];
+  else
+    SFTrngmed = NormalizeMultiSFTVect(multiSFTs, sft_noise_window);
+    multiWeights = ComputeMultiNoiseWeights(SFTrngmed, sft_noise_window, 0);
+    clear SFTrngmed;
+  endif
 
   ## generate multi-detector states
   multiIFO = ExtractMultiLALDetectorFromSFTs(multiSFTs);
@@ -304,7 +313,11 @@ function [results, multiSFTs, multiTser] = DoFstatInjections(varargin)
 
   ## run ComputeFStat() for each injection point
   CFSbuffer = new_ComputeFBuffer;
-  Fnormsqr = 1 / (0.5 * Tsft);
+  if isempty(detSqrtSn)
+    Fnormsqr = 1 / (0.5 * Tsft);
+  else
+    Fnormsqr = 1;
+  endif
   for i = 1:num_sch
 
     ## fill input Doppler parameters struct for ComputeFStat()
@@ -322,7 +335,7 @@ function [results, multiSFTs, multiTser] = DoFstatInjections(varargin)
     endif
 
     ## run ComputeFStat()
-    ComputeFStat(Fcomp, Doppler, multiSFTs, [], detStates, CFSparams, CFSbuffer);
+    ComputeFStat(Fcomp, Doppler, multiSFTs, multiWeights, detStates, CFSparams, CFSbuffer);
 
     ## return F-statistic values, properly normalised for signal-only case
     results.sch_twoF(i) = 2 * (2 + Fcomp.F * Fnormsqr);
