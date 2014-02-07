@@ -23,8 +23,8 @@
 %module gsl;
 %include "exception.i"
 %feature("autodoc");
-#if SWIG_VERSION < 0x020004
-#error Requires SWIG version 2.0.4 or greater
+#if SWIG_VERSION < 0x020011
+#error Requires SWIG version 2.0.11 or greater
 #endif
 
 // Include headers
