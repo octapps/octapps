@@ -1,4 +1,4 @@
-## Copyright (C) 2012 Karl Wette
+## Copyright (C) 2012, 2014 Karl Wette
 ##
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -20,24 +20,26 @@
 ##   --name <value>   or   --name=<value>
 ## are converted into option-value pairs; other options are unchanged.
 ## Syntax:
-##   opts = parseCommandLine(delim, cmdline)
+##   opts = parseCommandLine(delim, args)
 ## where
-##   delim   = remove all command-line arguments that appear before this
-##             argument, if it is given on the command line (optional)
-##   cmdline = optional command-line like string,
-##             if not passed: get directly from actual commandline
+##   delim = remove all command-line arguments that appear before this
+##           argument, if it is given on the command line (optional)
+##   args  = command-line arguments to parse; if not supplied,
+##           get arguments from command-line passed to Octave
 
-function opts = parseCommandLine(delim=[], cmdline=[])
+function opts = parseCommandLine(delim=[], args={})
 
-  ## get command-line arguments passed to Octave
-  if ( length(cmdline) == 0 ) # no fake commandline-in-a-string passed, get arguments from actual commandline
+  ## check input
+  assert(isempty(delim) || ischar(delim));
+  assert(iscell(args));
+
+  ## is args is empty, get arguments from command-line passed to Octave
+  if isempty(args)
    args = evalin("base", "argv()(1:nargin)");
-  else # use fake  commandline-in-a-string
-   args = cmdline;
   endif
 
-  ## remove all command-line arguments that appear before delim,
-  ## if it is given on the command line.
+  ## remove all command-line arguments that appear before 'delim'
+  ## (if non-empty), if it is given on the command line
   if !isempty(delim)
     i = strmatch(delim, args);
     if !isempty(i)
@@ -46,56 +48,63 @@ function opts = parseCommandLine(delim=[], cmdline=[])
   endif
 
   ## parse command-line arguments
-  opts = {};
-  n = 1;
-  while n <= length(args)
+  opts = struct;
+  optname = [];
+  optval = [];
+  for n = 1:length(args)
     arg = args{n++};
-    argvalstr = [];
 
-    ## check that argument begins with '--'
+    ## if argument begins with '--'
     if strncmp(arg, "--", 2)
+
+      ## check there is no previous option name
+      if !isempty(optname)
+        error("%s: option '%s' has no value", funcName, optname);
+      endif
       
       ## if argument contains an '=', split into name=value,
       i = min(strfind(arg, "="));
       if !isempty(i)
-        argcmdname = arg(3:i-1);
-        argvalstr = arg(i+1:end);
+        optname = arg(3:i-1);
+        optval = arg(i+1:end);
       else
         ## otherwise just store the name
-        argcmdname = arg(3:end);
+        optname = arg(3:end);
       endif
 
-      ## check for non-empty name/values
-      if isempty(argcmdname) || isempty(argvalstr)
-        error("%s: Empty name/value in argument '%s'", funcName, arg);
-      endif
-      
+      ## replace '-' with '_' to make a valid Octave variable name
+      optname = strrep(optname, "-", "_");
+
     else
 
-      ## pass option along unchanged
-      opts{end+1} = arg;
-      continue
-
-    endif
-    
-    ## replace '-' with '_' to make a valid Octave variable name
-    argname = strrep(argcmdname, "-", "_");
-    
-    ## if no argument value string has been found yet, check next argument
-    if isempty(argvalstr) && n <= length(args)
-      nextarg = args{n++};
-      ## if next argument isn't itself an argument, use as a value string
-      if !strncmp(nextarg, "--", 2)
-        argvalstr = nextarg;
+      ## check there is no previous option value
+      if !isempty(optval)
+        error("%s: value '%s' has no option name", funcName, optval);
       endif
-    endif
-    if isempty(argvalstr)
-      error("%s: Could not determine the value of argument '%s'", funcName, argcmdname);
+
+      ## store value
+      optval = arg;
+
     endif
 
-    ## add argument and value to options
-    opts = {opts{:}, argname, argvalstr};
+    ## if we have both option name and value, store then
+    if !isempty(optname) && !isempty(optval)
+      opts.(optname) = optval;
+      optname = [];
+      optval = [];
+    endif
 
-  endwhile
+  endfor
+
+  ## check for no remaining arguments
+  if !isempty(optname)
+    error("%s: option '%s' has no value", funcName, optname);
+  endif
+  if !isempty(optval)
+    error("%s: value '%s' has no option name", funcName, optval);
+  endif
+
+  ## convert to flat cell array of {"name", "value", ...} pairs
+  opts = {{fieldnames(opts){:}; struct2cell(opts){:}}{:}};
 
 endfunction
