@@ -58,6 +58,12 @@ function results = ConstructSuperSkyMetrics(sometric, socoordIDs, varargin)
     residual_sky = true;
   endif
 
+  ## check 'sometric' does not have more than 1 negative eigenvalue
+  sometric_num_neg_eval = length(find(eig(sometric) <= 0));
+  if sometric_num_neg_eval > 1
+    error("%s: 'sometric' is not sufficiently positive definite (%i negative eigenvalues)", funcName, sometric_num_neg_eval);
+  endif
+
   ## load LAL libraries
   lal;
   lalpulsar;
