@@ -25,7 +25,7 @@
 ##                      and input/output directories
 ##   "parent_dir":      where to write submit file and input/output
 ##                      directories (default: current directory)
-##   "log_dir":         where to write Condor log files (default: $TMPDIR")
+##   "log_dir":         where to write Condor log files (default: $TMP")
 ##   "func_name":       name of Octave function to run
 ##   "arguments":       cell array of arguments to pass to function.
 ##                      use condorVar() to insert reference to a Condor variable.
@@ -53,7 +53,7 @@ function job_file = makeCondorJob(varargin)
   parseOptions(varargin,
                {"job_name", "char"},
                {"parent_dir", "char", "."},
-               {"log_dir", "char", getenv("TMPDIR")},
+               {"log_dir", "char", getenv("TMP")},
                {"func_name", "char"},
                {"arguments", "cell,vector", {}},
                {"func_nargout", "integer,positive,scalar"},
