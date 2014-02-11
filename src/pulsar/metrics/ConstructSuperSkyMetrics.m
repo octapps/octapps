@@ -165,7 +165,7 @@ function results = ConstructSuperSkyMetrics(sometric, socoordIDs, varargin)
 
       ## calculate additional sky offset and sky metric adjustment to
       ## zero the sky-frequency block of the residual super-sky metric
-      decoupleoff = drss_ff * rss_ff \ (drss_ff * rss_sf');
+      decoupleoff = drss_ff * (nrss_ff \ (drss_ff * rss_sf'));
       decouple_ss = -rss_sf * decoupleoff;
 
       ## decouple residual super-sky metric and sky offset vectors
