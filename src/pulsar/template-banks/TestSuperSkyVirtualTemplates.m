@@ -107,8 +107,7 @@ function results = TestSuperSkyVirtualTemplates(varargin)
   rss_alignsky = ssm_equ.alignsky;
 
   ## bounding box of reduced super-sky metric, used when generating random points
-  [D_rss_metric, DN_rss_metric] = DiagonalNormaliseMetric(rss_metric);
-  rss_boundbox = diag(2 .* diag(DN_rss_metric) .* sqrt(max_mismatch ./ diag(inv(D_rss_metric))));
+  rss_boundbox = diag(metricBoundingBox(rss_metric, max_mismatch));
 
   ## initialise results struct
   results = struct;
