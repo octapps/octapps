@@ -242,8 +242,10 @@ function job_file = makeCondorJob(varargin)
     envvar = env_vars.(envvarname);
     bootstr = strcat(bootstr, sprintf("%s=\"%s\"\nexport %s\n", envvarname, envvar, envvarname));
   endfor
+  bootstr = strcat(bootstr, "MAKE_CONDOR_JOB_ID=$1\nMAKE_CONDOR_JOB_NODE=`hostname`\n");
+  bootstr = strcat(bootstr, "echo \"# Condor ID: ${MAKE_CONDOR_JOB_ID}; Node: ${MAKE_CONDOR_JOB_NODE}\"\n");
   bootstr = strcat(bootstr, "cat <<EOF | exec octave --silent --norc --no-history --no-window-system\n");
-  bootstr = strcat(bootstr, "arguments=$1;\nwall_time=tic();\ncpu_time=cputime();\n");
+  bootstr = strcat(bootstr, "arguments=$2;\nwall_time=tic();\ncpu_time=cputime();\n");
   if length(arguments) > 0
     callfuncstr = sprintf("%s(arguments{:})", func_name);
   else
@@ -255,21 +257,24 @@ function job_file = makeCondorJob(varargin)
     bootstr = strcat(bootstr, sprintf("results={};\n%s;\n", callfuncstr));
   endif
   bootstr = strcat(bootstr, "wall_time=(double(tic())-double(wall_time))*1e-6;\ncpu_time=cputime()-cpu_time;\n");
-  bootstr = strcat(bootstr, sprintf("save(\"%s\",\"stdres.%s\",\"arguments\",\"results\",\"wall_time\",\"cpu_time\");\n", ...
-                                    strjoin(save_args, "\",\""), save_ext));
+  bootstr = strcat(bootstr, "condor_ID=${MAKE_CONDOR_JOB_ID};\ncondor_node=\"${MAKE_CONDOR_JOB_NODE}\";\n");
+  bootstr = strcat(bootstr, sprintf("save(\"%s\",\"stdres.%s\",\"%s\");\n", ...
+                                    strjoin(save_args, "\",\""), save_ext, ...
+                                    strjoin({"arguments", "results", ...
+                                             "wall_time", "cpu_time", ...
+                                             "condor_ID", "condor_node"}, "\",\"")));
   bootstr = strcat(bootstr, "EOF\n");
 
   ## build Condor arguments string containing Octave function arguments
   argstr = stringify(arguments);
   argstr = strrep(argstr, "'", "''");
   argstr = strrep(argstr, "\"", "\"\"");
-  argstr = sprintf("\"'%s'\"", argstr);
 
   ## build Condor job submit file spec
   job_spec = struct;
   job_spec.universe = "vanilla";
   job_spec.executable = job_boot_file;
-  job_spec.arguments = argstr;
+  job_spec.arguments = sprintf("\"'$(Cluster)' '%s'\"", argstr);
   job_spec.initialdir = "";
   job_spec.output = "stdout";
   job_spec.error = "stderr";
