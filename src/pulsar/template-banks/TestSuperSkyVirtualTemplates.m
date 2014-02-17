@@ -78,8 +78,7 @@ function results = TestSuperSkyVirtualTemplates(varargin)
                         "time_span", time_span,
                         "detectors", detectors,
                         "ephemerides", ephemerides,
-                        "fiducial_freq", fiducial_freq,
-                        "det_motion", "spin+orbit");
+                        "fiducial_freq", fiducial_freq);
   ssm_equ = ConstructSuperSkyMetrics(sometric, socoordIDs, "sky_coords", "equatorial", "aligned_sky", true);
 
   ## untransformed super-sky metric and coordinate indices
