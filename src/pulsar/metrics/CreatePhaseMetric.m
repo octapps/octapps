@@ -42,6 +42,7 @@
 ##   "det_motion": which detector motion to use (default: spin+orbit)
 ##   "alpha": for physical sky coordinates, right ascension to compute metric at
 ##   "delta": for physical sky coordinates, declination to compute metric at
+##   "npos_eval": if >0, return a metric with no more than this number of non-positive eigenvalues
 
 function [metric, coordIDs, start_time, ref_time] = CreatePhaseMetric(varargin)
 
@@ -62,6 +63,7 @@ function [metric, coordIDs, start_time, ref_time] = CreatePhaseMetric(varargin)
                {"det_motion", "char", "spin+orbit"},
                {"alpha", "real,scalar", 0},
                {"delta", "real,scalar", 0},
+               {"npos_eval", "integer,positive,scalar", 0},
                []);
 
   ## load ephemerides if not supplied
@@ -182,6 +184,9 @@ function [metric, coordIDs, start_time, ref_time] = CreatePhaseMetric(varargin)
     SegSet(seg, segstart, segend, i);
     SegListAppend(par.segmentList, seg);
   endfor
+
+  ## set non-positive eigenvalue threshold
+  par.nonposEigValThresh = npos_eval;
 
   ## calculate Doppler phase metric
   try
