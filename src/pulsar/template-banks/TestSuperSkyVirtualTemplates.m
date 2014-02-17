@@ -143,8 +143,10 @@ function results = TestSuperSkyVirtualTemplates(varargin)
     ## adjust points so that both are inside sky (unit disk)
     rss_sky_r = norm(rss_x2([rss_ina, rss_inb], :), "cols");
     rss_sky_out = find(rss_sky_r > 1);
-    rss_x2(rss_ina, rss_sky_out) ./= rss_sky_r(rss_sky_out);
-    rss_x2(rss_inb, rss_sky_out) ./= rss_sky_r(rss_sky_out);
+    if !isempty(rss_sky_out)
+      rss_x2(rss_ina, rss_sky_out) ./= rss_sky_r(rss_sky_out);
+      rss_x2(rss_inb, rss_sky_out) ./= rss_sky_r(rss_sky_out);
+    endif
     rss_x1 = rss_x2 - rss_dx;
 
     ## compute mismatch w.r.t reduced super-sky metric
