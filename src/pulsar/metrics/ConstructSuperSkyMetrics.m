@@ -58,10 +58,14 @@ function results = ConstructSuperSkyMetrics(sometric, socoordIDs, varargin)
     residual_sky = true;
   endif
 
-  ## check 'sometric' does not have more than 1 negative eigenvalue
-  sometric_num_neg_eval = length(find(eig(sometric) <= 0));
-  if sometric_num_neg_eval > 1
-    error("%s: 'sometric' is not sufficiently positive definite (%i negative eigenvalues)", funcName, sometric_num_neg_eval);
+  ## diagonally normalise spin-orbit component metric
+  ## use "tolerant" since orbital Z may be zero, for Ptolemaic ephemerides
+  [nsometric, dsometric, idsometric] = DiagonalNormaliseMetric(sometric, "tolerant");
+
+  ## check diagonalised 'sometric' does not have more than 1 negative eigenvalue
+  nsometric_num_neg_eval = length(find(eig(nsometric) <= 0));
+  if nsometric_num_neg_eval > 1
+    error("%s: 'nsometric' is not sufficiently positive definite (%i negative eigenvalues)", funcName, nsometric_num_neg_eval);
   endif
 
   ## load LAL libraries
@@ -132,10 +136,6 @@ function results = ConstructSuperSkyMetrics(sometric, socoordIDs, varargin)
   results.ssmetric = 0.5*(ssmetric' + ssmetric);   # ensure metric is exactly symmetric
 
   if residual_sky
-
-    ## diagonally normalise spin-orbit component metric
-    ## use "tolerant" since orbital Z may be zero, for Ptolemaic ephemerides
-    [nsometric, dsometric, idsometric] = DiagonalNormaliseMetric(sometric, "tolerant");
 
     ## find least-squares linear fit to orbital X and Y by frequency and spindowns
     fitted = [inoX, inoY];
