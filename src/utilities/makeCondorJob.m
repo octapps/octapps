@@ -243,7 +243,11 @@ function job_file = makeCondorJob(varargin)
     bootstr = strcat(bootstr, sprintf("%s=\"%s\"\nexport %s\n", envvarname, envvar, envvarname));
   endfor
   bootstr = strcat(bootstr, "MAKE_CONDOR_JOB_ID=$1\nMAKE_CONDOR_JOB_NODE=`hostname`\n");
-  bootstr = strcat(bootstr, "echo \"# Condor ID: ${MAKE_CONDOR_JOB_ID}; Node: ${MAKE_CONDOR_JOB_NODE}\"\n");
+  bootstr = strcat(bootstr, "cat <<EOF\n");
+  bootstr = strcat(bootstr, "# Condor ID: ${MAKE_CONDOR_JOB_ID}\n");
+  bootstr = strcat(bootstr, "# Condor Node: ${MAKE_CONDOR_JOB_NODE}\n");
+  bootstr = strcat(bootstr, sprintf("# Octave Command: %s($2{:})\n", func_name));
+  bootstr = strcat(bootstr, "EOF\n");
   bootstr = strcat(bootstr, "cat <<EOF | exec octave --silent --norc --no-history --no-window-system\n");
   bootstr = strcat(bootstr, "arguments=$2;\nwall_time=tic();\ncpu_time=cputime();\n");
   if length(arguments) > 0
