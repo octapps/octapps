@@ -27,9 +27,10 @@ function s = stringify(x)
   switch class(x)
 
     case "char"
-      ## strings: if begins with \0, return literal x, otherwise quoted x
-      if x(1) == "\0"
-        s = x(2:end);
+
+      ## strings: if x == $(...), return literal x, otherwise quoted x
+      if length(x) >= 3 && strcmp(x(1:2), "$(") && x(end) == ")"
+        s = x;
       else
         s = strcat("\"", x, "\"");
       endif
