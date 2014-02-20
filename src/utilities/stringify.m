@@ -28,10 +28,22 @@ function s = stringify(x)
 
     case "char"
 
-      ## strings: if x == $(...), return literal x, otherwise quoted x
+      ## strings: if x == $(...), return literal x; otherwise
+      ## double-quote x, escaping special characters
       if length(x) >= 3 && strcmp(x(1:2), "$(") && x(end) == ")"
         s = x;
       else
+        x = strrep(x, "\\", "\\\\");
+        x = strrep(x, "\"", "\\\"");
+        x = strrep(x, "\'", "\\\'");
+        x = strrep(x, "\0", "\\0");
+        x = strrep(x, "\a", "\\a");
+        x = strrep(x, "\b", "\\b");
+        x = strrep(x, "\f", "\\f");
+        x = strrep(x, "\n", "\\n");
+        x = strrep(x, "\r", "\\r");
+        x = strrep(x, "\t", "\\t");
+        x = strrep(x, "\v", "\\v");
         s = strcat("\"", x, "\"");
       endif
 
