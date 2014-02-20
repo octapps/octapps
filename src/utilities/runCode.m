@@ -62,7 +62,7 @@ function output = runCode(params, code, verbose=false)
     if strcmp( option, "LAL_DEBUG_LEVEL" )
       env = sprintf( "export LAL_DEBUG_LEVEL='%s'; ", valstr );
     elseif length(option) == 1
-      cmdline = strcat ( cmdline, " -", option, valstr );
+      cmdline = cstrcat ( cmdline, " -", option, " ", valstr ); # need cstrcat() here because in recent octave versions (>3.6?), strcat trims whitespaces
     else
       cmdline = strcat ( cmdline, " --", option, "=", valstr );
     endif
