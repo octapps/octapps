@@ -120,6 +120,14 @@ function job_file = makeCondorJob(varargin)
     error("%s: job output directory '%s' already exists", funcName, job_outdir);
   endif
 
+  ## remove job log file, if it exists
+  job_log_file = fullfile(log_dir, strcat(job_name, ".log"));
+  if exist(job_log_file, "file")
+    if unlink(job_log_file) != 0
+      error("%s: could not delete file '%s'", funcName, job_log_file);
+    endif
+  endif
+
   ## add Octave executable to list of executable files
   exec_files{end+1} = fullfile(octave_config_info("bindir"), "octave");
 
@@ -282,7 +290,7 @@ function job_file = makeCondorJob(varargin)
   job_spec.initialdir = "";
   job_spec.output = "stdout";
   job_spec.error = "stderr";
-  job_spec.log = fullfile(log_dir, strcat(job_name, ".log"));
+  job_spec.log = job_log_file;
   job_spec.getenv = "false";
   job_spec.should_transfer_files = "yes";
   job_spec.transfer_input_files = strcat(job_indir, filesep);
