@@ -1,5 +1,5 @@
-## Copyright (C) 2013 Karl Wette
-## Copyright (C) 2013 Paola Leaci
+## Copyright (C) 2013, 2014 Karl Wette
+## Copyright (C) 2013, 2014 Paola Leaci
 ##
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -57,6 +57,7 @@
 ##  *sch_orbitPeriod: searched orbital period (seconds) (default: same as injected)
 ##  *sch_orbitArgp: searched argument of periapsis (radians) (default: same as injected)
 ##  dopplermax: maximal possible doppler-effect (default: 1.05e-4)
+##  Dterms: number of Dirichlet terms to use in ComputeFstat() (default: number used by optimised hotloops)
 
 function [results, multiSFTs, multiTser] = DoFstatInjections(varargin)
 
@@ -98,6 +99,7 @@ function [results, multiSFTs, multiTser] = DoFstatInjections(varargin)
                {"sch_orbitPeriod", "real,vector", []},
                {"sch_orbitArgp", "real,vector", []},
                {"dopplermax", "real,scalar",1.05e-4},
+               {"Dterms", "integer,strictpos,scalar", lalpulsarcvar.OptimisedHotloopDterms},
                []);
 
   ## use injection parameters as search parameters, if not given
@@ -186,6 +188,7 @@ function [results, multiSFTs, multiTser] = DoFstatInjections(varargin)
     results.sch_orbitArgp = sch_orbitArgp;
   endif
   results.sch_twoF = zeros(1, num_sch);
+  results.sch_twoFPerDet = zeros(detNames.length, num_sch);
 
   ## create and fill sources input vector for CWMakeFakeData()
   MFDsources = CreatePulsarParamsVector(1);
@@ -199,25 +202,12 @@ function [results, multiSFTs, multiTser] = DoFstatInjections(varargin)
   MFDsources.data{1}.Doppler.fkdot(1:length(inj_fndot)) = inj_fndot;
   MFDsources.data{1}.Doppler.refTime = refTime;
   if OrbitParams
-    MFDsources.data{1}.Doppler.orbit = new_BinaryOrbitParams;
-    MFDsources.data{1}.Doppler.orbit.asini = inj_orbitasini;
-    MFDsources.data{1}.Doppler.orbit.ecc = inj_orbitEcc;
-    MFDsources.data{1}.Doppler.orbit.tp = inj_orbitTpSSBsec;
-    MFDsources.data{1}.Doppler.orbit.period = inj_orbitPeriod;
-    MFDsources.data{1}.Doppler.orbit.argp = inj_orbitArgp;
+    MFDsources.data{1}.Doppler.asini = inj_orbitasini;
+    MFDsources.data{1}.Doppler.ecc = inj_orbitEcc;
+    MFDsources.data{1}.Doppler.tp = inj_orbitTpSSBsec;
+    MFDsources.data{1}.Doppler.period = inj_orbitPeriod;
+    MFDsources.data{1}.Doppler.argp = inj_orbitArgp;
   endif
-
-  ## create and fill input parameters struct for ComputeFStat()
-  CFSparams = new_ComputeFParams;
-  CFSparams.Dterms = 16;
-  CFSparams.SSBprec = SSBPREC_RELATIVISTICOPT;
-  CFSparams.buffer = [];
-  CFSparams.useRAA = false;
-  CFSparams.bufferedRAA = false;
-  CFSparams.edat = ephemerides;
-  CFSparams.returnAtoms = false;
-  CFSparams.returnSingleF = false;
-  CFSparams.upsampling = 1;
 
   ## generate SFT timestamps
   multiTimestamps = MakeMultiTimestamps(startTime, time_span, sft_time_span, sft_overlap, detNames.length);
@@ -254,9 +244,9 @@ function [results, multiSFTs, multiTser] = DoFstatInjections(varargin)
     dfreq_orbitSourceMn = dopplermax * min_freq;
     min_freq -= dfreq_orbitSourceMn;
 
-    ## add the minimum number of bins requires by ComputeFStat()
-    min_freq -= CFSparams.Dterms / sft_time_span;
-    max_freq += CFSparams.Dterms / sft_time_span;
+    ## add the minimum number of bins requires by ComputeFstat()
+    min_freq -= Dterms / sft_time_span;
+    max_freq += Dterms / sft_time_span;
 
     ## round frequencies down/up to nearest SFT bin, and add a few more bins for safety
     min_freq = (floor(min_freq * sft_time_span) - 5) / sft_time_span;
@@ -297,50 +287,35 @@ function [results, multiSFTs, multiTser] = DoFstatInjections(varargin)
     clear SFTrngmed;
   endif
 
-  ## generate multi-detector states
-  multiIFO = ExtractMultiLALDetectorFromSFTs(multiSFTs);
-  multiTS = ExtractMultiTimestampsFromSFTs(multiSFTs);
-  Tsft = 1.0 / multiSFTs.data{1}.data{1}.deltaF;
-  tOffset = 0.5 * Tsft;
-  detStates = GetMultiDetectorStates(multiTS, multiIFO, ephemerides, tOffset);
+  ## setup F-statistic input struct for ComputeFstat()
+  Fstatin = SetupFstat_Demod(multiSFTs, multiWeights, ephemerides, SSBPREC_RELATIVISTICOPT, DEMODAM_LONG_WAVELENGTH, Dterms);
 
-  ## create ComputeFStat() input and output structs
+  ## run ComputeFstat() for each injection point
+  Fstatres = [];
   Doppler = new_PulsarDopplerParams;
-  if OrbitParams
-    Doppler.orbit = new_BinaryOrbitParams;
-  endif
-  Fcomp = new_Fcomponents;
-
-  ## run ComputeFStat() for each injection point
-  CFSbuffer = new_ComputeFBuffer;
-  if isempty(detSqrtSn)
-    Fnormsqr = 1 / (0.5 * Tsft);
-  else
-    Fnormsqr = 1;
-  endif
   for i = 1:num_sch
 
-    ## fill input Doppler parameters struct for ComputeFStat()
+    ## fill input Doppler parameters struct for ComputeFstat()
     Doppler.Alpha = sch_alpha(i);
     Doppler.Delta = sch_delta(i);
     Doppler.fkdot = zeros(size(Doppler.fkdot));
     Doppler.fkdot(1:size(sch_fndot, 1)) = sch_fndot(:, i);
     Doppler.refTime = refTime;
     if OrbitParams
-      Doppler.orbit.asini = sch_orbitasini(i);
-      Doppler.orbit.ecc = sch_orbitEcc(i);
-      Doppler.orbit.tp = sch_orbitTpSSBsec(i);
-      Doppler.orbit.period = sch_orbitPeriod(i);
-      Doppler.orbit.argp = sch_orbitArgp(i);
+      Doppler.asini = sch_orbitasini(i);
+      Doppler.ecc = sch_orbitEcc(i);
+      Doppler.tp = sch_orbitTpSSBsec(i);
+      Doppler.period = sch_orbitPeriod(i);
+      Doppler.argp = sch_orbitArgp(i);
     endif
 
-    ## run ComputeFStat()
-    ComputeFStat(Fcomp, Doppler, multiSFTs, multiWeights, detStates, CFSparams, CFSbuffer);
-
-    ## return F-statistic values, properly normalised for signal-only case
-    results.sch_twoF(i) = 2 * (2 + Fcomp.F * Fnormsqr);
+    ## run ComputeFstat() and return F-statistic values
+    Fstatres = ComputeFstat(Fstatres, Fstatin, Doppler, 0, 1, FSTATQ_2F + FSTATQ_2F_PER_DET);
+    results.sch_twoF(i) = Fstatres.twoF;
+    for n = 1:size(results.sch_twoFPerDet, 1)
+      results.sch_twoFPerDet(n, :) = reshape(Fstatres.twoFPerDet(n-1), 1, []);
+    endfor
 
   endfor
-  EmptyComputeFBuffer(CFSbuffer);
 
 endfunction
