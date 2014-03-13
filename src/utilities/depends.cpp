@@ -23,6 +23,10 @@
 #include <octave/pt-all.h>
 #include <octave/Cell.h>
 
+#if OCT_VERS_NUM <= 0x030204
+#define octave_map Octave_map
+#endif
+
 // Walker for Octave parse tree which finds function
 // names referred to in the parse tree, and stores them
 class
@@ -31,7 +35,7 @@ dependency_walker : public tree_walker
 {
 public:
 
-  Octave_map functions;
+  octave_map functions;
 
   Cell exclude;
 
@@ -110,11 +114,19 @@ public:
     }
   }
 
+#if OCT_VERS_NUM < 0x030800
   void visit_static_command(tree_static_command& t) {
     if (t.initializer_list()) {
       t.initializer_list()->accept(*this);
     }
   }
+#else
+  void visit_persistent_command(tree_persistent_command& t) {
+    if (t.initializer_list()) {
+      t.initializer_list()->accept(*this);
+    }
+  }
+#endif
 
   void visit_decl_elt(tree_decl_elt& t) {
     if (t.ident()) {

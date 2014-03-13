@@ -21,11 +21,7 @@
 #include <octave/parse.h>
 #include <octave/oct-map.h>
 
-// For Octave 3.2.4 compatibility
-#ifndef OCTAVE_API_VERSION_NUMBER
-#define OCTAVE_API_VERSION_NUMBER 0
-#endif
-#if OCTAVE_API_VERSION_NUMBER < 40
+#if OCT_VERS_NUM <= 0x030204
 #define octave_map Octave_map
 #endif
 
