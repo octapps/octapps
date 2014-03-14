@@ -17,14 +17,15 @@
 ## Prints a progress message at decreasing intervals, displaying
 ## the number of tasks completed, CPU usage, time elasped/remaining
 ## Usage:
-## for i = 1:5000
-##   for j = 1:5
-##     doSomeTask(i, j, ...);
-##     printProgress([i, j],[5000, 5])
+##   prog = [];
+##   for i = 1:5000
+##     for j = 1:5
+##       doSomeTask(i, j, ...);
+##       prog = printProgress(prog, [i, j], [5000, 5]);
+##     endfor
 ##   endfor
-## endfor
 
-function printProgress(ii, NN)
+function prog = printProgress(prog, ii, NN)
 
   # check input
   assert(isvector(ii));
@@ -34,20 +35,18 @@ function printProgress(ii, NN)
 
   ## store initial CPU and wall times, and
   ## last time progress was printed
-  persistent cpu0;
-  persistent wall0;
-  persistent last0;
-  if isempty(cpu0)
-    cpu0 = cputime();
-    wall0 = tic();
-    last0 = wall0;
+  if !isstruct(prog)
+    prog = struct();
+    prog.cpu0 = cputime();
+    prog.wall0 = tic();
+    prog.last0 = prog.wall0;
   endif
 
   ## compute elapsed CPU and wall times,
   ## and time since progress was printed
-  cpu = cputime() - cpu0;
-  wall = double(tic() - wall0)*1e-6;
-  last = double(tic() - last0)*1e-6;
+  cpu = cputime() - prog.cpu0;
+  wall = double(tic() - prog.wall0)*1e-6;
+  last = double(tic() - prog.last0)*1e-6;
 
   ## compute progress-printing interval from current
   ## elapsed wall time:
@@ -90,7 +89,7 @@ function printProgress(ii, NN)
     page_screen_output(pso);
 
     ## update time since progress was printed
-    last0 = tic();
+    prog.last0 = tic();
 
   endif
 
