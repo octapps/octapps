@@ -57,9 +57,9 @@ function job_file = makeCondorJob(varargin)
                {"func_name", "char"},
                {"arguments", "cell,vector", {}},
                {"func_nargout", "integer,positive,scalar"},
-               {"exec_files", "cell", {}},
-               {"data_files", "cell", {}},
-               {"extra_condor", "cell", {}},
+               {"exec_files", "cell,vector", {}},
+               {"data_files", "cell,vector", {}},
+               {"extra_condor", "cell,vector", {}},
                {"output_format", "char", "OctBinZ"},
                []);
 
@@ -77,6 +77,12 @@ function job_file = makeCondorJob(varargin)
       error("%s: element %i of 'data_files' must be a cell array of at least 2 elements", funcName, i);
     endif
   endfor
+  if mod(length(extra_condor), 2) != 0
+    error("%s: 'extra_condor' must be a cell array with an even number of entries", funcName);
+  endif
+  if !all(cellfun("ischar", extra_condor))
+    error("%s: 'extra_condor' must be a cell array of string entries", funcName);
+  endif
 
   ## check output format
   switch output_format
@@ -283,32 +289,26 @@ function job_file = makeCondorJob(varargin)
   argstr = strrep(argstr, "\"", "\"\"");
 
   ## build Condor job submit file spec
-  job_spec = struct;
-  job_spec.universe = "vanilla";
-  job_spec.executable = job_boot_file;
-  job_spec.arguments = sprintf("\"'$(Cluster)' '%s'\"", argstr);
-  job_spec.initialdir = "";
-  job_spec.output = "stdout";
-  job_spec.error = "stderr";
-  job_spec.log = job_log_file;
-  job_spec.getenv = "false";
-  job_spec.should_transfer_files = "yes";
-  job_spec.transfer_input_files = strcat(job_indir, filesep);
-  job_spec.when_to_transfer_output = "on_exit";
-  job_spec.notification = "never";
-  extra_condor = struct(extra_condor{:});
-  extra_condor_names = fieldnames(extra_condor);
-  for i = 1:length(extra_condor_names)
-    extra_condor_name =  extra_condor_names{i};
-    if isfield(job_spec, extra_condor_name)
+  job_spec = { ...
+              "universe", "vanilla", ...
+              "executable", job_boot_file, ...
+              "arguments", sprintf("\"'$(Cluster)' '%s'\"", argstr), ...
+              "initialdir", "", ...
+              "output", "stdout", ...
+              "error", "stderr", ...
+              "log", job_log_file, ...
+              "getenv", "false", ...
+              "should_transfer_files", "yes", ...
+              "transfer_input_files", strcat(job_indir, filesep), ...
+              "when_to_transfer_output", "on_exit", ...
+              "notification", "never", ...
+              };
+  for i = 1:2:length(extra_condor)
+    if any(strcmpi(extra_condor(i), job_spec(1:2:end)))
       error("%s: cannot override value of Condor command '%s'", funcName, extra_condor_name);
     endif
-    extra_condor_val = extra_condor.(extra_condor_name);
-    if !ischar(extra_condor_val)
-      error("%s: value of Condor command '%s' must be a string", funcName, extra_condor_name);
-    endif
-    job_spec.(extra_condor_name) = extra_condor_val;
   endfor
+  job_spec = {job_spec{:}, extra_condor{:}};
 
   ## create input directories
   if !mkdir(job_indir)
@@ -368,10 +368,8 @@ function job_file = makeCondorJob(varargin)
   if fid < 0
     error("%s: could not open file '%s' for writing", funcName, job_file);
   endif
-  job_spec_names = sort(fieldnames(job_spec));
-  for i = 1:length(job_spec_names)
-    fprintf(fid, "%s = %s\n", job_spec_names{i}, job_spec.(job_spec_names{i}));
-  endfor
+  assert(mod(length(job_spec), 2) == 0);
+  fprintf(fid, "%s = %s\n", job_spec{:});
   fprintf(fid, "queue 1\n");
   fclose(fid);
 
