@@ -123,11 +123,15 @@ function results = TestSuperSkyVirtualTemplates(varargin)
   results.dfndot = nan(spindowns+1, num_injections);
 
   ## iterate over all injections
+  prog = [];
   start_injection = 1;
   while start_injection <= num_injections
     end_injection = min(start_injection + injection_block - 1, num_injections);
     ii = start_injection:end_injection;
     injection_block = length(ii);
+
+    ## print progress
+    prog = printProgress(prog, start_injection, num_injections);
     start_injection = end_injection + 1;
 
     ## create random point in sky (unit disk), frequency (rand/T),
@@ -194,6 +198,9 @@ function results = TestSuperSkyVirtualTemplates(varargin)
       ## iterate over full software injections
       twoF_perfect = twoF_mismatch = zeros(1, injection_block);
       for n = 1:injection_block
+
+        ## print progress
+        prog = printProgress(prog, start_injection + n, num_injections);
 
         ## set up injection and search parameters
         inj_alpha = alpha1(n);
