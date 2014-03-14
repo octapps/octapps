@@ -26,7 +26,7 @@ version := $(shell $(OCTAVE) --eval "disp(OCTAVE_VERSION)")
 vers_num := -DOCT_VERS_NUM=$(shell $(OCTAVE) --eval "disp(strcat(\"0x\", sprintf(\"%02i\", str2double(strsplit(OCTAVE_VERSION, \".\")))))")
 
 # OctApps source path and file list
-srcpath := $(shell $(FIND) $(CURDIR)/src -type d ! \( -name private -or -name deprecated \) | $(SORT))
+srcpath := $(shell $(FIND) $(CURDIR)/src -type d ! \( -name private \) | $(SORT))
 srcfiles := $(wildcard $(srcpath:%=%/*.m) $(srcpath:%=%/*.cpp))
 
 # OctApps extension module directory
