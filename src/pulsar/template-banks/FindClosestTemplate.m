@@ -38,10 +38,10 @@ function closest = FindClosestTemplate(points, metric, max_mismatch, lattice)
   lattice_R = LatticeCoveringRadius(size(metric, 1), lattice);
 
   ## diagonally normalise metric
-  [D_metric, DN_metric] = DiagonalNormaliseMetric(metric);
+  [D_metric, DN_metric, IDN_metric] = DiagonalNormaliseMetric(metric);
 
   ## compute Cholesky decomposition of metric
-  tolattice = chol(D_metric) * inv(DN_metric);
+  tolattice = chol(D_metric) * IDN_metric;
 
   ## re-scale to account for covering radius and maximum mismatch
   tolattice *= lattice_R / sqrt(max_mismatch);
