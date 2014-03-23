@@ -58,6 +58,16 @@ function results = ConstructSuperSkyMetrics(sometric, socoordIDs, varargin)
     residual_sky = true;
   endif
 
+  ## diagonally normalise spin-orbit component metric
+  ## use "tolerant" since orbital Z may be zero, for Ptolemaic ephemerides
+  [nsometric, dsometric, idsometric] = DiagonalNormaliseMetric(sometric, "tolerant");
+
+  ## check diagonalised 'sometric' does not have more than 1 negative eigenvalue
+  nsometric_num_neg_eval = length(find(eig(nsometric) <= 0));
+  if nsometric_num_neg_eval > 1
+    error("%s: 'nsometric' is not sufficiently positive definite (%i negative eigenvalues)", funcName, nsometric_num_neg_eval);
+  endif
+
   ## load LAL libraries
   lal;
   lalpulsar;
@@ -127,10 +137,6 @@ function results = ConstructSuperSkyMetrics(sometric, socoordIDs, varargin)
 
   if residual_sky
 
-    ## diagonally normalise spin-orbit component metric
-    ## use "tolerant" since orbital Z may be zero, for Ptolemaic ephemerides
-    [nsometric, dsometric, idsometric] = DiagonalNormaliseMetric(sometric, "tolerant");
-
     ## find least-squares linear fit to orbital X and Y by frequency and spindowns
     fitted = [inoX, inoY];
     fitting = ifs;
@@ -165,7 +171,7 @@ function results = ConstructSuperSkyMetrics(sometric, socoordIDs, varargin)
 
       ## calculate additional sky offset and sky metric adjustment to
       ## zero the sky-frequency block of the residual super-sky metric
-      decoupleoff = drss_ff * rss_ff \ (drss_ff * rss_sf');
+      decoupleoff = drss_ff * (nrss_ff \ (drss_ff * rss_sf'));
       decouple_ss = -rss_sf * decoupleoff;
 
       ## decouple residual super-sky metric and sky offset vectors

@@ -25,7 +25,7 @@
 ##                      and input/output directories
 ##   "parent_dir":      where to write submit file and input/output
 ##                      directories (default: current directory)
-##   "log_dir":         where to write Condor log files (default: $TMPDIR")
+##   "log_dir":         where to write Condor log files (default: $TMP")
 ##   "func_name":       name of Octave function to run
 ##   "arguments":       cell array of arguments to pass to function.
 ##                      use condorVar() to insert reference to a Condor variable.
@@ -53,13 +53,13 @@ function job_file = makeCondorJob(varargin)
   parseOptions(varargin,
                {"job_name", "char"},
                {"parent_dir", "char", "."},
-               {"log_dir", "char", getenv("TMPDIR")},
+               {"log_dir", "char", getenv("TMP")},
                {"func_name", "char"},
                {"arguments", "cell,vector", {}},
                {"func_nargout", "integer,positive,scalar"},
-               {"exec_files", "cell", {}},
-               {"data_files", "cell", {}},
-               {"extra_condor", "cell", {}},
+               {"exec_files", "cell,vector", {}},
+               {"data_files", "cell,vector", {}},
+               {"extra_condor", "cell,vector", {}},
                {"output_format", "char", "OctBinZ"},
                []);
 
@@ -77,6 +77,12 @@ function job_file = makeCondorJob(varargin)
       error("%s: element %i of 'data_files' must be a cell array of at least 2 elements", funcName, i);
     endif
   endfor
+  if mod(length(extra_condor), 2) != 0
+    error("%s: 'extra_condor' must be a cell array with an even number of entries", funcName);
+  endif
+  if !all(cellfun("ischar", extra_condor))
+    error("%s: 'extra_condor' must be a cell array of string entries", funcName);
+  endif
 
   ## check output format
   switch output_format
@@ -118,6 +124,14 @@ function job_file = makeCondorJob(varargin)
   job_outdir = fullfile(parent_dir, strcat(job_name, ".out"));
   if exist(job_outdir, "dir")
     error("%s: job output directory '%s' already exists", funcName, job_outdir);
+  endif
+
+  ## remove job log file, if it exists
+  job_log_file = fullfile(log_dir, strcat(job_name, ".log"));
+  if exist(job_log_file, "file")
+    if unlink(job_log_file) != 0
+      error("%s: could not delete file '%s'", funcName, job_log_file);
+    endif
   endif
 
   ## add Octave executable to list of executable files
@@ -242,8 +256,14 @@ function job_file = makeCondorJob(varargin)
     envvar = env_vars.(envvarname);
     bootstr = strcat(bootstr, sprintf("%s=\"%s\"\nexport %s\n", envvarname, envvar, envvarname));
   endfor
+  bootstr = strcat(bootstr, "MAKE_CONDOR_JOB_ID=$1\nMAKE_CONDOR_JOB_NODE=`hostname`\n");
+  bootstr = strcat(bootstr, "cat <<EOF\n");
+  bootstr = strcat(bootstr, "# Condor ID: ${MAKE_CONDOR_JOB_ID}\n");
+  bootstr = strcat(bootstr, "# Condor Node: ${MAKE_CONDOR_JOB_NODE}\n");
+  bootstr = strcat(bootstr, sprintf("# Octave Command: %s($2{:})\n", func_name));
+  bootstr = strcat(bootstr, "EOF\n");
   bootstr = strcat(bootstr, "cat <<EOF | exec octave --silent --norc --no-history --no-window-system\n");
-  bootstr = strcat(bootstr, "arguments=$1;\nwall_time=tic();\ncpu_time=cputime();\n");
+  bootstr = strcat(bootstr, "arguments=$2;\nwall_time=tic();\ncpu_time=cputime();\n");
   if length(arguments) > 0
     callfuncstr = sprintf("%s(arguments{:})", func_name);
   else
@@ -255,43 +275,40 @@ function job_file = makeCondorJob(varargin)
     bootstr = strcat(bootstr, sprintf("results={};\n%s;\n", callfuncstr));
   endif
   bootstr = strcat(bootstr, "wall_time=(double(tic())-double(wall_time))*1e-6;\ncpu_time=cputime()-cpu_time;\n");
-  bootstr = strcat(bootstr, sprintf("save(\"%s\",\"stdres.%s\",\"arguments\",\"results\",\"wall_time\",\"cpu_time\");\n", ...
-                                    strjoin(save_args, "\",\""), save_ext));
+  bootstr = strcat(bootstr, "condor_ID=${MAKE_CONDOR_JOB_ID};\ncondor_node=\"${MAKE_CONDOR_JOB_NODE}\";\n");
+  bootstr = strcat(bootstr, sprintf("save(\"%s\",\"stdres.%s\",\"%s\");\n", ...
+                                    strjoin(save_args, "\",\""), save_ext, ...
+                                    strjoin({"arguments", "results", ...
+                                             "wall_time", "cpu_time", ...
+                                             "condor_ID", "condor_node"}, "\",\"")));
   bootstr = strcat(bootstr, "EOF\n");
 
   ## build Condor arguments string containing Octave function arguments
   argstr = stringify(arguments);
   argstr = strrep(argstr, "'", "''");
   argstr = strrep(argstr, "\"", "\"\"");
-  argstr = sprintf("\"'%s'\"", argstr);
 
   ## build Condor job submit file spec
-  job_spec = struct;
-  job_spec.universe = "vanilla";
-  job_spec.executable = job_boot_file;
-  job_spec.arguments = argstr;
-  job_spec.initialdir = "";
-  job_spec.output = "stdout";
-  job_spec.error = "stderr";
-  job_spec.log = fullfile(log_dir, strcat(job_name, ".log"));
-  job_spec.getenv = "false";
-  job_spec.should_transfer_files = "yes";
-  job_spec.transfer_input_files = strcat(job_indir, filesep);
-  job_spec.when_to_transfer_output = "on_exit";
-  job_spec.notification = "never";
-  extra_condor = struct(extra_condor{:});
-  extra_condor_names = fieldnames(extra_condor);
-  for i = 1:length(extra_condor_names)
-    extra_condor_name =  extra_condor_names{i};
-    if isfield(job_spec, extra_condor_name)
+  job_spec = { ...
+              "universe", "vanilla", ...
+              "executable", job_boot_file, ...
+              "arguments", sprintf("\"'$(Cluster)' '%s'\"", argstr), ...
+              "initialdir", "", ...
+              "output", "stdout", ...
+              "error", "stderr", ...
+              "log", job_log_file, ...
+              "getenv", "false", ...
+              "should_transfer_files", "yes", ...
+              "transfer_input_files", strcat(job_indir, filesep), ...
+              "when_to_transfer_output", "on_exit", ...
+              "notification", "never", ...
+              };
+  for i = 1:2:length(extra_condor)
+    if any(strcmpi(extra_condor(i), job_spec(1:2:end)))
       error("%s: cannot override value of Condor command '%s'", funcName, extra_condor_name);
     endif
-    extra_condor_val = extra_condor.(extra_condor_name);
-    if !ischar(extra_condor_val)
-      error("%s: value of Condor command '%s' must be a string", funcName, extra_condor_name);
-    endif
-    job_spec.(extra_condor_name) = extra_condor_val;
   endfor
+  job_spec = {job_spec{:}, extra_condor{:}};
 
   ## create input directories
   if !mkdir(job_indir)
@@ -351,10 +368,8 @@ function job_file = makeCondorJob(varargin)
   if fid < 0
     error("%s: could not open file '%s' for writing", funcName, job_file);
   endif
-  job_spec_names = sort(fieldnames(job_spec));
-  for i = 1:length(job_spec_names)
-    fprintf(fid, "%s = %s\n", job_spec_names{i}, job_spec.(job_spec_names{i}));
-  endfor
+  assert(mod(length(job_spec), 2) == 0);
+  fprintf(fid, "%s = %s\n", job_spec{:});
   fprintf(fid, "queue 1\n");
   fclose(fid);
 

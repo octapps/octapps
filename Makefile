@@ -21,11 +21,12 @@ SED := $(call CheckProg, gsed sed)
 SORT := LC_ALL=C $(call CheckProg, sort) -f
 SWIG := $(call CheckProg, swig)
 
-# Octave version
+# Octave version string, and hex number define for use in C code
 version := $(shell $(OCTAVE) --eval "disp(OCTAVE_VERSION)")
+vers_num := -DOCT_VERS_NUM=$(shell $(OCTAVE) --eval "disp(strcat(\"0x\", sprintf(\"%02i\", str2double(strsplit(OCTAVE_VERSION, \".\")))))")
 
 # OctApps source path and file list
-srcpath := $(shell $(FIND) $(CURDIR)/src -type d ! \( -name private -or -name deprecated \) | $(SORT))
+srcpath := $(shell $(FIND) $(CURDIR)/src -type d ! \( -name private \) | $(SORT))
 srcfiles := $(wildcard $(srcpath:%=%/*.m) $(srcpath:%=%/*.cpp))
 
 # OctApps extension module directory
@@ -54,7 +55,7 @@ ifneq ($(MKOCTFILE),false)
 
 VPATH = $(srcpath)
 
-COMPILE = $(MKOCTFILE) -g -c -o $@ -I$(CURDIR)/src $<
+COMPILE = $(MKOCTFILE) $(vers_num) -g -c -o $@ -I$(CURDIR)/src $<
 LINK = $(MKOCTFILE) -g -o $@ $(filter %.o,$^) -lgsl
 
 octs = \
@@ -83,7 +84,7 @@ $(swig_octs:%=$(octdir)/%.o) : $(octdir)/%.o : oct/%_wrap.cpp Makefile
 	$(verbose)$(COMPILE)
 
 $(swig_octs:%=oct/%_wrap.cpp) : oct/%_wrap.cpp : %.i Makefile
-	$(verbose)$(SWIG) -octave -c++ -globals "$*cvar" -o $@ $<
+	$(verbose)$(SWIG) $(vers_num) -octave -c++ -globals "$*cvar" -o $@ $<
 
 $(swig_octs:%=$(octdir)/%.oct) : $(octdir)/%.oct : $(octdir)/%.o Makefile
 	$(verbose)$(LINK)
@@ -95,7 +96,7 @@ endif # neq ($(MKOCTFILE),false)
 # run test scripts
 check : all
 	@source octapps-user-env.sh; \
-	octapps_run octapps_check `$(GREP) -l '^%!' $(srcfiles) /dev/null | $(SORT)`
+	$(OCTAVE) --eval "for dir = strsplit('$(srcpath)',' '); runtests(dir{:}); endfor"
 
 # generate tags
 ifneq ($(CTAGSEX),false)

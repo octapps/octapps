@@ -1,0 +1,42 @@
+/* [wxMaxima batch file version 1] [ DO NOT EDIT BY HAND! ]*/
+/* [ Created with wxMaxima version 13.04.2 ] */
+
+/* [wxMaxima: input   start ] */
+assume(N>1, K>=0, K<= N, N-K+1>0)$
+p0(f,N,K) := (N+1) * binomial(N,K) * f^K * (1-f)^(N-K);
+p(f,N,K) := 1/beta(K+1,N-K+1) * f^K * (1-f)^(N-K);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+logexpand: all$
+beta_expand: false$
+log(p(f,N,K));
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+normp : integrate ( p(f,N,K), f, 0, 1);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+beta_expand: true$
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+Ef : integrate( f * p(f,N,K), f, 0, 1 );
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+Efsq : integrate( f^2 * p(f,N,K), f, 0, 1 );
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+varf : Efsq - Ef^2, factor;
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+varf1 : Ef * (1 - Ef) / (N+3)$
+varf - varf1, ratsimp;
+/* [wxMaxima: input   end   ] */
+
+/* Maxima can't load/batch files which end with a comment! */
+"Created with wxMaxima"$
