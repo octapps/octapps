@@ -48,12 +48,12 @@
 ##  OrbitParams: option that needs to be set to 'true' to be able to specify the orbital parameters (default: false)
 ##  *inj_orbitasini: injected orbital projected semi-major axis (normalised by the speed of light) in seconds (default: random)
 ##  *inj_orbitEcc: injected orbital eccentricity (default: random)
-##  *inj_orbitTpSSBsec: injected (SSB) time of periapsis passage (in seconds) (default: random)
+##  *inj_orbitTpSSB: injected (SSB) time of periapsis passage (in seconds) (default: random)
 ##  *inj_orbitPeriod: injected orbital period (seconds) (default: random)
 ##  *inj_orbitArgp: injected argument of periapsis (radians) (default: random)
 ##  *sch_orbitasini: searched orbital projected semi-major axis (normalised by the speed of light) in seconds (default: same as injected)
 ##  *sch_orbitEcc: searched orbital eccentricity (default: same as injected)
-##  *sch_orbitTpSSBsec: searched (SSB) time of periapsis passage (in seconds) (default: same as injected)
+##  *sch_orbitTpSSB: searched (SSB) time of periapsis passage (in seconds) (default: same as injected)
 ##  *sch_orbitPeriod: searched orbital period (seconds) (default: same as injected)
 ##  *sch_orbitArgp: searched argument of periapsis (radians) (default: same as injected)
 ##  dopplermax: maximal possible doppler-effect (default: 1.05e-4)
@@ -90,12 +90,12 @@ function [results, multiSFTs, multiTser] = DoFstatInjections(varargin)
                {"OrbitParams", "logical,scalar", false},
                {"inj_orbitasini", "real,scalar", unifrnd(1.0,3.0)},
                {"inj_orbitEcc", "real,scalar", unifrnd(0.0,1.0)},
-               {"inj_orbitTpSSBsec", "integer,scalar", fix(unifrnd(6e8,6.5e8))},
+               {"inj_orbitTpSSB", "scalar", unifrnd(6e8,6.5e8)},
                {"inj_orbitPeriod", "real,scalar", unifrnd(3600.0,86400.0)},
                {"inj_orbitArgp", "real,scalar", unifrnd(0.0,2*pi)},
                {"sch_orbitasini", "real,vector", []},
                {"sch_orbitEcc", "real,vector", []},
-               {"sch_orbitTpSSBsec", "integer,vector", []},
+               {"sch_orbitTpSSB", "vector", []},
                {"sch_orbitPeriod", "real,vector", []},
                {"sch_orbitArgp", "real,vector", []},
                {"dopplermax", "real,scalar",1.05e-4},
@@ -119,8 +119,8 @@ function [results, multiSFTs, multiTser] = DoFstatInjections(varargin)
     if isempty(sch_orbitEcc)
       sch_orbitEcc = inj_orbitEcc;
     endif
-    if isempty(sch_orbitTpSSBsec)
-      sch_orbitTpSSBsec = inj_orbitTpSSBsec;
+    if isempty(sch_orbitTpSSB)
+      sch_orbitTpSSB = inj_orbitTpSSB;
     endif
     if isempty(sch_orbitPeriod)
       sch_orbitPeriod = inj_orbitPeriod;
@@ -140,7 +140,7 @@ function [results, multiSFTs, multiTser] = DoFstatInjections(varargin)
   if OrbitParams
     assert(all(size(sch_orbitasini) == [1, num_sch]));
     assert(all(size(sch_orbitEcc) == [1, num_sch]));
-    assert(all(size(sch_orbitTpSSBsec) == [1, num_sch]));
+    assert(all(size(sch_orbitTpSSB) == [1, num_sch]));
     assert(all(size(sch_orbitPeriod) == [1, num_sch]));
     assert(all(size(sch_orbitArgp) == [1, num_sch]));
   endif
@@ -178,12 +178,12 @@ function [results, multiSFTs, multiTser] = DoFstatInjections(varargin)
   if OrbitParams
     results.inj_orbitasini = inj_orbitasini;
     results.inj_orbitEcc = inj_orbitEcc;
-    results.inj_orbitTpSSBsec = inj_orbitTpSSBsec;
+    results.inj_orbitTpSSB = inj_orbitTpSSB;
     results.inj_orbitPeriod = inj_orbitPeriod;
     results.inj_orbitArgp = inj_orbitArgp;
     results.sch_orbitasini = sch_orbitasini;
     results.sch_orbitEcc = sch_orbitEcc;
-    results.sch_orbitTpSSBsec = sch_orbitTpSSBsec;
+    results.sch_orbitTpSSB = sch_orbitTpSSB;
     results.sch_orbitPeriod = sch_orbitPeriod;
     results.sch_orbitArgp = sch_orbitArgp;
   endif
@@ -204,7 +204,8 @@ function [results, multiSFTs, multiTser] = DoFstatInjections(varargin)
   if OrbitParams
     MFDsources.data{1}.Doppler.asini = inj_orbitasini;
     MFDsources.data{1}.Doppler.ecc = inj_orbitEcc;
-    MFDsources.data{1}.Doppler.tp = inj_orbitTpSSBsec;
+    MFDsources.data{1}.Doppler.tp.gpsSeconds = fix(inj_orbitTpSSB);
+    MFDsources.data{1}.Doppler.tp.gpsNanoSeconds = 1e9*(inj_orbitTpSSB - fix(inj_orbitTpSSB));
     MFDsources.data{1}.Doppler.period = inj_orbitPeriod;
     MFDsources.data{1}.Doppler.argp = inj_orbitArgp;
   endif
@@ -304,7 +305,8 @@ function [results, multiSFTs, multiTser] = DoFstatInjections(varargin)
     if OrbitParams
       Doppler.asini = sch_orbitasini(i);
       Doppler.ecc = sch_orbitEcc(i);
-      Doppler.tp = sch_orbitTpSSBsec(i);
+      Doppler.tp.gpsSeconds = fix(sch_orbitTpSSB(i));
+      Doppler.tp.gpsNanoSeconds = 1e9*(sch_orbitTpSSB - fix(sch_orbitTpSSB));
       Doppler.period = sch_orbitPeriod(i);
       Doppler.argp = sch_orbitArgp(i);
     endif
