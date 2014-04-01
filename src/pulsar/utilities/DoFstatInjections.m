@@ -204,8 +204,7 @@ function [results, multiSFTs, multiTser] = DoFstatInjections(varargin)
   if OrbitParams
     MFDsources.data{1}.Doppler.asini = inj_orbitasini;
     MFDsources.data{1}.Doppler.ecc = inj_orbitEcc;
-    MFDsources.data{1}.Doppler.tp.gpsSeconds = fix(inj_orbitTpSSB);
-    MFDsources.data{1}.Doppler.tp.gpsNanoSeconds = round(1e9*(inj_orbitTpSSB - fix(inj_orbitTpSSB)));
+    MFDsources.data{1}.Doppler.tp = inj_orbitTpSSB;
     MFDsources.data{1}.Doppler.period = inj_orbitPeriod;
     MFDsources.data{1}.Doppler.argp = inj_orbitArgp;
   endif
@@ -305,8 +304,7 @@ function [results, multiSFTs, multiTser] = DoFstatInjections(varargin)
     if OrbitParams
       Doppler.asini = sch_orbitasini(i);
       Doppler.ecc = sch_orbitEcc(i);
-      Doppler.tp.gpsSeconds = fix(sch_orbitTpSSB(i));
-      Doppler.tp.gpsNanoSeconds = round(1e9*(sch_orbitTpSSB(i) - fix(sch_orbitTpSSB(i))));
+      Doppler.tp = sch_orbitTpSSB(i);
       Doppler.period = sch_orbitPeriod(i);
       Doppler.argp = sch_orbitArgp(i);
     endif
