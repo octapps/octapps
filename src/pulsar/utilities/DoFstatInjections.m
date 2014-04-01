@@ -90,12 +90,12 @@ function [results, multiSFTs, multiTser] = DoFstatInjections(varargin)
                {"OrbitParams", "logical,scalar", false},
                {"inj_orbitasini", "real,scalar", unifrnd(1.0,3.0)},
                {"inj_orbitEcc", "real,scalar", unifrnd(0.0,1.0)},
-               {"inj_orbitTpSSB", "scalar", unifrnd(6e8,6.5e8)},
+               {"inj_orbitTpSSB", "real,strictpos,scalar", unifrnd(6e8,6.5e8)},
                {"inj_orbitPeriod", "real,scalar", unifrnd(3600.0,86400.0)},
                {"inj_orbitArgp", "real,scalar", unifrnd(0.0,2*pi)},
                {"sch_orbitasini", "real,vector", []},
                {"sch_orbitEcc", "real,vector", []},
-               {"sch_orbitTpSSB", "vector", []},
+               {"sch_orbitTpSSB", "real,vector", []},
                {"sch_orbitPeriod", "real,vector", []},
                {"sch_orbitArgp", "real,vector", []},
                {"dopplermax", "real,scalar",1.05e-4},
@@ -205,7 +205,7 @@ function [results, multiSFTs, multiTser] = DoFstatInjections(varargin)
     MFDsources.data{1}.Doppler.asini = inj_orbitasini;
     MFDsources.data{1}.Doppler.ecc = inj_orbitEcc;
     MFDsources.data{1}.Doppler.tp.gpsSeconds = fix(inj_orbitTpSSB);
-    MFDsources.data{1}.Doppler.tp.gpsNanoSeconds = 1e9*(inj_orbitTpSSB - fix(inj_orbitTpSSB));
+    MFDsources.data{1}.Doppler.tp.gpsNanoSeconds = round(1e9*(inj_orbitTpSSB - fix(inj_orbitTpSSB)));
     MFDsources.data{1}.Doppler.period = inj_orbitPeriod;
     MFDsources.data{1}.Doppler.argp = inj_orbitArgp;
   endif
@@ -306,7 +306,7 @@ function [results, multiSFTs, multiTser] = DoFstatInjections(varargin)
       Doppler.asini = sch_orbitasini(i);
       Doppler.ecc = sch_orbitEcc(i);
       Doppler.tp.gpsSeconds = fix(sch_orbitTpSSB(i));
-      Doppler.tp.gpsNanoSeconds = 1e9*(sch_orbitTpSSB - fix(sch_orbitTpSSB));
+      Doppler.tp.gpsNanoSeconds = round(1e9*(sch_orbitTpSSB(i) - fix(sch_orbitTpSSB(i))));
       Doppler.period = sch_orbitPeriod(i);
       Doppler.argp = sch_orbitArgp(i);
     endif
