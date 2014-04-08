@@ -26,17 +26,33 @@
 ## and the confidence interval [fLower, fUpper] is given by binomialConfidenceInterval(N,K,confidence)
 ##
 ## Note: threshold is allowed to be a vector, returns corresponding rate vectors
+##
 function [fMPE, fLower, fUpper] = estimateRateFromSamples ( DATA, threshold, confidence=0.95 )
 
   assert ( isscalar(confidence) );
 
-  assert ( isscalar(threshold) );
-
-
-  K = length ( find ( DATA > threshold ) );
   N = length ( DATA );
 
-  fMPE = K / N;
-  [fLower, fUpper] = binomialConfidenceInterval ( N, K, confidence );
+  ## prepare confidence-interval outputs of same dimensions as 'threshold'
+  fMPE = fLower = fUpper = NaN * ones ( size ( threshold ) );
+
+  for i = 1:length( threshold(:) )
+    K = length ( find ( DATA > threshold(i) ) );
+    fMPE(i) = K / N;
+    [fLower(i), fUpper(i)] = binomialConfidenceInterval ( N, K, confidence );
+  endfor
+
   return;
 endfunction
+
+%!test
+%! Ntrials = 100;
+%! DATA = normrnd ( 0, 1, 1, Ntrials );
+%! threshold = linspace ( 0, 1, 10 );
+%! [fMPE0, fLower0, fUpper0] = estimateRateFromSamples ( DATA, threshold, confidence=0.95 );
+%! for i = 1:length(threshold)
+%!    [fMPE1(i), fLower1(i), fUpper1(i)] = estimateRateFromSamples ( DATA, threshold(i), confidence=0.95 );
+%! endfor
+%! assert ( fMPE0 = fMPE1 );
+%! assert ( fLower0 = fLower1 );
+%! assert ( fUpper0 = fUpper1 );

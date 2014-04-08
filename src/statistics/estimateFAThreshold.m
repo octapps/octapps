@@ -27,18 +27,15 @@
 ## and the confidence interval [fLower, fUpper] is given by binomialConfidenceInterval(N,K,confidence)
 ##
 ## Note: the input pFA is allowed to be a vector, returns corresponding vectors
+##
 function [threshold, pFA_MPE, pFA_Lower, pFA_Upper] = estimateFAThreshold ( DATA, pFA, confidence=0.95 )
 
   assert ( isscalar ( confidence ) );
 
   threshold = empirical_inv ( 1 - pFA, DATA );
 
-  ## prepare output quantities of same dimensions as 'pFA'
-  pFA_MPE = pFA_Lower = pFA_Upper = NaN * ones ( size ( pFA ) );
-  for i = 1:length( pFA(:) )
-    ## now assess the actual pFA associated with that threshold on the given data
-    [pFA_MPE(i), pFA_Lower(i), pFA_Upper(i)] = estimateRateFromSamples ( DATA, threshold(i), confidence );
-  endfor
+  ## now assess the actual pFA associated with that threshold on the given data
+  [pFA_MPE, pFA_Lower, pFA_Upper] = estimateRateFromSamples ( DATA, threshold, confidence );
 
   return;
 

@@ -30,12 +30,7 @@ function [pDet_MPE, pDet_Lower, pDet_Upper, pFA_MPE, pFA_Lower, pFA_Upper] = est
 
   [threshold, pFA_MPE, pFA_Lower, pFA_Upper] = estimateFAThreshold ( DATA_noise, pFA, confidence );
 
-  ## prepare output detection-rate estimates of same dimensions as 'pFA'
-  pDet_MPE = pDet_Lower = pDet_Upper = NaN * ones ( size ( pFA ) );
-
-  for i = 1:length( pFA(:) )
-    [pDet_MPE(i), pDet_Lower(i), pDet_Upper(i)] = estimateRateFromSamples ( DATA_signal, threshold(i), confidence );
-  endfor
+  [pDet_MPE, pDet_Lower, pDet_Upper] = estimateRateFromSamples ( DATA_signal, threshold, confidence );
 
   return;
 
@@ -60,5 +55,3 @@ endfunction
 %! xlim([-0.05, 1.05]); ylim([-0.1, 1.15]);
 %! legend ("location", "northwest" ); legend("boxoff");
 %! xlabel("pFA"); ylabel("pDet");
-
-%!
