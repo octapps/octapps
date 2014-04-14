@@ -58,6 +58,7 @@
 ##  *sch_orbitArgp: searched argument of periapsis (radians) (default: same as injected)
 ##  dopplermax: maximal possible doppler-effect (default: 1.05e-4)
 ##  Dterms: number of Dirichlet terms to use in ComputeFstat() (default: number used by optimised hotloops)
+##  randSeed: seed used for generating random noise (default: generate random seed)
 
 function [results, multiSFTs, multiTser] = DoFstatInjections(varargin)
 
@@ -71,7 +72,7 @@ function [results, multiSFTs, multiTser] = DoFstatInjections(varargin)
                {"start_time", "real,strictpos,scalar", []},
                {"time_span", "real,strictpos,scalar"},
                {"detectors", "char"},
-               {"detSqrtSn", "real,strictpos,vector", []},
+               {"detSqrtSn", "real,positive,vector", []},
                {"ephemerides", "a:swig_ref", []},
                {"sft_time_span", "real,strictpos,scalar", 1800},
                {"sft_overlap", "real,positive,scalar", 0},
@@ -100,6 +101,7 @@ function [results, multiSFTs, multiTser] = DoFstatInjections(varargin)
                {"sch_orbitArgp", "real,vector", []},
                {"dopplermax", "real,scalar",1.05e-4},
                {"Dterms", "integer,strictpos,scalar", lalpulsarcvar.OptimisedHotloopDterms},
+               {"randSeed", "integer,strictpos,scalar", floor(unifrnd(0, 2^32 - 1))},
                []);
 
   ## use injection parameters as search parameters, if not given
@@ -273,7 +275,7 @@ function [results, multiSFTs, multiTser] = DoFstatInjections(varargin)
     MFDparams.detInfo.sqrtSn(1:detNames.length) = detSqrtSn;
   endif
   MFDparams.multiTimestamps = multiTimestamps;
-  MFDparams.randSeed = floor(unifrnd(0, 2^32 - 1));
+  MFDparams.randSeed = randSeed;
 
   ## run CWMakeFakeData() to generate SFTs with injections
   [multiSFTs, multiTser] = CWMakeFakeMultiData([], [], MFDsources, MFDparams, ephemerides);
@@ -319,3 +321,42 @@ function [results, multiSFTs, multiTser] = DoFstatInjections(varargin)
   endfor
 
 endfunction
+
+%!shared common_args
+%! common_args = {"ref_time", 731163327, "start_time", 850468953, "time_span", 86400, "detectors", "H1,L1", "detSqrtSn", 1.0, "sft_time_span", 1800, ...
+%!                "sft_overlap", 0, "sft_noise_window", 50, "inj_h0", 0.55, "inj_cosi", 0.31, "inj_psi", 0.22, "inj_phi0", 1.82, "inj_alpha", 3.92, ...
+%!                "inj_delta", 0.83, "inj_fndot", [200; 1e-9], "Dterms", 8, "randSeed", 1234};
+
+%!test
+%! try
+%!   lal; lalpulsar;
+%! catch
+%!   disp("*** LALSuite modules not available; skipping test ***"); return;
+%! end_try_catch
+%! res = DoFstatInjections(common_args{:}, "OrbitParams", false);
+%! assert(res.inj_alpha == res.sch_alpha);
+%! assert(res.inj_delta == res.sch_delta);
+%! assert(res.inj_fndot == res.sch_fndot);
+%! ref_twoF = 4089.4; ref_twoFPerDet = [2273.0; 1820.7];
+%! assert(abs(res.sch_twoF - ref_twoF) < 0.05 * ref_twoF);
+%! assert(abs(res.sch_twoFPerDet - ref_twoFPerDet) < 0.05 * ref_twoFPerDet);
+
+%!test
+%! try
+%!   lal; lalpulsar;
+%! catch
+%!   disp("*** LALSuite modules not available; skipping test ***"); return;
+%! end_try_catch
+%! res = DoFstatInjections(common_args{:}, "OrbitParams", true, "inj_orbitasini", 2.94, "inj_orbitPeriod", 10800, ...
+%!                         "inj_orbitEcc", 0, "inj_orbitTpSSB", 1/3, "inj_orbitArgp", 5.2, "dopplermax", 2e-3);
+%! assert(res.inj_alpha == res.sch_alpha);
+%! assert(res.inj_delta == res.sch_delta);
+%! assert(res.inj_fndot == res.sch_fndot);
+%! assert(res.inj_orbitasini == res.sch_orbitasini);
+%! assert(res.inj_orbitEcc == res.sch_orbitEcc);
+%! assert(res.inj_orbitTpSSB == res.sch_orbitTpSSB);
+%! assert(res.inj_orbitPeriod == res.sch_orbitPeriod);
+%! assert(res.inj_orbitArgp == res.sch_orbitArgp);
+%! ref_twoF = 15.798; ref_twoFPerDet = [2.1192; 20.6255];
+%! assert(abs(res.sch_twoF - ref_twoF) < 0.05 * ref_twoF);
+%! assert(abs(res.sch_twoFPerDet - ref_twoFPerDet) < 0.05 * ref_twoFPerDet);
