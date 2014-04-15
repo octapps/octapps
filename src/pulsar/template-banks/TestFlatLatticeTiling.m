@@ -434,7 +434,7 @@ endfunction
 
 ## Test flat lattice tiling against reference template banks
 
-%!test
+%!#test
 %! try
 %!   lal; lalpulsar;
 %! catch
@@ -449,7 +449,7 @@ endfunction
 %! dx = square.injections - square.templates(:, square.nearest_index);
 %! assert(all(abs(dot(dx, square.metric * dx) - square.nearest_mismatch) < 1e-7 * square.nearest_mismatch))
 
-%!test
+%!#test
 %! try
 %!   lal; lalpulsar;
 %! catch
