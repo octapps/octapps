@@ -270,10 +270,10 @@ function [results, multiSFTs, multiTser] = DoFstatInjections(varargin)
   MFDparams = new_CWMFDataParams;
   MFDparams.fMin = min_freq;
   MFDparams.Band = max_freq - min_freq;
-  ParseMultiDetectorInfo(MFDparams.detInfo, detNames, []);
+  ParseMultiLALDetector(MFDparams.multiIFO, detNames);
+  MFDparams.multiNoiseFloor.length = detNames.length;
   if !isempty(detSqrtSn)
-    MFDparams.noiseFloor.length = detNames.length;
-    MFDparams.noiseFloor.sqrtSn(1:detNames.length) = detSqrtSn;
+    MFDparams.multiNoiseFloor.sqrtSn(1:detNames.length) = detSqrtSn;
   endif
   MFDparams.multiTimestamps = multiTimestamps;
   MFDparams.randSeed = randSeed;
@@ -291,7 +291,7 @@ function [results, multiSFTs, multiTser] = DoFstatInjections(varargin)
   endif
 
   ## setup F-statistic input struct for ComputeFstat()
-  Fstatin = SetupFstat_Demod(multiSFTs, multiWeights, ephemerides, SSBPREC_RELATIVISTICOPT, DEMODAM_LONG_WAVELENGTH, Dterms);
+  Fstatin = SetupFstat_Demod(multiSFTs, multiWeights, ephemerides, SSBPREC_RELATIVISTICOPT, Dterms, lalpulsarcvar.DEMODHL_BEST);
 
   ## run ComputeFstat() for each injection point
   Fstatres = [];
