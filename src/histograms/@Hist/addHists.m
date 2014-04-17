@@ -30,7 +30,7 @@ function hgrmt = addHists(varargin)
   for i = 1:length(varargin)
     hgrm = varargin{i};
     if !isempty(hgrm)
-      assert(isHist(hgrm), "Argument #i must be either a valid histogram class, or []", i);
+      assert(isHist(hgrm), "Argument #%i must be either a valid histogram class, or []", i);
       if isempty(dim)
         dim = length(hgrm.bins);
       else
