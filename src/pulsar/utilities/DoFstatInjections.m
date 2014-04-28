@@ -27,14 +27,12 @@
 ##   start_time: start time in GPS seconds (default: ref_time - 0.5*time_span)
 ##   time_span: observation time-span in seconds
 ##   detectors: comma-separated list of detector names
-##   detSqrtSn: vector of noise levels [as sqrt(single-sided PSD)] for each detector
+##   det_sqrt_PSD: sqrt(single-sided noise PSD) to assume for each detector
 ##   ephemerides: Earth/Sun ephemerides from loadEphemerides()
 ##   sft_time_span: SFT time-span in seconds (default: 1800)
 ##   sft_overlap: SFT overlap in seconds (default: 0)
-##   sft_band: SFT band-width in Hz (default: automatically determined)
-##             - Minimum and maximum SFT frequencies SFT_min_freq and
-##               SFT_max_freq are returned in results
 ##   sft_noise_window: number of bins used when estimating SFT noise (default: 50)
+##   inj_sqrt_PSD: inject Gaussian random noise with sqrt(single-sided noise PSD) for each detector
 ##  *inj_h0: injected h0 strain amplitude (default: 1.0)
 ##  *inj_cosi: injected cosine of inclination angle (default: random)
 ##  *inj_psi: injected polarisation angle (default: random)
@@ -56,9 +54,7 @@
 ##  *sch_orbitTpSSB: searched (SSB) time of periapsis passage (in seconds) (default: same as injected)
 ##  *sch_orbitPeriod: searched orbital period (seconds) (default: same as injected)
 ##  *sch_orbitArgp: searched argument of periapsis (radians) (default: same as injected)
-##  dopplermax: maximal possible doppler-effect (default: 1.05e-4)
 ##  Dterms: number of Dirichlet terms to use in ComputeFstat() (default: number used by optimised hotloops)
-##  randSeed: seed used for generating random noise (default: generate random seed)
 
 function [results, multiSFTs, multiTser] = DoFstatInjections(varargin)
 
@@ -72,12 +68,12 @@ function [results, multiSFTs, multiTser] = DoFstatInjections(varargin)
                {"start_time", "real,strictpos,scalar", []},
                {"time_span", "real,strictpos,scalar"},
                {"detectors", "char"},
-               {"detSqrtSn", "real,positive,vector", []},
+               {"det_sqrt_PSD", "real,positive,vector", []},
                {"ephemerides", "a:swig_ref", []},
                {"sft_time_span", "real,strictpos,scalar", 1800},
                {"sft_overlap", "real,positive,scalar", 0},
-               {"sft_band", "real,strictpos,scalar", []},
                {"sft_noise_window", "integer,strictpos,scalar", 50},
+               {"inj_sqrt_PSD", "real,positive,vector", []},
                {"inj_h0", "real,positive,scalar", 1.0},
                {"inj_cosi", "real,scalar", -1 + 2*rand()},
                {"inj_psi", "real,scalar", 2*pi*rand()},
@@ -99,10 +95,11 @@ function [results, multiSFTs, multiTser] = DoFstatInjections(varargin)
                {"sch_orbitTpSSB", "real,vector", []},
                {"sch_orbitPeriod", "real,vector", []},
                {"sch_orbitArgp", "real,vector", []},
-               {"dopplermax", "real,scalar",1.05e-4},
-               {"Dterms", "integer,strictpos,scalar", lalpulsarcvar.OptimisedHotloopDterms},
+               {"Dterms", "integer,strictpos,scalar", 8},
                {"randSeed", "integer,strictpos,scalar", floor(unifrnd(0, 2^32 - 1))},
                []);
+  assert(xor(isempty(det_sqrt_PSD), isempty(inj_sqrt_PSD)),
+         "Either 'det_sqrt_PSD' or 'inj_sqrt_PSD' are required");
 
   ## use injection parameters as search parameters, if not given
   if isempty(sch_alpha)
@@ -147,10 +144,21 @@ function [results, multiSFTs, multiTser] = DoFstatInjections(varargin)
     assert(all(size(sch_orbitArgp) == [1, num_sch]));
   endif
 
-  ## parse detector names and check size of detSqrtSn
+  ## parse detector names and PSDs
   detNames = CreateStringVector(strsplit(detectors, ","){:});
-  if !isempty(detSqrtSn)
-    assert(isscalar(detSqrtSn) || length(detSqrtSn) == detNames.length);
+  if !isempty(det_sqrt_PSD)
+    assumeSqrtSX = new_MultiNoiseFloor;
+    assumeSqrtSX.length = detNames.length;
+    assumeSqrtSX.sqrtSn(1:detNames.length) = det_sqrt_PSD;
+  else
+    assumeSqrtSX = [];
+  endif
+  if !isempty(inj_sqrt_PSD)
+    injectSqrtSX = new_MultiNoiseFloor;
+    injectSqrtSX.length = detNames.length;
+    injectSqrtSX.sqrtSn(1:detNames.length) = inj_sqrt_PSD;
+  else
+    injectSqrtSX = [];
   endif
 
   ## load ephemerides if not supplied
@@ -192,106 +200,55 @@ function [results, multiSFTs, multiTser] = DoFstatInjections(varargin)
   results.sch_twoF = zeros(1, num_sch);
   results.sch_twoFPerDet = zeros(detNames.length, num_sch);
 
-  ## create and fill sources input vector for CWMakeFakeData()
-  MFDsources = CreatePulsarParamsVector(1);
-  MFDsources.data{1}.Amp.h0   = inj_h0;
-  MFDsources.data{1}.Amp.cosi = inj_cosi;
-  MFDsources.data{1}.Amp.psi  = inj_psi;
-  MFDsources.data{1}.Amp.phi0 = inj_phi0;
-  MFDsources.data{1}.Doppler.Alpha = inj_alpha;
-  MFDsources.data{1}.Doppler.Delta = inj_delta;
-  MFDsources.data{1}.Doppler.fkdot = zeros(size(MFDsources.data{1}.Doppler.fkdot));
-  MFDsources.data{1}.Doppler.fkdot(1:length(inj_fndot)) = inj_fndot;
-  MFDsources.data{1}.Doppler.refTime = refTime;
+  ## create and fill CW sources vector
+  sources = CreatePulsarParamsVector(1);
+  sources.data{1}.Amp.h0   = inj_h0;
+  sources.data{1}.Amp.cosi = inj_cosi;
+  sources.data{1}.Amp.psi  = inj_psi;
+  sources.data{1}.Amp.phi0 = inj_phi0;
+  sources.data{1}.Doppler.Alpha = inj_alpha;
+  sources.data{1}.Doppler.Delta = inj_delta;
+  sources.data{1}.Doppler.fkdot = zeros(size(sources.data{1}.Doppler.fkdot));
+  sources.data{1}.Doppler.fkdot(1:length(inj_fndot)) = inj_fndot;
+  sources.data{1}.Doppler.refTime = refTime;
   if OrbitParams
-    MFDsources.data{1}.Doppler.asini = inj_orbitasini;
-    MFDsources.data{1}.Doppler.ecc = inj_orbitEcc;
-    MFDsources.data{1}.Doppler.tp = inj_orbitTpSSB;
-    MFDsources.data{1}.Doppler.period = inj_orbitPeriod;
-    MFDsources.data{1}.Doppler.argp = inj_orbitArgp;
+    sources.data{1}.Doppler.asini = inj_orbitasini;
+    sources.data{1}.Doppler.ecc = inj_orbitEcc;
+    sources.data{1}.Doppler.tp = inj_orbitTpSSB;
+    sources.data{1}.Doppler.period = inj_orbitPeriod;
+    sources.data{1}.Doppler.argp = inj_orbitArgp;
   endif
 
   ## generate SFT timestamps
   multiTimestamps = MakeMultiTimestamps(startTime, time_span, sft_time_span, sft_overlap, detNames.length);
 
-  if isempty(sft_band)
+  ## create fake SFT catalog, and determine end time
+  fakeSFTcat = MultiAddToFakeSFTCatalog([], detNames, multiTimestamps);
+  endTime = fakeSFTcat.data{end-1}.header.epoch;
 
-    ## determine range of frequencies spanned by injections and searches
-    min_freq = min([inj_fndot(1), sch_fndot(1, :)]);
-    max_freq = max([inj_fndot(1), sch_fndot(1, :)]);
-
-    ## if injection includes spindowns, determine what frequency band they cover
-    if length(inj_fndot) > 1
-
-      ## compute range of frequencies covered at beginning and end of SFTs
-      dfreqs = [];
-      spins = [inj_fndot(2:end), sch_fndot(2:end, :)];
-      orders = (1:length(inj_fndot)-1)';
-      inv_facts = 1 ./ factorial(orders);
-      for i = 1:size(spins, 2)
-        dfreqs = [dfreqs, ...
-                  sum(spins(:, i) .* inv_facts .* (start_time - ref_time).^orders), ...
-                  sum(spins(:, i) .* inv_facts .* (start_time + time_span - ref_time).^orders)];
-      endfor
-
-      ## add spindown range to frequency range
-      min_freq += min(dfreqs);
-      max_freq += max(dfreqs);
-
-    endif
-
-    ## add the maximum frequency modulation due to the orbital Doppler modulation
-    dfreq_orbitSourcePl = dopplermax * max_freq;
-    max_freq += dfreq_orbitSourcePl;
-    dfreq_orbitSourceMn = dopplermax * min_freq;
-    min_freq -= dfreq_orbitSourceMn;
-
-    ## add the minimum number of bins requires by ComputeFstat()
-    min_freq -= Dterms / sft_time_span;
-    max_freq += Dterms / sft_time_span;
-
-    ## round frequencies down/up to nearest SFT bin, and add a few more bins for safety
-    min_freq = (floor(min_freq * sft_time_span) - 5) / sft_time_span;
-    max_freq = (floor(max_freq * sft_time_span) + 5) / sft_time_span;
-
+  ## work out the covering frequency band
+  spinRange = new_PulsarSpinRange;
+  spinRange.refTime = refTime;
+  spinRange.fkdot = spinRange.fkdotBand = zeros(size(spinRange.fkdot));
+  all_fndot = [inj_fndot, sch_fndot];
+  spinRange.fkdot(1:length(inj_fndot)) = min(all_fndot, [], 2);
+  spinRange.fkdotBand(1:length(inj_fndot)) = range(all_fndot, 2);
+  if OrbitParams
+    binary_max_asini = max([inj_orbitasini, sch_orbitasini]);
+    binary_min_period = min([inj_orbitPeriod, sch_orbitPeriod]);
   else
-
-    ## use the supplied band around the injection frequency
-    min_freq = inj_fndot(1,1) - 0.5*sft_band;
-    max_freq = inj_fndot(1,1) + 0.5*sft_band;
-
+    binary_max_asini = binary_min_period = 0;
   endif
-
-  ## save frequency range in results
+  [min_freq, max_freq] = CWSignalCoveringBand(startTime, endTime, spinRange, binary_max_asini, binary_min_period);
   results.SFT_min_freq = min_freq;
   results.SFT_max_freq = max_freq;
 
-  ## create and fill input parameters struct for CWMakeFakeData()
-  MFDparams = new_CWMFDataParams;
-  MFDparams.fMin = min_freq;
-  MFDparams.Band = max_freq - min_freq;
-  ParseMultiLALDetector(MFDparams.multiIFO, detNames);
-  MFDparams.multiNoiseFloor.length = detNames.length;
-  if !isempty(detSqrtSn)
-    MFDparams.multiNoiseFloor.sqrtSn(1:detNames.length) = detSqrtSn;
-  endif
-  MFDparams.multiTimestamps = multiTimestamps;
-  MFDparams.randSeed = randSeed;
+  ## create F-statistic input data struct for demodulation
+  Fstatin = CreateFstatInput_Demod(Dterms, lalpulsarcvar.DEMODHL_BEST);
 
-  ## run CWMakeFakeData() to generate SFTs with injections
-  [multiSFTs, multiTser] = CWMakeFakeMultiData([], [], MFDsources, MFDparams, ephemerides);
-
-  ## if SFTs contain noise, calculate noise weights
-  if isempty(detSqrtSn)
-    multiWeights = [];
-  else
-    SFTrngmed = NormalizeMultiSFTVect(multiSFTs, sft_noise_window);
-    multiWeights = ComputeMultiNoiseWeights(SFTrngmed, sft_noise_window, 0);
-    clear SFTrngmed;
-  endif
-
-  ## setup F-statistic input struct for ComputeFstat()
-  Fstatin = SetupFstat_Demod(multiSFTs, multiWeights, ephemerides, SSBPREC_RELATIVISTICOPT, Dterms, lalpulsarcvar.DEMODHL_BEST);
+  ## setup F-statistic input struct
+  SetupFstatInput(Fstatin, fakeSFTcat, min_freq, max_freq, sources, injectSqrtSX, assumeSqrtSX, ...
+                      sft_noise_window, ephemerides, SSBPREC_RELATIVISTICOPT, randSeed);
 
   ## run ComputeFstat() for each injection point
   Fstatres = [];
@@ -323,33 +280,54 @@ function [results, multiSFTs, multiTser] = DoFstatInjections(varargin)
 
 endfunction
 
+
+## common arguments for tests
 %!shared common_args
-%! common_args = {"ref_time", 731163327, "start_time", 850468953, "time_span", 86400, "detectors", "H1,L1", "detSqrtSn", 1.0, "sft_time_span", 1800, ...
-%!                "sft_overlap", 0, "sft_noise_window", 50, "inj_h0", 0.55, "inj_cosi", 0.31, "inj_psi", 0.22, "inj_phi0", 1.82, "inj_alpha", 3.92, ...
+%! common_args = {"ref_time", 731163327, "start_time", 850468953, "time_span", 86400, "detectors", "H1,L1", ...
+%!                "sft_time_span", 1800, "sft_overlap", 0, "sft_noise_window", 50, ...
+%!                "inj_h0", 0.55, "inj_cosi", 0.31, "inj_psi", 0.22, "inj_phi0", 1.82, "inj_alpha", 3.92, ...
 %!                "inj_delta", 0.83, "inj_fndot", [200; 1e-9], "Dterms", 8, "randSeed", 1234};
 
+## test isolated signal, no noise (but assumed PSD levels)
 %!test
 %! try
 %!   lal; lalpulsar;
 %! catch
 %!   disp("*** LALSuite modules not available; skipping test ***"); return;
 %! end_try_catch
-%! res = DoFstatInjections(common_args{:}, "OrbitParams", false);
+%! res = DoFstatInjections(common_args{:}, "det_sqrt_PSD", 1.0, "OrbitParams", false);
 %! assert(res.inj_alpha == res.sch_alpha);
 %! assert(res.inj_delta == res.sch_delta);
 %! assert(res.inj_fndot == res.sch_fndot);
-%! ref_twoF = 4089.4; ref_twoFPerDet = [2273.0; 1820.7];
+%! ref_twoF = 4240.3; ref_twoFPerDet = [2314.9; 1925.4];
 %! assert(abs(res.sch_twoF - ref_twoF) < 0.05 * ref_twoF);
 %! assert(abs(res.sch_twoFPerDet - ref_twoFPerDet) < 0.05 * ref_twoFPerDet);
 
+## test isolated signal, with Gaussian noise
 %!test
 %! try
 %!   lal; lalpulsar;
 %! catch
 %!   disp("*** LALSuite modules not available; skipping test ***"); return;
 %! end_try_catch
-%! res = DoFstatInjections(common_args{:}, "OrbitParams", true, "inj_orbitasini", 2.94, "inj_orbitPeriod", 10800, ...
-%!                         "inj_orbitEcc", 0, "inj_orbitTpSSB", 1/3, "inj_orbitArgp", 5.2, "dopplermax", 2e-3);
+%! res = DoFstatInjections(common_args{:}, "inj_sqrt_PSD", 1.0, "OrbitParams", false);
+%! assert(res.inj_alpha == res.sch_alpha);
+%! assert(res.inj_delta == res.sch_delta);
+%! assert(res.inj_fndot == res.sch_fndot);
+%! ref_twoF = 4287.7; ref_twoFPerDet = [2245.4; 2045.1];
+%! assert(abs(res.sch_twoF - ref_twoF) < 0.05 * ref_twoF);
+%! assert(abs(res.sch_twoFPerDet - ref_twoFPerDet) < 0.05 * ref_twoFPerDet);
+
+## test binary signal, no noise (but assumed PSD levels)
+%!test
+%! try
+%!   lal; lalpulsar;
+%! catch
+%!   disp("*** LALSuite modules not available; skipping test ***"); return;
+%! end_try_catch
+%! res = DoFstatInjections(common_args{:}, "det_sqrt_PSD", 1.0, "OrbitParams", true, ...
+%!                         "inj_orbitasini", 1e-5, "inj_orbitPeriod", 10800, ...
+%!                         "inj_orbitEcc", 0, "inj_orbitTpSSB", 0.3, "inj_orbitArgp", 5.2);
 %! assert(res.inj_alpha == res.sch_alpha);
 %! assert(res.inj_delta == res.sch_delta);
 %! assert(res.inj_fndot == res.sch_fndot);
@@ -358,6 +336,6 @@ endfunction
 %! assert(res.inj_orbitTpSSB == res.sch_orbitTpSSB);
 %! assert(res.inj_orbitPeriod == res.sch_orbitPeriod);
 %! assert(res.inj_orbitArgp == res.sch_orbitArgp);
-%! ref_twoF = 15.798; ref_twoFPerDet = [2.1192; 20.6255];
+%! ref_twoF = 4240.3; ref_twoFPerDet = [2314.9; 1925.4];
 %! assert(abs(res.sch_twoF - ref_twoF) < 0.05 * ref_twoF);
 %! assert(abs(res.sch_twoFPerDet - ref_twoFPerDet) < 0.05 * ref_twoFPerDet);

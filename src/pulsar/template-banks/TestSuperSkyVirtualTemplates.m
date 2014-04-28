@@ -215,6 +215,7 @@ function results = TestSuperSkyVirtualTemplates(varargin)
                                         "start_time", start_time,
                                         "time_span", time_span,
                                         "detectors", detectors,
+                                        "det_sqrt_PSD", 1.0,
                                         "ephemerides", ephemerides,
                                         "inj_alpha", inj_alpha,
                                         "inj_delta", inj_delta,
