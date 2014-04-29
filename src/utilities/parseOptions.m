@@ -59,6 +59,7 @@ function varargout = parseOptions(opts, varargin)
   required = struct;
   reqnames = {};
   typefunc = struct;
+  convfunc = struct;
   varname = struct;
 
   ## parse option specifications
@@ -79,8 +80,9 @@ function varargout = parseOptions(opts, varargin)
     optname = optspec{1};
     allowed.(optname) = 1;
 
-    ## store option type functions
+    ## store option type/conversion functions
     typefuncstr = "(";
+    convfuncptr = [];
     opttypes = strtrim(strsplit(optspec{2}, ",", true));
     for i = 1:length(opttypes)
       if !strcmp(typefuncstr, "(")
@@ -123,15 +125,20 @@ function varargout = parseOptions(opts, varargin)
       else
         switch typefuncarg
           case "complex"
-            typefuncstr = strcat(typefuncstr, "isnumeric(x)&&iscomplex(x)");
+            typefuncstr = strcat(typefuncstr, "isnumeric(x)");
+            convfuncptr = @complex;
           case "real"
             typefuncstr = strcat(typefuncstr, "isnumeric(x)&&isreal(x)");
+            convfuncptr = @double;
           case "integer"
             typefuncstr = strcat(typefuncstr, "isnumeric(x)&&all(mod(x,1)==0)");
+            convfuncptr = @round;
           case "evenint"
             typefuncstr = strcat(typefuncstr, "isnumeric(x)&&all(mod(x,2)==0)");
+            convfuncptr = @round;
           case "oddint"
             typefuncstr = strcat(typefuncstr, "isnumeric(x)&&all(mod(x,2)==1)");
+            convfuncptr = @round;
           case "nonzero"
             typefuncstr = strcat(typefuncstr, "isnumeric(x)&&all(x!=0)");
           case "positive"
@@ -150,16 +157,31 @@ function varargout = parseOptions(opts, varargin)
             catch
               error("%s: unknown type specification function '%s'", funcName, typefuncfunc);
             end_try_catch
+            if isempty(convfuncptr)
+              try
+                convfuncptr = str2func(typefuncarg);
+              catch
+                convfuncptr = [];
+              end_try_catch
+            endif
         endswitch
       endif
     endfor
     typefuncstr = strcat(typefuncstr, ")");
     typefunc.(optname) = inline(typefuncstr, "x");
+    convfunc.(optname) = convfuncptr;
     try
       feval(typefunc.(optname), []);
     catch
-      error("%s: Error parsing types specification '%s' for option", optspec{2}, optname);
+      error("%s: Error parsing types specification '%s' for option '%s'", funcName, optspec{2}, optname);
     end_try_catch
+    if !isempty(convfunc.(optname))
+      try
+        feval(convfunc.(optname), []);
+      catch
+        error("%s: Error calling type conversion function '%s' for option '%s'", funcName, func2str(convfunc.(optname)), optname);
+      end_try_catch
+    endif
 
     ## if this is an optional option
     if length(optspec) == 3
@@ -276,11 +298,23 @@ function varargout = parseOptions(opts, varargin)
 
   endfor
 
+  ## convert all option variables to the required type
+  paroptnames = fieldnames(paropts);
+  for n = 1:length(paroptnames)
+    convfuncptr = convfunc.(paroptnames{n});
+    if !isempty(convfuncptr)
+      try
+        paropts.(paroptnames{n}) = feval(convfuncptr, paropts.(paroptnames{n}));
+      catch
+        error("%s: Error converting value of option '%s' using type conversion function '%s'", funcName, func2str(convfuncptr), optname);
+      end_try_catch
+    endif
+  endfor
+
   ## return options struct, or assign to option variables in caller namespace
   if nargout > 0
     varargout = {paropts};
   else
-    paroptnames = fieldnames(paropts);
     for n = 1:length(paroptnames)
       assignin("caller", paroptnames{n}, paropts.(paroptnames{n}));
     endfor
