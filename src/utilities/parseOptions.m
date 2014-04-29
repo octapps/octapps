@@ -127,6 +127,8 @@ function varargout = parseOptions(opts, varargin)
           case { "bool", "logical" }   ## also accept numeric values 0, 1 as logical values
             typefuncstr = strcat(typefuncstr, "islogical(x)||(isnumeric(x)&&all((x==0)|(x==1)))");
             convfuncptr = @logical;
+          case "cell"   ## override here because 'cell' is not a type conversion function
+            typefuncstr = strcat(typefuncstr, "iscell(x)");
           case "complex"
             typefuncstr = strcat(typefuncstr, "isnumeric(x)");
             convfuncptr = @complex;
