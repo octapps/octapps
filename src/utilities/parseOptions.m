@@ -80,11 +80,11 @@ function varargout = parseOptions(opts, varargin)
     allowed.(optname) = 1;
 
     ## store option type functions
-    typefuncstr = "";
+    typefuncstr = "(";
     opttypes = strtrim(strsplit(optspec{2}, ",", true));
     for i = 1:length(opttypes)
-      if length(typefuncstr) > 0
-        typefuncstr = strcat(typefuncstr, "&&");
+      if !strcmp(typefuncstr, "(")
+        typefuncstr = strcat(typefuncstr, ")&&(");
       endif
       j = index(opttypes{i}, ":");
       typefunccmd = opttypes{i}(1:j-1);
@@ -153,6 +153,7 @@ function varargout = parseOptions(opts, varargin)
         endswitch
       endif
     endfor
+    typefuncstr = strcat(typefuncstr, ")");
     typefunc.(optname) = inline(typefuncstr, "x");
     try
       feval(typefunc.(optname), []);
