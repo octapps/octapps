@@ -124,6 +124,9 @@ function varargout = parseOptions(opts, varargin)
         endswitch
       else
         switch typefuncarg
+          case { "bool", "logical" }   ## also accept numeric values 0, 1 as logical values
+            typefuncstr = strcat(typefuncstr, "islogical(x)||(isnumeric(x)&&all((x==0)|(x==1)))");
+            convfuncptr = @logical;
           case "complex"
             typefuncstr = strcat(typefuncstr, "isnumeric(x)");
             convfuncptr = @complex;
