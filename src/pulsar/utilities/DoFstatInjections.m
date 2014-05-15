@@ -244,7 +244,7 @@ function [results, multiSFTs, multiTser] = DoFstatInjections(varargin)
   results.SFT_max_freq = max_freq;
 
   ## create F-statistic input data struct for demodulation
-  Fstatin = CreateFstatInput_Demod(Dterms, lalpulsarcvar.DEMODHL_BEST);
+  Fstatin = CreateFstatInput_Demod(Dterms, lalpulsarcvar.FMETHOD_DEMOD_BEST);
 
   ## setup F-statistic input struct
   SetupFstatInput(Fstatin, fakeSFTcat, min_freq, max_freq, sources, injectSqrtSX, assumeSqrtSX, ...
