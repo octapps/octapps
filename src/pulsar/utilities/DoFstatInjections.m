@@ -243,12 +243,13 @@ function [results, multiSFTs, multiTser] = DoFstatInjections(varargin)
   results.SFT_min_freq = min_freq;
   results.SFT_max_freq = max_freq;
 
-  ## create F-statistic input data struct for demodulation
-  Fstatin = CreateFstatInput_Demod(Dterms, lalpulsarcvar.FMETHOD_DEMOD_BEST);
-
   ## setup F-statistic input struct
-  SetupFstatInput(Fstatin, fakeSFTcat, min_freq, max_freq, sources, injectSqrtSX, assumeSqrtSX, ...
-                      sft_noise_window, ephemerides, SSBPREC_RELATIVISTICOPT, randSeed);
+  extraParams = new_FstatExtraParams;
+  extraParams.SSBprec = SSBPREC_RELATIVISTICOPT;
+  extraParams.randSeed = randSeed;
+  extraParams.Dterms = Dterms;
+  Fstatin = CreateFstatInput ( fakeSFTcat, min_freq, max_freq, sources, injectSqrtSX, assumeSqrtSX, ...
+                              sft_noise_window, ephemerides, lalpulsarcvar.FMETHOD_DEMOD_BEST, extraParams );
 
   ## run ComputeFstat() for each injection point
   Fstatres = [];
