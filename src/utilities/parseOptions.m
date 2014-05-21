@@ -165,6 +165,7 @@ function varargout = parseOptions(opts, varargin)
             if isempty(convfuncptr)
               try
                 convfuncptr = str2func(typefuncarg);
+                feval(convfunc.(optname), []);
               catch
                 convfuncptr = [];
               end_try_catch
@@ -180,13 +181,6 @@ function varargout = parseOptions(opts, varargin)
     catch
       error("%s: invalid type specification %s for option '%s'", funcName, optspec{2}, optname);
     end_try_catch
-    if !isempty(convfunc.(optname))
-      try
-        feval(convfunc.(optname), []);
-      catch
-        error("%s: invalid type conversion function %s() for option '%s'", funcName, func2str(convfunc.(optname)), optname);
-      end_try_catch
-    endif
 
     ## if this is an optional option
     if length(optspec) == 3
