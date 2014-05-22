@@ -151,7 +151,7 @@ function dag_file = makeCondorDAG(varargin)
   endfor
 
   ## save job node data for later use
-  dag_nodes_file = fullfile(parent_dir, strcat(dag_name, "_nodes.bin.gz"));
+  dag_nodes_file = strcat(dag_name, "_nodes.bin.gz");
   save("-binary", "-zip", dag_nodes_file, "job_nodes");
 
 endfunction
