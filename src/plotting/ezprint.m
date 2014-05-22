@@ -36,6 +36,11 @@ function ezprint(filepath, varargin)
                {"linescale", "real,strictpos,scalar", 1.0},
                []);
 
+  ## only works with gnuplot
+  if !strcmp(get(gcf, "__graphics_toolkit__"), "gnuplot")
+    error("%s: only works with gnuplot", funcName);
+  endif
+
   ## convert width from points to inches
   width = width / 72;
 
