@@ -52,7 +52,6 @@
 ##      if < 0, use as a ratio of number of generated templates
 ##   workspace_size: size of workspace for computing mismatch histogram
 ##   detailed: return more detailed information (default: false)
-##   histogram_bins: number of bins to use in mismatch histogram
 
 function res = TestLatticeTiling(varargin)
 
@@ -68,7 +67,6 @@ function res = TestLatticeTiling(varargin)
                {"num_injections", "real,scalar", 0},
                {"workspace_size", "real,scalar", 2000},
                {"detailed", "logical,scalar", false},
-               {"histogram_bins", "integer,strictpos,scalar", 100},
                []);
 
   ## Check input
@@ -289,8 +287,8 @@ function res = TestLatticeTiling(varargin)
     endif
 
     ## Create mismatch histograms
-    res.mismatch_hgrm = Hist(1, {"lin", "dbin", 1.0 / histogram_bins});
-    res.index_mismatch_hgrm = Hist(1, {"lin", "dbin", 1.0 / histogram_bins});
+    res.mismatch_hgrm = Hist(1, {"lin", "dbin", 0.01});
+    res.index_mismatch_hgrm = Hist(1, {"log", "binsper10", 10});
 
     ## Iterate over injections
     for j = 1:num_injection_blocks
