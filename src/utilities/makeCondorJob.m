@@ -23,8 +23,6 @@
 ## Options:
 ##   "job_name":        name of Condor job, used to name submit file
 ##                      and input/output directories
-##   "parent_dir":      where to write submit file and input/output
-##                      directories (default: current directory)
 ##   "log_dir":         where to write Condor log files (default: $TMP")
 ##   "func_name":       name of Octave function to run
 ##   "arguments":       cell array of arguments to pass to function.
@@ -52,7 +50,6 @@ function job_file = makeCondorJob(varargin)
   ## parse options
   parseOptions(varargin,
                {"job_name", "char"},
-               {"parent_dir", "char", "."},
                {"log_dir", "char", getenv("TMP")},
                {"func_name", "char"},
                {"arguments", "cell,vector", {}},
@@ -96,34 +93,25 @@ function job_file = makeCondorJob(varargin)
       error("%s: unknown output format '%s'", funcName, output_format);
   endswitch
 
-  ## check that parent and log directories exist
-  if exist(parent_dir, "dir")
-    parent_dir = canonicalize_file_name(parent_dir);
-  else
-    error("%s: parent directory '%s' does not exist", funcName, parent_dir);
-  endif
+  ## check that log directory exists
   if exist(log_dir, "dir")
     log_dir = canonicalize_file_name(log_dir);
   else
     error("%s: log directory '%s' does not exist", funcName, log_dir);
   endif
 
-  ## check that job submit file, bootstrap script, and input/output directories do not exist
-  job_file = fullfile(parent_dir, strcat(job_name, ".job"));
+  ## check that job submit file, bootstrap script, and input directories do not exist
+  job_file = strcat(job_name, ".job");
   if exist(job_file, "file")
     error("%s: job submit file '%s' already exists", funcName, job_file);
   endif
-  job_boot_file = fullfile(parent_dir, strcat(job_name, ".sh"));
+  job_boot_file = strcat(job_name, ".sh");
   if exist(job_boot_file, "file")
     error("%s: job bootstrap script '%s' already exists", funcName, job_boot_file);
   endif
-  job_indir = fullfile(parent_dir, strcat(job_name, ".in"));
+  job_indir = strcat(job_name, ".in");
   if exist(job_indir, "dir")
     error("%s: job input directory '%s' already exists", funcName, job_indir);
-  endif
-  job_outdir = fullfile(parent_dir, strcat(job_name, ".out"));
-  if exist(job_outdir, "dir")
-    error("%s: job output directory '%s' already exists", funcName, job_outdir);
   endif
 
   ## remove job log file, if it exists
@@ -153,11 +141,11 @@ function job_file = makeCondorJob(varargin)
   for i = 1:length(data_files)
     switch class(data_files{i})
       case "char"
-        resolved_file = fullfile(parent_dir, data_files{i});
-        if !exist(data_files{i}, "file")
+        resolved_file = data_files{i};
+        if !exist(resolved_file, "file")
           error("%s: could not find required file '%s'", funcName, data_files{i});
         endif
-        resolved_files{end+1} = data_files{i};
+        resolved_files{end+1} = canonicalize_file_name(resolved_file);
       case "cell"
         envpath_name = data_files{i}{1};
         envpath_value = getenv(envpath_name);
@@ -169,7 +157,7 @@ function job_file = makeCondorJob(varargin)
           if isempty(resolved_file)
             error("%s: could not find required file '%s'", funcName, data_files{i}{j});
           endif
-          resolved_files{end+1} = resolved_file;
+          resolved_files{end+1} = canonicalize_file_name(resolved_file);
         endfor
     endswitch
   endfor
@@ -291,7 +279,7 @@ function job_file = makeCondorJob(varargin)
   ## build Condor job submit file spec
   job_spec = { ...
               "universe", "vanilla", ...
-              "executable", job_boot_file, ...
+              "executable", fullfile(pwd, job_boot_file), ...
               "arguments", sprintf("\"'$(Cluster)' '%s'\"", argstr), ...
               "initialdir", "", ...
               "output", "stdout", ...
