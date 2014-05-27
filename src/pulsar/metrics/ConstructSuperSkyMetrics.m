@@ -138,11 +138,18 @@ function results = ConstructSuperSkyMetrics(sometric, socoordIDs, varargin)
   if residual_sky
 
     ## find least-squares linear fit to orbital X and Y by frequency and spindowns
+    ## - use only spindowns such that fitA' * fitA is full rank
     fitted = [inoX, inoY];
-    fitting = ifs;
-    fitA = nsometric(:, fitting);
     fity = nsometric(:, fitted);
-    fitcoeffs = (fitA' * fitA) \ (fitA' * fity);
+    for n = length(ifs):-1:1
+      fitting = ifs(1:n);
+      fitA = nsometric(:, fitting);
+      fitAt_fitA = fitA' * fitA;
+      if rank(fitAt_fitA) == n
+        break
+      endif
+    endfor      
+    fitcoeffs = fitAt_fitA \ (fitA' * fity);
 
     ## subtract linear fit from orbital X and Y, creating residual coordinates
     subtractfit = eye(size(sometric));
@@ -153,7 +160,7 @@ function results = ConstructSuperSkyMetrics(sometric, socoordIDs, varargin)
     ssmetric = residual' * sometric * residual;
 
     ## extract sky offset vectors
-    skyoff = skyoff - residual(fitting, ss_inn);
+    skyoff(1:length(fitting), :) -= residual(fitting, ss_inn);
 
     ## set outputs
     results.rssmetric = 0.5*(ssmetric' + ssmetric);   # ensure metric is exactly symmetric
