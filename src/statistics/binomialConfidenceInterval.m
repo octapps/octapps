@@ -106,4 +106,4 @@ endfunction
 %!  subplot(2,3,6); plot_this ( 50000, 10000 );
 %!  % red shows the exact posterior 95.45% confidence intervals
 %!  % magenta shows the Gaussian +-2sigma intervals centered on the expectation value of f
-%! endif
+%!  endif

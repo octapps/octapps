@@ -91,12 +91,12 @@ endfunction
 
 ## calculate Rsqr_H for isotropic signal population
 %!shared Rsqr_H
-%! Rsqr_H = SqrSNRGeometricFactorHist;
+%!  Rsqr_H = SqrSNRGeometricFactorHist;
 
 ## test SNR rho against reference value rho0
 %!function __test_sens(Rsqr_H,paNt,pd,nu,Ns,rho0)
-%! rho = SensitivitySNR(pd,Ns,Rsqr_H,"ChiSqr","paNt",paNt,"dof",nu);
-%! assert(abs(rho - rho0) < 1e-2 * abs(rho0));
+%!  rho = SensitivitySNR(pd,Ns,Rsqr_H,"ChiSqr","paNt",paNt,"dof",nu);
+%!  assert(abs(rho - rho0) < 1e-2 * abs(rho0));
 
 ## tests
 %!test __test_sens(Rsqr_H,0.01,0.05,2.,1.,6.500229404020667)

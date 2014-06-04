@@ -156,7 +156,7 @@ endfunction
 
 ## Test value x against reference value x0
 %!function __test_cdf(x, x0)
-%! assert(abs(x - x0) < 1e-9 * abs(x0) | abs(x0) < 1e-110)
+%!  assert(abs(x - x0) < 1e-9 * abs(x0) | abs(x0) < 1e-110)
 
 ## Tests ChiSquare_cdf against values computed in Mathematica v8.0.1.0 using
 ## the following script. Results agree to <= 1e-6, except for even-k values

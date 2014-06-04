@@ -46,13 +46,13 @@ function [fMPE, fLower, fUpper] = estimateRateFromSamples ( DATA, threshold, con
 endfunction
 
 %!test
-%! Ntrials = 100;
-%! DATA = normrnd ( 0, 1, 1, Ntrials );
-%! threshold = linspace ( 0, 1, 10 );
-%! [fMPE0, fLower0, fUpper0] = estimateRateFromSamples ( DATA, threshold, confidence=0.95 );
-%! for i = 1:length(threshold)
-%!    [fMPE1(i), fLower1(i), fUpper1(i)] = estimateRateFromSamples ( DATA, threshold(i), confidence=0.95 );
-%! endfor
-%! assert ( fMPE0 = fMPE1 );
-%! assert ( fLower0 = fLower1 );
-%! assert ( fUpper0 = fUpper1 );
+%!  Ntrials = 100;
+%!  DATA = normrnd ( 0, 1, 1, Ntrials );
+%!  threshold = linspace ( 0, 1, 10 );
+%!  [fMPE0, fLower0, fUpper0] = estimateRateFromSamples ( DATA, threshold, confidence=0.95 );
+%!  for i = 1:length(threshold)
+%!     [fMPE1(i), fLower1(i), fUpper1(i)] = estimateRateFromSamples ( DATA, threshold(i), confidence=0.95 );
+%!  endfor
+%!  assert ( fMPE0 = fMPE1 );
+%!  assert ( fLower0 = fLower1 );
+%!  assert ( fUpper0 = fUpper1 );

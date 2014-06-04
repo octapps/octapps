@@ -46,13 +46,13 @@ endfunction
 
 ## test histogram contraction with Gaussian/uniform histogram
 %!shared hgrm, hgrm1, hgrm2
-%! hgrm = Hist(2, {"lin", "dbin", 0.1}, {"lin", "dbin", 0.1});
-%! hgrm = addDataToHist(hgrm, [normrnd(0, 1, 1e6, 1), rand(1e6, 1)]);
-%! hgrm1 = contractHist(hgrm, 1);
-%! hgrm2 = contractHist(hgrm, 2);
+%!  hgrm = Hist(2, {"lin", "dbin", 0.1}, {"lin", "dbin", 0.1});
+%!  hgrm = addDataToHist(hgrm, [normrnd(0, 1, 1e6, 1), rand(1e6, 1)]);
+%!  hgrm1 = contractHist(hgrm, 1);
+%!  hgrm2 = contractHist(hgrm, 2);
 %!test
-%! p1 = histProbs(hgrm1); c1 = histBinGrids(hgrm1, 1, "centre");
-%! assert(mean(abs(p1 - normpdf(c1, 0, 1))) < 1e-3);
+%!  p1 = histProbs(hgrm1); c1 = histBinGrids(hgrm1, 1, "centre");
+%!  assert(mean(abs(p1 - normpdf(c1, 0, 1))) < 1e-3);
 %!test
-%! p2 = histProbs(hgrm2); c2 = histBinGrids(hgrm2, 1, "centre");
-%! assert(mean(abs(p2(isfinite(c2)) - 1.0)) < 1e-2);
+%!  p2 = histProbs(hgrm2); c2 = histBinGrids(hgrm2, 1, "centre");
+%!  assert(mean(abs(p2(isfinite(c2)) - 1.0)) < 1e-2);

@@ -102,33 +102,33 @@ endfunction
 ## Test suite:
 
 %!test
-%! x = [1 2 3.4; 5.67 8.9 0];
-%! assert(isequal(x, eval(stringify(x))));
+%!  x = [1 2 3.4; 5.67 8.9 0];
+%!  assert(isequal(x, eval(stringify(x))));
 
 %!test
-%! x = int32([1 2 3 7]);
-%! assert(isequal(x, eval(stringify(x))));
+%!  x = int32([1 2 3 7]);
+%!  assert(isequal(x, eval(stringify(x))));
 
 %!test
-%! x = [true; false];
-%! assert(isequal(x, eval(stringify(x))));
+%!  x = [true; false];
+%!  assert(isequal(x, eval(stringify(x))));
 
 %!test
-%! x = "A string";
-%! assert(isequal(x, eval(stringify(x))));
+%!  x = "A string";
+%!  assert(isequal(x, eval(stringify(x))));
 
 %!test
-%! x = @(y) y*2;
-%! assert(x(7) == eval(stringify(x))(7));
+%!  x = @(y) y*2;
+%!  assert(x(7) == eval(stringify(x))(7));
 
 %!test
-%! x = {1, 2, "three"; 4, 5, {6}};
-%! assert(isequal(x, eval(stringify(x))));
+%!  x = {1, 2, "three"; 4, 5, {6}};
+%!  assert(isequal(x, eval(stringify(x))));
 
 %!test
-%! x = {1, 2, "three", {4, 5, {6}, true}, 7, false, int16(9)};
-%! assert(isequal(x, eval(stringify(x))));
+%!  x = {1, 2, "three", {4, 5, {6}, true}, 7, false, int16(9)};
+%!  assert(isequal(x, eval(stringify(x))));
 
 %!test
-%! x = struct("Hi","there","where", 2,"cell",{1,2,3,{4*5,6,{7,true}}});
-%! assert(isequal(x, eval(stringify(x))));
+%!  x = struct("Hi","there","where", 2,"cell",{1,2,3,{4*5,6,{7,true}}});
+%!  assert(isequal(x, eval(stringify(x))));

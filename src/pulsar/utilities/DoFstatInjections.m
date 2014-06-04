@@ -284,59 +284,59 @@ endfunction
 
 ## common arguments for tests
 %!shared common_args
-%! common_args = {"ref_time", 731163327, "start_time", 850468953, "time_span", 86400, "detectors", "H1,L1", ...
-%!                "sft_time_span", 1800, "sft_overlap", 0, "sft_noise_window", 50, ...
-%!                "inj_h0", 0.55, "inj_cosi", 0.31, "inj_psi", 0.22, "inj_phi0", 1.82, "inj_alpha", 3.92, ...
-%!                "inj_delta", 0.83, "inj_fndot", [200; 1e-9], "Dterms", 8, "randSeed", 1234};
+%!  common_args = {"ref_time", 731163327, "start_time", 850468953, "time_span", 86400, "detectors", "H1,L1", ...
+%!                 "sft_time_span", 1800, "sft_overlap", 0, "sft_noise_window", 50, ...
+%!                 "inj_h0", 0.55, "inj_cosi", 0.31, "inj_psi", 0.22, "inj_phi0", 1.82, "inj_alpha", 3.92, ...
+%!                 "inj_delta", 0.83, "inj_fndot", [200; 1e-9], "Dterms", 8, "randSeed", 1234};
 
 ## test isolated signal, no noise (but assumed PSD levels)
 %!test
-%! try
-%!   lal; lalpulsar;
-%! catch
-%!   disp("*** LALSuite modules not available; skipping test ***"); return;
-%! end_try_catch
-%! res = DoFstatInjections(common_args{:}, "det_sqrt_PSD", 1.0, "OrbitParams", false);
-%! assert(res.inj_alpha == res.sch_alpha);
-%! assert(res.inj_delta == res.sch_delta);
-%! assert(res.inj_fndot == res.sch_fndot);
-%! ref_twoF = 4240.3; ref_twoFPerDet = [2314.9; 1925.4];
-%! assert(abs(res.sch_twoF - ref_twoF) < 0.05 * ref_twoF);
-%! assert(abs(res.sch_twoFPerDet - ref_twoFPerDet) < 0.05 * ref_twoFPerDet);
+%!  try
+%!    lal; lalpulsar;
+%!  catch
+%!    disp("*** LALSuite modules not available; skipping test ***"); return;
+%!  end_try_catch
+%!  res = DoFstatInjections(common_args{:}, "det_sqrt_PSD", 1.0, "OrbitParams", false);
+%!  assert(res.inj_alpha == res.sch_alpha);
+%!  assert(res.inj_delta == res.sch_delta);
+%!  assert(res.inj_fndot == res.sch_fndot);
+%!  ref_twoF = 4240.3; ref_twoFPerDet = [2314.9; 1925.4];
+%!  assert(abs(res.sch_twoF - ref_twoF) < 0.05 * ref_twoF);
+%!  assert(abs(res.sch_twoFPerDet - ref_twoFPerDet) < 0.05 * ref_twoFPerDet);
 
 ## test isolated signal, with Gaussian noise
 %!test
-%! try
-%!   lal; lalpulsar;
-%! catch
-%!   disp("*** LALSuite modules not available; skipping test ***"); return;
-%! end_try_catch
-%! res = DoFstatInjections(common_args{:}, "inj_sqrt_PSD", 1.0, "OrbitParams", false);
-%! assert(res.inj_alpha == res.sch_alpha);
-%! assert(res.inj_delta == res.sch_delta);
-%! assert(res.inj_fndot == res.sch_fndot);
-%! ref_twoF = 4287.7; ref_twoFPerDet = [2245.4; 2045.1];
-%! assert(abs(res.sch_twoF - ref_twoF) < 0.05 * ref_twoF);
-%! assert(abs(res.sch_twoFPerDet - ref_twoFPerDet) < 0.05 * ref_twoFPerDet);
+%!  try
+%!    lal; lalpulsar;
+%!  catch
+%!    disp("*** LALSuite modules not available; skipping test ***"); return;
+%!  end_try_catch
+%!  res = DoFstatInjections(common_args{:}, "inj_sqrt_PSD", 1.0, "OrbitParams", false);
+%!  assert(res.inj_alpha == res.sch_alpha);
+%!  assert(res.inj_delta == res.sch_delta);
+%!  assert(res.inj_fndot == res.sch_fndot);
+%!  ref_twoF = 4287.7; ref_twoFPerDet = [2245.4; 2045.1];
+%!  assert(abs(res.sch_twoF - ref_twoF) < 0.05 * ref_twoF);
+%!  assert(abs(res.sch_twoFPerDet - ref_twoFPerDet) < 0.05 * ref_twoFPerDet);
 
 ## test binary signal, no noise (but assumed PSD levels)
 %!test
-%! try
-%!   lal; lalpulsar;
-%! catch
-%!   disp("*** LALSuite modules not available; skipping test ***"); return;
-%! end_try_catch
-%! res = DoFstatInjections(common_args{:}, "det_sqrt_PSD", 1.0, "OrbitParams", true, ...
-%!                         "inj_orbitasini", 1e-5, "inj_orbitPeriod", 10800, ...
-%!                         "inj_orbitEcc", 0, "inj_orbitTpSSB", 0.3, "inj_orbitArgp", 5.2);
-%! assert(res.inj_alpha == res.sch_alpha);
-%! assert(res.inj_delta == res.sch_delta);
-%! assert(res.inj_fndot == res.sch_fndot);
-%! assert(res.inj_orbitasini == res.sch_orbitasini);
-%! assert(res.inj_orbitEcc == res.sch_orbitEcc);
-%! assert(res.inj_orbitTpSSB == res.sch_orbitTpSSB);
-%! assert(res.inj_orbitPeriod == res.sch_orbitPeriod);
-%! assert(res.inj_orbitArgp == res.sch_orbitArgp);
-%! ref_twoF = 4240.3; ref_twoFPerDet = [2314.9; 1925.4];
-%! assert(abs(res.sch_twoF - ref_twoF) < 0.05 * ref_twoF);
-%! assert(abs(res.sch_twoFPerDet - ref_twoFPerDet) < 0.05 * ref_twoFPerDet);
+%!  try
+%!    lal; lalpulsar;
+%!  catch
+%!    disp("*** LALSuite modules not available; skipping test ***"); return;
+%!  end_try_catch
+%!  res = DoFstatInjections(common_args{:}, "det_sqrt_PSD", 1.0, "OrbitParams", true, ...
+%!                          "inj_orbitasini", 1e-5, "inj_orbitPeriod", 10800, ...
+%!                          "inj_orbitEcc", 0, "inj_orbitTpSSB", 0.3, "inj_orbitArgp", 5.2);
+%!  assert(res.inj_alpha == res.sch_alpha);
+%!  assert(res.inj_delta == res.sch_delta);
+%!  assert(res.inj_fndot == res.sch_fndot);
+%!  assert(res.inj_orbitasini == res.sch_orbitasini);
+%!  assert(res.inj_orbitEcc == res.sch_orbitEcc);
+%!  assert(res.inj_orbitTpSSB == res.sch_orbitTpSSB);
+%!  assert(res.inj_orbitPeriod == res.sch_orbitPeriod);
+%!  assert(res.inj_orbitArgp == res.sch_orbitArgp);
+%!  ref_twoF = 4240.3; ref_twoFPerDet = [2314.9; 1925.4];
+%!  assert(abs(res.sch_twoF - ref_twoF) < 0.05 * ref_twoF);
+%!  assert(abs(res.sch_twoFPerDet - ref_twoFPerDet) < 0.05 * ref_twoFPerDet);

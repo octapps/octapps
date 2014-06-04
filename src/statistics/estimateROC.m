@@ -37,21 +37,21 @@ function [pDet_MPE, pDet_Lower, pDet_Upper, pFA_MPE, pFA_Lower, pFA_Upper] = est
 endfunction
 
 %!demo
-%! Ntrials_N = 600; Ntrials_S = 300;
-%! stat_S = normrnd ( 1, 1, 1, Ntrials_S );
-%! stat_N = normrnd ( 0, 1, 1, Ntrials_N );
-%! pFA = linspace ( 0, 1, 15 );
-%! [pFD0, dpDet0] = estimateFalseDismissal ( pFA, stat_N, stat_S );
-%! [pDet_MPE, pDet_Lower, pDet_Upper, pFA_MPE, pFA_Lower, pFA_Upper] = estimateROC ( stat_N, stat_S, pFA, confidence=0.9545 );
-%! figure(1);
-%! set ( 0, "defaultlinemarkersize", 5 );
-%! set ( 0, "defaultaxesfontsize", 15 );
-%% clf; hold on;
-%! hax = errorbar ( pFA, 1 - pFD0, 2*dpDet0, "~x;estimateFalseDismissal();",
-%!                  pFA_MPE, pDet_MPE, (pFA_MPE - pFA_Lower), (pFA_Upper-pFA_MPE), (pDet_MPE - pDet_Lower), (pDet_Upper-pDet_MPE), "#~>or;estimateROC();" );
-%! line ( [0, 1, 1, 0, 0 ], [ 0, 0, 1, 1, 0 ], "linestyle", ":" );
-%! hold off;
-%! set ( hax, "markersize", 10 );
-%! xlim([-0.05, 1.05]); ylim([-0.1, 1.15]);
-%! legend ("location", "northwest" ); legend("boxoff");
-%! xlabel("pFA"); ylabel("pDet");
+%!  Ntrials_N = 600; Ntrials_S = 300;
+%!  stat_S = normrnd ( 1, 1, 1, Ntrials_S );
+%!  stat_N = normrnd ( 0, 1, 1, Ntrials_N );
+%!  pFA = linspace ( 0, 1, 15 );
+%!  [pFD0, dpDet0] = estimateFalseDismissal ( pFA, stat_N, stat_S );
+%!  [pDet_MPE, pDet_Lower, pDet_Upper, pFA_MPE, pFA_Lower, pFA_Upper] = estimateROC ( stat_N, stat_S, pFA, confidence=0.9545 );
+%!  figure(1);
+%!  set ( 0, "defaultlinemarkersize", 5 );
+%!  set ( 0, "defaultaxesfontsize", 15 );
+%!  clf; hold on;
+%!  hax = errorbar ( pFA, 1 - pFD0, 2*dpDet0, "~x;estimateFalseDismissal();",
+%!                   pFA_MPE, pDet_MPE, (pFA_MPE - pFA_Lower), (pFA_Upper-pFA_MPE), (pDet_MPE - pDet_Lower), (pDet_Upper-pDet_MPE), "#~>or;estimateROC();" );
+%!  line ( [0, 1, 1, 0, 0 ], [ 0, 0, 1, 1, 0 ], "linestyle", ":" );
+%!  hold off;
+%!  set ( hax, "markersize", 10 );
+%!  xlim([-0.05, 1.05]); ylim([-0.1, 1.15]);
+%!  legend ("location", "northwest" ); legend("boxoff");
+%!  xlabel("pFA"); ylabel("pDet");

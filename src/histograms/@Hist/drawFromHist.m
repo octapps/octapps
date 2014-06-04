@@ -61,32 +61,32 @@ endfunction
 
 ## create histograms for testing
 %!shared hgrmA, hgrmB, hgrmC, N
-%! hgrmA = Hist(1, {"lin", "dbin", 0.1});
-%! hgrmB = Hist(1, {"log", "minrange", 0.1, "binsper10", 8});
-%! hgrmC = Hist(2, {"lin", "dbin", 0.1}, {"log", "minrange", 1.0, "binsper10", 8});
-%! N = 1e6;
-%! do
-%!   x = randn(N, 2);
-%!   oldhgrmA = hgrmA;
-%!   hgrmA = addDataToHist(hgrmA, x(:,1));
-%!   hgrmB = addDataToHist(hgrmB, x(:,1));
-%!   hgrmC = addDataToHist(hgrmC, x(:,1:2));
-%!   histerr = histDistance(oldhgrmA, hgrmA);
-%! until histerr < 1e-2
+%!  hgrmA = Hist(1, {"lin", "dbin", 0.1});
+%!  hgrmB = Hist(1, {"log", "minrange", 0.1, "binsper10", 8});
+%!  hgrmC = Hist(2, {"lin", "dbin", 0.1}, {"log", "minrange", 1.0, "binsper10", 8});
+%!  N = 1e6;
+%!  do
+%!    x = randn(N, 2);
+%!    oldhgrmA = hgrmA;
+%!    hgrmA = addDataToHist(hgrmA, x(:,1));
+%!    hgrmB = addDataToHist(hgrmB, x(:,1));
+%!    hgrmC = addDataToHist(hgrmC, x(:,1:2));
+%!    histerr = histDistance(oldhgrmA, hgrmA);
+%!  until histerr < 1e-2
 
 ## test reproducing histograms
 %!test
-%! thgrmA = Hist(1, {"lin", "dbin", 0.1});
-%! x = drawFromHist(hgrmA, N);
-%! thgrmA = addDataToHist(thgrmA, x);
-%! assert(histDistance(hgrmA, thgrmA) < 0.01);
+%!  thgrmA = Hist(1, {"lin", "dbin", 0.1});
+%!  x = drawFromHist(hgrmA, N);
+%!  thgrmA = addDataToHist(thgrmA, x);
+%!  assert(histDistance(hgrmA, thgrmA) < 0.01);
 %!test
-%! thgrmB = Hist(1, {"log", "minrange", 0.1, "binsper10", 8});
-%! x = drawFromHist(hgrmB, N);
-%! thgrmB = addDataToHist(thgrmB, x);
-%! assert(histDistance(hgrmB, thgrmB) < 0.01);
+%!  thgrmB = Hist(1, {"log", "minrange", 0.1, "binsper10", 8});
+%!  x = drawFromHist(hgrmB, N);
+%!  thgrmB = addDataToHist(thgrmB, x);
+%!  assert(histDistance(hgrmB, thgrmB) < 0.01);
 %!test
-%! thgrmC = Hist(2, {"lin", "dbin", 0.1}, {"log", "minrange", 1.0, "binsper10", 8});
-%! x = drawFromHist(hgrmC, 20*N);
-%! thgrmC = addDataToHist(thgrmC, x);
-%! assert(histDistance(hgrmC, thgrmC) < 0.01);
+%!  thgrmC = Hist(2, {"lin", "dbin", 0.1}, {"log", "minrange", 1.0, "binsper10", 8});
+%!  x = drawFromHist(hgrmC, 20*N);
+%!  thgrmC = addDataToHist(thgrmC, x);
+%!  assert(histDistance(hgrmC, thgrmC) < 0.01);

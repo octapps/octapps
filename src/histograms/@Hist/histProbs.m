@@ -63,22 +63,22 @@ endfunction
 
 ## generate Gaussian histograms and test normalisation with equal/unequal bins
 %!shared hgrm1, hgrm2
-%! hgrm1 = Hist(1, {"lin", "dbin", 0.01});
-%! hgrm1 = addDataToHist(hgrm1, normrnd(0, 1, 1e6, 1));
-%! hgrm2 = Hist(1, {"log", "minrange", 0.5, "binsper10", 50});
-%! hgrm2 = addDataToHist(hgrm2, normrnd(0, 1, 1e6, 1));
+%!  hgrm1 = Hist(1, {"lin", "dbin", 0.01});
+%!  hgrm1 = addDataToHist(hgrm1, normrnd(0, 1, 1e6, 1));
+%!  hgrm2 = Hist(1, {"log", "minrange", 0.5, "binsper10", 50});
+%!  hgrm2 = addDataToHist(hgrm2, normrnd(0, 1, 1e6, 1));
 %!test
-%! p1 = histProbs(hgrm1); c1 = histBinGrids(hgrm1, 1, "centre");
-%! assert(mean(abs(p1 - normpdf(c1, 0, 1))) < 0.005);
+%!  p1 = histProbs(hgrm1); c1 = histBinGrids(hgrm1, 1, "centre");
+%!  assert(mean(abs(p1 - normpdf(c1, 0, 1))) < 0.005);
 %!test
-%! p2 = histProbs(hgrm2); c2 = histBinGrids(hgrm2, 1, "centre");
-%! assert(mean(abs(p2 - normpdf(c2, 0, 1))) < 0.005);
+%!  p2 = histProbs(hgrm2); c2 = histBinGrids(hgrm2, 1, "centre");
+%!  assert(mean(abs(p2 - normpdf(c2, 0, 1))) < 0.005);
 
 ## test return of finite bin probability densities
 %!shared hgrm3
-%! hgrm3 = Hist(2, {"lin", "dbin", 0.1}, {"lin", "dbin", 0.1});
-%! hgrm3 = addDataToHist(hgrm3, rand(1e6, 2));
+%!  hgrm3 = Hist(2, {"lin", "dbin", 0.1}, {"lin", "dbin", 0.1});
+%!  hgrm3 = addDataToHist(hgrm3, rand(1e6, 2));
 %!test
-%! prob = histProbs(hgrm3);
-%! fprob = histProbs(hgrm3, "finite");
-%! assert(all(all(prob(2:end-1, 2:end-1) == fprob)));
+%!  prob = histProbs(hgrm3);
+%!  fprob = histProbs(hgrm3, "finite");
+%!  assert(all(all(prob(2:end-1, 2:end-1) == fprob)));

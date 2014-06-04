@@ -66,58 +66,58 @@ endfunction
 
 ## create 1-D histograms for testing
 %!shared hgrmA, hgrmA1, hgrmA2, hgrmA3
-%! hgrmA = hgrmA1 = hgrmA2 = hgrmA3 = Hist(1, {"lin", "dbin", 0.1});
-%! N = 1e6;
-%! do
-%!   x = randn(N, 1);
-%!   oldhgrmA = hgrmA;
-%!   hgrmA = addDataToHist(hgrmA, x);
-%!   hgrmA1 = addDataToHist(hgrmA1, abs(x));
-%!   hgrmA2 = addDataToHist(hgrmA2, x.^2 - 3);
-%!   hgrmA3 = addDataToHist(hgrmA3, sin(x));
-%!   histerr = histDistance(oldhgrmA, hgrmA);
-%! until histerr < 1e-2
+%!  hgrmA = hgrmA1 = hgrmA2 = hgrmA3 = Hist(1, {"lin", "dbin", 0.1});
+%!  N = 1e6;
+%!  do
+%!    x = randn(N, 1);
+%!    oldhgrmA = hgrmA;
+%!    hgrmA = addDataToHist(hgrmA, x);
+%!    hgrmA1 = addDataToHist(hgrmA1, abs(x));
+%!    hgrmA2 = addDataToHist(hgrmA2, x.^2 - 3);
+%!    hgrmA3 = addDataToHist(hgrmA3, sin(x));
+%!    histerr = histDistance(oldhgrmA, hgrmA);
+%!  until histerr < 1e-2
 
 ## test 1-D histograms
 %!test
-%! t_hgrmA = transformHistBins(hgrmA, @(x) x);
-%! assert(histDistance(hgrmA, t_hgrmA) < 0.01);
+%!  t_hgrmA = transformHistBins(hgrmA, @(x) x);
+%!  assert(histDistance(hgrmA, t_hgrmA) < 0.01);
 %!test
-%! t_hgrmA1 = transformHistBins(hgrmA, @(x) abs(x));
-%! assert(histDistance(hgrmA1, t_hgrmA1) < 0.05);
+%!  t_hgrmA1 = transformHistBins(hgrmA, @(x) abs(x));
+%!  assert(histDistance(hgrmA1, t_hgrmA1) < 0.05);
 %!test
-%! t_hgrmA2 = transformHistBins(hgrmA, @(x) x.^2 - 3);
-%! assert(histDistance(hgrmA2, t_hgrmA2) < 0.05);
+%!  t_hgrmA2 = transformHistBins(hgrmA, @(x) x.^2 - 3);
+%!  assert(histDistance(hgrmA2, t_hgrmA2) < 0.05);
 %!test
-%! t_hgrmA3 = transformHistBins(hgrmA, @(x) sin(x));
-%! assert(histDistance(hgrmA3, t_hgrmA3) < 0.05);
+%!  t_hgrmA3 = transformHistBins(hgrmA, @(x) sin(x));
+%!  assert(histDistance(hgrmA3, t_hgrmA3) < 0.05);
 
 
 ## create 2-D histograms for testing
 %!shared hgrmB, hgrmB1, hgrmB2, hgrmB3
-%! hgrmB = hgrmB1 = hgrmB2 = hgrmB3 = Hist(2, {"lin", "dbin", 0.1}, {"log", "minrange", 1.0, "binsper10", 8});
-%! N = 1e7;
-%! do
-%!   x = randn(N, 1);
-%!   y = sign(x) .* 10.^(-1 + 3*rand(N, 1));
-%!   oldhgrmB = hgrmB;
-%!   hgrmB = addDataToHist(hgrmB, [x, y]);
-%!   hgrmB1 = addDataToHist(hgrmB1, [abs(x), 10.*y]);
-%!   hgrmB2 = addDataToHist(hgrmB2, [x.^2 - 3, y.^3]);
-%!   hgrmB3 = addDataToHist(hgrmB3, [sin(x), cos(y)]);
-%!   histerr = histDistance(oldhgrmB, hgrmB);
-%! until histerr < 1e-2
+%!  hgrmB = hgrmB1 = hgrmB2 = hgrmB3 = Hist(2, {"lin", "dbin", 0.1}, {"log", "minrange", 1.0, "binsper10", 8});
+%!  N = 1e7;
+%!  do
+%!    x = randn(N, 1);
+%!    y = sign(x) .* 10.^(-1 + 3*rand(N, 1));
+%!    oldhgrmB = hgrmB;
+%!    hgrmB = addDataToHist(hgrmB, [x, y]);
+%!    hgrmB1 = addDataToHist(hgrmB1, [abs(x), 10.*y]);
+%!    hgrmB2 = addDataToHist(hgrmB2, [x.^2 - 3, y.^3]);
+%!    hgrmB3 = addDataToHist(hgrmB3, [sin(x), cos(y)]);
+%!    histerr = histDistance(oldhgrmB, hgrmB);
+%!  until histerr < 1e-2
 
 ## test 2-D histograms
 %!test
-%! t_hgrmB = transformHistBins(hgrmB, @(x,y) [x, y]);
-%! assert(histDistance(hgrmB, t_hgrmB) < 0.05)
+%!  t_hgrmB = transformHistBins(hgrmB, @(x,y) [x, y]);
+%!  assert(histDistance(hgrmB, t_hgrmB) < 0.05)
 %!test
-%! t_hgrmB1 = transformHistBins(hgrmB, @(x,y) [abs(x), 10.*y]);
-%! assert(histDistance(hgrmB1, t_hgrmB1) < 0.1);
+%!  t_hgrmB1 = transformHistBins(hgrmB, @(x,y) [abs(x), 10.*y]);
+%!  assert(histDistance(hgrmB1, t_hgrmB1) < 0.1);
 %!test
-%! t_hgrmB2 = transformHistBins(hgrmB, @(x,y) [x.^2 - 3, y.^3]);
-%! assert(histDistance(hgrmB2, t_hgrmB2) < 0.1);
+%!  t_hgrmB2 = transformHistBins(hgrmB, @(x,y) [x.^2 - 3, y.^3]);
+%!  assert(histDistance(hgrmB2, t_hgrmB2) < 0.1);
 %!test
-%! t_hgrmB3 = transformHistBins(hgrmB, @(x,y) [sin(x), cos(y)]);
-%! assert(histDistance(hgrmB3, t_hgrmB3) < 0.1)'
+%!  t_hgrmB3 = transformHistBins(hgrmB, @(x,y) [sin(x), cos(y)]);
+%!  assert(histDistance(hgrmB3, t_hgrmB3) < 0.1)'
