@@ -72,13 +72,13 @@ function varargout = GCTCoordinates(varargin)
 
   ## get detector information
   multiIFO = new_MultiLALDetector;
-  ParseMultiLALDetector(multiIFO, CreateStringVector(detector));
+  XLALParseMultiLALDetector(multiIFO, XLALCreateStringVector(detector));
   assert(multiIFO.length == 1, "Could not parse detector '%s'", detector);
   detLat = multiIFO.sites{1}.frDetector.vertexLatitudeRadians;
   detLong = multiIFO.sites{1}.frDetector.vertexLongitudeRadians;
 
   ## get position of GMT at reference time t0
-  zeroLong = mod(GreenwichMeanSiderealTime(LIGOTimeGPS(t0)), 2*pi);
+  zeroLong = mod(XLALGreenwichMeanSiderealTime(LIGOTimeGPS(t0)), 2*pi);
 
   ## compute sky position vector in equatorial coordinates
   n = [cos(alpha).*cos(delta); sin(alpha).*cos(delta); sin(delta)];
@@ -91,12 +91,12 @@ function varargout = GCTCoordinates(varargin)
 
   ## compute orbital derivatives in equatorial coordinates
   if !ptolemaic
-    orbit_deriv = ComputeOrbitalDerivatives(smax+1, t0, ephemerides);
+    orbit_deriv = XLALComputeOrbitalDerivatives(smax+1, t0, ephemerides);
     xindot = orbit_deriv.data(:,:);
   else
 
     ## get orbital position of the Earth
-    [_, tAutumn] = GetEarthTimes(t0);
+    [_, tAutumn] = XLALGetEarthTimes(t0);
 
     ## compute various constants required for calculating derivatives
     Omegao = 2*pi / LAL_YRSID_SI;

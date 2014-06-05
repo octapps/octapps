@@ -145,7 +145,7 @@ function [results, multiSFTs, multiTser] = DoFstatInjections(varargin)
   endif
 
   ## parse detector names and PSDs
-  detNames = CreateStringVector(strsplit(detectors, ","){:});
+  detNames = XLALCreateStringVector(strsplit(detectors, ","){:});
   if !isempty(det_sqrt_PSD)
     assumeSqrtSX = new_MultiNoiseFloor;
     assumeSqrtSX.length = detNames.length;
@@ -201,7 +201,7 @@ function [results, multiSFTs, multiTser] = DoFstatInjections(varargin)
   results.sch_twoFPerDet = zeros(detNames.length, num_sch);
 
   ## create and fill CW sources vector
-  sources = CreatePulsarParamsVector(1);
+  sources = XLALCreatePulsarParamsVector(1);
   sources.data{1}.Amp.h0   = inj_h0;
   sources.data{1}.Amp.cosi = inj_cosi;
   sources.data{1}.Amp.psi  = inj_psi;
@@ -220,10 +220,10 @@ function [results, multiSFTs, multiTser] = DoFstatInjections(varargin)
   endif
 
   ## generate SFT timestamps
-  multiTimestamps = MakeMultiTimestamps(startTime, time_span, sft_time_span, sft_overlap, detNames.length);
+  multiTimestamps = XLALMakeMultiTimestamps(startTime, time_span, sft_time_span, sft_overlap, detNames.length);
 
   ## create fake SFT catalog, and determine end time
-  fakeSFTcat = MultiAddToFakeSFTCatalog([], detNames, multiTimestamps);
+  fakeSFTcat = XLALMultiAddToFakeSFTCatalog([], detNames, multiTimestamps);
   endTime = fakeSFTcat.data{end-1}.header.epoch;
 
   ## work out the covering frequency band
@@ -239,7 +239,7 @@ function [results, multiSFTs, multiTser] = DoFstatInjections(varargin)
   else
     binary_max_asini = binary_min_period = 0;
   endif
-  [min_freq, max_freq] = CWSignalCoveringBand(startTime, endTime, spinRange, binary_max_asini, binary_min_period);
+  [min_freq, max_freq] = XLALCWSignalCoveringBand(startTime, endTime, spinRange, binary_max_asini, binary_min_period);
   results.SFT_min_freq = min_freq;
   results.SFT_max_freq = max_freq;
 
@@ -248,11 +248,11 @@ function [results, multiSFTs, multiTser] = DoFstatInjections(varargin)
   extraParams.SSBprec = SSBPREC_RELATIVISTICOPT;
   extraParams.randSeed = randSeed;
   extraParams.Dterms = Dterms;
-  Fstatin = CreateFstatInput ( fakeSFTcat, min_freq, max_freq, sources, injectSqrtSX, assumeSqrtSX, ...
-                              sft_noise_window, ephemerides, lalpulsarcvar.FMETHOD_DEMOD_BEST, extraParams );
+  Fstatin = XLALCreateFstatInput ( fakeSFTcat, min_freq, max_freq, sources, injectSqrtSX, assumeSqrtSX, ...
+                              sft_noise_window, ephemerides, lalpulsar.FMETHOD_DEMOD_BEST, extraParams );
 
   ## run ComputeFstat() for each injection point
-  Fstatres = [];
+  Fstatres = 0;
   Doppler = new_PulsarDopplerParams;
   for i = 1:num_sch
 
@@ -271,7 +271,7 @@ function [results, multiSFTs, multiTser] = DoFstatInjections(varargin)
     endif
 
     ## run ComputeFstat() and return F-statistic values
-    Fstatres = ComputeFstat(Fstatres, Fstatin, Doppler, 0, 1, FSTATQ_2F + FSTATQ_2F_PER_DET);
+    Fstatres = XLALComputeFstat(Fstatres, Fstatin, Doppler, 0, 1, FSTATQ_2F + FSTATQ_2F_PER_DET);
     results.sch_twoF(i) = Fstatres.twoF;
     for n = 1:size(results.sch_twoFPerDet, 1)
       results.sch_twoFPerDet(n, :) = reshape(Fstatres.twoFPerDet(n-1), 1, []);

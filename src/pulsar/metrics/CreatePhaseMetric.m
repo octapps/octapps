@@ -150,13 +150,13 @@ function [metric, coordIDs, start_time, ref_time] = CreatePhaseMetric(varargin)
   par.coordSys.dim = length(coordIDs);
 
   ## set detector information
-  detNames = CreateStringVector(strsplit(detectors, ",", true){:});
-  ParseMultiLALDetector(par.multiIFO, detNames);
+  detNames = XLALCreateStringVector(strsplit(detectors, ",", true){:});
+  XLALParseMultiLALDetector(par.multiIFO, detNames);
   par.multiNoiseFloor.length = 0; ## zero here means unspecified noise-floors, and therefore unit-weights
 
   ## set detector motion
   try
-    par.detMotionType = ParseDetectorMotionString(det_motion);
+    par.detMotionType = XLALParseDetectorMotionString(det_motion);
   catch
     error("%s: unknown detector motion '%s'", funcName, det_motion)
   end_try_catch
@@ -177,13 +177,13 @@ function [metric, coordIDs, start_time, ref_time] = CreatePhaseMetric(varargin)
 
   ## set start time, reference time, and time span
   par.signalParams.Doppler.refTime = ref_time;
-  SegListInit(par.segmentList);
+  XLALSegListInit(par.segmentList);
   for i = 1:length(start_time)
-    seg = new_Seg;
+    seg = new_LALSeg;
     segstart = new_LIGOTimeGPS(start_time(i));
     segend = new_LIGOTimeGPS(start_time(i) + time_span);
-    SegSet(seg, segstart, segend, i);
-    SegListAppend(par.segmentList, seg);
+    XLALSegSet(seg, segstart, segend, i);
+    XLALSegListAppend(par.segmentList, seg);
   endfor
 
   ## set non-positive eigenvalue threshold
@@ -191,13 +191,13 @@ function [metric, coordIDs, start_time, ref_time] = CreatePhaseMetric(varargin)
 
   ## calculate Doppler phase metric
   try
-    retn = DopplerFstatMetric(par, ephemerides);
+    retn = XLALDopplerFstatMetric(par, ephemerides);
   catch
     error("%s: Could not calculate phase metric", funcName);
   end_try_catch
   metric = retn.g_ij.data(:,:);
 
   ## cleanup
-  SegListClear(par.segmentList);
+  XLALSegListClear(par.segmentList);
 
 endfunction

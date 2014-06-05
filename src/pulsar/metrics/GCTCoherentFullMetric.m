@@ -72,13 +72,13 @@ function [g, gcache] = GCTCoherentFullMetric(gcache, varargin)
 
   ## get detector information
   multiIFO = new_MultiLALDetector;
-  ParseMultiLALDetector(multiIFO, CreateStringVector(detector));
+  XLALParseMultiLALDetector(multiIFO, XLALCreateStringVector(detector));
   assert(multiIFO.length == 1, "Could not parse detector '%s'", detector);
   detLat = multiIFO.sites{1}.frDetector.vertexLatitudeRadians;
   detLong = multiIFO.sites{1}.frDetector.vertexLongitudeRadians;
 
   ## get position of GMT at reference time t0
-  zeroLong = mod(GreenwichMeanSiderealTime(LIGOTimeGPS(t0)), 2*pi);
+  zeroLong = mod(XLALGreenwichMeanSiderealTime(LIGOTimeGPS(t0)), 2*pi);
 
   if isempty(gcache)
 

@@ -65,38 +65,38 @@ function [ssky_metric, rssky_metric, rssky_transf] = CreateSuperSkyMetrics(varar
   endif
 
   ## create SegList from segment list
-  SegmentList = new_SegList;
-  SegListInit(SegmentList);
+  SegmentList = new_LALSegList;
+  XLALSegListInit(SegmentList);
   for i = 1:size(segments, 1)
-    seg = new_Seg;
-    SegSet(seg, segments(i,1), segments(i,2), i);
-    SegListAppend(SegmentList, seg);
+    seg = new_LALSeg;
+    XLALSegSet(seg, segments(i,1), segments(i,2), i);
+    XLALSegListAppend(SegmentList, seg);
   endfor
 
   ## set detector information
-  DetNames = CreateStringVector(strsplit(detectors, ",", true){:});
+  DetNames = XLALCreateStringVector(strsplit(detectors, ",", true){:});
   MultiLALDet = new_MultiLALDetector;
-  ParseMultiLALDetector(MultiLALDet, DetNames);
+  XLALParseMultiLALDetector(MultiLALDet, DetNames);
   MultiNoise = new_MultiNoiseFloor;
   MultiNoise.length = length(detector_weights);
   MultiNoise.sqrtSn(1:length(detector_weights)) = detector_weights;
   try
-    DetMotion = ParseDetectorMotionString(detector_motion);
+    DetMotion = XLALParseDetectorMotionString(detector_motion);
   catch
     error("%s: unknown detector motion '%s'", funcName, detector_motion)
   end_try_catch
 
   ## calculate expanded super-sky metric
   try
-    ESSkyMetric = ExpandedSuperSkyMetric(spindowns, ref_time, SegmentList, fiducial_freq, ...
-                                         MultiLALDet, MultiNoise, DetMotion, ephemerides);
+    ESSkyMetric = XLALExpandedSuperSkyMetric(spindowns, ref_time, SegmentList, fiducial_freq, ...
+                                             MultiLALDet, MultiNoise, DetMotion, ephemerides);
   catch
     error("%s: Could not calculate expanded super-sky metric", funcName);
   end_try_catch
 
   ## calculate super-sky metric
   try
-    SSkyMetric = SuperSkyMetric(ESSkyMetric);
+    SSkyMetric = XLALSuperSkyMetric(ESSkyMetric);
     ssky_metric = SSkyMetric.data(:,:);
   catch
     error("%s: Could not calculate super-sky metric", funcName);
@@ -104,7 +104,7 @@ function [ssky_metric, rssky_metric, rssky_transf] = CreateSuperSkyMetrics(varar
 
   ## calculate reduced super-sky metric
   try
-    [RSSkyMetric, RSSkyTransform] = ReducedSuperSkyMetric(ESSkyMetric);
+    [RSSkyMetric, RSSkyTransform] = XLALReducedSuperSkyMetric(ESSkyMetric);
     rssky_metric = RSSkyMetric.data(:,:);
     rssky_transf = RSSkyTransform.data(:,:);
   catch
@@ -112,7 +112,7 @@ function [ssky_metric, rssky_metric, rssky_transf] = CreateSuperSkyMetrics(varar
   end_try_catch
 
   ## cleanup
-  SegListClear(SegmentList);
+  XLALSegListClear(SegmentList);
 
 endfunction
 

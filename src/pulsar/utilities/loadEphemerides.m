@@ -37,7 +37,7 @@ function ephemerides = loadEphemerides(varargin)
 
   ## load ephemerides
   try
-    ephemerides = InitBarycenter(earth_file, sun_file);
+    ephemerides = XLALInitBarycenter(earth_file, sun_file);
   catch
     error("%s: Could not load ephemerides", funcName);
   end_try_catch
