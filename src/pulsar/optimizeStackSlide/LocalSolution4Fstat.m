@@ -30,8 +30,8 @@
 ## NOTE: this solution is *not* guaranteed to be self-consistent, in the sense that the power-law coefficients
 ## at the point of this local solution may be different from the input 'coef_c'
 ##
-## Return structure 'stackparams' has fields {Nseg = 1, Tobs, mc, mf=0, cr = inf }
-## where Nseg is the number of segments (here =1 by definition), optimal total observation time Tobs,
+## Return structure 'stackparams' has fields {Nseg = 1, Tseg, mc, mf=0, cr = inf }
+## where Nseg is the number of segments (here =1 by definition), optimal coherent observation time Tseg,
 ## optimal coarse-grid mismatch mc, fine-grid mismatch mf=0,
 ## and computing-cost ratio cr = CostCoh / CostIncoh (here = inf by definition).
 ##
@@ -54,7 +54,7 @@ function stackparams = LocalSolution4Fstat ( coef_c, cost0, xi = 1/3 )
   mcOpt   = ( xi * ( 1 + 2 * deltac / nc ))^(-1);			## Eq.(69)
   TobsOpt = ( cost0 / kappac )^(1/deltac) * mcOpt^(nc/(2*deltac));	## Eq.(70)
 
-  stackparams.Tobs = TobsOpt;
+  stackparams.Tseg = TobsOpt;
   stackparams.Nseg = 1;
   stackparams.mc   = mcOpt;
   stackparams.mf   = 0;
@@ -65,10 +65,10 @@ function stackparams = LocalSolution4Fstat ( coef_c, cost0, xi = 1/3 )
 endfunction
 
 %!test
-%! %% check recovery of published results in Prix&Shaltev(2012)
-%! coef_c.delta = 7; coef_c.nDim = 3;
-%! coef_c.kappa = 2.83216623e-36;
-%! xi = 0.5; cost0 = 471.981444 * 86400;
-%! stackparamsCoh = LocalSolution4Fstat ( coef_c, cost0, xi );
-%! assert ( stackparamsCoh.Tobs / 86400, 13.55313, 1e-6 );
-%! assert ( stackparamsCoh.mc, 0.352941176, 1e-6 );
+%!  %% check recovery of published results in Prix&Shaltev(2012)
+%!  coef_c.delta = 7; coef_c.nDim = 3;
+%!  coef_c.kappa = 2.83216623e-36;
+%!  xi = 0.5; cost0 = 471.981444 * 86400;
+%!  stackparamsCoh = LocalSolution4Fstat ( coef_c, cost0, xi );
+%!  assert ( stackparamsCoh.Tseg / 86400, 13.55313, 1e-6 );
+%!  assert ( stackparamsCoh.mc, 0.352941176, 1e-6 );

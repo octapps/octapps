@@ -24,9 +24,9 @@
 ## The computing-cost function must be of the form 'cost_fun(Nseg, Tseg, mis)'
 ## and allow for vector inputs in all three input arguments.
 ##
-## Return structure 'coef' has fields {delta, eta, kappa, nDim, Cost }
+## Return structure 'coef' has fields {delta, eta, kappa, nDim, cost }
 ## corresponding to the local power-law fit of computing cost
-## Cost = kappa *  mis^{-nDim/2} * Nseg^eta * Tseg^delta
+## cost = kappa *  mis^{-nDim/2} * Nseg^eta * Tseg^delta
 ## according to Eq.(61, 62,63, 64)
 ##
 ## [Equation numbers refer to Prix&Shaltev, PRD85, 084010 (2012)]
@@ -56,20 +56,20 @@ function coef = LocalCostCoefficients ( cost_fun, Nseg, Tseg, mis=0.5 )
   dlogMis = diff ( log ( mis_i ) );
   coef.nDim = -2 * dlogCostMis / dlogMis;
 
-  coef.Cost = cost_fun ( Nseg, Tseg, mis );
+  coef.cost = cost_fun ( Nseg, Tseg, mis );
 
   ## Eq.(63)
-  coef.kappa = coef.Cost / ( mis^(-0.5*coef.nDim) * Nseg^coef.eta * Tseg^coef.delta );
+  coef.kappa = coef.cost / ( mis^(-0.5*coef.nDim) * Nseg^coef.eta * Tseg^coef.delta );
 
   return;
 
 endfunction
 
 %!test
-%! %% trivial test example first
-%! cost_fun = @(Nseg, Tseg, mis)  pi * mis.^(-3.3/2) .* Nseg.^2.2 .* Tseg.^4.4;
-%! coef = LocalCostCoefficients ( cost_fun, 100, 86400, 0.5 );
-%! assert ( coef.eta, 2.2, 1e-9 );
-%! assert ( coef.delta, 4.4, 1e-9 );
-%! assert ( coef.nDim, 3.3, 1e-9 );
-%! assert ( coef.kappa, pi, 1e-9 );
+%!  %% trivial test example first
+%!  cost_fun = @(Nseg, Tseg, mis)  pi * mis.^(-3.3/2) .* Nseg.^2.2 .* Tseg.^4.4;
+%!  coef = LocalCostCoefficients ( cost_fun, 100, 86400, 0.5 );
+%!  assert ( coef.eta, 2.2, 1e-9 );
+%!  assert ( coef.delta, 4.4, 1e-9 );
+%!  assert ( coef.nDim, 3.3, 1e-9 );
+%!  assert ( coef.kappa, pi, 1e-9 );

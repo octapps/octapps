@@ -15,7 +15,7 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## Usage: stackparams = LocalSolution4Fstat ( coef_c, coef_f, cost0, w=1, xi=1/3, constraint=[] )
+## Usage: stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraint, w=1, xi=1/3 )
 ## where options are:
 ##
 ## "coef_c":          structure holding local power-law coefficients { delta, kappa, nDim, [eta] }
@@ -27,7 +27,12 @@
 ##                    of *incoherent* computing cost ~ mis^{-nDim/2} * Nseg^eta * Tseg^delta,
 ##                    where 'nDim' is the associated template-bank dimension
 ##
-## "cost0":           computing cost constraint
+## "constraint.cost0": constraint on total computing cost
+##
+##                    You can optionally also provide (at most) one of the following two constraints:
+## "constraint.Tobs0" [optional] constraint on total observation time
+## "constraint.Nseg0" [optional] constraint on total number of segments
+##
 ##
 ## "w"                Power-law correction in sensitivity Nseg-scaling: hth^{-2} ~ N^{-1/(2w)},
 ##                    where w=1 corresponds to the Gaussian weak-signal limit
@@ -35,9 +40,6 @@
 ## "xi":              [optional] average mismatch-factor 'xi' linking average and maximal mismatch: <m> = xi * mis_max
 ##                    [default = 1/3 for hypercubic lattice]
 ##
-## You can optionally also provide (at most) one of the following two constraints on the solution:
-## "constraint.Tobs0" [optional] constraint on total observation time
-## "constraint.Nseg0" [optional] constraint on total number of segments
 ##
 ## Compute the local solution for optimal StackSlide search parameters at given (local) power-law coefficients 'coef_c', 'coef_f'
 ## and given computing-cost constraint 'cost0', and (optional) average-mismatch geometrical factor 'xi' in [0,1]
@@ -45,28 +47,31 @@
 ## NOTE: this solution is *not* guaranteed to be self-consistent, in the sense that the power-law coefficients
 ## at the point of this local solution may be different from the input 'coef_c', 'coef_f'
 ##
-## Return structure 'stackparams' has fields {Nseg, Tobs, mc, mf, cr }
-## where Nseg is the optimal (fractional!) number of segments, Tobs is the optimal total observation time,
-## mc is the optimal coarse-grid mismatch, mf the optimal fine-grid mismatch, and cr the resulting optimalc
-## computing-cost ratio, cr = CostCoh / CostIncoh.
+## Return structure 'stackparams' has fields {Nseg, Tseg, mc, mf, cr }
+## where Nseg is the optimal (fractional!) number of segments, Tseg is the optimal segment length (in seconds),
+## mc is the optimal coarse-grid maximal mismatch, mf the optimal fine-grid maximal mismatch, and cr the resulting optimal
+## computing-cost ratio, i.e. cr = CostCoh / CostIncoh.
 ##
 ## [Equation numbers refer to Prix&Shaltev, PRD85, 084010 (2012)]
 ##
 
-function stackparams = LocalSolution4StackSlide ( coef_c, coef_f, cost0, w = 1, xi = 1/3, constraint = [] )
-
-  have_constraint = !isempty( constraint );
-  have_Tobs0 = have_constraint && isfield ( constraint, "Tobs0" );
-  have_Nseg0 = have_constraint && isfield ( constraint, "Nseg0" );
+function stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraint, w = 1, xi = 1/3 )
 
   %% check user-input sanity
+  assert ( !isempty( constraint ) );
+
+  assert ( isfield ( constraint, "cost0" ) );
+  cost0 = constraint.cost0;
+  assert ( cost0 > 0 );
+
+  have_Tobs0 = isfield ( constraint, "Tobs0" );
+  have_Nseg0 = isfield ( constraint, "Nseg0" );
   assert ( !have_Tobs0 || (constraint.Tobs0 > 0) );
   assert ( !have_Nseg0 || (constraint.Nseg0 > 0 ) );
   assert ( !(have_Tobs0 && have_Nseg0 ) );
 
   assert ( ! isempty ( coef_c ) );
   assert ( ! isempty ( coef_f ) );
-  assert ( cost0 > 0 );
 
   assert ( isfield ( coef_c, "delta" ) );
   assert ( isfield ( coef_c, "kappa" ) );
@@ -146,7 +151,7 @@ function stackparams = LocalSolution4StackSlide ( coef_c, coef_f, cost0, w = 1, 
     endif
 
   elseif ( have_Tobs0 )
-
+    Tobs0 = constraint.Tobs0;
     %% solve computing-cost ratio equation Eq.(87) for given Tobs
     lhsTobs = Tobs0^D / cost_fact_Tobs;
     deltaTobs_fcr = @(cr) misfract_Tobs(cr) - lhsTobs;
@@ -162,7 +167,7 @@ function stackparams = LocalSolution4StackSlide ( coef_c, coef_f, cost0, w = 1, 
   elseif ( have_Nseg0 )
 
     %% solve computing-cost ratio equation Eq.(86) for given Nseg
-    lhsNseg = Nseg0^D / cost_fact_Nseg;
+    lhsNseg = constraint.Nseg0^D / cost_fact_Nseg;
     deltaNseg_fcr = @(cr) misfract_Nseg(cr) - lhsNseg;
 
     x0 = [1e-6, 1e6];
@@ -189,8 +194,8 @@ function stackparams = LocalSolution4StackSlide ( coef_c, coef_f, cost0, w = 1, 
   %% package this into return-struct 'stackparams'
   stackparams.mc 	= mcOpt;
   stackparams.mf 	= mfOpt;
-  stackparams.Tobs 	= TobsOpt;
   stackparams.Nseg 	= NsegOpt;
+  stackparams.Tseg 	= TobsOpt / NsegOpt;
   stackparams.cr   	= crOpt;
 
   return;
@@ -198,42 +203,47 @@ function stackparams = LocalSolution4StackSlide ( coef_c, coef_f, cost0, w = 1, 
 endfunction
 
 %!test
-%! %% check recovery of published results in Prix&Shaltev(2012)
-%! coef_c.nDim = 2;
-%! coef_c.delta = 4.00;
-%! coef_c.kappa = 3.1358511e-17;
+%!  %% check recovery of published results in Prix&Shaltev(2012): V.A: directed CasA
+%!  coef_c.nDim = 2;
+%!  coef_c.delta = 4.00;
+%!  coef_c.kappa = 3.1358511e-17;
 %!
-%! coef_f.nDim = 3;
-%! coef_f.delta = 6.0;
-%! coef_f.eta = 4;
-%! coef_f.kappa = 2.38382054e-33;
+%!  coef_f.nDim = 3;
+%!  coef_f.delta = 6.0;
+%!  coef_f.eta = 4;
+%!  coef_f.kappa = 2.38382054e-33;
 %!
-%! cost0 = 471.981444 * 86400;
-%! xi = 0.5;
-%! stackparams = LocalSolution4StackSlide ( coef_c, coef_f, cost0, w = 1, xi );
-%! assert ( stackparams.cr, 1, 1e-6 );
-%! assert ( stackparams.mc, 0.16, 1e-6 );
-%! assert ( stackparams.mf, 0.24, 1e-6 );
-%! assert ( stackparams.Tobs / 86400, 144.806, 1e-3 );
-%! assert ( stackparams.Nseg, 61.7557, 1e-4 );
+%!  constraint.cost0 = 471.981444 * 86400;
+%!  xi = 0.5;
+%!  stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraint, w = 1, xi );
+%!  assert ( stackparams.cr, 1, 1e-6 );			## Eq.(117)
+%!  assert ( stackparams.mc, 0.16, 1e-6 );		## Eq.(118)
+%!  assert ( stackparams.mf, 0.24, 1e-6 );		## Eq.(118)
+%!  assert ( stackparams.Tseg / 86400, 2.3448, 1e-3 );	## corrected result, found in Shaltev thesis, Eq.(4.119)
+%!  assert ( stackparams.Nseg, 61.7557, 1e-4 );		## corrected result, found in Shaltev thesis, Eq.(4.119)
 
 %!test
-%! %% check recovery of published results in Prix&Shaltev(2012)
-%! coef_c.nDim = 2;
-%! coef_c.delta = 4.00;
-%! coef_c.kappa = 3.1358511e-17;
+%!  %% check recovery of published results in Prix&Shaltev(2012): V.B: all-sky E@H [S5GC1], TableII
+%!  coef_c.nDim = 4;
+%!  coef_c.delta = 10.0111962295912;
+%!  coef_c.kappa = 9.09857109479269e-50;
 %!
-%! coef_f.nDim = 3;
-%! coef_f.delta = 6.0;
-%! coef_f.eta = 4;
-%! coef_f.kappa = 2.38382054e-33;
+%!  coef_f.nDim = 4;
+%!  coef_f.delta = 9.01119622959135;
+%!  coef_f.eta = 2;
+%!  coef_f.kappa = 1.56944271959491e-47;
 %!
-%! cost0 = 471.981444 * 86400;
-%! xi = 0.5;
-%! stackparams = LocalSolution4StackSlide ( coef_c, coef_f, cost0, w = 1, xi );
-%! assert ( stackparams.cr, 1, 1e-6 );
-%! assert ( stackparams.mc, 0.16, 1e-6 );
-%! assert ( stackparams.mf, 0.24, 1e-6 );
-%! assert ( stackparams.Tobs / 86400, 144.806, 1e-3 );
-%! assert ( stackparams.Nseg, 61.7557, 1e-4 );
+%!  constraint.cost0 = 3258.42235987226;
+%!  constraint.Tobs0 = 365*86400;
+%!  xi = 1/3;
+%!  pFA = 1e-10; pFD = 0.1;
+%!  NsegRef = 527.6679900489286;
+%!  w = SensitivityScalingDeviationN ( pFA, pFD, NsegRef );
+%!  assert ( w, 1.09110798102039, 1e-6 );
+%!  stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraint, w, xi );
+%!  assert ( stackparams.cr, 0.869163870996078, 1e-4 );
+%!  assert ( stackparams.mc, 0.144345898957936, 1e-4 );
+%!  assert ( stackparams.mf, 0.1660744351839173, 1e-4 );
+%!  assert ( stackparams.Tseg, 59764.8513746905, -1e-4 );
+%!  assert ( stackparams.Nseg, NsegRef, -1e-4 );
 
