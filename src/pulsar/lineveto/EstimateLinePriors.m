@@ -182,7 +182,7 @@ function ret = EstimateLinePriors ( varargin )
    printf(";");
   endif
   for X=1:1:params_init.numDet;
-   if ( params_init.debug == 1 ) 
+   if ( params_init.debug == 1 )
     printf("%s: feff=[%f,%f] Hz, freqbins=%d, thresh=%f: num_outliers=%d, lX=oLGX=%.9f\n", params_init.IFOs{X}, freqmin(X), freqmax(X), freqbins(X), thresh(X,n), num_outliers(X,n), lX(X,n));
    else
     if ( X > 1 )

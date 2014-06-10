@@ -26,7 +26,7 @@ function [gct_freq_min, gct_freq_band] = PredictGCTFreqband ( freq, freqband, dF
   error("dFreq=0 will lead to divisions by 0 in calculating extraBinsFstat.");
  endif
 
- % copy user specified spin variables at reftime 
+ % copy user specified spin variables at reftime
  % NOTE: different index conventions between lalapps and octave - (k) here corresponds to [k-1] in LALExtrapolatePulsarSpinRange
  fkdot_reftime(1) = freq;  # frequency
  fkdot_reftime(2) = f1dot; # 1st spindown
@@ -54,7 +54,7 @@ function [gct_freq_min, gct_freq_band] = PredictGCTFreqband ( freq, freqband, dF
  % the wings must be enough for the Doppler shift and extra bins
  %   for the running median block size and Dterms for Fstat calculation.
  %   In addition, it must also include wings for the spindown correcting
- %   for the reference time 
+ %   for the reference time
  % calculate Doppler wings at the highest frequency
  startTime_freqLo = fkdot_starttime(1);                        # lowest search freq at start time
  startTime_freqHi = startTime_freqLo + fkdotband_starttime(1); # highest search freq. at start time

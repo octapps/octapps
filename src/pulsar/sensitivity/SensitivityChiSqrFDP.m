@@ -57,12 +57,12 @@ function [pd, Ns, FDP, fdp_vars, fdp_opts] = SensitivityChiSqrFDP(pd, Ns, args)
 
   ## variables
   fdp_vars{1} = sa;
-  
+
 endfunction
 
 ## calculate false dismissal probability
 function pd_rhosqr = ChiSqrFDP(pd, Ns, rhosqr, fdp_vars, fdp_opts)
-  
+
   ## degrees of freedom per segment
   nu = fdp_opts.dof;
 

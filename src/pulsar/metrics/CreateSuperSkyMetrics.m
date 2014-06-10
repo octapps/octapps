@@ -121,27 +121,27 @@ endfunction
 ##### now a reference implementation to compare against CreateSuperSkyMetric()    #####
 
 %!function [ssky_metric, rssky_metric, rssky_transf] = ConstructSuperSkyMetrics(varargin)
-%!  
+%!
 %!  ## load LAL libraries
 %!  lal;
 %!  lalpulsar;
-%! 
+%!
 %!  ## call CreatePhaseMetric() to create expanded super-sky metric
 %!  [essky_metric, ess_cIDs] = CreatePhaseMetric("coords", "spin_equ,orbit_ecl,fdots,freq", varargin{:});
 %!  assert(issymmetric(essky_metric) > 0);
 %!  assert(isvector(ess_cIDs));
 %!  assert(length(unique(ess_cIDs)) == length(ess_cIDs));
-%! 
+%!
 %!  ## diagonal-normalise expanded super-sky metric
 %!  ## use "tolerant" since orbital Z may be zero, for Ptolemaic ephemerides
 %!  [nessky_metric, dessky_metric, idessky_metric] = DiagonalNormaliseMetric(essky_metric, "tolerant");
-%! 
+%!
 %!  ## check diagonalised expanded super-sky metric does not have more than 1 negative eigenvalue
 %!  nessky_metric_num_neg_eval = length(find(eig(nessky_metric) <= 0));
 %!  if nessky_metric_num_neg_eval > 1
 %!    error("%s: 'nessky_metric' is not sufficiently positive definite (%i negative eigenvalues)", funcName, nessky_metric_num_neg_eval);
 %!  endif
-%! 
+%!
 %!  ## get coordinates of spin, orbital, frequency and spindown coordinates
 %!  insx = find(ess_cIDs == DOPPLERCOORD_N3SX_EQU);
 %!  assert(length(insx) > 0);
@@ -158,7 +158,7 @@ endfunction
 %!         find(ess_cIDs == DOPPLERCOORD_F2DOT), ...
 %!         find(ess_cIDs == DOPPLERCOORD_F3DOT)];
 %!  assert(length(ifs) > 0);
-%! 
+%!
 %!  ## reconstruct super-sky metric from spin and orbital metric, in requested coordinates
 %!  ## adjust coordinate IDs and coordinate indices appropriately
 %!  inx = insx;
@@ -181,13 +181,13 @@ endfunction
 %!  ss_inn = [inx, iny, inz];
 %!  ss_iff = ifs;
 %!  ss_iff(ss_iff > inz) -= 2;
-%! 
+%!
 %!  ## reconstruct super-sky metric
 %!  ssky_metric = reconstruct' * essky_metric * reconstruct;
-%! 
+%!
 %!  ## ensure metric is exactly symmetric
 %!  ssky_metric = 0.5*(ssky_metric' + ssky_metric);
-%! 
+%!
 %!  ## find least-squares linear fit to orbital X and Y by frequency and spindowns
 %!  ## - use only spindowns such that fitA' * fitA is full rank
 %!  fitted = [inoX, inoY];
@@ -201,74 +201,74 @@ endfunction
 %!    endif
 %!  endfor
 %!  fitcoeffs = fitAt_fitA \ (fitA' * fity);
-%!  
+%!
 %!  ## subtract linear fit from orbital X and Y, creating residual coordinates
 %!  subtractfit = eye(size(essky_metric));
 %!  subtractfit(fitting, fitted) = -fitcoeffs;
-%! 
+%!
 %!  ## construct residual super-sky metric
 %!  residual = dessky_metric * subtractfit * idessky_metric * reconstruct;
 %!  rssky_metric = residual' * essky_metric * residual;
-%! 
+%!
 %!  ## extract sky offset vectors
 %!  skyoff = zeros(length(ifs), 3);
 %!  skyoff(1:length(fitting), :) -= residual(fitting, ss_inn);
-%! 
+%!
 %!  ## extract sky-sky, sky-frequency, and frequency-frequency blocks
 %!  rss_ss = rssky_metric(ss_inn, ss_inn);
 %!  rss_sf = rssky_metric(ss_inn, ss_iff);
 %!  rss_ff = rssky_metric(ss_iff, ss_iff);
-%! 
+%!
 %!  ## diagonally normalise frequency-frequency block
 %!  [nrss_ff, drss_ff, idrss_ff] = DiagonalNormaliseMetric(rss_ff);
-%! 
+%!
 %!  ## calculate additional sky offset and sky metric adjustment to
 %!  ## zero the sky-frequency block of the residual super-sky metric
 %!  decoupleoff = drss_ff * (nrss_ff \ (drss_ff * rss_sf'));
 %!  decouple_ss = -rss_sf * decoupleoff;
-%! 
+%!
 %!  ## decouple residual super-sky metric and sky offset vectors
 %!  rssky_metric(ss_inn, ss_inn) += decouple_ss;
 %!  rssky_metric(ss_inn, ss_iff) = 0;
 %!  rssky_metric(ss_iff, ss_inn) = 0;
 %!  skyoff = skyoff + decoupleoff;
-%! 
+%!
 %!  ## eigendecompose residual super-sky metric sky-sky block
 %!  rss_ss = rssky_metric(ss_inn, ss_inn);
 %!  [rss_ss_evec, rss_ss_eval] = eig(rss_ss);
-%! 
+%!
 %!  ## order eigenvectors in descending order of eigenvalues
 %!  [rss_ss_eval, iidescend] = sort(diag(rss_ss_eval), "descend");
 %!  rss_ss_eval = diag(rss_ss_eval);
 %!  rss_ss_evec = rss_ss_evec(:, iidescend);
-%! 
+%!
 %!  ## ensure eigenvalue matrix have positives on diagonal
 %!  rss_ss_evec_sign = sign(diag(rss_ss_evec));
 %!  rss_ss_evec_sign(rss_ss_evec_sign == 0) = 1;
 %!  rss_ss_evec *= diag(rss_ss_evec_sign);
-%! 
+%!
 %!  ## ensure eigenvalue matrix has a positive determinant
 %!  if det(rss_ss_evec) < 0
 %!    rss_ss_evec(:,3) *= -1;
 %!  endif
-%! 
+%!
 %!  ## align residual super-sky metric and sky offset vectors
 %!  alignsky = rss_ss_evec';
 %!  rssky_metric(ss_inn, ss_inn) = rss_ss_eval;
 %!  skyoff = skyoff * alignsky';
-%! 
+%!
 %!  ##rssky_metric
-%! 
+%!
 %!  ## drop 3rd row/column to get reduced metric
 %!  rssky_metric(3, :) = [];
 %!  rssky_metric(:, 3) = [];
-%! 
+%!
 %!  ## ensure metric is exactly symmetric
 %!  rssky_metric = 0.5*(rssky_metric' + rssky_metric);
-%! 
+%!
 %!  ## return transform data
 %!  rssky_transf = [alignsky; skyoff([2:end, 1], :)];
-%! 
+%!
 %!endfunction
 
 ##### compare CreateSuperSkyMetrics() against ConstructSuperSkyMetrics() #####

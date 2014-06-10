@@ -57,7 +57,7 @@
 %typemap(out) gsl_matrix* {
   if ($1 == 0) {
     SWIG_exception(SWIG_RuntimeError, "Argument $1 is NULL");
-  }    
+  }
   const size_t $1_n = $1->size1;
   const size_t $1_m = $1->size2;
   Matrix $1_mat($1_n, $1_m);

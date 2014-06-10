@@ -91,15 +91,15 @@ function Rsqr_H = SqrSNRGeometricFactorHist(varargin)
 
     ## new random source location parameters
     [alpha, sdelta, psi] = NextRandParam(rng, N);
-    
-    ## calculate polarisation null vectors for this source    
+
+    ## calculate polarisation null vectors for this source
     [xp, yp, xx, yx] = PolarisationNullVectors(alpha, sdelta, psi);
-    
-    ## loop over detectors    
+
+    ## loop over detectors
     Fpsqr_t_H_old = Fpsqr_t_H;
     Fxsqr_t_H_old = Fxsqr_t_H;
     for n = 1:length(detectors)
-      
+
       ## calculate time-averaged squared antenna patterns
       Fpsqr_t = TimeAvgSqrAntennaPattern(det(n).a0, det(n).b0, xp, yp, det(n).zeta, OmegaT);
       Fxsqr_t = TimeAvgSqrAntennaPattern(det(n).a0, det(n).b0, xx, yx, det(n).zeta, OmegaT);
@@ -107,9 +107,9 @@ function Rsqr_H = SqrSNRGeometricFactorHist(varargin)
       ## add new values to histograms
       Fpsqr_t_H = addDataToHist(Fpsqr_t_H, Fpsqr_t(:));
       Fxsqr_t_H = addDataToHist(Fxsqr_t_H, Fxsqr_t(:));
-      
+
     endfor
-    
+
     ## calculate difference between old and new histograms
     err = max(histDistance(Fpsqr_t_H, Fpsqr_t_H_old),
               histDistance(Fxsqr_t_H, Fxsqr_t_H_old));
@@ -141,7 +141,7 @@ function Rsqr_H = SqrSNRGeometricFactorHist(varargin)
 
     ## calculate squared SNR geometric factor
     Rsqr = (ap.^2 .* avg_Fpsqr_t) + (ax.^2 .* avg_Fxsqr_t);
-    
+
     ## if using mismatch histogram, reduce R^2 by randomly-chosen mismatch
     if ~isempty(mism_hgrm)
       mismatch = drawFromHist(mism_hgrm, N);
@@ -151,7 +151,7 @@ function Rsqr_H = SqrSNRGeometricFactorHist(varargin)
     ## add new values to histogram
     Rsqr_H_old = Rsqr_H;
     Rsqr_H = addDataToHist(Rsqr_H, Rsqr(:));
-    
+
     ## calculate difference between old and new histograms
     err = histDistance(Rsqr_H, Rsqr_H_old);
 

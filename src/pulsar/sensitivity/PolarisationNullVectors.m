@@ -46,7 +46,7 @@ function [xp, yp, xx, yx] = PolarisationNullVectors(alpha, sdelta, psi)
   s2 = -sqrt(1 - sdelta.^2);   # sin(-pi/2 - delta)
   c3 = sin(alpha);             # cos(pi/2 - alpha)
   s3 = cos(alpha);             # sin(pi/2 - alpha)
-  
+
   ## cross polarisation vectors
   xx = [ c1.*c3 - c2.*s1.*s3; -c1.*s3 - c2.*c3.*s1;  s1.*s2 ];
   yx = [ c3.*s1 + c1.*c2.*s3; -s1.*s3 + c1.*c2.*c3; -c1.*s2 ];

@@ -28,7 +28,7 @@
 ##   nu  = degrees of freedom per segment
 
 function [rho,tms] = AnalyticSensitivitySNRExpr(za, pd, Ns, nu)
-  
+
   ## check input
   assert(all(pd > 0));
   assert(all(Ns > 0));
@@ -51,5 +51,5 @@ function [rho,tms] = AnalyticSensitivitySNRExpr(za, pd, Ns, nu)
 
   ## sensitivity SNR
   rho = (2*nu./Ns).^0.25 .* sqrt(tms{1}+tms{2}+tms{3});
-  
+
 endfunction

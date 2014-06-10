@@ -61,7 +61,7 @@ function opts = parseCommandLine(delim=[], args={})
       if !isempty(optname)
         error("%s: option '%s' has no value", funcName, optname);
       endif
-      
+
       ## if argument contains an '=', split into name=value,
       i = min(strfind(arg, "="));
       if !isempty(i)

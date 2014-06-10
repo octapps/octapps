@@ -60,12 +60,12 @@ function [pd, Ns, FDP, fdp_vars, fdp_opts] = SensitivityHoughFstatFDP(pd, Ns, ar
   ## variables
   fdp_vars{1} = paNt;
   fdp_vars{2} = nth;
-  
+
 endfunction
 
 ## calculate false dismissal probability
 function pd_rhosqr = HoughFstatFDP(pd, Ns, rhosqr, fdp_vars, fdp_opts)
-  
+
   ## F-statistic threshold per segment
   Fth = fdp_opts.Fth;
 
