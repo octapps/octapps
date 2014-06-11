@@ -305,8 +305,8 @@ function [results, multiSFTs, multiTser] = DoFstatInjections(varargin)
     if OrbitParams
       Doppler.asini = sch_orbitasini(i);
       Doppler.ecc = sch_orbitEcc(i);
-      Doppler.tp.gpsSeconds = fix(sch_orbitTpSSB(i));
-      Doppler.tp.gpsNanoSeconds = round(1e9*(sch_orbitTpSSB(i) - fix(sch_orbitTpSSB(i))));
+      Doppler.tp.gpsSeconds = int32(sch_orbitTpSSB(i));
+      Doppler.tp.gpsNanoSeconds = round(1e9*(sch_orbitTpSSB(i) - int32(sch_orbitTpSSB(i))));
       Doppler.period = sch_orbitPeriod(i);
       Doppler.argp = sch_orbitArgp(i);
     endif
