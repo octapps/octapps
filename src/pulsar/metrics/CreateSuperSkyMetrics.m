@@ -23,7 +23,7 @@
 ##   rssky_metric       = reduced super-sky metric
 ##   rssky_transf       = reduced super-sky metric coordinate transform data
 ## Options:
-##   "spindowns"        : number of frequency spindown coordinates
+##   "spindowns"        : number of spindown coordinates: 0=none, 1=1st spindown, 2=1st+2nd spindown, etc.
 ##   "ref_time"         : reference time in GPS seconds [required]
 ##   "segments"         : list of segments [[start1,end1];[start2,end2];...] in GPS seconds [required]
 ##   "fiducial_freq"    : fiducial frequency for sky-position coordinates [required]
@@ -103,13 +103,15 @@ function [ssky_metric, rssky_metric, rssky_transf] = CreateSuperSkyMetrics(varar
   end_try_catch
 
   ## calculate reduced super-sky metric
-  try
-    [RSSkyMetric, RSSkyTransform] = XLALReducedSuperSkyMetric(ESSkyMetric);
-    rssky_metric = RSSkyMetric.data(:,:);
-    rssky_transf = RSSkyTransform.data(:,:);
-  catch
-    error("%s: Could not calculate reduced super-sky metric", funcName);
-  end_try_catch
+  if nargout > 1
+    try
+      [RSSkyMetric, RSSkyTransform] = XLALReducedSuperSkyMetric(ESSkyMetric);
+      rssky_metric = RSSkyMetric.data(:,:);
+      rssky_transf = RSSkyTransform.data(:,:);
+    catch
+      error("%s: Could not calculate reduced super-sky metric", funcName);
+    end_try_catch
+  endif
 
   ## cleanup
   XLALSegListClear(SegmentList);

@@ -32,7 +32,7 @@
 ##             "fdots": frequency spindowns in SI units
 ##             "gct_nu": GCT frequency/spindowns in SI units
 ##             "gct_nx_ny_equ": GCT constrained equatorial sky coordinates
-##   "spindowns": number of frequency spindown coordinates
+##   "spindowns": number of spindown coordinates: 0=none, 1=1st spindown, 2=1st+2nd spindown, etc.
 ##   "start_time": start time(s) in GPS seconds (default: [ref_time - 0.5*time_span])
 ##   "ref_time": reference time in GPS seconds (default: mean(start_time + 0.5*time_span))
 ##   "time_span": observation time-span in seconds
