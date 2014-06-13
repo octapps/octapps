@@ -17,6 +17,7 @@
 // MA  02111-1307  USA
 //
 
+#include <list>
 #include <octave/oct.h>
 #include <octave/dynamic-ld.h>
 #include <octave/ov-usr-fcn.h>
@@ -35,6 +36,8 @@ dependency_walker : public tree_walker
 {
 public:
 
+  std::list<octave_function*> stack;
+
   octave_map functions;
 
   Cell exclude;
@@ -50,7 +53,15 @@ public:
   // add to map and walk function for further dependencies
   void walk_function(const std::string& n) {
     if (!functions.contains(n)) {
-      octave_value v = symbol_table::find_function(n);
+      octave_value v;
+      {
+        unwind_protect frame;
+        symbol_table::scope_id curr_scope = symbol_table::current_scope();
+        frame.add_fcn(symbol_table::set_scope, curr_scope);
+        symbol_table::scope_id fcn_scope = stack.empty() ? curr_scope : stack.back()->scope();
+        symbol_table::set_scope(fcn_scope);
+        v = symbol_table::find_function(n);
+      }
       if (v.is_function() && !v.is_builtin_function()) {
         octave_function *f = v.function_value();
         const std::string fn = f->fcn_file_name();
@@ -61,7 +72,9 @@ public:
           }
         }
         functions.contents(n) = Cell(octave_value(fn));
+        stack.push_back(f);
         f->accept(*this);
+        stack.pop_back();
       }
     }
   }
