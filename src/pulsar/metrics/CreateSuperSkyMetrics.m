@@ -240,7 +240,8 @@ endfunction
 %!  [rss_ss_evec, rss_ss_eval] = eig(rss_ss);
 %!
 %!  ## order eigenvectors in descending order of eigenvalues
-%!  [rss_ss_eval, iidescend] = sort(diag(rss_ss_eval), "descend");
+%!  [rss_ss_eval, iidescend] = sort(abs(diag(rss_ss_eval)), "descend");
+%!  assert(all(rss_ss_eval(1:2) > 0));
 %!  rss_ss_eval = diag(rss_ss_eval);
 %!  rss_ss_evec = rss_ss_evec(:, iidescend);
 %!
