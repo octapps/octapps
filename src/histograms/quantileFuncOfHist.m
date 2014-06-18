@@ -84,8 +84,8 @@ endfunction
 
 ## test quantile function with Gaussian/uniform histogram
 %!shared hgrm
-%! hgrm = Hist(2, {"lin", "dbin", 0.1}, {"lin", "dbin", 0.1});
-%! hgrm = addDataToHist(hgrm, [normrnd(1.7, sqrt(2.3), 1e7, 1), rand(1e7, 1)]);
+%!  hgrm = Hist(2, {"lin", "dbin", 0.1}, {"lin", "dbin", 0.1});
+%!  hgrm = addDataToHist(hgrm, [normrnd(1.7, sqrt(2.3), 1e7, 1), rand(1e7, 1)]);
 %!assert(abs(quantileFuncOfHist(hgrm, normcdf(-1), 1) - (1.7 - sqrt(2.3))) < 0.01)
 %!assert(abs(quantileFuncOfHist(hgrm, normcdf( 0), 1) - (1.7)) < 0.01)
 %!assert(abs(quantileFuncOfHist(hgrm, normcdf(+1), 1) - (1.7 + sqrt(2.3))) < 0.01)

@@ -43,7 +43,7 @@ function ret = readSFT(fname)
   if ( fid == -1 )
     error ('Could not open SFT-file ''%s''.', fname )
   end
-  
+
   [header.version, count] = fread (fid, 1, 'real*8');
   if ( count ~= 1 )
     error ('Error reading version-info from SFT!');

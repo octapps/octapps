@@ -71,11 +71,11 @@ function varargout = GCTCoordinates(varargin)
   [nu, nud, nudd, nx, ny] = deal(ii{:});
 
   ## get detector information
-  detInfo = new_MultiDetectorInfo;
-  ParseMultiDetectorInfo(detInfo, CreateStringVector(detector), []);
-  assert(detInfo.length == 1, "Could not parse detector '%s'", detector);
-  detLat = detInfo.sites{1}.frDetector.vertexLatitudeRadians;
-  detLong = detInfo.sites{1}.frDetector.vertexLongitudeRadians;
+  multiIFO = new_MultiLALDetector;
+  ParseMultiLALDetector(multiIFO, CreateStringVector(detector));
+  assert(multiIFO.length == 1, "Could not parse detector '%s'", detector);
+  detLat = multiIFO.sites{1}.frDetector.vertexLatitudeRadians;
+  detLong = multiIFO.sites{1}.frDetector.vertexLongitudeRadians;
 
   ## get position of GMT at reference time t0
   zeroLong = mod(GreenwichMeanSiderealTime(LIGOTimeGPS(t0)), 2*pi);

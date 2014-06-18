@@ -69,7 +69,7 @@ function p = ChiSquare_cdf(x, k, lambda)
     ## initial values of Poisson term in series sum
     Pp = Pm = zeros(size(x));
     Pp(ii) = Pm(ii) = real_poisspdf(j0(ii), hlambda(ii));
-    
+
     ## initial values of chi^2 term in series sum
     Xp = Xm = zeros(size(x));
     Xp(ii) = Xm(ii) = gsl_chi2cdf(x(ii), k(ii) + 2.*j0(ii));
@@ -156,14 +156,14 @@ endfunction
 
 ## Test value x against reference value x0
 %!function __test_cdf(x, x0)
-%! assert(abs(x - x0) < 1e-9 * abs(x0) | abs(x0) < 1e-110)
+%!  assert(abs(x - x0) < 1e-9 * abs(x0) | abs(x0) < 1e-110)
 
 ## Tests ChiSquare_cdf against values computed in Mathematica v8.0.1.0 using
 ## the following script. Results agree to <= 1e-6, except for even-k values
 ## computed with NIntegrate[PDF[..., due to numerical bugs in Mathematica (!).
 ##
 ## In[1]:= ClearAll[MyCDF]
-## MyCDF[NoncentralChiSquareDistribution[\[Nu]_, \[Lambda]_]][x_] /; 
+## MyCDF[NoncentralChiSquareDistribution[\[Nu]_, \[Lambda]_]][x_] /;
 ##   And @@ (NumericQ /@ {\[Nu], \[Lambda], x}) :=
 ##  Module[{j0, jp, jm, Pp, Pm, Xp, Xm, XPp, XPm, p, pn},
 ##   If[\[Lambda] == 0 || x == 0,
@@ -193,47 +193,47 @@ endfunction
 ##    ];
 ##   p
 ##   ]
-## 
+##
 ## In[3]:= x = SetPrecision[{5, 10, 40, 80, 200}, 100];
 ## k = SetPrecision[{1, 2, 4, 5, 10, 15, 20, 75, 150, 500}, 100];
 ## \[Lambda] = SetPrecision[{0, 15, 50, 120, 400}, 100];
-## 
-## In[6]:= test1 = 
-##   Outer[N@MyCDF[NoncentralChiSquareDistribution[#2, #3]][#1] &, x, 
+##
+## In[6]:= test1 =
+##   Outer[N@MyCDF[NoncentralChiSquareDistribution[#2, #3]][#1] &, x,
 ##    k, \[Lambda]];
-## 
-## In[7]:= test2 = 
-##   Outer[N@CDF[NoncentralChiSquareDistribution[#2, #3]][#1] &, x, 
+##
+## In[7]:= test2 =
+##   Outer[N@CDF[NoncentralChiSquareDistribution[#2, #3]][#1] &, x,
 ##    k, \[Lambda]];
-## 
-## In[8]:= test3 = 
+##
+## In[8]:= test3 =
 ##   Outer[N@NIntegrate[
 ##       PDF[NoncentralChiSquareDistribution[#2, #3]][y], {y, 0, #1},
-##       WorkingPrecision -> 100, AccuracyGoal -> 10^-5, 
+##       WorkingPrecision -> 100, AccuracyGoal -> 10^-5,
 ##       MaxRecursion -> 200] &, x, k, \[Lambda]];
-## 
+##
 ## In[9]:= Take[Reverse@Sort@Flatten@Abs[(test2 - test1)/test1], 5]
-## 
-## Out[9]= {1.204*10^-6, 1.15515*10^-6, 1.11116*10^-6, 1.05853*10^-6, 
+##
+## Out[9]= {1.204*10^-6, 1.15515*10^-6, 1.11116*10^-6, 1.05853*10^-6,
 ##  1.01098*10^-6}
-## 
+##
 ## In[10]:= Take[Reverse@Sort@Flatten@Abs[(test3 - test1)/test1], 5]
-## 
+##
 ## Out[10]= {0.0575652, 0.0363756, 0.0257139, 0.0128743, 0.00932531}
-## 
+##
 ## In[11]:= keven = Pick[Range[1, Length@k], EvenQ@Round@k];
 ## Take[Reverse@
 ##   Sort@Flatten@
 ##     Abs[(test1[[All, keven, All]] - test3[[All, keven, All]])/
 ##       test3[[All, keven, All]]], 5]
-## 
-## Out[12]= {1.15515*10^-6, 1.05852*10^-6, 9.9013*10^-7, 9.71368*10^-7, 
+##
+## Out[12]= {1.15515*10^-6, 1.05852*10^-6, 9.9013*10^-7, 9.71368*10^-7,
 ##  8.56613*10^-7}
-## 
+##
 ## In[13]:= StringJoin@Flatten@Table[
 ##    ToString@
 ##     StringForm["%!test __test_cdf(ChiSquare_cdf(``,``,``),``)\n",
-##      CForm@N@x[[i]], CForm@N@k[[j]], CForm@N@\[Lambda][[l]], 
+##      CForm@N@x[[i]], CForm@N@k[[j]], CForm@N@\[Lambda][[l]],
 ##      CForm@N@test1[[i, j, l]]],
 ##    {i, 1, Length[x]}, {j, 1, Length[k]}, {l, 1, Length[\[Lambda]]}]
 ##

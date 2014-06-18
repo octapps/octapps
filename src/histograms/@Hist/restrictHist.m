@@ -57,10 +57,10 @@ endfunction
 
 
 %!shared hgrm, hgrmx, hgrmy
-%! hgrm = Hist(2,{"lin",0.01},{"lin",0.01});
-%! hgrm = addDataToHist(hgrm, rand(50000,2));
-%! hgrmx = restrictHist(hgrm,@(x,y) max(x)<=0.5);
-%! hgrmy = restrictHist(hgrm,@(x,y) max(y)<=0.3);
+%!  hgrm = Hist(2,{"lin",0.01},{"lin",0.01});
+%!  hgrm = addDataToHist(hgrm, rand(50000,2));
+%!  hgrmx = restrictHist(hgrm,@(x,y) max(x)<=0.5);
+%!  hgrmy = restrictHist(hgrm,@(x,y) max(y)<=0.3);
 %!assert(abs(meanOfHist(contractHist(hgrm,1)) - 0.5) < 1e-2)
 %!assert(abs(meanOfHist(contractHist(hgrm,2)) - 0.5) < 1e-2)
 %!assert(abs(meanOfHist(contractHist(hgrmx,1)) - 0.25) < 1e-2)

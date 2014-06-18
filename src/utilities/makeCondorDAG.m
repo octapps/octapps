@@ -22,11 +22,8 @@
 ##   dag_file = name of Condor DAG submit file
 ## Options:
 ##   "dag_name":        name of Condor DAG, used to name DAG submit file
-##   "parent_dir":      where to write DAG submit file (default: current directory)
 ##   "job_nodes":       struct array of job nodes, which has the following fields:
-##                      * "base": base directory where job files/directories are located
-##                      * "dir": Condor output directory for this job, relative to "base"
-##                      * "file": Condor submit file for this job, relative to "base"
+##                      * "file": name of Condor submit file for this job
 ##                      * "vars": struct of variable substitutions to make
 ##                      * "child": array indexing child job nodes for this node
 ##   "retries":         how man times to retry Condor jobs (default: 0)
@@ -36,7 +33,6 @@ function dag_file = makeCondorDAG(varargin)
   ## parse options
   parseOptions(varargin,
                {"dag_name", "char"},
-               {"parent_dir", "char", "."},
                {"job_nodes", "struct"},
                {"retries", "integer,positive", 0},
                []);
@@ -73,25 +69,19 @@ function dag_file = makeCondorDAG(varargin)
 
   endfor
 
-  ## check that parent directory and job submit files exist
-  if exist(parent_dir, "dir")
-    parent_dir = canonicalize_file_name(parent_dir);
-  else
-    error("%s: parent directory '%s' does not exist", funcName, parent_dir);
-  endif
+  ## check that job submit files exist
   for n = 1:length(job_nodes)
-    job_nodes(n).file = canonicalize_file_name(job_nodes(n).file);
     if !exist(job_nodes(n).file, "file")
       error("%s: job file '%s' does not exist", funcName, job_nodes(n).file);
     endif
   endfor
 
   ## check that DAG submit file and output base directory do not exist
-  dag_file = fullfile(parent_dir, strcat(dag_name, ".dag"));
+  dag_file = strcat(dag_name, ".dag");
   if exist(dag_file, "file")
     error("%s: DAG file '%s' already exists", funcName, dag_file);
   endif
-  job_out_base_dir = fullfile(parent_dir, strcat(dag_name, ".out"));
+  job_out_base_dir = strcat(dag_name, ".out");
   if exist(job_out_base_dir, "dir")
     error("%s: job output base directory '%s' already exists", funcName, job_out_base_dir);
   endif
@@ -118,19 +108,20 @@ function dag_file = makeCondorDAG(varargin)
     error("%s: could not open file '%s' for writing", funcName, dag_file);
   endif
   for n = length(job_nodes):-1:1
-    job_node = job_nodes(n);
 
     ## print node
+    job_node_file = fullfile(pwd, job_nodes(n).file);
+    job_node_dir = fullfile(pwd, job_nodes(n).dir);
     fprintf(fid, "\n");
-    fprintf(fid, "JOB %s %s DIR %s\n", job_nodes(n).name, job_node.file, job_nodes(n).dir);
+    fprintf(fid, "JOB %s %s DIR %s\n", job_nodes(n).name, job_node_file, job_node_dir);
     fprintf(fid, "RETRY %s %d\n", job_nodes(n).name, retries);
 
     ## print node variables
-    if isfield(job_node, "vars") && !isempty(job_node.vars)
+    if isfield(job_nodes(n), "vars") && !isempty(job_nodes(n).vars)
       fprintf(fid, "VARS %s", job_nodes(n).name);
-      vars = fieldnames(job_node.vars);
+      vars = fieldnames(job_nodes(n).vars);
       for i = 1:length(vars)
-        value = stringify(job_node.vars.(vars{i}));
+        value = stringify(job_nodes(n).vars.(vars{i}));
         value = strrep(value, "'", "''");
         value = strrep(value, "\"", "\"\"");
         value = strrep(value, "\\", "\\\\");
@@ -141,10 +132,10 @@ function dag_file = makeCondorDAG(varargin)
     endif
 
     ## print node children
-    if isfield(job_node, "child") && !isempty(job_node.child)
+    if isfield(job_nodes(n), "child") && !isempty(job_nodes(n).child)
       fprintf(fid, "PARENT %s CHILD", job_nodes(n).name);
-      for i = 1:length(job_node.child)
-        fprintf(fid, " %s", job_nodes(job_node.child(i)).name);
+      for i = 1:length(job_nodes(n).child)
+        fprintf(fid, " %s", job_nodes(job_nodes(n).child(i)).name);
       endfor
       fprintf(fid, "\n");
     endif
@@ -160,7 +151,7 @@ function dag_file = makeCondorDAG(varargin)
   endfor
 
   ## save job node data for later use
-  dag_nodes_file = fullfile(parent_dir, strcat(dag_name, "_nodes.bin.gz"));
+  dag_nodes_file = strcat(dag_name, "_nodes.bin.gz");
   save("-binary", "-zip", dag_nodes_file, "job_nodes");
 
 endfunction

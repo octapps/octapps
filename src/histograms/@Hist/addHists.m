@@ -30,7 +30,7 @@ function hgrmt = addHists(varargin)
   for i = 1:length(varargin)
     hgrm = varargin{i};
     if !isempty(hgrm)
-      assert(isHist(hgrm), "Argument #i must be either a valid histogram class, or []", i);
+      assert(isHist(hgrm), "Argument #%i must be either a valid histogram class, or []", i);
       if isempty(dim)
         dim = length(hgrm.bins);
       else
@@ -70,17 +70,17 @@ endfunction
 
 
 %!test
-%! hgrm1 = addDataToHist(Hist(1, 0:12), 0.5 + (0:11)');
-%! hgrm2 = addDataToHist(Hist(1, 0:3:12), 0.5 + (0:11)');
-%! hgrmt = addHists(hgrm1, hgrm2);
-%! p = histProbs(hgrmt);
-%! assert(length(p) == 14 && p(2:end-1) == 1/12);
+%!  hgrm1 = addDataToHist(Hist(1, 0:12), 0.5 + (0:11)');
+%!  hgrm2 = addDataToHist(Hist(1, 0:3:12), 0.5 + (0:11)');
+%!  hgrmt = addHists(hgrm1, hgrm2);
+%!  p = histProbs(hgrmt);
+%!  assert(length(p) == 14 && p(2:end-1) == 1/12);
 
 %!test
-%! hgrms = arrayfun(@(x) addDataToHist(Hist(1, 0:12), 0.5 + x), 0:11, "UniformOutput", false);
-%! hgrmt = addHists(hgrms{:});
-%! p = histProbs(hgrmt);
-%! assert(length(p) == 14 && p(2:end-1) == 1/12);
+%!  hgrms = arrayfun(@(x) addDataToHist(Hist(1, 0:12), 0.5 + x), 0:11, "UniformOutput", false);
+%!  hgrmt = addHists(hgrms{:});
+%!  p = histProbs(hgrmt);
+%!  assert(length(p) == 14 && p(2:end-1) == 1/12);
 
 %!test
-%! assert(isempty(addHists([])));
+%!  assert(isempty(addHists([])));

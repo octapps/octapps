@@ -75,54 +75,54 @@ function varargout = PlotAndLabelContours(S, varargin)
       if !ctropt(j).lbl
         break
       endif
-        
+
       ## label region dimensions
       hdx = 0.5 * ctropt(j).lbldim(1) * Dx;
       hdy = 0.5 * ctropt(j).lbldim(2) * Dy;
-      
+
       ## skip contour label if label dimensions are nonzero
       if hdx == 0 && hdy > 0
         break;
       endif
-        
+
       ## find length of contour
       dist = cumsum(sqrt(diff(S(i).x).^2 + diff(S(i).y).^2));
       S(i).len = dist(end) / sqrt(Dx^2 + Dy^2);
       dist = [0 dist/dist(end)];
-      
+
       ## skip contour label if not long enough
       if S(i).len < ctropt(j).lblminlen
         break;
       endif
-      
+
       ## find midpoint of contour
       xm = interp1(dist, S(i).x, ctropt(j).lblpos);
       ym = interp1(dist, S(i).y, ctropt(j).lblpos);
-      
+
       ## label region corners
       plbl = cell(2,2);
       plbl{1,1} = [xm-hdx;ym-hdy];
       plbl{1,2} = [xm-hdx;ym+hdy];
       plbl{2,1} = [xm+hdx;ym-hdy];
       plbl{2,2} = [xm+hdx;ym+hdy];
-      
+
       ## loop over segments of contour
       np = [S(i).x(1);S(i).y(1)];
       for k = 1:length(S(i).x)-1
-        
+
         ## segment points
         p1 = [S(i).x(k  );S(i).y(k  )];
         p2 = [S(i).x(k+1);S(i).y(k+1)];
-        
+
         ## check which points are within label region
         p1in = all(plbl{1,1} <= p1) & all(p1 <= plbl{2,2});
         p2in = all(plbl{1,1} <= p2) & all(p2 <= plbl{2,2});
-        
+
         ## skip contour segments wholly within label
         if p1in && p2in
           continue
         endif
-        
+
         ## check if contour segment intersects label region
         u = ulbl = zeros(1,4);
         [u(1),ulbl(1)] = TwoLineIntersection(p1, p2, plbl{1,1}, plbl{1,2});
@@ -131,7 +131,7 @@ function varargout = PlotAndLabelContours(S, varargin)
         [u(4),ulbl(4)] = TwoLineIntersection(p1, p2, plbl{2,2}, plbl{2,1});
         k = find(0 <= u & u <= 1 & 0 <= ulbl & ulbl <= 1);
         assert(length(k) <= 2);
-        
+
         ## if two intersections, split segment
         if length(k) == 2
           um = min(u(k));
@@ -139,7 +139,7 @@ function varargout = PlotAndLabelContours(S, varargin)
           np = [np, p1 + um.*(p2-p1), nan(2,1), p1 + uM*(p2-p1), p2];
           continue
         endif
-        
+
         ## if one intersection, truncate segment
         if length(k) == 1
           assert(xor(p1in, p2in));
@@ -151,12 +151,12 @@ function varargout = PlotAndLabelContours(S, varargin)
           endif
           continue
         endif
-        
+
         ## otherwise, add endpoint
-        np = [np, p2];          
-        
+        np = [np, p2];
+
       endfor
-      
+
       ## recreate contour x and y coordinates
       S(i).x = np(1,:);
       S(i).y = np(2,:);

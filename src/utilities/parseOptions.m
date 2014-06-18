@@ -51,7 +51,7 @@ function varargout = parseOptions(opts, varargin)
 
   ## check for option specifications
   if length(varargin) == 0
-    error("%s: Expected option specifications in varargin", funcName);
+    error("%s: expected option specifications in varargin", funcName);
   endif
 
   ## store information about options
@@ -59,6 +59,7 @@ function varargout = parseOptions(opts, varargin)
   required = struct;
   reqnames = {};
   typefunc = struct;
+  convfunc = struct;
   varname = struct;
 
   ## parse option specifications
@@ -72,19 +73,20 @@ function varargout = parseOptions(opts, varargin)
 
     ## basic syntax checking
     if !iscell(optspec) || !ismember(length(optspec), 2:3) || !all(cellfun("ischar", optspec(1:2)))
-      error("%s: Expected option specification {'name','type'[,defvalue]} at varargin{%i}", funcName, n);
+      error("%s: expected option specification {'name','type'[,defvalue]} at varargin{%i}", funcName, n);
     endif
 
     ## store option name as an allowed option
     optname = optspec{1};
     allowed.(optname) = 1;
 
-    ## store option type functions
-    typefuncstr = "";
+    ## store option type/conversion functions
+    typefuncstr = "( ";
+    convfuncptr = [];
     opttypes = strtrim(strsplit(optspec{2}, ",", true));
     for i = 1:length(opttypes)
-      if length(typefuncstr) > 0
-        typefuncstr = strcat(typefuncstr, "&&");
+      if !strcmp(typefuncstr, "( ")
+        typefuncstr = cstrcat(typefuncstr, " ) && ( ");
       endif
       j = index(opttypes{i}, ":");
       typefunccmd = opttypes{i}(1:j-1);
@@ -92,72 +94,92 @@ function varargout = parseOptions(opts, varargin)
       if !isempty(typefunccmd)
         switch typefunccmd
           case "a"
-            typefuncstr = strcat(typefuncstr, "isa(x,\"", typefuncarg, "\")");
+            typefuncstr = cstrcat(typefuncstr, "isa(x,\"", typefuncarg, "\")");
           case "size"
             x = str2double(typefuncarg);
             if !isvector(x) || any(mod(x,1) != 0) || any(x < 0)
               error("%s: argument to type specification command '%s' is not an integer vector", funcName, typefunccmd);
             endif
-            typefuncstr = strcat(typefuncstr, "all(size(x)==[", typefuncarg, "])");
+            typefuncstr = cstrcat(typefuncstr, "all(size(x)==[", typefuncarg, "])");
           case "numel"
             x = str2double(typefuncarg);
             if !isscalar(x) || mod(x,1) != 0 || x < 0
               error("%s: argument to type specification command '%s' is not an integer scalar", funcName, typefunccmd);
             endif
-            typefuncstr = strcat(typefuncstr, "numel(x)==[", typefuncarg, "]");
+            typefuncstr = cstrcat(typefuncstr, "numel(x)==[", typefuncarg, "]");
           case "rows"
             x = str2double(typefuncarg);
             if !isscalar(x) || mod(x,1) != 0 || x < 0
               error("%s: argument to type specification command '%s' is not an integer scalar", funcName, typefunccmd);
             endif
-            typefuncstr = strcat(typefuncstr, "rows(x)==[", typefuncarg, "]");
+            typefuncstr = cstrcat(typefuncstr, "rows(x)==[", typefuncarg, "]");
           case "cols"
             x = str2double(typefuncarg);
             if !isscalar(x) || mod(x,1) != 0 || x < 0
               error("%s: argument to type specification command '%s' is not an integer scalar", funcName, typefunccmd);
             endif
-            typefuncstr = strcat(typefuncstr, "columns(x)==[", typefuncarg, "]");
+            typefuncstr = cstrcat(typefuncstr, "columns(x)==[", typefuncarg, "]");
           otherwise
             error("%s: unknown type specification command '%s'", funcName, typefunccmd);
         endswitch
       else
         switch typefuncarg
+          case { "bool", "logical" }   ## also accept numeric values 0, 1 as logical values
+            typefuncstr = cstrcat(typefuncstr, "islogical(x) || ( isnumeric(x) && all((x==0)|(x==1)) )");
+            convfuncptr = @logical;
+          case "cell"   ## override here because 'cell' is not a type conversion function
+            typefuncstr = cstrcat(typefuncstr, "iscell(x)");
           case "complex"
-            typefuncstr = strcat(typefuncstr, "isnumeric(x)&&iscomplex(x)");
+            typefuncstr = cstrcat(typefuncstr, "isnumeric(x)");
+            convfuncptr = @complex;
           case "real"
-            typefuncstr = strcat(typefuncstr, "isnumeric(x)&&isreal(x)");
+            typefuncstr = cstrcat(typefuncstr, "isnumeric(x) && isreal(x)");
+            convfuncptr = @double;
           case "integer"
-            typefuncstr = strcat(typefuncstr, "isnumeric(x)&&all(mod(x,1)==0)");
+            typefuncstr = cstrcat(typefuncstr, "isnumeric(x) && all(mod(x,1)==0)");
+            convfuncptr = @round;
           case "evenint"
-            typefuncstr = strcat(typefuncstr, "isnumeric(x)&&all(mod(x,2)==0)");
+            typefuncstr = cstrcat(typefuncstr, "isnumeric(x) && all(mod(x,2)==0)");
+            convfuncptr = @round;
           case "oddint"
-            typefuncstr = strcat(typefuncstr, "isnumeric(x)&&all(mod(x,2)==1)");
+            typefuncstr = cstrcat(typefuncstr, "isnumeric(x) && all(mod(x,2)==1)");
+            convfuncptr = @round;
           case "nonzero"
-            typefuncstr = strcat(typefuncstr, "isnumeric(x)&&all(x!=0)");
+            typefuncstr = cstrcat(typefuncstr, "isnumeric(x) && all(x!=0)");
           case "positive"
-            typefuncstr = strcat(typefuncstr, "isnumeric(x)&&all(x>=0)");
+            typefuncstr = cstrcat(typefuncstr, "isnumeric(x) && all(x>=0)");
           case "negative"
-            typefuncstr = strcat(typefuncstr, "isnumeric(x)&&all(x<=0)");
+            typefuncstr = cstrcat(typefuncstr, "isnumeric(x) && all(x<=0)");
           case "strictpos"
-            typefuncstr = strcat(typefuncstr, "isnumeric(x)&&all(x>0)");
+            typefuncstr = cstrcat(typefuncstr, "isnumeric(x) && all(x>0)");
           case "strictneg"
-            typefuncstr = strcat(typefuncstr, "isnumeric(x)&&all(x<0)");
+            typefuncstr = cstrcat(typefuncstr, "isnumeric(x) && all(x<0)");
           otherwise
-            typefuncfunc = strcat("is", typefuncarg);
+            typefuncfunc = cstrcat("is", typefuncarg);
             try
               str2func(typefuncfunc);
-              typefuncstr = strcat(typefuncstr, typefuncfunc, "(x)");
+              typefuncstr = cstrcat(typefuncstr, typefuncfunc, "(x)");
             catch
               error("%s: unknown type specification function '%s'", funcName, typefuncfunc);
             end_try_catch
+            if isempty(convfuncptr)
+              try
+                convfuncptr = str2func(typefuncarg);
+                feval(convfunc.(optname), []);
+              catch
+                convfuncptr = [];
+              end_try_catch
+            endif
         endswitch
       endif
     endfor
+    typefuncstr = cstrcat(typefuncstr, " )");
     typefunc.(optname) = inline(typefuncstr, "x");
+    convfunc.(optname) = convfuncptr;
     try
       feval(typefunc.(optname), []);
     catch
-      error("%s: Error parsing types specification '%s' for option", optspec{2}, optname);
+      error("%s: invalid type specification %s for option '%s'", funcName, optspec{2}, optname);
     end_try_catch
 
     ## if this is an optional option
@@ -166,7 +188,7 @@ function varargout = parseOptions(opts, varargin)
       ## assign default value, if it's the right type
       optvalue = optspec{3};
       if !(isempty(optvalue) || feval(typefunc.(optname), optvalue))
-        error("%s: Default value of '%s' must be empty or satisfy: %s", funcName, optname, formula(typefunc.(optname)));
+        error("%s: default value of '%s' must be empty or satisfy %s", funcName, optname, formula(typefunc.(optname)));
       endif
       paropts.(optname) = optvalue;
 
@@ -185,7 +207,7 @@ function varargout = parseOptions(opts, varargin)
 
   ## check if there's more regular options than required options
   if length(regopts) > length(reqnames)
-    error("%s: Too many regular arguments; maximum is %i", funcName, length(reqnames))
+    error("%s: too many regular arguments, maximum is %i", funcName, length(reqnames))
   endif
 
   ## assign regular options in order given by 'reqnames'
@@ -193,7 +215,7 @@ function varargout = parseOptions(opts, varargin)
 
     ## assign option value, if it's the right type
     if !feval(typefunc.(reqnames{n}), regopts{n})
-      error("%s: Value of '%s' must satisfy: %s", funcName, reqnames{n}, formula(typefunc.(reqnames{n})));
+      error("%s: value of '%s' must satisfy %s", funcName, reqnames{n}, formula(typefunc.(reqnames{n})));
     endif
     paropts.(reqnames{n}) = regopts{n};
 
@@ -205,7 +227,7 @@ function varargout = parseOptions(opts, varargin)
 
   ## check that there's an even number of items in the keyword-value list
   if mod(length(kvopts), 2) != 0
-    error("%s: Expected 'key',value pairs following regular options in args", funcName);
+    error("%s: expected 'key',value pairs following regular options in args", funcName);
   endif
 
   ## assign keyword-value options
@@ -215,7 +237,7 @@ function varargout = parseOptions(opts, varargin)
 
     ## check that this option is an allowed option
     if !isfield(allowed, optkey)
-      error("%s: Unknown option '%s'", funcName, optkey);
+      error("%s: unknown option '%s'", funcName, optkey);
     endif
 
     ## if option does not accept a 'char' value, but option value is a 'char',
@@ -226,7 +248,7 @@ function varargout = parseOptions(opts, varargin)
         ## temporary function so that it cannot access local variables
         eval(sprintf("function x = __tmp__; x = [%s]; endfunction; optval = __tmp__(); clear __tmp__;", optval));
       catch
-        error("%s: Could not create a value from '--%s=%s'", funcName, optkey, optval);
+        error("%s: could not create a value from '--%s=%s'", funcName, optkey, optval);
       end_try_catch
     endif
 
@@ -235,7 +257,7 @@ function varargout = parseOptions(opts, varargin)
 
       ## if option value is empty, use default (i.e. do nothing), otherwise raise error
       if !isempty(optval)
-        error("%s: Value of '%s' must satisfy: %s", funcName, optkey, formula(typefunc.(optkey)));
+        error("%s: value of '%s' must satisfy %s", funcName, optkey, formula(typefunc.(optkey)));
       endif
 
     else
@@ -256,30 +278,42 @@ function varargout = parseOptions(opts, varargin)
 
     ## if allowed < 0, option have been used more than once
     if allowed.(allnames{n}) < 0
-      error("%s: Option '%s' used multiple times", funcName, allnames{n});
+      error("%s: option '%s' used multiple times", funcName, allnames{n});
     endif
 
     if isfield(required, allnames{n})
 
       ## if required > 0, required option have been used at all
       if required.(allnames{n}) > 0
-        error("%s: Missing required option '%s'", funcName, allnames{n});
+        error("%s: missing required option '%s'", funcName, allnames{n});
       endif
 
       ## if required < 0, option have been used more than once
       if required.(allnames{n}) < 0
-        error("%s: Option '%s' used multiple times", funcName, allnames{n});
+        error("%s: option '%s' used multiple times", funcName, allnames{n});
       endif
 
     endif
 
   endfor
 
+  ## convert all option variables to the required type
+  paroptnames = fieldnames(paropts);
+  for n = 1:length(paroptnames)
+    convfuncptr = convfunc.(paroptnames{n});
+    if !isempty(convfuncptr)
+      try
+        paropts.(paroptnames{n}) = feval(convfuncptr, paropts.(paroptnames{n}));
+      catch
+        error("%s: could not convert evaluate %s(value of option '%s')", funcName, func2str(convfuncptr), optname);
+      end_try_catch
+    endif
+  endfor
+
   ## return options struct, or assign to option variables in caller namespace
   if nargout > 0
     varargout = {paropts};
   else
-    paroptnames = fieldnames(paropts);
     for n = 1:length(paroptnames)
       assignin("caller", paroptnames{n}, paropts.(paroptnames{n}));
     endfor

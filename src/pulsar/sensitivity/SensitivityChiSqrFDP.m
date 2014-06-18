@@ -57,12 +57,12 @@ function [pd, Ns, FDP, fdp_vars, fdp_opts] = SensitivityChiSqrFDP(pd, Ns, args)
 
   ## variables
   fdp_vars{1} = sa;
-  
+
 endfunction
 
 ## calculate false dismissal probability
 function pd_rhosqr = ChiSqrFDP(pd, Ns, rhosqr, fdp_vars, fdp_opts)
-  
+
   ## degrees of freedom per segment
   nu = fdp_opts.dof;
 
@@ -91,12 +91,12 @@ endfunction
 
 ## calculate Rsqr_H for isotropic signal population
 %!shared Rsqr_H
-%! Rsqr_H = SqrSNRGeometricFactorHist;
+%!  Rsqr_H = SqrSNRGeometricFactorHist;
 
 ## test SNR rho against reference value rho0
 %!function __test_sens(Rsqr_H,paNt,pd,nu,Ns,rho0)
-%! rho = SensitivitySNR(pd,Ns,Rsqr_H,"ChiSqr","paNt",paNt,"dof",nu);
-%! assert(abs(rho - rho0) < 1e-2 * abs(rho0));
+%!  rho = SensitivitySNR(pd,Ns,Rsqr_H,"ChiSqr","paNt",paNt,"dof",nu);
+%!  assert(abs(rho - rho0) < 1e-2 * abs(rho0));
 
 ## tests
 %!test __test_sens(Rsqr_H,0.01,0.05,2.,1.,6.500229404020667)

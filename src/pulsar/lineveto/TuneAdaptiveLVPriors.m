@@ -292,7 +292,7 @@ function [params_init] = check_input_parameters ( params_init )
 
 endfunction # check_input_parameters()
 
- 
+
 function params_run = get_params_run ( runconfigfile )
  ## params_run = get_params_run ( runconfigfile )
  ## get EatH run parameters from a config file and check that all required fields were provided

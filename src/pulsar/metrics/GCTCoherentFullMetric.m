@@ -71,11 +71,11 @@ function [g, gcache] = GCTCoherentFullMetric(gcache, varargin)
   endif
 
   ## get detector information
-  detInfo = new_MultiDetectorInfo;
-  ParseMultiDetectorInfo(detInfo, CreateStringVector(detector), []);
-  assert(detInfo.length == 1, "Could not parse detector '%s'", detector);
-  detLat = detInfo.sites{1}.frDetector.vertexLatitudeRadians;
-  detLong = detInfo.sites{1}.frDetector.vertexLongitudeRadians;
+  multiIFO = new_MultiLALDetector;
+  ParseMultiLALDetector(multiIFO, CreateStringVector(detector));
+  assert(multiIFO.length == 1, "Could not parse detector '%s'", detector);
+  detLat = multiIFO.sites{1}.frDetector.vertexLatitudeRadians;
+  detLong = multiIFO.sites{1}.frDetector.vertexLongitudeRadians;
 
   ## get position of GMT at reference time t0
   zeroLong = mod(GreenwichMeanSiderealTime(LIGOTimeGPS(t0)), 2*pi);
@@ -166,70 +166,70 @@ endfunction
 ## check GCT implementation against super-sky and Taylor-expanded metrics
 %!test
 %!
-%! # check that LALSuite wrappings are available
-%! try
-%!   lal; lalpulsar;
-%!   ephemerides = loadEphemerides();
-%! catch
-%!   disp("*** LALSuite modules not available; skipping test ***"); return;
-%! end_try_catch
+%!  # check that LALSuite wrappings are available
+%!  try
+%!    lal; lalpulsar;
+%!    ephemerides = loadEphemerides();
+%!  catch
+%!    disp("*** LALSuite modules not available; skipping test ***"); return;
+%!  end_try_catch
 %!
-%! # common parameters
-%! smax = 2;
-%! t0 = 812345678;
-%! T = 86400;
-%! alpha1 = 1.3;
-%! delta1 = 0.3;
-%! detector = "H1";
-%! fiducial_freq = 100;
+%!  # common parameters
+%!  smax = 2;
+%!  t0 = 812345678;
+%!  T = 86400;
+%!  alpha1 = 1.3;
+%!  delta1 = 0.3;
+%!  detector = "H1";
+%!  fiducial_freq = 100;
 %!
-%! # loop over ptolemaic and tj offset
-%! ptole = {false, "spin+orbit"; true, "spin+ptoleorbit"};
-%! for p = 1:size(ptole, 1)
-%!   for dt = [-10, 0, 10]*86400
-%!     tj = t0 + dt;
+%!  # loop over ptolemaic and tj offset
+%!  ptole = {false, "spin+orbit"; true, "spin+ptoleorbit"};
+%!  for p = 1:size(ptole, 1)
+%!    for dt = [-10, 0, 10]*86400
+%!      tj = t0 + dt;
 %!
-%!     # compute super-sky metric in GCT coordinates
-%!     g_ssky = CreatePhaseMetric("coords", "freq,fdots,ssky_equ", "spindowns", smax, "start_time", tj - 0.5 * T, "ref_time", t0, "time_span", T, "detectors", detector, "ephemerides", ephemerides, "fiducial_freq", fiducial_freq, "det_motion", ptole{p, 2});
+%!      # compute super-sky metric in GCT coordinates
+%!      g_ssky = CreatePhaseMetric("coords", "freq,fdots,ssky_equ", "spindowns", smax, "start_time", tj - 0.5 * T, "ref_time", t0, "time_span", T, "detectors", detector, "ephemerides", ephemerides, "fiducial_freq", fiducial_freq, "det_motion", ptole{p, 2});
 %!
-%!     # compute full GCT metric
-%!     g_gct = GCTCoherentFullMetric([], "smax", smax, "tj", tj, "t0", t0, "T", T, "alpha", alpha1, "delta", delta1, "detector", detector, "ptolemaic", ptole{p, 1});
+%!      # compute full GCT metric
+%!      g_gct = GCTCoherentFullMetric([], "smax", smax, "tj", tj, "t0", t0, "T", T, "alpha", alpha1, "delta", delta1, "detector", detector, "ptolemaic", ptole{p, 1});
 %!
-%!     # compute Taylor-expanded GCT metric
-%!     g_gct_tay = GCTCoherentTaylorMetric("smax", smax, "tj", tj, "t0", t0, "T", T);
+%!      # compute Taylor-expanded GCT metric
+%!      g_gct_tay = GCTCoherentTaylorMetric("smax", smax, "tj", tj, "t0", t0, "T", T);
 %!
-%!     # loop over sky/frequency parameter offset sizes
-%!     for a = [1, 4, 7, 10]
-%!       for b = [1, 4, 7, 10]
+%!      # loop over sky/frequency parameter offset sizes
+%!      for a = [1, 4, 7, 10]
+%!        for b = [1, 4, 7, 10]
 %!
-%!         # compute sky position and frequency offset
-%!         alpha2 = alpha1 + a * 1e-4;
-%!         delta2 = delta1 + a * 1e-4;
-%!         n1 = [cos(alpha1)*cos(delta1); sin(alpha1)*cos(delta1); sin(delta1)];
-%!         n2 = [cos(alpha2)*cos(delta2); sin(alpha2)*cos(delta2); sin(delta2)];
-%!         fndot1 = [fiducial_freq; 0; 0];
-%!         fndot2 = fndot1 + b * [1e-7; 1e-11; 1e-15];
+%!          # compute sky position and frequency offset
+%!          alpha2 = alpha1 + a * 1e-4;
+%!          delta2 = delta1 + a * 1e-4;
+%!          n1 = [cos(alpha1)*cos(delta1); sin(alpha1)*cos(delta1); sin(delta1)];
+%!          n2 = [cos(alpha2)*cos(delta2); sin(alpha2)*cos(delta2); sin(delta2)];
+%!          fndot1 = [fiducial_freq; 0; 0];
+%!          fndot2 = fndot1 + b * [1e-7; 1e-11; 1e-15];
 %!
-%!         # compute super-sky metric mismatch
-%!         dssky = [fndot2 - fndot1; n2 - n1];
-%!         mu_ssky = dot(dssky, g_ssky * dssky);
+%!          # compute super-sky metric mismatch
+%!          dssky = [fndot2 - fndot1; n2 - n1];
+%!          mu_ssky = dot(dssky, g_ssky * dssky);
 %!
-%!         # compute GCT coordinates
-%!         gct1 = GCTCoordinates("t0", t0, "T", T, "alpha", alpha1, "delta", delta1, "fndot", fndot1, "detector", detector, "ephemerides", ephemerides, "ptolemaic", ptole{p, 1});
-%!         gct2 = GCTCoordinates("t0", t0, "T", T, "alpha", alpha2, "delta", delta2, "fndot", fndot2, "detector", detector, "ephemerides", ephemerides, "ptolemaic", ptole{p, 1});
+%!          # compute GCT coordinates
+%!          gct1 = GCTCoordinates("t0", t0, "T", T, "alpha", alpha1, "delta", delta1, "fndot", fndot1, "detector", detector, "ephemerides", ephemerides, "ptolemaic", ptole{p, 1});
+%!          gct2 = GCTCoordinates("t0", t0, "T", T, "alpha", alpha2, "delta", delta2, "fndot", fndot2, "detector", detector, "ephemerides", ephemerides, "ptolemaic", ptole{p, 1});
 %!
-%!         # compute full GCT metric mismatch
-%!         dgct = gct2 - gct1;
-%!         mu_gct = dot(dgct, g_gct * dgct);
+%!          # compute full GCT metric mismatch
+%!          dgct = gct2 - gct1;
+%!          mu_gct = dot(dgct, g_gct * dgct);
 %!
-%!         # compute Taylor-expanded GCT mismatch
-%!         mu_gct_tay = dot(dgct, g_gct_tay * dgct);
+%!          # compute Taylor-expanded GCT mismatch
+%!          mu_gct_tay = dot(dgct, g_gct_tay * dgct);
 %!
-%!         # check that differences are relatively small
-%!         assert(abs(mu_gct - mu_ssky) < 0.05 * abs(mu_ssky));
-%!         assert(abs(mu_gct_tay - mu_ssky) < 0.05 * abs(mu_ssky));
+%!          # check that differences are relatively small
+%!          assert(abs(mu_gct - mu_ssky) < 0.05 * abs(mu_ssky));
+%!          assert(abs(mu_gct_tay - mu_ssky) < 0.05 * abs(mu_ssky));
 %!
-%!       endfor
-%!     endfor
-%!   endfor
-%! endfor
+%!        endfor
+%!      endfor
+%!    endfor
+%!  endfor

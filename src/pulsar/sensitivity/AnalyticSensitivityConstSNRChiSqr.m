@@ -29,7 +29,7 @@
 ##   nu   = degrees of freedom per segment
 
 function [rhob,tms] = AnalyticSensitivityConstSNRChiSqr(paNt, pd, Ns, nu)
-  
+
   ## check input
   assert(all(paNt > 0));
   assert(all(pd > 0));

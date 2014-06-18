@@ -36,7 +36,7 @@ function writeCommandLineToFile ( filename, params, scriptname )
 
  for n=1:1:length(param_values)
   if ( length(param_values{n}) > 0 ) # variables not set by the user which have the empty string as default will break the reconstructed commandline, ignore them here
-   if ( isnumeric(param_values{n}) ) # values converted to numeric formats by parseOptions have to be converted back
+   if ( isnumeric(param_values{n}) || islogical(param_values{n}) ) # values converted to numeric formats by parseOptions have to be converted back
     param_values{n} = num2str(param_values{n});
    endif
    fprintf ( fid, "# --%s=%s\n", param_fieldnames{n}, param_values{n} );

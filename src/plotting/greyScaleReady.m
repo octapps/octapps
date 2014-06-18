@@ -61,7 +61,7 @@ function map = greyScaleReady(name, n=64)
       gx = gy = ry = im;
     case "green-cyan"
       x = lr;
-      y = lr + lb2;
+      y = lr + lb;
       rx = ry = by = im;
     case "blue-cyan"
       x = lr;
@@ -80,3 +80,11 @@ function map = greyScaleReady(name, n=64)
   map = makeColourMap(r, g, b, n);
 
 endfunction
+
+
+%!test greyScaleReady("red-yellow");
+%!test greyScaleReady("red-magenta");
+%!test greyScaleReady("green-yellow");
+%!test greyScaleReady("blue-magenta");
+%!test greyScaleReady("green-cyan");
+%!test greyScaleReady("blue-cyan");

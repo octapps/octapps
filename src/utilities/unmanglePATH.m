@@ -23,7 +23,7 @@
 ## This script undoes the damage.
 
 function unmanglePATH
-  
+
   path = strsplit(getenv("PATH"), ":");
   newpath = "";
   found_usr_bin = 0;
@@ -42,6 +42,6 @@ function unmanglePATH
       newpath = strcat(path{i}, newpath);
     endif
   endfor
-  setenv("PATH", newpath);    
+  setenv("PATH", newpath);
 
 endfunction

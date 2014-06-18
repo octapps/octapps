@@ -117,7 +117,7 @@ function hgrm = addDataToHist(hgrm, data)
       hgrm = resampleHist(hgrm, k, [newbinslo, bins, newbinshi]);
 
     endif
-    
+
   endfor
 
   ## generate bin indices

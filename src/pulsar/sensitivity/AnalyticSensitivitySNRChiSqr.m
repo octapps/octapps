@@ -29,7 +29,7 @@
 ##   nu   = degrees of freedom per segment
 
 function [rhoh,iter] = AnalyticSensitivitySNRChiSqr(paNt, pd, Ns, nu, errmax = 1e-10)
-  
+
   ## check input
   assert(all(paNt > 0));
   assert(all(pd > 0));

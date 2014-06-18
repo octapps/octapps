@@ -104,7 +104,7 @@ function [rho, pd_rho] = SensitivitySNR(pd, Ns, Rsqr_H, detstat, varargin)
   endif
   Rsqr_x = Rsqr_x(:)';
   Rsqr_w = Rsqr_w(:)';
-  
+
   ## make row indexes logical, to select rows
   ii = true(length(pd), 1);
 
@@ -151,12 +151,12 @@ function [rho, pd_rho] = SensitivitySNR(pd, Ns, Rsqr_H, detstat, varargin)
     pd_rho_max(ii) = callFDP(rhosqr_max,ii,
                              jj,pd,Ns,Rsqr_x,Rsqr_w,
                              FDP,fdp_vars,fdp_opts);
-    
+
     ## determine which rhosqr to keep calculating for
     ## exit when there are none left
     ii = (pd_rho_max >= pd);
   until !any(ii)
-  
+
   ## find rhosqr using a bifurcation search
   err1 = inf(size(rhosqr));
   err2 = inf(size(rhosqr));
@@ -173,12 +173,12 @@ function [rho, pd_rho] = SensitivitySNR(pd, Ns, Rsqr_H, detstat, varargin)
     ## pick random point within range as new rhosqr
     u = rand(size(rhosqr));
     rhosqr(ii) = rhosqr_min(ii) .* u(ii) + rhosqr_max(ii) .* (1-u(ii));
-      
+
     ## calculate new false dismissal probability
     pd_rho(ii) = callFDP(rhosqr,ii,
                          jj,pd,Ns,Rsqr_x,Rsqr_w,
                          FDP,fdp_vars,fdp_opts);
-    
+
     ## replace bounds with mid-point as required
     iimin = ii & (pd_rho_min > pd & pd_rho > pd);
     iimax = ii & (pd_rho_max < pd & pd_rho < pd);
@@ -186,7 +186,7 @@ function [rho, pd_rho] = SensitivitySNR(pd, Ns, Rsqr_H, detstat, varargin)
     pd_rho_min(iimin) = pd_rho(iimin);
     rhosqr_max(iimax) = rhosqr(iimax);
     pd_rho_max(iimax) = pd_rho(iimax);
-     
+
     ## fractional error in false dismissal rate
     err1(ii) = abs(pd_rho(ii) - pd(ii)) ./ pd(ii);
 
@@ -202,7 +202,7 @@ function [rho, pd_rho] = SensitivitySNR(pd, Ns, Rsqr_H, detstat, varargin)
   rho = sqrt(rhosqr);
   rho = reshape(rho, siz);
   pd_rho = reshape(pd_rho, siz);
-  
+
   ## display progress updates?
   if show_progress
     printf("%s: done\n", funcName);
