@@ -111,6 +111,10 @@ function stackparams = OptimalSolution4StackSlide ( varargin )
   stackparams.converged = is_converged;
   stackparams.iter = iter;
 
+  stackparams.w = w;
+  stackparams.coef_c = coef_c;
+  stackparams.coef_f = coef_f;
+
   return;
 
 endfunction
