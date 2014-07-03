@@ -56,8 +56,9 @@ function hgrm = addDataToHist(hgrm, data)
       ## select bin type
       switch hgrm.bintype{k}.name
 
-        case "fixed"   ## fixed bins, cannot be extended
-          error("%s: data range [%g,%g] extends beyond range of fixed bins [%g,%g]", funcName, datamin, datamax, binmin, binmax);
+        case "fixed"   ## fixed bins, cannot be extended, so set data to +/- infinity
+          data(data(:,k) < binmin, k) = -inf;
+          data(data(:,k) > binmax, k) = +inf;
 
         case "lin"   ## linear bin generator
           dbin = hgrm.bintype{k}.dbin;
