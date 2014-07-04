@@ -66,25 +66,23 @@ function Fsqr_t = TimeAvgSqrAntennaPattern(a0, b0, x, y, zeta, OmegaT, nmax)
   a0i{3} = [ zros; zros; a0(3,:) ];       # dot(Omega_c, a0) Omega_c
   b0i{3} = [ zros; zros; b0(3,:) ];       # dot(Omega_c, b0) Omega_c
 
-  ## "JKS" expressions
-  Jm1 = JKSexpr("J", -1, a0i, b0i, x, y);
-  Jm3 = JKSexpr("J", -3, a0i, b0i, x, y);
-  Jp3 = JKSexpr("J", +3, a0i, b0i, x, y);
-  Km3 = JKSexpr("K", -3, a0i, b0i, x, y);
-  Kp1 = JKSexpr("K", +1, a0i, b0i, x, y);
-  Kp2 = JKSexpr("K", +2, a0i, b0i, x, y);
-  Kp3 = JKSexpr("K", +3, a0i, b0i, x, y);
-  Sm3 = JKSexpr("S", -3, a0i, b0i, x, y);
-
-  ## sinc coefficients
+  ## "JKS" expressions and sinc coefficients
   C = zeros(nmax+1, size(a0, 2));
   if nmax >= 0
+    Jp3 = JKSexpr("J", +3, a0i, b0i, x, y);
+    Km3 = JKSexpr("K", -3, a0i, b0i, x, y);
+    Kp1 = JKSexpr("K", +1, a0i, b0i, x, y);
+    Kp2 = JKSexpr("K", +2, a0i, b0i, x, y);
+    Sm3 = JKSexpr("S", -3, a0i, b0i, x, y);
     C(0+1,:) = 2.375.*Jp3.^2 + 0.125.*Km3.^2 + 0.5.*(Kp1.^2 + Kp2.^2 + Sm3.^2);
   endif
   if nmax >= 1
+    Jm1 = JKSexpr("J", -1, a0i, b0i, x, y);
+    Kp3 = JKSexpr("K", +3, a0i, b0i, x, y);
     C(1+1,:) = (2.5.*Jp3 - Jm1).*Kp2 + 0.5.*Kp1.*Kp3;
   endif
   if nmax >= 2
+    Jm3 = JKSexpr("J", -3, a0i, b0i, x, y);
     C(2+1,:) = 1.5.*Jm3.*Jp3 + 0.5.*(Kp2.^2 - Kp1.^2);
   endif
   if nmax >= 3
