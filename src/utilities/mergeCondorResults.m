@@ -121,17 +121,13 @@ function mergeCondorResults(varargin)
     merged.cpu_time += node_results.cpu_time;
     merged.wall_time += node_results.wall_time;
 
-    ## if merged results are empty, simply copy job node results
+    ## merge job node results using merge function
     if isempty(merged.results{idx})
-      merged.results{idx} = node_results.results;
-    else
-
-      ## merge job node results using merge function
-      for i = 1:numel(merged.results{idx})
-        merged.results{idx}{i} = feval(merge_function, merged.results{idx}{i}, node_results.results{i});
-      endfor
-
+      merged.results{idx} = cell(size(node_results.results));
     endif
+    for i = 1:numel(merged.results{idx})
+      merged.results{idx}{i} = feval(merge_function, merged.results{idx}{i}, node_results.results{i});
+    endfor
 
     ## mark job as having been merged
     merged.jobs_to_merge(merged.jobs_to_merge == n) = [];
