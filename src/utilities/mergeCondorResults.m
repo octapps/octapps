@@ -41,14 +41,19 @@ function mergeCondorResults(varargin)
                []);
 
   ## load job node data
-  load(strcat(dag_name, "_nodes.bin.gz"));
+  dag_nodes_file = strcat(dag_name, "_nodes.bin.gz");
+  printf("%s: loading '%s' ...", funcName, dag_nodes_file);
+  load(dag_nodes_file);
   assert(isstruct(job_nodes));
+  printf(" done\n");
 
   ## load merged job results file if it already exists
   dag_merged_file = strcat(dag_name, "_merged.bin.gz");
   if exist(dag_merged_file, "file")
+    printf("%s: loading '%s' ...", funcName, dag_merged_file);
     load(dag_merged_file);
     assert(isstruct(merged));
+    printf(" done\n");
 
     ## return if all jobs have been merged
     if !isfield(merged, "jobs_to_merge")
@@ -105,7 +110,12 @@ function mergeCondorResults(varargin)
     elseif size(node_result_file, 1) > 1
       error("%s: job node directory '%s' contains multiple result files", funcName, job_nodes(n).dir);
     endif
-    node_results = load(node_result_file{1});
+    try
+      node_results = load(node_result_file{1});
+    catch
+      printf("%s: skipping job node '%s'; could not open result file\n", funcName, job_nodes(n).name);
+      continue
+    end_try_catch
 
     ## add up total CPU and wall time
     merged.cpu_time += node_results.cpu_time;
@@ -134,7 +144,7 @@ function mergeCondorResults(varargin)
     endif
 
     ## print progress
-    prog = printProgress(prog, n, length(job_nodes));
+    prog = printProgress(prog, length(find(jobs_to_merge <= n)), length(jobs_to_merge));
 
   endfor
 
