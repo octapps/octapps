@@ -52,9 +52,6 @@ function deps = sharedlibdeps(varargin)
 
     ## run ldd
     [status, output] = system(strcat("ldd", files));
-    if status != 0
-      error("%s: ldd failed with exit status %i", funcName, status);
-    endif
 
     ## parse output of ldd
     lines = strsplit(output, "\n", true);
