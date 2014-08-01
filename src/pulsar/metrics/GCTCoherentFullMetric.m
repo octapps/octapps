@@ -96,15 +96,16 @@ function [g, gcache] = GCTCoherentFullMetric(gcache, varargin)
     ## compute unconstrained metric in GCT coordinates,
     ## at a fiducial frequency of 1 Hz
     fiducial_freq = 1.0;
-    [g_unconstr, coordIDs] = CreatePhaseMetric("coords", "gct_nu,ssky_equ",
-                                               "spindowns", smax,
-                                               "start_time", tj - 0.5 * T,
-                                               "ref_time", t0,
-                                               "time_span", T,
-                                               "detectors", detector,
-                                               "ephemerides", ephemerides,
-                                               "fiducial_freq", fiducial_freq,
-                                               "det_motion", det_motion);
+    [metric, coordIDs] = CreateDopplerMetric("coords", "gct_nu,ssky_equ",
+                                             "spindowns", smax,
+                                             "start_time", tj - 0.5 * T,
+                                             "ref_time", t0,
+                                             "time_span", T,
+                                             "detectors", detector,
+                                             "ephemerides", ephemerides,
+                                             "fiducial_freq", fiducial_freq,
+                                             "det_motion", det_motion);
+    g_unconstr = metric.g_ij;
 
     ## scale metric from SI coordinates to GCT coordinate conventions
     scale = zeros(size(g_unconstr, 1), 1);
@@ -190,7 +191,8 @@ endfunction
 %!      tj = t0 + dt;
 %!
 %!      # compute super-sky metric in GCT coordinates
-%!      g_ssky = CreatePhaseMetric("coords", "freq,fdots,ssky_equ", "spindowns", smax, "start_time", tj - 0.5 * T, "ref_time", t0, "time_span", T, "detectors", detector, "ephemerides", ephemerides, "fiducial_freq", fiducial_freq, "det_motion", ptole{p, 2});
+%!      metric = CreateDopplerMetric("coords", "freq,fdots,ssky_equ", "spindowns", smax, "start_time", tj - 0.5 * T, "ref_time", t0, "time_span", T, "detectors", detector, "ephemerides", ephemerides, "fiducial_freq", fiducial_freq, "det_motion", ptole{p, 2});
+%!      g_ssky = metric.g_ij;
 %!
 %!      # compute full GCT metric
 %!      g_gct = GCTCoherentFullMetric([], "smax", smax, "tj", tj, "t0", t0, "T", T, "alpha", alpha1, "delta", delta1, "detector", detector, "ptolemaic", ptole{p, 1});

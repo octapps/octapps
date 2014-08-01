@@ -15,12 +15,17 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## Create various flat Doppler phase metrics.
+## Create various Doppler phase- and Fstat metrics.
 ## Usage:
-##   [metric, coordIDs] = CreatePhaseMetric("opt", val, ...)
+##   [metric, coordIDs] = CreateDopplerMetric("opt", val, ...)
 ## where:
-##   metric   = Doppler metric
+##   metric   = Doppler metric, with struct-elements (depending on metric_type)
+##              metric.g_ij: phase metric
+##              metric.gF_ij: full F-stat metric
+##              metric.gFav_ij: averaged F-stat metric
+##
 ##   coordIDs = coordinate IDs of the chosen coordinates
+##
 ## Options:
 ##   "coords": comma-separated list of coordinates:
 ##             "alpha_delta": physical sky coordinates
@@ -43,8 +48,12 @@
 ##   "alpha": for physical sky coordinates, right ascension to compute metric at
 ##   "delta": for physical sky coordinates, declination to compute metric at
 ##   "npos_eval": if >0, return a metric with no more than this number of non-positive eigenvalues
+##   "metric_type": compute either phase metric (METRIC_TYPE_PHASE), F-stat metric (METRIC_TYPE_FSTAT) or both (METRIC_TYPE_ALL)
+##   "cosi": cos(iota) signal parameter for full F-stat metric (gF_ij)
+##   "psi": polarization angle signal parameter for full F-stat metric (gF_ij)
 
-function [metric, coordIDs, start_time, ref_time] = CreatePhaseMetric(varargin)
+
+function [metric, coordIDs, start_time, ref_time] = CreateDopplerMetric(varargin)
 
   ## load LAL libraries
   lal;
@@ -64,6 +73,9 @@ function [metric, coordIDs, start_time, ref_time] = CreatePhaseMetric(varargin)
                {"alpha", "real,scalar", 0},
                {"delta", "real,scalar", 0},
                {"npos_eval", "integer,positive,scalar", 0},
+               {"metric_type", "integer,scalar", METRIC_TYPE_PHASE},
+               {"cosi", "real,scalar", 0},
+               {"psi", "real,scalar", 0},
                []);
 
   ## load ephemerides if not supplied
@@ -165,10 +177,14 @@ function [metric, coordIDs, start_time, ref_time] = CreatePhaseMetric(varargin)
   par.approxPhase = true;
 
   ## set metric type to return
-  par.metricType = METRIC_TYPE_PHASE;
+  par.metricType = metric_type;
 
   ## do not project coordinates
   par.projectCoord = -1;
+
+  ## set F-stat-metric-relevant amplitude signal parameters
+  par.signalParams.Amp.cosi = cosi;
+  par.signalParams.Amp.psi  = psi;
 
   ## set fiducial frequency and sky position
   par.signalParams.Doppler.Alpha = alpha;
@@ -193,9 +209,21 @@ function [metric, coordIDs, start_time, ref_time] = CreatePhaseMetric(varargin)
   try
     retn = XLALDopplerFstatMetric(par, ephemerides);
   catch
-    error("%s: Could not calculate phase metric", funcName);
+    error("%s: Could not calculate Doppler metric", funcName);
   end_try_catch
-  metric = retn.g_ij.data(:,:);
+
+  if ( (metric_type == METRIC_TYPE_PHASE) || (metric_type == METRIC_TYPE_ALL) )
+    metric.g_ij = retn.g_ij.data(:,:);
+  else
+    metric.g_ij = [];
+  endif
+  if ( (metric_type == METRIC_TYPE_FSTAT) || (metric_type == METRIC_TYPE_ALL) )
+    metric.gF_ij = retn.gF_ij.data(:,:);
+    metric.gFav_ij = retn.gFav_ij.data(:,:);
+  else
+    metric.gF_ij = [];
+    metric.gFav_ij = [];
+  endif
 
   ## cleanup
   XLALSegListClear(par.segmentList);
