@@ -90,7 +90,10 @@ function mergeCondorResults(varargin)
 
   ## iterate over jobs which need to be merged
   prog = [];
-  jobs_to_merge = merged.jobs_to_merge;  
+  jobs_to_merge = merged.jobs_to_merge;
+  job_merged_count = 0;
+  job_merged_total = length(jobs_to_merge);
+  job_save_period = round(max(10, min(0.1*length(jobs_to_merge), 100)));
   for n = jobs_to_merge
 
     ## determine index into merged results cell array
@@ -106,6 +109,7 @@ function mergeCondorResults(varargin)
     node_result_file = glob(fullfile(job_nodes(n).dir, "stdres.*"));
     if size(node_result_file, 1) < 1
       printf("%s: skipping job node '%s'; no result file\n", funcName, job_nodes(n).name);
+      --job_merged_total;
       continue
     elseif size(node_result_file, 1) > 1
       error("%s: job node directory '%s' contains multiple result files", funcName, job_nodes(n).dir);
@@ -133,14 +137,15 @@ function mergeCondorResults(varargin)
     merged.jobs_to_merge(merged.jobs_to_merge == n) = [];
 
     ## save merged jobs results at periodic intervals
-    if mod(n, 100) == 0
+    ++job_merged_count;
+    if mod(job_merged_count, job_save_period) == 0
       printf("%s: saving '%s' ...", funcName, dag_merged_file);
       save("-binary", "-zip", dag_merged_file, "merged");
       printf(" done\n");
     endif
 
     ## print progress
-    prog = printProgress(prog, length(find(jobs_to_merge <= n)), length(jobs_to_merge));
+    prog = printProgress(prog, job_merged_count, job_merged_total);
 
   endfor
 
