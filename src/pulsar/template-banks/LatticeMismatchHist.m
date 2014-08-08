@@ -33,21 +33,30 @@ function hgrm = LatticeMismatchHist( dim, lattice, N, dbin )
   assert( isscalar( N ) && N > 0 );
   assert( isscalar( dbin ) && dbin > 0 );
 
+  ## create histogram
+  hgrm = Hist(1, {"lin", "dbin", dbin});
+
   ## get the covering radius
   R = LatticeCoveringRadius( dim, lattice );
 
-  ## generate N random points within dim-D box [0, R]
-  ## - size of box is important to get unbiased histograms
-  x = R * randn( dim, N );
+  ## generate N random points, at most 1e5 at a time
+  while N > 0
+    n = min(N, 1e5);
+    N -= n;
 
-  ## find the nearest lattice point to each random point
-  y = LatticeFindClosestPoint( x, lattice );
+    ## generate n random points within dim-D box [0, R]
+    ## - size of box is important to get unbiased histograms
+    x = R * randn( dim, n );
 
-  ## work out mismatch
-  mu = sumsq(x - y, 1) ./ R.^2;
+    ## find the nearest lattice point to each random point
+    y = LatticeFindClosestPoint( x, lattice );
 
-  ## create histogram
-  hgrm = Hist(1, {"lin", "dbin", dbin});
-  hgrm = addDataToHist(hgrm, mu(:));
+    ## work out mismatch
+    mu = sumsq(x - y, 1) ./ R.^2;
+
+    ## add mismatches to histogram
+    hgrm = addDataToHist(hgrm, mu(:));
+
+  endwhile
 
 endfunction
