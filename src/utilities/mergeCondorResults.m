@@ -99,7 +99,11 @@ function mergeCondorResults(varargin)
     ## determine index into merged results cell array
     subs = cell(size(merged.var_names));
     for i = 1:length(merged.var_names)
-      subs{i} = find(merged.var_values{i} == job_nodes(n).vars.(merged.var_names{i}));
+      if ischar(job_nodes(n).vars.(merged.var_names{i}))
+        subs{i} = find(strcmp(merged.var_values{i}, job_nodes(n).vars.(merged.var_names{i})));
+      else
+        subs{i} = find(merged.var_values{i} == job_nodes(n).vars.(merged.var_names{i}));
+      endif
       assert(length(subs{i}) == 1);
     endfor
     idx = sub2ind(size(merged.results), subs{:});
