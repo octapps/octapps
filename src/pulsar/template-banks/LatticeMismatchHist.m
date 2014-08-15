@@ -17,15 +17,18 @@
 
 ## Generates a normalised mismatch histogram for the given lattice
 ## Usage:
-##   hgrm = LatticeMismatchHist( dim, lattice, N, dbin )
+##   hgrm = LatticeMismatchHist( dim, lattice, N=1e6, dbin=0.01, use_cache=true )
 ## where:
-##   hgrm    = returned mismatch histogram
-##   dim     = number of lattice dimensions
-##   lattice = lattice type; see e.g. LatticeFindClosestPoint()
-##   N       = number of points to use in generating histogram
-##   dbin    = bin size of histogram
+##   hgrm      = returned mismatch histogram
+##   dim       = number of lattice dimensions
+##   lattice   = lattice type; see e.g. LatticeFindClosestPoint()
+##   N         = number of points to use in generating histogram
+##   dbin      = bin size of histogram
+##   use_cache = if true, use a cached version of the lattice mismatch
+##               histogram, if available. Note that the cached histogram
+##               will probably contain more points than requested in 'N'.
 
-function hgrm = LatticeMismatchHist( dim, lattice, N, dbin )
+function hgrm = LatticeMismatchHist( dim, lattice, N=1e6, dbin=0.01, use_cache=true )
 
   ## check input
   assert( isscalar( dim ) && dim > 0 );
@@ -33,7 +36,35 @@ function hgrm = LatticeMismatchHist( dim, lattice, N, dbin )
   assert( isscalar( N ) && N > 0 );
   assert( isscalar( dbin ) && dbin > 0 );
 
-  ## create histogram
+  ## if using cache
+  if use_cache
+
+    ## load mismatch histogram cache
+    lattice_cache = load(fullfile(fileparts(mfilename("fullpath")), "lattice_mismatch_hgrms.bin.gz"));
+
+    ## check if mismatch histogram is in cache
+    lattice_cache_field = sprintf("%s_lattice_mismatch_hgrms", lattice);
+    if isfield(lattice_cache, lattice_cache_field)
+      lattice_cache_hgrms = lattice_cache.(lattice_cache_field);
+      if dim <= length(lattice_cache_hgrms)
+        hgrm = lattice_cache_hgrms{dim};
+
+        ## check that cached histogram has sufficient resolution
+        if N <= histTotalCount(hgrm)
+
+          ## resample histogram to desired bin size
+          hgrm = resampleHist(hgrm, 1, unique([0.0:dbin:1.0, 1.0]));
+
+          ## return cached histogram
+          return
+
+        endif
+      endif
+    endif
+
+  endif
+
+  ## otherwise, create histogram for generating mismatch histogram
   hgrm = Hist(1, {"lin", "dbin", dbin});
 
   ## get the covering radius
