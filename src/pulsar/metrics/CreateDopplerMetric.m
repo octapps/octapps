@@ -20,40 +20,38 @@
 ##   [metric, coordIDs] = CreateDopplerMetric("opt", val, ...)
 ## where:
 ##   metric   = Doppler metric, with struct-elements (depending on metric_type)
-##              metric.g_ij: phase metric
-##              metric.gF_ij: full F-stat metric
-##              metric.gFav_ij: averaged F-stat metric
-##
+##                metric.g_ij: phase metric
+##                metric.gF_ij: full F-stat metric
+##                metric.gFav_ij: averaged F-stat metric
 ##   coordIDs = coordinate IDs of the chosen coordinates
-##
 ## Options:
-##   "coords": comma-separated list of coordinates:
-##             "alpha_delta": physical sky coordinates
-##             "ssky_equ": super-sky in equatorial coordinates
-##             "ssky_ecl": super-sky in ecliptic coordinates
-##             "spin_equ": spin sky in x-y equatorial coordinates
-##             "orbit_ecl": orbit sky in x-y-z ecliptic coordinates
-##             "freq": frequency in SI units
-##             "fdots": frequency spindowns in SI units
-##             "gct_nu": GCT frequency/spindowns in SI units
-##             "gct_nx_ny_equ": GCT constrained equatorial sky coordinates
-##   "spindowns": number of spindown coordinates: 0=none, 1=1st spindown, 2=1st+2nd spindown, etc.
-##   "start_time": start time(s) in GPS seconds (default: [ref_time - 0.5*time_span])
-##   "ref_time": reference time in GPS seconds (default: mean(start_time + 0.5*time_span))
-##   "time_span": observation time-span in seconds
-##   "detectors": comma-separated list of detector names
-##   "ephemerides": Earth/Sun ephemerides from loadEphemerides()
-##   "fiducial_freq": fiducial frequency for sky-position coordinates
-##   "det_motion": which detector motion to use (default: spin+orbit)
-##   "alpha": for physical sky coordinates, right ascension to compute metric at
-##   "delta": for physical sky coordinates, declination to compute metric at
-##   "npos_eval": if >0, return a metric with no more than this number of non-positive eigenvalues
-##   "metric_type": compute either phase metric (METRIC_TYPE_PHASE), F-stat metric (METRIC_TYPE_FSTAT) or both (METRIC_TYPE_ALL)
-##   "cosi": cos(iota) signal parameter for full F-stat metric (gF_ij)
-##   "psi": polarization angle signal parameter for full F-stat metric (gF_ij)
+##   "coords"          : comma-separated list of coordinates:
+##                         "alpha_delta": physical sky coordinates
+##                         "ssky_equ": super-sky in equatorial coordinates
+##                         "ssky_ecl": super-sky in ecliptic coordinates
+##                         "spin_equ": spin sky in x-y equatorial coordinates
+##                         "orbit_ecl": orbit sky in x-y-z ecliptic coordinates
+##                         "freq": frequency in SI units
+##                         "fdots": frequency spindowns in SI units
+##                         "gct_nu": GCT frequency/spindowns in SI units
+##                         "gct_nx_ny_equ": GCT constrained equatorial sky coordinates
+##   "spindowns"       : number of spindown coordinates: 0=none, 1=1st spindown, etc.
+##   "start_time"      : start time(s) in GPS seconds (default: [ref_time - 0.5*time_span])
+##   "ref_time"        : reference time in GPS seconds (default: mean(start_time + 0.5*time_span))
+##   "time_span"       : observation time-span in seconds
+##   "detectors"       : comma-separated list of detector names
+##   "ephemerides"     : Earth/Sun ephemerides from loadEphemerides()
+##   "fiducial_freq"   : fiducial frequency for sky-position coordinates
+##   "det_motion"      : which detector motion to use (default: spin+orbit)
+##   "alpha"           : for physical sky coordinates, right ascension to compute metric at
+##   "delta"           : for physical sky coordinates, declination to compute metric at
+##   "npos_eval"       : if >0, return a metric with no more than this number of non-positive eigenvalues
+##   "metric_type"     : compute either phase metric (METRIC_TYPE_PHASE), F-stat metric (METRIC_TYPE_FSTAT)
+##                       or both (METRIC_TYPE_ALL)
+##   "cosi"            : cos(iota) signal parameter for full F-stat metric (gF_ij)
+##   "psi"             : polarization angle signal parameter for full F-stat metric (gF_ij)
 
-
-function [metric, coordIDs, start_time, ref_time] = CreateDopplerMetric(varargin)
+function [metric, coordIDs] = CreateDopplerMetric(varargin)
 
   ## load LAL libraries
   lal;
@@ -205,13 +203,14 @@ function [metric, coordIDs, start_time, ref_time] = CreateDopplerMetric(varargin
   ## set non-positive eigenvalue threshold
   par.nonposEigValThresh = npos_eval;
 
-  ## calculate Doppler phase metric
+  ## calculate Doppler metric
   try
     retn = XLALDopplerFstatMetric(par, ephemerides);
   catch
     error("%s: Could not calculate Doppler metric", funcName);
   end_try_catch
 
+  ## return Doppler metric
   if ( (metric_type == METRIC_TYPE_PHASE) || (metric_type == METRIC_TYPE_ALL) )
     metric.g_ij = retn.g_ij.data(:,:);
   else
