@@ -35,10 +35,12 @@
 ##                         "fdots": frequency spindowns in SI units
 ##                         "gct_nu": GCT frequency/spindowns in SI units
 ##                         "gct_nx_ny_equ": GCT constrained equatorial sky coordinates
-##   "spindowns"       : number of spindown coordinates: 0=none, 1=1st spindown, etc.
-##   "start_time"      : start time(s) in GPS seconds (default: [ref_time - 0.5*time_span])
-##   "ref_time"        : reference time in GPS seconds (default: mean(start_time + 0.5*time_span))
-##   "time_span"       : observation time-span in seconds
+##   "spindowns"       : number of spindown coordinates: 0=none, 1=1st spindown, 2=1st+2nd spindown, etc.
+##   "ref_time"        : reference time in GPS seconds [default: mean of segment start/end times]
+##   "start_time"      : start time(s) in GPS seconds of each segment [used with end_time or time_span]
+##   "mid_time"        : mid time(s) in GPS seconds of each segment [used with time_span]
+##   "end_time"        : end time(s) in GPS seconds of each segment [used with start_time or time_span]
+##   "time_span"       : time span(s) in seconds of each segment [used with start_time, end_time, or mid_time]
 ##   "detectors"       : comma-separated list of detector names
 ##   "ephemerides"     : Earth/Sun ephemerides from loadEphemerides()
 ##   "fiducial_freq"   : fiducial frequency for sky-position coordinates
@@ -61,9 +63,11 @@ function [metric, coordIDs] = CreateDopplerMetric(varargin)
   parseOptions(varargin,
                {"coords", "char"},
                {"spindowns", "integer,positive,scalar"},
-               {"start_time", "real,strictpos,vector", []},
                {"ref_time", "real,strictpos,scalar", []},
-               {"time_span", "real,strictpos,scalar"},
+               {"start_time", "real,strictpos,vector", []},
+               {"mid_time", "real,strictpos,vector", []},
+               {"end_time", "real,strictpos,vector", []},
+               {"time_span", "real,strictpos,vector", []},
                {"detectors", "char"},
                {"ephemerides", "a:swig_ref", []},
                {"fiducial_freq", "real,strictpos,scalar"},
@@ -81,19 +85,9 @@ function [metric, coordIDs] = CreateDopplerMetric(varargin)
     ephemerides = loadEphemerides();
   endif
 
-  ## check start time(s) and reference time
-  if isempty(start_time) && isempty(ref_time)
-    error("%s: one of 'start_time' and 'ref_time' must be given", funcName);
-  endif
-  if isempty(start_time)
-    start_time = [ref_time - 0.5*time_span];
-  elseif isempty(ref_time)
-    ref_time = mean(start_time + 0.5*time_span);
-  endif
-  start_time = sort(start_time);
-  if start_time(1) < ephemerides.ephemE{1}.gps || ephemerides.ephemE{end}.gps < start_time(end) + time_span
-    error("%s: time span [%f,%f] is outside range of ephemerides", funcName, start_time(1), start_time(end) + time_span);
-  endif
+  ## parse segment times
+  [ref_time, start_time, end_time] = parseSegmentTimes(ref_time, start_time, mid_time, end_time, time_span,
+                                                       ephemerides.ephemE{1}.gps || ephemerides.ephemE{end}.gps);
 
   ## create metric parameters struct
   par = new_DopplerMetricParams;
@@ -189,14 +183,12 @@ function [metric, coordIDs] = CreateDopplerMetric(varargin)
   par.signalParams.Doppler.Delta = delta;
   par.signalParams.Doppler.fkdot(1) = fiducial_freq;
 
-  ## set start time, reference time, and time span
+  ## create LAL segment list
   par.signalParams.Doppler.refTime = ref_time;
   XLALSegListInit(par.segmentList);
   for i = 1:length(start_time)
     seg = new_LALSeg;
-    segstart = new_LIGOTimeGPS(start_time(i));
-    segend = new_LIGOTimeGPS(start_time(i) + time_span);
-    XLALSegSet(seg, segstart, segend, i);
+    XLALSegSet(seg, start_time(i), end_time(i), i);
     XLALSegListAppend(par.segmentList, seg);
   endfor
 
