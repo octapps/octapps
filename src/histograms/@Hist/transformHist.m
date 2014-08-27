@@ -15,19 +15,19 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## Transform the bins of a histogram.
+## Transform the contents of a histogram.
 ## Syntax:
-##   hgrm = transformHistBins(hgrm, F, [err])
+##   hgrm = transformHist(hgrm, F, [err])
 ## where:
 ##   hgrm = histogram class
-##   F    = function to apply to bins:
+##   F    = function to apply to histogram samples:
 ##          - should accept column vectors as inputs and return
 ##            an array whose columns are vectorised outputs
 ##          - number of input/output arguments must match
 ##            histogram dimensionality
 ##   err  = convergence requirement on histogram (default = 1e-2)
 
-function thgrm = transformHistBins(hgrm, F, err = 1e-2)
+function thgrm = transformHist(hgrm, F, err = 1e-2)
 
   ## check input
   assert(isHist(hgrm));
@@ -80,16 +80,16 @@ endfunction
 
 ## test 1-D histograms
 %!test
-%!  t_hgrmA = transformHistBins(hgrmA, @(x) x);
+%!  t_hgrmA = transformHist(hgrmA, @(x) x);
 %!  assert(histDistance(hgrmA, t_hgrmA) < 0.01);
 %!test
-%!  t_hgrmA1 = transformHistBins(hgrmA, @(x) abs(x));
+%!  t_hgrmA1 = transformHist(hgrmA, @(x) abs(x));
 %!  assert(histDistance(hgrmA1, t_hgrmA1) < 0.05);
 %!test
-%!  t_hgrmA2 = transformHistBins(hgrmA, @(x) x.^2 - 3);
+%!  t_hgrmA2 = transformHist(hgrmA, @(x) x.^2 - 3);
 %!  assert(histDistance(hgrmA2, t_hgrmA2) < 0.05);
 %!test
-%!  t_hgrmA3 = transformHistBins(hgrmA, @(x) sin(x));
+%!  t_hgrmA3 = transformHist(hgrmA, @(x) sin(x));
 %!  assert(histDistance(hgrmA3, t_hgrmA3) < 0.05);
 
 
@@ -110,14 +110,14 @@ endfunction
 
 ## test 2-D histograms
 %!test
-%!  t_hgrmB = transformHistBins(hgrmB, @(x,y) [x, y]);
+%!  t_hgrmB = transformHist(hgrmB, @(x,y) [x, y]);
 %!  assert(histDistance(hgrmB, t_hgrmB) < 0.05)
 %!test
-%!  t_hgrmB1 = transformHistBins(hgrmB, @(x,y) [abs(x), 10.*y]);
+%!  t_hgrmB1 = transformHist(hgrmB, @(x,y) [abs(x), 10.*y]);
 %!  assert(histDistance(hgrmB1, t_hgrmB1) < 0.1);
 %!test
-%!  t_hgrmB2 = transformHistBins(hgrmB, @(x,y) [x.^2 - 3, y.^3]);
+%!  t_hgrmB2 = transformHist(hgrmB, @(x,y) [x.^2 - 3, y.^3]);
 %!  assert(histDistance(hgrmB2, t_hgrmB2) < 0.1);
 %!test
-%!  t_hgrmB3 = transformHistBins(hgrmB, @(x,y) [sin(x), cos(y)]);
+%!  t_hgrmB3 = transformHist(hgrmB, @(x,y) [sin(x), cos(y)]);
 %!  assert(histDistance(hgrmB3, t_hgrmB3) < 0.1)'
