@@ -17,24 +17,32 @@
 
 ## Generates a normalised mismatch histogram for the given lattice
 ## Usage:
-##   hgrm = LatticeMismatchHist( dim, lattice, N=1e6, dbin=0.01, use_cache=true )
+##   hgrm = LatticeMismatchHist(dim, lattice, "opt", val, ...)
 ## where:
 ##   hgrm      = returned mismatch histogram
 ##   dim       = number of lattice dimensions
 ##   lattice   = lattice type; see e.g. LatticeFindClosestPoint()
-##   N         = number of points to use in generating histogram
-##   dbin      = bin size of histogram
-##   use_cache = if true, use a cached version of the lattice mismatch
-##               histogram, if available. Note that the cached histogram
-##               will probably contain more points than requested in 'N'.
+## Options:
+##   "N"         : number of points to use in generating histogram [default:1e6]
+##   "dbin"      : bin size of histogram [default: 0.01]
+##   "mu_max"    : use this maximum mismatch [default: 1.0]
+##   "use_cache" : if true [default], use a cached version of the lattice mismatch
+##                 histogram, if available. Note that the cached histogram will
+##                 probably contain more points than requested in 'N'.
 
-function hgrm = LatticeMismatchHist( dim, lattice, N=1e6, dbin=0.01, use_cache=true )
+function hgrm = LatticeMismatchHist( dim, lattice, varargin )
 
   ## check input
   assert( isscalar( dim ) && dim > 0 );
   assert( ischar( lattice ) );
-  assert( isscalar( N ) && N > 0 );
-  assert( isscalar( dbin ) && dbin > 0 );
+
+  ## parse options
+  parseOptions(varargin,
+               {"N", "integer,strictpos,scalar", 1e6},
+               {"dbin", "real,strictpos,scalar", 0.01},
+               {"mu_max", "real,strictpos,scalar", 1.0},
+               {"use_cache", "logical,scalar", true},
+               []);
 
   ## if using cache
   if use_cache
@@ -51,6 +59,9 @@ function hgrm = LatticeMismatchHist( dim, lattice, N=1e6, dbin=0.01, use_cache=t
 
         ## check that cached histogram has sufficient resolution
         if N <= histTotalCount(hgrm)
+
+          ## rescale histogram to desired maximum mismatch
+          hgrm = rescaleHistBins(hgrm, mu_max);
 
           ## resample histogram to desired bin size
           hgrm = resampleHist(hgrm, 1, unique([0.0:dbin:1.0, 1.0]));
@@ -83,7 +94,7 @@ function hgrm = LatticeMismatchHist( dim, lattice, N=1e6, dbin=0.01, use_cache=t
     y = LatticeFindClosestPoint( x, lattice );
 
     ## work out mismatch
-    mu = sumsq(x - y, 1) ./ R.^2;
+    mu = mu_max * sumsq(x - y, 1) ./ R.^2;
 
     ## add mismatches to histogram
     hgrm = addDataToHist(hgrm, mu(:));
