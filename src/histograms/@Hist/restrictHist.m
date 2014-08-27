@@ -53,17 +53,55 @@ function hgrm = restrictHist(hgrm, F)
   ## zero out bins where restrict function was false
   hgrm.counts(find(!r)) = 0;
 
+  ## remove any unneeded zero bins in each dimension
+  siz = size(hgrm.counts);
+  for k = 1:dim
+
+    ## sum counts over all other dimensions
+    counts_k = hgrm.counts;
+    for j = [1:k-1, k+1:dim]
+      counts_k = sum(counts_k, j);
+    endfor
+    counts_k = squeeze(counts_k);
+
+    ## find the minimum and maximum bins with non-zero count
+    ## (excluding +/- infinity bins)
+    nonz_k = find(counts_k > 0);
+    minnonz_k = min(nonz_k(nonz_k > 1));
+    maxnonz_k = max(nonz_k(nonz_k < siz(k)));
+
+    ## extract non-zero bins
+    hgrm.bins{k} = hgrm.bins{k}([1, minnonz_k:maxnonz_k+1, siz(k)+1]);
+
+    ## extract non-zero counts
+    [subs{1:dim}] = deal(":");
+    subs{k} = [1, minnonz_k:maxnonz_k, siz(k)];
+    hgrm.counts = subsref(hgrm.counts, substruct("()", subs));
+
+  endfor
+
 endfunction
 
 
-%!shared hgrm, hgrmx, hgrmy
-%!  hgrm = Hist(2,{"lin",0.01},{"lin",0.01});
+%!test
+%!  hgrm = Hist(2, {"lin", 0.01}, {"lin", 0.01});
 %!  hgrm = addDataToHist(hgrm, rand(50000,2));
-%!  hgrmx = restrictHist(hgrm,@(x,y) max(x)<=0.5);
-%!  hgrmy = restrictHist(hgrm,@(x,y) max(y)<=0.3);
-%!assert(abs(meanOfHist(contractHist(hgrm,1)) - 0.5) < 1e-2)
-%!assert(abs(meanOfHist(contractHist(hgrm,2)) - 0.5) < 1e-2)
-%!assert(abs(meanOfHist(contractHist(hgrmx,1)) - 0.25) < 1e-2)
-%!assert(abs(meanOfHist(contractHist(hgrmx,2)) - 0.5) < 1e-2)
-%!assert(abs(meanOfHist(contractHist(hgrmy,1)) - 0.5) < 1e-2)
-%!assert(abs(meanOfHist(contractHist(hgrmy,2)) - 0.15) < 1e-2)
+%!  hgrmx = restrictHist(hgrm, @(x,y) max(x) <= 0.5);
+%!  hgrmy = restrictHist(hgrm, @(x,y) max(y) <= 0.3);
+%!  assert(abs(meanOfHist(contractHist(hgrm, 1)) - 0.5) < 1e-2);
+%!  assert(abs(meanOfHist(contractHist(hgrm, 2)) - 0.5) < 1e-2);
+%!  assert(abs(meanOfHist(contractHist(hgrmx, 1)) - 0.25) < 1e-2);
+%!  assert(abs(meanOfHist(contractHist(hgrmx, 2)) - 0.5) < 1e-2);
+%!  assert(abs(meanOfHist(contractHist(hgrmy, 1)) - 0.5) < 1e-2);
+%!  assert(abs(meanOfHist(contractHist(hgrmy, 2)) - 0.15) < 1e-2);
+
+%!test
+%!  hgrm = Hist(2, -1.0:0.1:2.0, -1.0:0.1:2.0);
+%!  hgrm = addDataToHist(hgrm, rand(50000,2));
+%!  count = histTotalCount(hgrm);
+%!  hgrmx = restrictHist(hgrm, @(x,y) 0.0 <= min(x) && max(x) <= 1.0);
+%!  hgrmy = restrictHist(hgrm, @(x,y) -0.5 <= min(y) && max(y) <= 1.5);
+%!  hgrmxy = restrictHist(hgrm, @(x,y) max(x) <= 0.5 && max(y) <= 0.5);
+%!  assert(histTotalCount(hgrmx) == count);
+%!  assert(histTotalCount(hgrmy) == count);
+%!  assert(abs(histTotalCount(hgrmxy) - 0.25*count) < 1e-2*count);
