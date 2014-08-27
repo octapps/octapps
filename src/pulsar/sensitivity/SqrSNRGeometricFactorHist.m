@@ -160,6 +160,6 @@ function Rsqr_H = SqrSNRGeometricFactorHist(varargin)
   until (rng.allconst || err < hist_err)
 
   ## reduce scale of R^2 histogram so that <R^2> = 1
-  Rsqr_H = transformHistBins(Rsqr_H, @(x) x / apxnorm);
+  Rsqr_H = rescaleHistBins(Rsqr_H, 1.0 / apxnorm);
 
 endfunction
