@@ -17,12 +17,15 @@
 
 ## Add multiple histograms together.
 ## Syntax:
-##   hgrmt = addHists(hgrms...)
+##   hgrmt = addHists(addop, hgrms...)
 ## where:
+##   addop = operation used to add histograms:
+##           "count" : sum histogram counts
+##           "prob"  : sum histogram probabilities
 ##   hgrms = histograms to add; [] arguments are ignored
 ##   hgrmt = total histogram
 
-function hgrmt = addHists(varargin)
+function hgrmt = addHists(addop, varargin)
 
   ## check input
   hgrms = {};
@@ -52,19 +55,32 @@ function hgrmt = addHists(varargin)
   ## get union of all histogram bins in each dimension
   ubins = histBinUnions(hgrms{:});
 
-  ## resample 1st histogram to total histogram bins to create total histogram
-  hgrmt = resampleHist(hgrms{1}, ubins{:});
-
-  ## iterate over remaining histograms
-  for i = 2:length(hgrms)
-
-    ## resample histogram to total histogram bins
-    hgrm = resampleHist(hgrms{i}, ubins{:});
-
-    ## add counts
-    hgrmt.counts += hgrm.counts;
-
+  ## resample histograms to union of all histogram bins
+  for i = 1:length(hgrms)
+    hgrms{i} = resampleHist(hgrms{i}, ubins{:});
   endfor
+
+  ## use 1st histogram, with zeroed count, as total histogram
+  hgrmt = hgrms{1};
+  hgrmt.counts = zeros(size(hgrmt.counts));
+
+  ## add histograms
+  switch addop
+
+    case "count"   ## add histogram counts
+      for i = 1:length(hgrms)
+        hgrmt.counts += hgrms{i}.counts;
+      endfor
+
+    case "prob"   ## ad histogram probabilities
+      for i = 1:length(hgrms)
+        hgrmt.counts += histProbs(hgrms{i});
+      endfor
+
+    otherwise
+      error("%s: unknown addition operation '%s'", funcName, addop);
+
+  endswitch
 
 endfunction
 
@@ -72,13 +88,13 @@ endfunction
 %!test
 %!  hgrm1 = addDataToHist(Hist(1, 0:12), 0.5 + (0:11)');
 %!  hgrm2 = addDataToHist(Hist(1, 0:3:12), 0.5 + (0:11)');
-%!  hgrmt = addHists(hgrm1, hgrm2);
+%!  hgrmt = addHists("count", hgrm1, hgrm2);
 %!  p = histProbs(hgrmt);
 %!  assert(length(p) == 14 && p(2:end-1) == 1/12);
 
 %!test
 %!  hgrms = arrayfun(@(x) addDataToHist(Hist(1, 0:12), 0.5 + x), 0:11, "UniformOutput", false);
-%!  hgrmt = addHists(hgrms{:});
+%!  hgrmt = addHists("count", hgrms{:});
 %!  p = histProbs(hgrmt);
 %!  assert(length(p) == 14 && p(2:end-1) == 1/12);
 
