@@ -66,8 +66,7 @@ function [ssky_metric, rssky_metric, rssky_transf] = CreateSuperSkyMetrics(varar
                                                        ephemerides.ephemE{1}.gps || ephemerides.ephemE{end}.gps);
 
   ## create LAL segment list
-  SegmentList = new_LALSegList;
-  XLALSegListInit(SegmentList);
+  SegmentList = XLALSegListCreate();
   for i = 1:length(start_time)
     seg = new_LALSeg;
     XLALSegSet(seg, start_time(i), end_time(i), i);
@@ -113,9 +112,6 @@ function [ssky_metric, rssky_metric, rssky_transf] = CreateSuperSkyMetrics(varar
       error("%s: Could not calculate reduced super-sky metric", funcName);
     end_try_catch
   endif
-
-  ## cleanup
-  XLALSegListClear(SegmentList);
 
 endfunction
 
