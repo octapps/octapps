@@ -56,28 +56,55 @@ function tex = buildTeXTable(spec, numfmt="g")
   texalign = cell(1, size(tbl, 2));
   for j = 1:size(tbl, 2)
     for i = 1:size(tbl, 1)
-      if !isempty(tbl{i, j}) && tbl{i, j}(1) != "\\"
-        if tbl{i, j}(1) == "$"
-          if tbl{i, j}(end) == "$"
-            texalign{j} = "r";   ## TeX numbers are aligned right
+
+      ## skip empty elements and TeX command elements
+      if isempty(tbl{i, j}) || (ischar(tbl{i, j}) && tbl{i, j}(1) == "\\")
+        continue
+      endif
+
+      if isstruct(tbl{i, j})
+
+        ## if element is struct, get alignment from it
+        texalign{j} = tbl{i, j}.align;
+        tbl{i, j} = tbl{i, j}.value;
+
+      elseif length(tbl{i, j}) > 1 && all(tbl{i, j}([1,end]) == "$")
+
+        ## if element is a TeX number, align right
+        texalign{j} = "r";
+
+      elseif j == 1
+
+        ## if in column 1, align left
+        texalign{j} = "l";
+
+      endif
+
+    endfor
+
+    ## align right by default
+    if isempty(texalign{j})
+      texalign{j} = "r";
+    endif
+
+  endfor
+
+  ## check TeX numbers
+  for i = 1:size(tbl, 1)
+    for j = 1:size(tbl, 2)
+      if length(tbl{i, j}) > 1 && any(tbl{i, j}([1,end]) == "$")
+
+        ## if TeX number does not have enough $s, add one to start/end
+        if mod(sum(tbl{i, j} == "$"), 2) == 1
+          if tbl{i, j}(1) != "$"
+            tbl{i, j} = cstrcat("$", tbl{i, j});
           else
-            texalign{j} = "r";   ## LHS of period-split TeX numbers are aligned right
-            tbl{i, j} = strcat(tbl{i, j}, "$");
-          endif
-        else
-          if tbl{i, j}(end) == "$"
-            texalign{j} = "@{.}l";   ## RHS of period-split TeX numbers are aligned left, with period
-            tbl{i, j} = strcat("$", tbl{i, j});
-          elseif j == 1
-            texalign{j} = "l";   ## Text in column 1 are aligned left
-          else
-            texalign{j} = "r";   ## Text in other columns are aligned right
+            tbl{i, j} = cstrcat(tbl{i, j}, "$");
           endif
         endif
+
       endif
     endfor
-    assert(!isempty(texalign{j}),
-           "%s: could not decide alignment for 'tbl' column #%i", funcName, j);
   endfor
 
   ## build TeX table
@@ -118,25 +145,25 @@ function tex = buildTeXTable(spec, numfmt="g")
 
       ## if elements are TeX numbers ...
       if tbl{i, jj(k)}(1) == "$"
-        
+
         ## print element in 1st column, then add empty columns
         tex{end+1} = tbl{i, jj(k)};
         for c = 2:cols
           tex{end+1} = " & ";
         endfor
-          
+
       else   ## otherwise, use \multicolumn
-          
+
         ## Text in column 1, row >1 are aligned left; other columns are centered
         if k == 1 && row > 1
           multicolalign = "l";
         else
           multicolalign = "c";
         endif
-        
+
         ## print \multicolumn command
         tex{end+1} = sprintf("\\multicolumn{%i}{%s}{%s}", cols, multicolalign, tbl{i, jj(k)});
-        
+
       endif
 
     endfor
@@ -201,7 +228,8 @@ function spec = parse_spec(spec, numfmt)
       if length(spec{i}) > 2 && spec{i}(1) == "$" && spec{i}(end) == "$"
         j = find(spec{i} == ".");
         if !isempty(j)
-          spec{i} = {spec{i}(1:j-1), spec{i}(j+1:end)};
+          spec{i} = {strcat(spec{i}(1:j-1), "$"), ...
+                     struct("align", "@{}l", "value", strcat("$", spec{i}(j:end)))};
         endif
       endif
 
@@ -221,7 +249,7 @@ function spec = parse_spec(spec, numfmt)
   for i = 1:length(spec)
     [spec{i}{length(spec{i})+1:cellmaxlen}] = deal([]);
   endfor
-  
+
   ## if any elements of (original) 'spec' are cell arrays
   ## iterate over all 2nd-level elements of 'spec'
   if anycell
