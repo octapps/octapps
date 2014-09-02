@@ -28,6 +28,7 @@
 function hgrmt = addHists(addop, varargin)
 
   ## check input
+  assert(ischar(addop));
   hgrms = {};
   dim = [];
   for i = 1:length(varargin)
