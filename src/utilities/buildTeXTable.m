@@ -16,22 +16,31 @@
 
 ## Build a TeX table from a cell array specification.
 ## Usage:
-##   tex = buildTeXTable(spec, [numfmt="g"])
+##   tex = buildTeXTable(spec, "opt", val, ...)
 ## where
 ##   tex    = TeX table as a string
 ##   spec   = table specification
-##   numfmt = number format used by num2TeX to convert numbers to strings
-## The specification is a 1-D cell array of rows, the elements of which are
-## 1-D cell arrays of columns. Further nesting of cell arrays may be used
-## to set up elements which span multiple columns. TeX numbers containing
+## Options:
+##   "numfmt":    num2TeX() format for formatting numbers [default: "g"]
+##   "tblwidth":  TeX command specifying table width [optional]
+##   "fillcols":  space-filling columns: "first", "all", or "none" [default]
+##
+## The table specification 'spec' is a 1-D cell array of rows, the elements of
+## which are 1-D cell arrays of columns. Further nesting of cell arrays may be
+## used to set up elements which span multiple columns. TeX numbers containing
 ## periods are split into 2 columns to align numbers at the period.
+##
 ## Run "demo buildTeXTable" for some examples.
 
-function tex = buildTeXTable(spec, numfmt="g")
+function tex = buildTeXTable(spec, varargin)
 
   ## check input
   assert(iscell(spec), "%s: 'spec' spec must be a cell array", funcName);
-  assert(ischar(numfmt), "%s: 'numfmt' must be a string", funcName);
+  parseOptions(varargin,
+               {"numfmt", "char", "g"},
+               {"tblwidth", "char", []},
+               {"fillcols", "char", "none"},
+               []);
 
   ## parse table specification
   spec = parse_spec(spec, numfmt);
@@ -52,8 +61,9 @@ function tex = buildTeXTable(spec, numfmt="g")
 
   endfor
 
-  ## build TeX table columns alignment string
+  ## build TeX table column alignment and spacing
   texalign = cell(1, size(tbl, 2));
+  texcolsep = cell(1, size(tbl, 2));
   for j = 1:size(tbl, 2)
     for i = 1:size(tbl, 1)
 
@@ -64,8 +74,13 @@ function tex = buildTeXTable(spec, numfmt="g")
 
       if isstruct(tbl{i, j})
 
-        ## if element is struct, get alignment from it
-        texalign{j} = tbl{i, j}.align;
+        ## if element is struct, get alignment and spacing from it
+        if isfield(tbl{i, j}, "align")
+          texalign{j} = tbl{i, j}.align;
+        endif
+        if isfield(tbl{i, j}, "colsep")
+          texcolsep{j} = tbl{i, j}.colsep;
+        endif
         tbl{i, j} = tbl{i, j}.value;
 
       elseif length(tbl{i, j}) > 1 && all(tbl{i, j}([1,end]) == "$")
@@ -89,6 +104,31 @@ function tex = buildTeXTable(spec, numfmt="g")
 
   endfor
 
+  ## add column spacing required by 'fillcols'
+  switch fillcols
+    case "first"
+      jj = 1;
+    case "all"
+      jj = 1:length(texcolsep);
+    case "none"
+      jj = [];
+    otherwise
+      error("%s: unknown column fill option '%s'", funcName, fillcols);
+  endswitch
+  for j = jj
+    if isempty(texcolsep{j})
+      texcolsep{j} = "\\fill";
+    endif
+  endfor
+
+  ## add default column spacings
+  texcolsep{end} = [];
+  for j = 1:1:length(texcolsep)
+    if isempty(texcolsep{j})
+      texcolsep{j} = "2\\tabcolsep";
+    endif
+  endfor
+
   ## check TeX numbers
   for i = 1:size(tbl, 1)
     for j = 1:size(tbl, 2)
@@ -107,8 +147,21 @@ function tex = buildTeXTable(spec, numfmt="g")
     endfor
   endfor
 
+  ## start TeX table environment
+  if !isempty(tblwidth)
+    textblenv = "tabular*";
+    tex = {"\\begin{", textblenv, "}{", tblwidth, "}"};
+  else
+    textblenv = "tabular";
+    tex = {"\\begin{", textblenv, "}"};
+  endif
+  tex{end+1} = "{";
+  for j = 1:1:length(texalign)
+    tex{end+1} = sprintf("%s@{\\extracolsep{%s}}", texalign{j}, texcolsep{j});
+  endfor
+  tex{end+1} = "}\n";
+
   ## build TeX table
-  tex = {"\\begin{tabular}{", texalign{:}, "}\n"};
   row = 0;
   for i = 1:size(tbl, 1)
 
@@ -175,7 +228,9 @@ function tex = buildTeXTable(spec, numfmt="g")
     tex{end+1} = "\n";
 
   endfor
-  tex{end+1} = "\\end{tabular}\n";
+
+  ## end TeX table environment
+  tex = {tex{:}, "\\end{", textblenv, "}\n"};
 
   ## concatenate TeX table string
   tex = cstrcat(tex{:});
@@ -228,8 +283,8 @@ function spec = parse_spec(spec, numfmt)
       if length(spec{i}) > 2 && spec{i}(1) == "$" && spec{i}(end) == "$"
         j = find(spec{i} == ".");
         if !isempty(j)
-          spec{i} = {strcat(spec{i}(1:j-1), "$"), ...
-                     struct("align", "@{}l", "value", strcat("$", spec{i}(j:end)))};
+          spec{i} = {struct("align", "r", "colsep", "0pt", "value", strcat(spec{i}(1:j-1), "$")), ...
+                     struct("align", "l", "value", strcat("$", spec{i}(j:end)))};
         endif
       endif
 
