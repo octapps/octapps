@@ -22,6 +22,8 @@
 ##   num = any-dimensional array of numbers
 ##   fmt = printf()-style format string, without the leading %
 ## Options:
+##   "prefix:": string to add at start of TeX string (default: "")
+##   "suffix:": string to add at end of TeX string (default: "")
 ##   "dollar": symbol to wrap TeX string with (default: "$")
 ##   "times": TeX symbol to use for times (default: "{\times}")
 ##   "infstr": TeX string to use for infinity (default: "\infty")
@@ -38,6 +40,8 @@ function tex = num2TeX(num, fmt, varargin)
 
   ## parse options
   parseOptions(varargin,
+               {"prefix", "char", ""},
+               {"suffix", "char", ""},
                {"dollar", "char", "$"},
                {"times", "char", "{\\times}"},
                {"infstr", "char", "\\infty"},
@@ -60,8 +64,8 @@ function tex = num2TeX(num, fmt, varargin)
     texstr = strrep(texstr, "Inf", infstr);
     texstr = strrep(texstr, "NaN", nanstr);
 
-    ## wrap TeX string in dollar symbols
-    texstr = strcat(dollar, texstr, dollar);
+    ## wrap TeX string with prefix/suffix in dollar symbols
+    texstr = strcat(dollar, prefix, texstr, suffix, dollar);
 
     tex{n} = texstr;
   endfor
