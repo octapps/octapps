@@ -207,9 +207,10 @@ function tex = buildTeXTable(spec, varargin)
 
       else   ## otherwise, use \multicolumn
 
-        ## Text in column 1, row >1 are aligned left; other columns are centered
-        if k == 1 && row > 1
-          multicolalign = "l";
+        ## Text in column 1, row >1, not spanning an entire row are aligned left;
+        ## other columns are centered
+        if k == 1 && row > 1 && length(jj) > 2
+          multicolalign = "l"
         else
           multicolalign = "c";
         endif
