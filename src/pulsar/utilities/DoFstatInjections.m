@@ -234,12 +234,13 @@ function [results, multiSFTs, multiTser] = DoFstatInjections(varargin)
   spinRange.fkdot(1:length(inj_fndot)) = min(all_fndot, [], 2);
   spinRange.fkdotBand(1:length(inj_fndot)) = range(all_fndot, 2);
   if OrbitParams
-    binary_max_asini = max([inj_orbitasini, sch_orbitasini]);
+    binary_max_asini  = max([inj_orbitasini, sch_orbitasini]);
     binary_min_period = min([inj_orbitPeriod, sch_orbitPeriod]);
+    binary_max_ecc    = max([inj_orbitEcc, sch_orbitEcc]);
   else
-    binary_max_asini = binary_min_period = 0;
+    binary_max_asini = binary_min_period = binary_max_ecc = 0;
   endif
-  [min_freq, max_freq] = XLALCWSignalCoveringBand(startTime, endTime, spinRange, binary_max_asini, binary_min_period);
+  [min_freq, max_freq] = XLALCWSignalCoveringBand(startTime, endTime, spinRange, binary_max_asini, binary_min_period, binary_max_ecc);
   results.SFT_min_freq = min_freq;
   results.SFT_max_freq = max_freq;
 
