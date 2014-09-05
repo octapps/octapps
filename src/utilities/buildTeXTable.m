@@ -83,7 +83,7 @@ function tex = buildTeXTable(spec, varargin)
         endif
         tbl{i, j} = tbl{i, j}.value;
 
-      elseif length(tbl{i, j}) > 1 && all(tbl{i, j}([1,end]) == "$")
+      elseif is_TeX_number(tbl{i, j})
 
         ## if element is a TeX number, align right
         texalign{j} = "r";
@@ -129,24 +129,6 @@ function tex = buildTeXTable(spec, varargin)
     endif
   endfor
 
-  ## check TeX numbers
-  for i = 1:size(tbl, 1)
-    for j = 1:size(tbl, 2)
-      if length(tbl{i, j}) > 1 && any(tbl{i, j}([1,end]) == "$")
-
-        ## if TeX number does not have enough $s, add one to start/end
-        if mod(sum(tbl{i, j} == "$"), 2) == 1
-          if tbl{i, j}(1) != "$"
-            tbl{i, j} = cstrcat("$", tbl{i, j});
-          else
-            tbl{i, j} = cstrcat(tbl{i, j}, "$");
-          endif
-        endif
-
-      endif
-    endfor
-  endfor
-
   ## start TeX table environment
   if !isempty(tblwidth)
     textblenv = "tabular*";
@@ -177,12 +159,15 @@ function tex = buildTeXTable(spec, varargin)
     ++row;
 
     ## add column separators for any initial empty columns
+    col = 0;
     for s = 1:jj(1)-1
       tex{end+1} = " & ";
+      ++col;
     endfor
 
     ## iterate over columns
     for k = 1:length(jj) - 1
+      ++col;
 
       ## add column separator
       if k > 1
@@ -197,7 +182,7 @@ function tex = buildTeXTable(spec, varargin)
       endif
 
       ## if elements are TeX numbers ...
-      if tbl{i, jj(k)}(1) == "$"
+      if is_TeX_number(tbl{i, jj(k)})
 
         ## print element in 1st column, then add empty columns
         tex{end+1} = tbl{i, jj(k)};
@@ -209,7 +194,7 @@ function tex = buildTeXTable(spec, varargin)
 
         ## Text in column 1, row >1, not spanning an entire row are aligned left;
         ## other columns are centered
-        if k == 1 && row > 1 && length(jj) > 2
+        if col == 1 && row > 1 && length(jj) > 2
           multicolalign = "l";
         else
           multicolalign = "c";
@@ -269,7 +254,12 @@ function spec = parse_spec(spec, numfmt)
 
   ## check scalar elements of 'spec'
   for i = 1:length(spec)
-    if !iscell(spec{i}) && !isempty(spec{i})
+
+    ## if element is a struct, check for a value
+    if isstruct(spec{i})
+      assert(isfield(spec{i}, "value"), "%s: struct elements of 'spec' must have a 'value' field", funcName);
+
+    elseif !iscell(spec{i}) && !isempty(spec{i})
 
       ## if element is numeric, convert to a TeX number
       if isnumeric(spec{i})
@@ -281,7 +271,7 @@ function spec = parse_spec(spec, numfmt)
       assert(ischar(spec{i}), "%s: non-empty elements of 'spec' must be strings", funcName);
 
       ## if element is a TeX number with a period, split it
-      if length(spec{i}) > 2 && spec{i}(1) == "$" && spec{i}(end) == "$"
+      if is_TeX_number(spec{i})
         j = find(spec{i} == ".");
         if !isempty(j)
           spec{i} = {struct("align", "r", "colsep", "0pt", "value", strcat(spec{i}(1:j-1), "$")), ...
@@ -345,6 +335,14 @@ function fc = flatten_cell_array(c)
     endif
   endfor
   fc = reshape(fc, 1, []);
+
+endfunction
+
+
+function f = is_TeX_number(s)
+
+  ## determine if the string 's' is a TeX number
+  f = (sum(s == "$") == 2 && s(1) == "$" && s(end) == "$");
 
 endfunction
 
