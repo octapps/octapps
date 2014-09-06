@@ -16,24 +16,28 @@
 
 ## Estimate the number of templates in a lattice template bank.
 ## Usage:
-##   N = NumberOfLatticeBankTemplates(lattice, metric, max_mismatch, param_space...)
+##   N = NumberOfLatticeBankTemplates("opt", val, ...)
 ## where
-##   N            = Number of templates
-##   lattice      = Type of lattice; see LatticeNormalizedThickness()
-##   metric       = Parameter-space metric
-##   max_mismatch = Maximum metric mismatch
-##   param_space  = Parameter space specifier(s), may be:
-##                    [band...]: Fixed-size positive parameter range(s)
-##                    "rssky": Special specifier for the reduced supersky metric sky
-##                  Number of specifiers must match dimensionality of metric
+##   N              = Number of templates
+## Options:
+##   "lattice"      : Type of lattice; see LatticeNormalizedThickness()
+##   "metric"       : Parameter-space metric
+##   "max_mismatch" : Maximum metric mismatch
+##   "param_space"  : Parameter space specifier(s), may be:
+##                      [band...]: Fixed-size positive parameter range(s)
+##                      "rssky": Special specifier for the reduced supersky metric sky
+##                    Number of specifiers must match dimensionality of metric
 
-function N = NumberOfLatticeBankTemplates(lattice, metric, max_mismatch, varargin)
+function N = NumberOfLatticeBankTemplates(varargin)
 
-  ## check input
-  assert(ischar(lattice));
-  assert(issymmetric(metric));
-  assert(isscalar(max_mismatch) && max_mismatch > 0);
-  assert(length(varargin) > 0);
+  ## parse options
+  parseOptions(varargin,
+               {"lattice", "char"},
+               {"metric", "symmetric"},
+               {"max_mismatch", "real,strictpos,scalar"},
+               {"param_space", "cell,vector"},
+               {"use_padding", "logical,scalar", true},
+               []);
 
   ## calculate bounding box of metric
   bbox_metric = reshape(metricBoundingBox(metric, max_mismatch), [], 1);
@@ -42,12 +46,12 @@ function N = NumberOfLatticeBankTemplates(lattice, metric, max_mismatch, varargi
   vol = 1;
   empty_dim = false(size(metric, 1));
   n = 0;
-  for i = 1:length(varargin)
+  for i = 1:length(param_space)
 
-    if ischar(varargin{i})
+    if ischar(param_space{i})
 
       ## switch on special parameter-space specifiers
-      switch varargin{i}
+      switch param_space{i}
 
         case "rssky"
           ## volume of reduced super-sky metric sky parameter space:
@@ -56,14 +60,14 @@ function N = NumberOfLatticeBankTemplates(lattice, metric, max_mismatch, varargi
           n += 2;
 
         otherwise
-          error("%s: unknown special parameter-space specifier '%s'", funcName, varargin{i});
+          error("%s: unknown special parameter-space specifier '%s'", funcName, param_space{i});
 
       endswitch
 
-    elseif isvector(varargin{i})
+    elseif isvector(param_space{i})
 
       ## get fixed-size positive parameter ranges in at least one dimension
-      v = reshape(varargin{i}, [], 1);
+      v = reshape(param_space{i}, [], 1);
       assert(!isempty(v), "%s: parameter-space specifier #%i must be non-empty", funcName, i);
       assert(all(v >= 0), "%s: parameter-space specifier #%i must have positive elements", funcName, i);
 
