@@ -100,4 +100,4 @@ endfunction
 %!  assert(length(p) == 14 && p(2:end-1) == 1/12);
 
 %!test
-%!  assert(isempty(addHists([])));
+%!  assert(isempty(addHists("count", [])));
