@@ -15,6 +15,18 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
+## Return the ellipse centers and mismatches for a template bank cross section.
+## Usage:
+##   [xcross, mucross] = metricEllipseCrossSections(x, mu, metric, cross)
+## where
+##   xcross  = Centers of metric ellipses in the cross section.
+##   mucross = Mismatches of metric ellipses in the cross section.
+##   x       = Template bank to find cross section of.
+##   mu      = Maximum mismatch of templates.
+##   metric  = Parameter-space metric.
+##   cross   = NAs indicate dimensions to cross section (only 2 allowed),
+##             otherwise give values of cross section in other dimensions
+
 function [xcross, mucross] = metricEllipseCrossSections(x, mu, metric, cross)
 
   ## check input
