@@ -37,7 +37,7 @@ function N = NumberOfLatticeBankTemplates(varargin)
                {"metric", "symmetric"},
                {"max_mismatch", "real,strictpos,scalar"},
                {"param_space", "cell,vector"},
-               {"use_padding", "logical,scalar", true},
+               {"padding", "logical,scalar", true},
                []);
 
   ## calculate bounding box of metric
