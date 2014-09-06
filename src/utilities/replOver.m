@@ -14,7 +14,7 @@
 ## along with Octave; see the file COPYING.  If not, see
 ## <http://www.gnu.org/licenses/>.
 
-## Replace x over dimensions dims, so that its final size is siz.
+## Replicate x over dimensions dims, so that its final size is siz.
 ## Usage:
 ##   x = replOver(x, dims, siz)
 
