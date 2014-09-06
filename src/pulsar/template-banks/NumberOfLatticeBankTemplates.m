@@ -27,6 +27,7 @@
 ##                      [band...]: Fixed-size positive parameter range(s)
 ##                      "rssky": Special specifier for the reduced supersky metric sky
 ##                    Number of specifiers must match dimensionality of metric
+##   "padding"      : Whether to account for boundary padding [default: true]
 
 function N = NumberOfLatticeBankTemplates(varargin)
 
@@ -41,6 +42,11 @@ function N = NumberOfLatticeBankTemplates(varargin)
 
   ## calculate bounding box of metric
   bbox_metric = reshape(metricBoundingBox(metric, max_mismatch), [], 1);
+
+  ## if not taking boundary padding into account, zero bounding box
+  if !padding
+    bbox_metric = zeros(size(bbox_metric));
+  endif
 
   ## loop over parameter-space specifiers
   vol = 1;
