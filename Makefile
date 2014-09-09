@@ -27,7 +27,8 @@ vers_num := -DOCT_VERS_NUM=$(shell $(OCTAVE) --eval "disp(strcat(\"0x\", sprintf
 
 # OctApps source path and file list
 srcpath := $(shell $(FIND) $(CURDIR)/src -type d ! \( -name private \) | $(SORT))
-srcfiles := $(wildcard $(srcpath:%=%/*.m) $(srcpath:%=%/*.cpp))
+srcmfiles := $(wildcard $(srcpath:%=%/*.m))
+srccfiles := $(wildcard $(srcpath:%=%/*.hpp) $(srcpath:%=%/*.cpp))
 
 # OctApps extension module directory
 octdir := oct/$(version)
@@ -99,14 +100,20 @@ endif # neq ($(MKOCTFILE),false)
 # run test scripts
 check : all
 	@source octapps-user-env.sh; \
-	$(OCTAVE) --eval "for dir = strsplit('$(srcpath)',' '); runtests(dir{:}); endfor"
+	$(OCTAVE) --eval "octapps_test $(subst $(CURDIR)/src/,,$(srcmfiles))" 2>&1 | while read id line; do \
+		case $${id} in \
+			SCRIPT) printf "%s" "$${line}";; \
+			STATUS) printf " %s\n" "$${line}";; \
+			*);; \
+		esac; \
+	done
 
 # generate tags
 ifneq ($(CTAGSEX),false)
 
 all .PHONY : TAGS
 TAGS :
-	$(verbose_0)$(CTAGSEX) -e $(srcfiles)
+	$(verbose_0)$(CTAGSEX) -e $(srcmfiles) $(srccfiles)
 
 endif # neq ($(CTAGSEX),false)
 

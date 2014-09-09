@@ -14,35 +14,12 @@
 ## along with Octave; see the file COPYING.  If not, see
 ## <http://www.gnu.org/licenses/>.
 
-## Convert GPS times to UTC date strings (using LAL functions)
+## Skip a test if it cannot be run, e.g. LALSuite wrappings are not available.
 ## Usage:
-##   utc = gps_to_utc(gps)
-##   gps_to_utc gps
-## where
-##   utc = cell array of UTC date strings
-##   gps = matrix of GPS times
+##   octapps_skip_test
 
-function utc = gps_to_utc(gps)
-
-  ## check input
-  if ischar(gps)
-    gps = str2double(gps);
-  endif
-  assert(ismatrix(gps));
-
-  ## load LAL
-  lal;
-
-  ## perform conversion
-  utc = arrayfun(@(x) datestr(datenum(XLALGPSToUTC(x)(1:6))), gps, "UniformOutput", false);
-
+function octapps_skip_test(msg)
+  global octapps_skipped_tests;
+  ++octapps_skipped_tests;
+  printf("skipping test: %s\n", msg);
 endfunction
-
-
-%!test
-%!  try
-%!    lal; lalpulsar;
-%!  catch
-%!    octapps_skip_test("LALSuite wrappings are not available"); return;
-%!  end_try_catch
-%!  assert(strcmp(gps_to_utc(800000000), "13-May-2005 06:13:07"));
