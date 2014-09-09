@@ -32,7 +32,7 @@ srcfiles := $(wildcard $(srcpath:%=%/*.m) $(srcpath:%=%/*.cpp))
 # OctApps extension module directory
 octdir := oct/$(version)
 
-# generic targets
+# main targets
 .PHONY : all check clean
 
 # generate environment scripts
@@ -57,7 +57,7 @@ ifneq ($(MKOCTFILE),false)
 VPATH = $(srcpath)
 
 COMPILE = $(MKOCTFILE) $(vers_num) -g -c -o $@ $<
-LINK = $(MKOCTFILE) -g -o $@ $(filter %.o,$^) -lgsl
+LINK = $(MKOCTFILE) -g -o $@ $(filter %.o,$^) $(LIBS)
 
 octs = \
 	depends
@@ -79,13 +79,15 @@ ifneq ($(SWIG),false)
 swig_octs = \
 	gsl
 
+$(octdir)/gsl.oct : LIBS = -lgsl
+
 all : $(swig_octs:%=$(octdir)/%.oct)
 
 $(swig_octs:%=$(octdir)/%.o) : $(octdir)/%.o : oct/%_wrap.cpp Makefile
 	$(verbose)$(COMPILE)
 
 $(swig_octs:%=oct/%_wrap.cpp) : oct/%_wrap.cpp : %.i Makefile
-	$(verbose)$(SWIG) $(vers_num) -octave -c++ -globals "$*cvar" -o $@ $<
+	$(verbose)$(SWIG) $(vers_num) -octave -c++ -globals "." -o $@ $<
 
 $(swig_octs:%=$(octdir)/%.oct) : $(octdir)/%.oct : $(octdir)/%.o Makefile
 	$(verbose)$(LINK)
