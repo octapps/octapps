@@ -32,6 +32,7 @@ srcfiles := $(wildcard $(srcpath:%=%/*.m) $(srcpath:%=%/*.cpp))
 # OctApps extension module directory
 octdir := oct/$(version)
 
+# generic targets
 .PHONY : all check clean
 
 # generate environment scripts
@@ -55,7 +56,7 @@ ifneq ($(MKOCTFILE),false)
 
 VPATH = $(srcpath)
 
-COMPILE = $(MKOCTFILE) $(vers_num) -g -c -o $@ -I$(CURDIR)/src $<
+COMPILE = $(MKOCTFILE) $(vers_num) -g -c -o $@ $<
 LINK = $(MKOCTFILE) -g -o $@ $(filter %.o,$^) -lgsl
 
 octs = \
@@ -106,6 +107,11 @@ TAGS :
 	$(verbose_0)$(CTAGSEX) -e $(srcfiles)
 
 endif # neq ($(CTAGSEX),false)
+
+# print list of deprecated functions
+all .PHONY : list-deprecated
+list-deprecated :
+	@$(FIND) $(CURDIR)/src -path '*/deprecated/*' | $(SED) 's|^.*/|Warning: deprecated function |'
 
 # cleanup
 clean :
