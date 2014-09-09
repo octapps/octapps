@@ -74,19 +74,13 @@ function tex = buildTeXTable(spec, varargin)
 
       if isstruct(tbl{i, j})
 
-        ## if element is struct, get alignment and spacing from it
+        ## if element is a split TeX number, get alignment and spacing from it
         if isfield(tbl{i, j}, "align")
           texalign{j} = tbl{i, j}.align;
         endif
         if isfield(tbl{i, j}, "colsep")
           texcolsep{j} = tbl{i, j}.colsep;
         endif
-        tbl{i, j} = tbl{i, j}.value;
-
-      elseif is_TeX_number(tbl{i, j})
-
-        ## if element is a TeX number, align right
-        texalign{j} = "r";
 
       elseif j == 1
 
@@ -177,33 +171,23 @@ function tex = buildTeXTable(spec, varargin)
       ## if not spanning multiple columns, just print element and continue
       cols = jj(k+1) - jj(k);
       if cols == 1
-        tex{end+1} = tbl{i, jj(k)};
+        if isstruct(tbl{i, jj(k)})   ## if element is a split TeX number, print value
+          tex{end+1} = tbl{i, jj(k)}.value;
+        else
+          tex{end+1} = tbl{i, jj(k)};
+        endif
         continue
       endif
 
-      ## if elements are TeX numbers ...
-      if is_TeX_number(tbl{i, jj(k)})
-
-        ## print element in 1st column, then add empty columns
-        tex{end+1} = tbl{i, jj(k)};
-        for c = 2:cols
-          tex{end+1} = " & ";
-        endfor
-
-      else   ## otherwise, use \multicolumn
-
-        ## Text in column 1, row >1, not spanning an entire row are aligned left;
-        ## other columns are centered
-        if col == 1 && row > 1 && length(jj) > 2
-          multicolalign = "l";
-        else
-          multicolalign = "c";
-        endif
-
-        ## print \multicolumn command
-        tex{end+1} = sprintf("\\multicolumn{%i}{%s}{%s}", cols, multicolalign, tbl{i, jj(k)});
-
+      ## otherwise use \multicolumn:
+      if col == 1 && row > 1 && length(jj) > 2
+        ## text in column 1, row >1, not spanning an entire row are aligned left
+        multicolalign = "l";
+      else
+        ## text in all other columns are centered
+        multicolalign = "c";
       endif
+      tex{end+1} = sprintf("\\multicolumn{%i}{%s}{%s}", cols, multicolalign, tbl{i, jj(k)});
 
     endfor
 
@@ -255,11 +239,7 @@ function spec = parse_spec(spec, numfmt)
   ## check scalar elements of 'spec'
   for i = 1:length(spec)
 
-    ## if element is a struct, check for a value
-    if isstruct(spec{i})
-      assert(isfield(spec{i}, "value"), "%s: struct elements of 'spec' must have a 'value' field", funcName);
-
-    elseif !iscell(spec{i}) && !isempty(spec{i})
+    if !iscell(spec{i}) && !isstruct(spec{i}) && !isempty(spec{i})
 
       ## if element is numeric, convert to a TeX number
       if isnumeric(spec{i})
@@ -271,7 +251,7 @@ function spec = parse_spec(spec, numfmt)
       assert(ischar(spec{i}), "%s: non-empty elements of 'spec' must be strings", funcName);
 
       ## if element is a TeX number with a period, split it
-      if is_TeX_number(spec{i})
+      if length(find(spec{i} == "$")) == 2 && all(spec{i}([1,end]) == "$")
         j = find(spec{i} == ".");
         if !isempty(j)
           spec{i} = {struct("align", "r", "colsep", "0pt", "value", strcat(spec{i}(1:j-1), "$")), ...
@@ -335,14 +315,6 @@ function fc = flatten_cell_array(c)
     endif
   endfor
   fc = reshape(fc, 1, []);
-
-endfunction
-
-
-function f = is_TeX_number(s)
-
-  ## determine if the string 's' is a TeX number
-  f = (sum(s == "$") == 2 && s(1) == "$" && s(end) == "$");
 
 endfunction
 
