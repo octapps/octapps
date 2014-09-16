@@ -32,7 +32,7 @@ function octapps_test(varargin)
     assert(fid >= 0);
     do
       s = fgets(fid);
-      if ischar(s) && strncmp(s, "%!test", 6) || strncmp(s, "%!demo", 6)
+      if ischar(s) && any(strncmp(s, {"%!test", "%!asse", "%!demo"}, 6))
         ++total;
       endif
     until !ischar(s)
