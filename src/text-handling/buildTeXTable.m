@@ -46,11 +46,11 @@ function tex = buildTeXTable(spec, varargin)
   spec = parse_spec(spec, numfmt);
 
   ## flatten table specification into a 2-D cell array
-  tbl = flatten_cell_array(spec{1});
+  tbl = cellflatten(spec{1});
   for i = 2:length(spec)
 
     ## check length and contents of row
-    tblrow = flatten_cell_array(spec{i});
+    tblrow = cellflatten(spec{i});
     assert(any(cellfun(@(x) !isempty(x), tblrow)),
            "%s: 'spec' row #%i is completely empty", funcName, i);
     assert(length(tblrow) == size(tbl, 2),
@@ -298,23 +298,6 @@ function spec = parse_spec(spec, numfmt)
     endfor
 
   endif
-
-endfunction
-
-
-function fc = flatten_cell_array(c)
-
-  ## recursively flatten the cell array 'c'
-  assert(iscell(c));
-  fc = {};
-  for i = 1:length(c)
-    if iscell(c{i})
-      fc = {fc{:}, flatten_cell_array(c{i}){:}};
-    else
-      fc{end+1} = c{i};
-    endif
-  endfor
-  fc = reshape(fc, 1, []);
 
 endfunction
 
