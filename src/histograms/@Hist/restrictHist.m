@@ -30,6 +30,7 @@ function hgrm = restrictHist(hgrm, F)
 
   ## check input
   assert(isHist(hgrm));
+  assert(is_function_handle(F));
 
   ## build bin boundary pairs
   dim = length(hgrm.bins);
