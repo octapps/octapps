@@ -15,7 +15,7 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## Create the super-sky reduced super-sky phase metrics.
+## Create the super-sky and reduced super-sky phase metrics.
 ## Usage:
 ##   [ssky_metric, rssky_metric, rssky_transf] = CreateSuperSkyMetrics("opt", val, ...)
 ## where:
