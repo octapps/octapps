@@ -19,7 +19,7 @@
 ##   utc = gps_to_utc(gps)
 ##   gps_to_utc gps
 ## where
-##   utc = cell array of UTC date strings
+##   utc = cell array of UTC date strings (or a single string)
 ##   gps = matrix of GPS times
 
 function utc = gps_to_utc(gps)
@@ -35,6 +35,11 @@ function utc = gps_to_utc(gps)
 
   ## perform conversion
   utc = arrayfun(@(x) datestr(datenum(XLALGPSToUTC(x)(1:6))), gps, "UniformOutput", false);
+
+  ## check output
+  if length(utc) == 1
+    utc = utc{1};
+  endif
 
 endfunction
 
