@@ -82,7 +82,7 @@ function mergeCondorResults(varargin)
         merged.vars.(var_names{i}) = unique([var_values_i{:}]);
       endif
     endfor
-    merged.results = cell(cellfun(@(n) length(merged.vars.(n)), var_names));
+    merged.arguments = merged.results = cell(cellfun(@(n) length(merged.vars.(n)), var_names));
     merged.jobs_per_result = zeros(size(merged.results));
 
     ## need to merge all jobs
@@ -109,7 +109,6 @@ function mergeCondorResults(varargin)
       endif
       assert(length(subs{i}) == 1, "%s: no index into merged results array found", funcName);
     endfor
-    ##idx = sub2ind(size(merged.results), subs{:});
     ++merged.jobs_per_result(subs{:});
 
     ## load job node results, skipping missing files
@@ -131,6 +130,17 @@ function mergeCondorResults(varargin)
            "%s: length of 'merge_function' does not match number of job node '%s' results", funcName, job_nodes(n).name);
     assert(length(norm_function) == length(node_results.results),
            "%s: length of 'norm_function' does not match number of job node '%s' results", funcName, job_nodes(n).name);
+
+    ## save job node arguments, and check for consistency between jobs
+    if isempty(merged.arguments{subs{:}})
+      merged.arguments{subs{:}} = node_results.arguments;
+    else
+      args1 = stringify(merged.arguments{subs{:}});
+      args2 = stringify(node_results.arguments);
+      if !strcmp(args1, args2)
+        error("%s: inconsistent job node arguments: '%s' vs '%s'", args1, args2);
+      endif
+    endif
 
     ## add to list of CPU and wall times
     merged.cpu_time(end+1) = node_results.cpu_time;
@@ -161,6 +171,18 @@ function mergeCondorResults(varargin)
     prog = printProgress(prog, job_merged_count, job_merged_total);
 
   endfor
+
+  ## flatten merged argments into struct array, if possible
+  arguments = zeros(size(merged.arguments));
+  for idx = 1:numel(merged.arguments)
+    try
+      arguments(idx) = struct(merged.arguments{:});
+    catch
+      arguments = merged.arguments;
+      break;
+    end_try_catch
+  endfor
+  merged.arguments = arguments;
 
   ## if given, call normalisation function for each merged results
   if !isempty(norm_function)
