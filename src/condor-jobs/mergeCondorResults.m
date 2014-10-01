@@ -19,15 +19,15 @@
 ## Usage:
 ##   mergeCondorResults("opt", val, ...)
 ## Options:
-##   "dag_name":       name of Condor DAG, used to name DAG submit file.
+##   "dag_name":       Name of Condor DAG, used to name DAG submit file.
 ##                     Merged results are saved as 'dag_name' + _merged.bin.gz
-##   "merge_function": function(s) used to merge results from two Condor
+##   "merge_function": Function(s) used to merge results from two Condor
 ##                     jobs with the same parameters, as determined by
 ##                     the DAG job name 'vars' field. Syntax is:
 ##                       merged_res = merge_function(merged_res, res)
 ##                     where 'res' are to be merged into 'merged_res'.
 ##                     One function per element of job 'results' must be given.
-##   "norm_function":  if given, function(s) used to normalise merged results
+##   "norm_function":  If given, function(s) used to normalise merged results
 ##                     after all Condor jobs have been processed. Syntax is:
 ##                       merged_res = norm_function(merged_res, n)
 ##                     where 'n' is the number of merged Condor jobs
@@ -41,6 +41,18 @@ function mergeCondorResults(varargin)
                {"merge_function", "function,vector"},
                {"norm_function", "function,vector", []},
                []);
+  if length(merge_function) == 1
+    merge_function = {merge_function};
+  else
+    assert(iscell(merge_function), "%s: 'merge_function' must either be scalar or a cell array", funcName);
+  endif
+  if length(norm_function) == 0
+    norm_function = {};
+  elseif length(norm_function) == 1
+    norm_function = {norm_function};
+  else
+    assert(iscell(norm_function), "%s: 'norm_function' must either be empty, scalar or a cell array", funcName);
+  endif
 
   ## load job node data
   dag_nodes_file = strcat(dag_name, "_nodes.bin.gz");
@@ -70,46 +82,25 @@ function mergeCondorResults(varargin)
     merged.dag_name = dag_name;
     merged.cpu_time = [];
     merged.wall_time = [];
-
-    ## get list of variable names and their unique values
-    merged.vars = struct;
-    var_names = sort(fieldnames(job_nodes(1).vars));
-    for i = 1:length(var_names)
-      var_values_i = arrayfun(@(n) n.vars.(var_names{i}), job_nodes, "UniformOutput", false);
-      if ischar(var_values_i{1})
-        merged.vars.(var_names{i}) = unique(var_values_i);
-      else
-        merged.vars.(var_names{i}) = unique([var_values_i{:}]);
-      endif
-    endfor
-    merged.arguments = merged.results = cell(cellfun(@(n) length(merged.vars.(n)), var_names));
-    merged.jobs_per_result = zeros(size(merged.results));
+    merged.arguments = {};
+    merged.results = {};
+    merged.jobs_per_result = [];
 
     ## need to merge all jobs
     merged.jobs_to_merge = 1:length(job_nodes);
 
   endif
 
-  ## iterate over jobs which need to be merged
+  ## setup for job merging
   prog = [];
   jobs_to_merge = merged.jobs_to_merge;
   job_merged_count = 0;
   job_merged_total = length(jobs_to_merge);
-  job_save_period = round(max(10, min(0.1*length(jobs_to_merge), 100)));
-  var_names = sort(fieldnames(merged.vars));
+  job_save_period = ceil(max(10, min(0.1*job_merged_total, 100)));
+  argument_strs = cellfun(@(x) stringify(x), merged.arguments, "UniformOutput", false);
+  
+  ## iterate over jobs which need to be merged
   for n = jobs_to_merge
-
-    ## determine index into merged results cell array
-    subs = cell(size(var_names));
-    for i = 1:length(var_names)
-      if ischar(job_nodes(n).vars.(var_names{i}))
-        subs{i} = find(strcmp(merged.vars.(var_names{i}), job_nodes(n).vars.(var_names{i})));
-      else
-        subs{i} = find(merged.vars.(var_names{i}) == job_nodes(n).vars.(var_names{i}));
-      endif
-      assert(length(subs{i}) == 1, "%s: no index into merged results array found", funcName);
-    endfor
-    ++merged.jobs_per_result(subs{:});
 
     ## load job node results, skipping missing files
     node_result_file = glob(fullfile(job_nodes(n).dir, "stdres.*"));
@@ -126,34 +117,36 @@ function mergeCondorResults(varargin)
       printf("%s: skipping job node '%s'; could not open result file\n", funcName, job_nodes(n).name);
       continue
     end_try_catch
+    assert(isfield(node_results, "arguments"), "%s: job node '%s' does not have field 'arguments'", funcName, job_nodes(n).name);
+    assert(isfield(node_results, "results"), "%s: job node '%s' does not have field 'results'", funcName, job_nodes(n).name);
+    assert(isfield(node_results, "cpu_time"), "%s: job node '%s' does not have field 'cpu_time'", funcName, job_nodes(n).name);
+    assert(isfield(node_results, "wall_time"), "%s: job node '%s' does not have field 'wall_time'", funcName, job_nodes(n).name);
     assert(length(merge_function) == length(node_results.results),
            "%s: length of 'merge_function' does not match number of job node '%s' results", funcName, job_nodes(n).name);
-    assert(length(norm_function) == length(node_results.results),
-           "%s: length of 'norm_function' does not match number of job node '%s' results", funcName, job_nodes(n).name);
-
-    ## save job node arguments, and check for consistency between jobs
-    if isempty(merged.arguments{subs{:}})
-      merged.arguments{subs{:}} = node_results.arguments;
-    else
-      args1 = stringify(merged.arguments{subs{:}});
-      args2 = stringify(node_results.arguments);
-      if !strcmp(args1, args2)
-        error("%s: inconsistent job node arguments: '%s' vs '%s'", args1, args2);
-      endif
+    if !isempty(norm_function)
+      assert(length(norm_function) == length(node_results.results),
+             "%s: length of 'norm_function' does not match number of job node '%s' results", funcName, job_nodes(n).name);
     endif
 
     ## add to list of CPU and wall times
     merged.cpu_time(end+1) = node_results.cpu_time;
     merged.wall_time(end+1) = node_results.wall_time;
 
+    ## determine index into merged results cell array, and create new entry if needed
+    argument_str = stringify(node_results.arguments);
+    idx = find(strcmp(argument_str, argument_strs));
+    if isempty(idx)
+      idx = length(argument_strs) + 1;
+      argument_strs{idx, 1} = argument_str;
+      merged.arguments{idx, 1} = node_results.arguments;
+      merged.results{idx, 1:length(node_results.results)} = [];
+      merged.jobs_per_result(idx, 1) = 0;
+    endif
+    ++merged.jobs_per_result(idx);
+
     ## merge job node results using merge function
     for i = 1:numel(node_results.results)
-      try
-        prev_results = merged.results{subs{:},i};
-      catch
-        prev_results = merged.results{subs{:},i} = [];
-      end_try_catch
-      merged.results{subs{:},i} = feval(merge_function(i), prev_results, node_results.results{i});
+      merged.results{idx, i} = feval(merge_function{i}, merged.results{idx, i}, node_results.results{i});
     endfor
 
     ## mark job as having been merged
@@ -172,11 +165,20 @@ function mergeCondorResults(varargin)
 
   endfor
 
-  ## flatten merged argments into struct array, if possible
-  arguments = zeros(size(merged.arguments));
-  for idx = 1:numel(merged.arguments)
+  ## if given, call normalisation function for each merged results
+  if !isempty(norm_function)
+    for idx = 1:size(merged.results, 1)
+      for i = 1:size(merged.results, 2)
+        merged.results{idx, i} = feval(norm_function{i}, merged.results{idx, i}, merged.jobs_per_result(idx));
+      endfor
+    endfor
+  endif
+
+  ## flatten merged arguments into struct array, if possible
+  arguments = struct;
+  for idx = 1:length(merged.arguments)
     try
-      arguments(idx) = struct(merged.arguments{:});
+      arguments(idx) = struct(merged.arguments{idx}{:});
     catch
       arguments = merged.arguments;
       break;
@@ -184,13 +186,18 @@ function mergeCondorResults(varargin)
   endfor
   merged.arguments = arguments;
 
-  ## if given, call normalisation function for each merged results
-  if !isempty(norm_function)
-    siz = [cellfun(@(n) length(merged.vars.(n)), var_names), length(norm_function)];
-    for idx = 1:prod(siz)
-      [subs{1:length(siz)}] = ind2sub(siz, idx);
-      merged.results{subs{:}} = feval(norm_function(subs{end}), merged.results{subs{:}}, merged.jobs_per_result(subs{1:end-1}));
+  ## flatten merged results into struct array, if possible
+  if size(merged.results, 2) == 1
+    results = struct;
+    for idx = 1:size(merged.results, 1)
+      try
+        results(idx) = merged.results{idx};
+      catch
+        results = merged.results;
+        break;
+      end_try_catch
     endfor
+    merged.results = results;
   endif
 
   ## save merged job results for later use
