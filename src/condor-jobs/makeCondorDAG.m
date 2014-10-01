@@ -67,6 +67,15 @@ function dag_file = makeCondorDAG(varargin)
       endif
     endif
 
+    ## check for extra fields
+    job_fields = fieldnames(job_node);
+    job_fields(strcmp("file", job_fields)) = [];
+    job_fields(strcmp("vars", job_fields)) = [];
+    job_fields(strcmp("child", job_fields)) = [];
+    if length(job_fields) > 0
+      error("%s: unknown job fields:%s", funcName, sprintf(" '%s'", job_fields{:}));
+    endif
+
   endfor
 
   ## check that job submit files exist
