@@ -175,30 +175,24 @@ function mergeCondorResults(varargin)
   endif
 
   ## flatten merged arguments into struct array, if possible
-  arguments = struct;
-  for idx = 1:length(merged.arguments)
-    try
-      arguments(idx) = struct(merged.arguments{idx}{:});
-    catch
-      arguments = merged.arguments;
-      break;
-    end_try_catch
-  endfor
-  merged.arguments = arguments;
+  try
+    arguments = struct;
+    for idx = 1:length(merged.arguments)
+      arguments(idx, 1) = struct(merged.arguments{idx}{:});
+    endfor
+    merged.arguments = arguments;
+  end_try_catch
 
   ## flatten merged results into struct array, if possible
-  if size(merged.results, 2) == 1
+  try
     results = struct;
     for idx = 1:size(merged.results, 1)
-      try
-        results(idx) = merged.results{idx};
-      catch
-        results = merged.results;
-        break;
-      end_try_catch
+      for i = 1:size(merged.results, 2)
+        results(idx, i) = merged.results{idx, i};
+      endfor
     endfor
     merged.results = results;
-  endif
+  end_try_catch
 
   ## save merged job results for later use
   if isempty(merged.jobs_to_merge)
