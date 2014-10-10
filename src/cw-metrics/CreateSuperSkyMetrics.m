@@ -285,8 +285,6 @@ endfunction
 %!  rssky_metric(ss_inn, ss_inn) = rss_ss_eval;
 %!  skyoff = skyoff * alignsky';
 %!
-%!  ##rssky_metric
-%!
 %!  ## drop 3rd row/column to get reduced metric
 %!  rssky_metric(3, :) = [];
 %!  rssky_metric(:, 3) = [];
