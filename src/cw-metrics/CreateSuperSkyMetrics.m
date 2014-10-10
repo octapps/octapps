@@ -97,7 +97,7 @@ function [ssky_metric, rssky_metric, rssky_transf] = CreateSuperSkyMetrics(varar
   ## calculate super-sky metric
   try
     SSkyMetric = XLALSuperSkyMetric(ESSkyMetric);
-    ssky_metric = SSkyMetric.data(:,:);
+    ssky_metric = native(SSkyMetric);
   catch
     error("%s: Could not calculate super-sky metric", funcName);
   end_try_catch
@@ -106,8 +106,8 @@ function [ssky_metric, rssky_metric, rssky_transf] = CreateSuperSkyMetrics(varar
   if nargout > 1
     try
       [RSSkyMetric, RSSkyTransform] = XLALReducedSuperSkyMetric(ESSkyMetric);
-      rssky_metric = RSSkyMetric.data(:,:);
-      rssky_transf = RSSkyTransform.data(:,:);
+      rssky_metric = native(RSSkyMetric);
+      rssky_transf = native(RSSkyTransform);
     catch
       error("%s: Could not calculate reduced super-sky metric", funcName);
     end_try_catch
