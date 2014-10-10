@@ -92,7 +92,7 @@ function varargout = GCTCoordinates(varargin)
   ## compute orbital derivatives in equatorial coordinates
   if !ptolemaic
     orbit_deriv = XLALComputeOrbitalDerivatives(smax+1, t0, ephemerides);
-    xindot = orbit_deriv.data(:,:);
+    xindot = native(orbit_deriv);
   else
 
     ## get orbital position of the Earth
