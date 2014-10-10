@@ -204,13 +204,13 @@ function [metric, coordIDs] = CreateDopplerMetric(varargin)
 
   ## return Doppler metric
   if ( (metric_type == METRIC_TYPE_PHASE) || (metric_type == METRIC_TYPE_ALL) )
-    metric.g_ij = retn.g_ij.data(:,:);
+    metric.g_ij = native(retn.g_ij);
   else
     metric.g_ij = [];
   endif
   if ( (metric_type == METRIC_TYPE_FSTAT) || (metric_type == METRIC_TYPE_ALL) )
-    metric.gF_ij = retn.gF_ij.data(:,:);
-    metric.gFav_ij = retn.gFav_ij.data(:,:);
+    metric.gF_ij = native(retn.gF_ij);
+    metric.gFav_ij = native(retn.gFav_ij);
   else
     metric.gF_ij = [];
     metric.gFav_ij = [];
