@@ -96,7 +96,7 @@ function [results, multiSFTs, multiTser] = DoFstatInjections(varargin)
                {"sch_orbitPeriod", "real,vector", []},
                {"sch_orbitArgp", "real,vector", []},
                {"Dterms", "integer,strictpos,scalar", 8},
-               {"randSeed", "integer,strictpos,scalar", floor(unifrnd(0, 2^32 - 1))},
+               {"randSeed", "integer,strictpos,scalar", floor(unifrnd(1, 2^32 - 1))},
                []);
   assert(xor(isempty(det_sqrt_PSD), isempty(inj_sqrt_PSD)),
          "Either 'det_sqrt_PSD' or 'inj_sqrt_PSD' are required");
