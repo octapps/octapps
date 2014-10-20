@@ -22,10 +22,11 @@
 ##   "dag_name":       Name of Condor DAG, used to name DAG submit file.
 ##                     Merged results are saved as 'dag_name' + _merged.bin.gz
 ##   "merge_function": Function(s) used to merge results from two Condor
-##                     jobs with the same parameters, as determined by
+##                     jobs with the same arguments, as determined by
 ##                     the DAG job name 'vars' field. Syntax is:
-##                       merged_res = merge_function(merged_res, res)
-##                     where 'res' are to be merged into 'merged_res'.
+##                       merged_res = merge_function(merged_res, res, args)
+##                     where 'res' are to be merged into 'merged_res', and
+##                     'args' are the arguments passed to the job.
 ##                     One function per element of job 'results' must be given.
 ##   "norm_function":  If given, function(s) used to normalise merged results
 ##                     after all Condor jobs have been processed. Syntax is:
@@ -144,9 +145,16 @@ function mergeCondorResults(varargin)
     endif
     ++merged.jobs_per_result(idx);
 
+    ## convert arguments to struct, if possible
+    try
+      arguments = struct(node_results.arguments{:});
+    catch
+      arguments = node_results.arguments;
+    end_try_catch
+
     ## merge job node results using merge function
     for i = 1:numel(node_results.results)
-      merged.results{idx, i} = feval(merge_function{i}, merged.results{idx, i}, node_results.results{i});
+      merged.results{idx, i} = feval(merge_function{i}, merged.results{idx, i}, node_results.results{i}, arguments);
     endfor
 
     ## mark job as having been merged
