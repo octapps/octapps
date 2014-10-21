@@ -45,6 +45,24 @@ function varargout = plotHist(varargin)
     hgrm = varargin{jj(j)};
     dim = histDim(hgrm);
     opts = varargin(jj(j)+1:jj(j+1)-1);
+    plotopts = {};
+    if mod(length(opts), 2) == 1
+      assert(ischar(opts{1}), "%s: first option to histogram #%i must be a string", funcName, j);
+      plotopts{end+1} = opts{1};
+      opts = opts(2:end);
+    endif
+
+    ## parse options, removing unknown options for plot()
+    stairs = true;
+    for i = 1:2:length(opts)
+      switch opts{i}
+        case "stairs"
+          assert(islogical(opts{i+1}), "%s: argument is 'stairs' is not a logical value", funcName);
+          stairs = opts{i+1};
+        otherwise
+          plotopts(end+1:end+2) = opts(i:i+1);
+      endswitch
+    endfor
 
     ## get histogram probability densities
     p = histProbs(hgrm);
@@ -58,7 +76,7 @@ function varargout = plotHist(varargin)
         if sum(p(:)) == 0
 
           ## plot a stem point at zero
-          h = plot([0, 0], [0, 1], opts{:}, 0, 1, opts{:});
+          h = plot([0, 0], [0, 1], plotopts{:}, 0, 1, plotopts{:});
           set(h(2), "color", get(h(1), "color"), "marker", "o");
 
         else
@@ -73,18 +91,36 @@ function varargout = plotHist(varargin)
           xh = reshape(xh(ii), 1, []);
           p = reshape(p(ii), 1, []);
 
-          ## create staircase, with stems for infinite values
-          x = reshape([xl(1), xh; xl, xh(end)], 1, []);
-          y = reshape([0, p; p, 0], 1, []);
-          if isinf(xl(1))
-            x(x == -inf) = xl(2);
-          endif
-          if isinf(xh(end))
-            x(x == +inf) = xh(end-1);
+          if stairs
+
+            ## create staircase, possibly with stems for infinite values
+            x = reshape([xl(1), xh; xl, xh(end)], 1, []);
+            y = reshape([0, p; p, 0], 1, []);
+            if isinf(xl(1))
+              x(x == -inf) = xl(2);
+            endif
+            if isinf(xh(end))
+              x(x == +inf) = xh(end-1);
+            endif
+
+          else
+
+            ## create straight line, possibly with stems for infinite values
+            x = 0.5*(xl+xh);
+            y = p;
+            if isinf(xl(1))
+              x = [xl(2)*[1,1,1], x(2:end)];
+              y = [0, p(1), 0, y(2:end)];
+            endif
+            if isinf(xh(end))
+              x = [x(1:end-1), xh(end-1)*[1,1,1]];
+              y = [y(1:end-1), 0, p(end), 0];
+            endif
+
           endif
 
-          ## plot staircase and possibly stems, delete lines which are not needed
-          h = plot(x, y, opts{:}, x(2), y(2), opts{:}, x(end-1), y(end-1), opts{:});
+          ## plot histogram and possibly stems, delete lines which are not needed
+          h = plot(x, y, plotopts{:}, x(2), y(2), plotopts{:}, x(end-1), y(end-1), plotopts{:});
           if isinf(xl(1))
             set(h(2), "color", get(h(1), "color"), "marker", "o");
           else
@@ -107,7 +143,7 @@ function varargout = plotHist(varargin)
         if sum(p(:)) == 0
 
           ## plot a circular point at zero
-          h = plot(0, 0, opts{:});
+          h = plot(0, 0, plotopts{:});
           set(h, "marker", "o");
 
         else
@@ -117,7 +153,7 @@ function varargout = plotHist(varargin)
           yc = histBinGrids(hgrm, 2, "centre");
 
           ## plot contours
-          h = contour(xc, yc, p, opts{:});
+          h = contour(xc, yc, p, plotopts{:});
 
         endif
 
