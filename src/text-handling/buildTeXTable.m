@@ -21,9 +21,10 @@
 ##   tex    = TeX table as a string
 ##   spec   = table specification
 ## Options:
-##   "numfmt":    num2TeX() format for formatting numbers [default: "g"]
-##   "tblwidth":  TeX command specifying table width [optional]
-##   "fillcols":  space-filling columns: "first", "all", or "none" [default]
+##   "numfmt":     num2TeX() format for formatting numbers [default: "g"]
+##   "tblwidth":   TeX command specifying table width [optional]
+##   "fillcols":   space-filling columns: "first", "all", "byrow" or "none" [default]
+##   "fillcolrow": which row to use when setting space-filling columns with "byrow"
 ##
 ## The table specification 'spec' is a 1-D cell array of rows, the elements of
 ## which are 1-D cell arrays of columns. Further nesting of cell arrays may be
@@ -40,6 +41,7 @@ function tex = buildTeXTable(spec, varargin)
                {"numfmt", "char", "g"},
                {"tblwidth", "char", []},
                {"fillcols", "char", "none"},
+               {"fillcolrow", "strictpos,integer", []},
                []);
 
   ## parse table specification
@@ -104,6 +106,12 @@ function tex = buildTeXTable(spec, varargin)
       jj = 1;
     case "all"
       jj = 1:length(texcolsep);
+    case "byrow"
+      if fillcolrow > size(tbl, 1)
+        error("%s: value of 'fillcolrow' exceeds number of table rows", funcName);
+      endif
+      jj = find(cellfun(@(x) !isempty(x), tbl(fillcolrow, :))) - 1;
+      jj(jj < 1) = [];
     case "none"
       jj = [];
     otherwise
