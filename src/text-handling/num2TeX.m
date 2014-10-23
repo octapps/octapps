@@ -57,6 +57,8 @@ function tex = num2TeX(num, fmt, varargin)
 
     ## format exponent into TeX
     texstr = regexprep(texstr, "e\\+0*$", "");
+    texstr = regexprep(texstr, "^1e\\+0*(\\d*)$", "10^{$1}");
+    texstr = regexprep(texstr, "^1e-0*(\\d*)$", "10^{-$1}");
     ptimes = strrep(times, "\\", "\\\\");
     texstr = regexprep(texstr, "e\\+0*(\\d*)$", strcat(ptimes, "10^{$1}"));
     texstr = regexprep(texstr, "e-0*(\\d*)$", strcat(ptimes, "10^{-$1}"));
