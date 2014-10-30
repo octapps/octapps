@@ -1,4 +1,4 @@
-%% Copyright (C) 2013 David Keitel
+%% Copyright (C) 2013-2014 David Keitel
 %%
 %% This program is free software; you can redistribute it and/or modify
 %% it under the terms of the GNU General Public License as published by
@@ -15,11 +15,12 @@
 %% Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 %% MA  02111-1307  USA
 
-function [gct_freq_min, gct_freq_band] = PredictGCTFreqband ( freq, freqband, dFreq, f1dot, f1dotband, df1dot, f2dot, f2dotband, df2dot, starttime, duration, reftime, deltaFsft, blocksRngMed, Dterms )
- %% [gct_freq_min, gct_freq_band] = PredictGCTFreqband ( freq, freqband, dFreq, f1dot, f1dotband, df1dot, f2dot, f2dotband, df2dot, starttime, duration, reftime, deltaFsft, blocksRngMed, Dterms )
+function [gct_freq_min, gct_freq_band, gct_phys_freq_min, gct_phys_freq_band] = PredictGCTFreqband ( freq, freqband, dFreq, f1dot, f1dotband, df1dot, f2dot, f2dotband, df2dot, starttime, duration, reftime, Tsft, blocksRngMed, Dterms )
+ %% [gct_freq_min, gct_freq_band, gct_phys_freq_min, gct_phys_freq_band] = PredictGCTFreqband ( freq, freqband, dFreq, f1dot, f1dotband, df1dot, f2dot, f2dotband, df2dot, starttime, duration, reftime, Tsft, blocksRngMed, Dterms )
  %% function to predict the frequency band required by a HSGCT search
- %% based on code snippets from LALSuite program HierarchSearchGCT
- %% NOTE: deltaFsft is usually 1.0/Tsft
+ %% based on code snippets from LALSuite program HierarchSearchGCT and on XLALCreateFstatInput() from lalpulsar
+ %% for older freqband convention (e.g. S6Bucket, S6LV1 runs), see PredictGCTFreqbandLegacy.m
+ %% NOTE: this is for laldemod only, resampling is somewhat different
 
  % input checks
  if ( dFreq == 0 )
@@ -35,9 +36,6 @@ function [gct_freq_min, gct_freq_band] = PredictGCTFreqband ( freq, freqband, dF
  fkdotband_reftime(2) = f1dotband; # 1st spindown range
  fkdotband_reftime(3) = f2dotband; # 2nd spindown range
 
- % calculate number of bins for Fstat overhead due to residual spin-down
- extraBinsFstat = floor( 0.25*duration*(df1dot+duration*df2dot)/dFreq + 1e-6) + 1;
-
  % get frequency and fdot bands at start / mid / end time of sfts by extrapolating from reftime
  numSpins = 2; # used in ExtrapolatePulsarSpinRange with counting from 0, thus 2 = freq + 2 spindowns
  [fkdot_starttime, fkdotband_starttime] = ExtrapolatePulsarSpinRange ( reftime, starttime, fkdot_reftime, fkdotband_reftime, numSpins );
@@ -46,31 +44,38 @@ function [gct_freq_min, gct_freq_band] = PredictGCTFreqband ( freq, freqband, dF
  endtime = starttime + duration;
  [fkdot_endtime, fkdotband_endtime]     = ExtrapolatePulsarSpinRange ( reftime, endtime, fkdot_reftime, fkdotband_reftime, numSpins );
 
- % calculate total number of bins for Fstat
- binsFstatSearch = floor(fkdotband_midtime(1)/dFreq + 1e-6) + 1;
- gct_freq_bins = binsFstatSearch + 2 * extraBinsFstat;
+ % calculate number of bins for Fstat overhead due to residual spin-down
+ extraBinsFstat = floor( 0.25*duration*(df1dot+duration*df2dot)/dFreq + 1e-6) + 1;
 
  % set wings of sfts to be read
- % the wings must be enough for the Doppler shift and extra bins
- %   for the running median block size and Dterms for Fstat calculation.
- %   In addition, it must also include wings for the spindown correcting
- %   for the reference time
- % calculate Doppler wings at the highest frequency
- startTime_freqLo = fkdot_starttime(1);                        # lowest search freq at start time
- startTime_freqHi = startTime_freqLo + fkdotband_starttime(1); # highest search freq. at start time
- endTime_freqLo = fkdot_endtime(1);                            # lowest search freq at end time
- endTime_freqHi = endTime_freqLo + fkdotband_endtime(1);       # highest search freq. at end time
+ % NOTE: contrary to GCT code, do not translate again from midtime to starttime and endtime
+ % This is potentially 'wider' than the physically-requested template bank, and can therefore also require more SFT frequency bins!
+ [minCoverFreq, maxCoverFreq] = CWSignalCoveringBand ( fkdot_starttime, fkdotband_endtime, fkdot_endtime, fkdotband_endtime );
 
- freqLo = min ( startTime_freqLo, endTime_freqLo );
- freqHi = max ( startTime_freqHi, endTime_freqHi );
+ minCoverFreq -= extraBinsFstat * dFreq;
+ maxCoverFreq += extraBinsFstat * dFreq;
 
- dopplerMax = 1.05e-4;
- doppWings = freqHi * dopplerMax; # maximum Doppler wing -- probably larger than it has to be
+ % extra terms for laldemod method
+ extraBinsMethod = Dterms;
 
- extraBins = max ( fix(blocksRngMed/2 + 1), Dterms ); # do the same rounding as GCT code does implicitly via UINT4 division
+ % add number of extra frequency bins required by running median
+ extraBinsFull = extraBinsMethod + blocksRngMed/2 + 1;
 
- gct_freq_min = freqLo - doppWings - extraBins*deltaFsft - extraBinsFstat*dFreq;
- gct_freq_max = freqHi + doppWings + extraBins*deltaFsft + extraBinsFstat*dFreq;
- gct_freq_band = gct_freq_max - gct_freq_min;
+ % extend frequency range by number of extra bins times SFT bin width
+ extraFreqMethod = extraBinsMethod / Tsft;
+ minFreqMethod = minCoverFreq - extraFreqMethod;
+ maxFreqMethod = maxCoverFreq + extraFreqMethod;
+
+ extraFreqFull = extraBinsFull / Tsft;
+ minFreqFull = minCoverFreq - extraFreqFull;
+ maxFreqFull = maxCoverFreq + extraFreqFull;
+
+ % full band for data readin
+ gct_freq_min = minFreqFull;
+ gct_freq_band = maxFreqFull - minFreqFull;
+
+ % physical band e.g. for adaptive oLGX tuning
+ gct_phys_freq_min = minFreqMethod;
+ gct_phys_freq_band = maxFreqMethod - minFreqMethod;
 
 endfunction # PredictGCTFreqband()

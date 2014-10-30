@@ -113,7 +113,7 @@ function ret = EstimateLinePriors ( varargin )
 
  if ( params_init.getgctband == 1 ) # predict the SFT readin band that HSGCT needs for the given parameter space
   deltaFsft = 1.0/timestamps.Tsft;
-  [gct_freq_min, gct_freq_band] = PredictGCTFreqband ( params_init.freq, params_init.freqband, params_init.dfreq, params_init.f1dot, params_init.f1dotband, params_init.df1dot, params_init.f2dot, params_init.f2dotband, params_init.df2dot, timestamps.startTime, timestamps.duration, timestamps.midTime, deltaFsft, params_init.rngmedbins, params_init.Dterms );
+  [gct_freq_min, gct_freq_band] = PredictGCTFreqbandLegacy ( params_init.freq, params_init.freqband, params_init.dfreq, params_init.f1dot, params_init.f1dotband, params_init.df1dot, params_init.f2dot, params_init.f2dotband, params_init.df2dot, timestamps.startTime, timestamps.duration, timestamps.midTime, deltaFsft, params_init.rngmedbins, params_init.Dterms );
   rngmedwing = fix(params_init.rngmedbins/2 + 1) * deltaFsft; # as in lalapps_HierarchSearchGCT and lalapps_ComputePSD, this will be applied to both sides, leading to 1 extra bin in effect
   params_psd.Freq = gct_freq_min  + rngmedwing - params_init.Dterms * deltaFsft;
   params_psd.FreqBand = gct_freq_band + 2.0 * ( -rngmedwing + params_init.Dterms * deltaFsft );
