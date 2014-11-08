@@ -25,7 +25,8 @@
 ##   "std":      standard deviation
 ##   "err":      convergence requirement on histogram (default = 1e-2)
 ##   "binsize":  histogram bin-size (default = "std" / 10)
-
+##   "domain":   constrain all samples to lie within this interval [min(domain), max(domain)]
+##
 function hgrm = createGaussianHist ( varargin )
 
   ## parse optional keywords
@@ -33,7 +34,9 @@ function hgrm = createGaussianHist ( varargin )
                       {"mean", "real,scalar"},
                       {"std", "real,strictpos,scalar"},
                       {"err", "real,scalar", 1e-2},
-                      {"binsize", "real,scalar", []});
+                      {"binsize", "real,scalar", []},
+                      {"domain", "real,vector", []},
+                      []);
   if isempty(uvar.binsize)
     uvar.binsize = uvar.std / 10.0;
   endif
@@ -48,6 +51,11 @@ function hgrm = createGaussianHist ( varargin )
 
     ## generate random values
     newsamples = normrnd ( uvar.mean, uvar.std, N, 1);     ## N-vector of Gaussian random draws
+
+    if ( !isempty ( uvar.domain ) )
+      iKeep = find ( (newsamples >= min(uvar.domain)) & (newsamples <= max(uvar.domain)) );
+      newsamples = newsamples(iKeep);
+    endif
 
     ## add new values to histogram
     oldhgrm = hgrm;
