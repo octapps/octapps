@@ -24,10 +24,18 @@
 
 function thresh = invFalseAlarm_chi2 ( fA, dof )
 
-  if ( (fA < 1e-6) || (dof > 1000) ) %% large N, low-fA case better handled by asymptotic expression
-    thresh = invFalseAlarm_chi2_asym(fA, dof);
-  else
-    thresh = chi2inv ( 1 - fA, dof );
+  %% make inputs common size
+  [err, fa, dof] = common_size( fA, dof );
+  if err > 0
+    error( "%s: fA and dof are not of common size", funcName );
   endif
+  thresh = zeros(size(fA));
+
+  %% large N, low-fA case better handled by asymptotic expression
+  ii = (fA < 1e-6) | (dof > 1000);
+  thresh(ii) = invFalseAlarm_chi2_asym( fA(ii), dof(ii) );
+
+  %% otherwise use Octave function
+  thresh(!ii) = chi2inv( 1 - fA(!ii), dof(!ii) );
 
 endfunction
