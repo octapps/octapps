@@ -33,23 +33,12 @@ function sa = invFalseAlarm_chi2_asym(pa, k)
   if err > 0
     error("%s: pa and k are not of common size", funcName);
   endif
-  assert(all(pa(:) > 0) && all(k > 0));
-  sa = zeros(size(pa));
-
-  ## for large false alarm probabilities, fall back on
-  ## numerical chi^2 inverse function
-  ii = (pa < 0.1);
-  if any(!ii(:))
-    sa(!ii) = invFalseAlarm_chi2(pa(!ii), k(!ii));
-  endif
+  assert(all(pa(:) > 0) && all(k(:) > 0));
 
   ## calculate threshold
-  if any(ii(:))
-    eta0 = eta = zeros(size(sa));
-    eta0(ii) = 2 ./ sqrt(k(ii)) .* erfcinv(2*pa(ii));
-    eta(ii) = eta0(ii) + 2 ./ (k(ii) .* eta0(ii)) .* log(eta0(ii) ./ (lambdaFunction(eta0(ii)) - 1));
-    sa(ii) = k(ii) .* lambdaFunction(eta(ii));
-  endif
+  eta0 = 2 ./ sqrt(k) .* erfcinv(2*pa);
+  eta = eta0 + 2 ./ (k .* eta0) .* log(eta0 ./ (lambdaFunction(eta0) - 1));
+  sa = k .* lambdaFunction(eta);
 
 endfunction
 
