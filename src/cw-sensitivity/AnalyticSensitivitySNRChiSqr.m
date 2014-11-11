@@ -43,7 +43,7 @@ function [rhoh,iter] = AnalyticSensitivitySNRChiSqr(paNt, pd, Ns, nu, errmax = 1
   endif
 
   ## normalised false alarm threshold
-  sa = invFalseAlarm_chi2_asym(paNt, Ns*nu);
+  sa = invFalseAlarm_chi2(paNt, Ns*nu);
   za = (sa - Ns*nu) ./ sqrt(2*Ns*nu);
 
   ## SNR geometric factor for plus-polarised signals

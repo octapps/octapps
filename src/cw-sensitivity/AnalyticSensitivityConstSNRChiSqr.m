@@ -43,7 +43,7 @@ function [rhob,tms] = AnalyticSensitivityConstSNRChiSqr(paNt, pd, Ns, nu)
   endif
 
   ## normalised false alarm threshold
-  sa = invFalseAlarm_chi2_asym(paNt, Ns*nu);
+  sa = invFalseAlarm_chi2(paNt, Ns*nu);
   za = (sa - Ns*nu) ./ sqrt(2*Ns*nu);
 
   ## sensitivity SNR

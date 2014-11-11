@@ -47,7 +47,7 @@ function [pd, Ns, FDP, fdp_vars, fdp_opts] = SensitivityChiSqrFDP(pd, Ns, args)
     if cserr > 0
       error("%s: paNt, pd, and Ns are not of common size", funcName);
     endif
-    sa = invFalseAlarm_chi2_asym(paNt, Ns*dof);
+    sa = invFalseAlarm_chi2(paNt, Ns*dof);
   else
     [cserr, sa, pd, Ns] = common_size(sa, pd, Ns);
     if cserr > 0
