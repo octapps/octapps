@@ -15,7 +15,7 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## Usage: stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraint, w=1, xi=1/3 )
+## Usage: stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraints, w=1, xi=1/3 )
 ## where options are:
 ##
 ## "coef_c":          structure holding local power-law coefficients { delta, kappa, nDim, [eta] }
@@ -27,11 +27,10 @@
 ##                    of *incoherent* computing cost ~ mis^{-nDim/2} * Nseg^eta * Tseg^delta,
 ##                    where 'nDim' is the associated template-bank dimension
 ##
-## "constraint.cost0": constraint on total computing cost
+## "constraints.cost0": constraint on total computing cost
 ##
-##                    You can optionally also provide (at most) one of the following two constraints:
-## "constraint.Tobs0" [optional] constraint on total observation time
-## "constraint.Nseg0" [optional] constraint on total number of segments
+##                    You can optionally also provide the following additional constraints:
+## "constraints.TobsMax"[optional] constraint on maximal total observation time
 ##
 ##
 ## "w"                Power-law correction in sensitivity Nseg-scaling: hth^{-2} ~ N^{-1/(2w)},
@@ -55,20 +54,17 @@
 ## [Equation numbers refer to Prix&Shaltev, PRD85, 084010 (2012)]
 ##
 
-function stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraint, w = 1, xi = 1/3 )
+function stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraints, w = 1, xi = 1/3 )
 
   %% check user-input sanity
-  assert ( !isempty( constraint ) );
+  assert ( !isempty( constraints ) );
 
-  assert ( isfield ( constraint, "cost0" ) );
-  cost0 = constraint.cost0;
+  assert ( isfield ( constraints, "cost0" ) );
+  cost0 = constraints.cost0;
   assert ( cost0 > 0 );
 
-  have_Tobs0 = isfield ( constraint, "Tobs0" );
-  have_Nseg0 = isfield ( constraint, "Nseg0" );
-  assert ( !have_Tobs0 || (constraint.Tobs0 > 0) );
-  assert ( !have_Nseg0 || (constraint.Nseg0 > 0 ) );
-  assert ( !(have_Tobs0 && have_Nseg0 ) );
+  have_TobsMax = isfield ( constraints, "TobsMax" );
+  assert ( !have_TobsMax || (constraints.TobsMax > 0) );
 
   assert ( ! isempty ( coef_c ) );
   assert ( ! isempty ( coef_f ) );
@@ -88,7 +84,7 @@ function stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraint, w 
   n_c     = coef_c.nDim;
   eta_c   = 1;	## default value for all 'standard' cases
   if ( isfield ( coef_c, "eta" ) )
-    eta_c = coef_c.eta;	## ... but we allow to override this
+    eta_c = coef_c.eta;	## ... but we allow user-input to override this
   endif
 
   %% incoherent power-law coefficients
@@ -100,6 +96,13 @@ function stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraint, w 
   %% derived quantities 'epsilon' of Eq.(66)
   eps_c   = delta_c - eta_c;
   eps_f   = delta_f - eta_f;
+  if ( (abs(eps_c) < 1e-6) && (abs(eps_f) < 1e-6 ) )
+    is_degenerate = true;
+  else
+    is_degenerate = false;
+  endif
+  assert ( !is_degenerate, "Degenerate case of eps_c = eps_f = 0 currently not handled!\n");
+
   %% and 'critical exponent' a of Eq.(77)
   a_c = 2 * w * eps_c - delta_c;
   a_f = 2 * w * eps_f - delta_f;
@@ -123,69 +126,42 @@ function stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraint, w 
   %% cost prefactors in Eqs.(86,87) [avoiding overflow]
   log_c0_kappa_f     = log ( cost0 / kappa_f );
   log_c0_kappa_c     = log ( cost0 / kappa_c );
-  log_cost_fact_Nseg = delta_c * log_c0_kappa_f - delta_f * log_c0_kappa_c;
-  log_cost_fact_Tobs = eps_c   * log_c0_kappa_f - eps_f   * log_c0_kappa_c;
-  cost_fact_Nseg     = exp ( log_cost_fact_Nseg );
-  cost_fact_Tobs     = exp ( log_cost_fact_Tobs );
-
   termU = @(cr) (mcOpt_fcr(cr))^(-0.5*n_c) * ( 1 + cr^(-1) );
   termL = @(cr) (mfOpt_fcr(cr))^(-0.5*n_f) * ( 1 + cr );
-
   misfract_Nseg = @(cr) (termU(cr))^delta_f / (termL(cr))^delta_c;	%% main fraction term in Eq.(86)
   misfract_Tobs = @(cr) (termU(cr))^eps_f   / (termL(cr))^eps_c;	%% main fraction term in Eq.(87)
-
-  NsegOpt_fcr = @(cr) ( cost_fact_Nseg * misfract_Nseg(cr) )^Dinv;	%% Eq.(86) for Nseg(cr)
+  log_cost_fact_Nseg = delta_c * log_c0_kappa_f - delta_f * log_c0_kappa_c;
+  log_cost_fact_Tobs = eps_c * log_c0_kappa_f - eps_f * log_c0_kappa_c;
+  cost_fact_Nseg     = exp ( log_cost_fact_Nseg );
+  cost_fact_Tobs     = exp ( log_cost_fact_Tobs );
   TobsOpt_fcr = @(cr) ( cost_fact_Tobs * misfract_Tobs(cr) )^Dinv;	%% Eq.(87) for Tobs(cr)
+  NsegOpt_fcr = @(cr) ( cost_fact_Nseg * misfract_Nseg(cr) )^Dinv;	%% Eq.(86) for Nseg(cr)
 
-  %% ----- 3 possible ways to determine the optimal computing-cost ratio 'crOpt':
-  %% *) unconstrained: use Eq.(103) ==> {bounded, unbounded}
-  %% *) given constraint Nseg0: solve Eq.(86) Nseg(crOpt) = Nseg0
-  %% *) given constraint Tobs0: solve Eq.(87) Tobs(crOpt) = Tobs0
+  %% ----- now proceed in the following way to arrive at an optimal solution ----------
+  %% 1) assume unconstrainted Tobs, solve
+  %% 2) if have TobsMax, check that TobsOpt < TobsMax
+  %% 3) if NOT: recompute for fixed Tobs = TobsMax
 
-  if ( !have_Tobs0 && !have_Nseg0 )
+  crOpt = -a_f / a_c;		%% Eq.(103): if bounded solution
+  crOpt = max ( 0, crOpt );	%% must be >= 0
 
-    if ( a_f < 0 )		%% we always have a_c > 0
-      crOpt = -a_f / a_c;	%% Eq.(103): bounded solution
-    else
-      crOpt = 0; 		%% unbounded solution
-    endif
+  TobsOpt  = TobsOpt_fcr ( crOpt ); %% compute optimal Tobs from that
 
-  elseif ( have_Tobs0 )
-    Tobs0 = constraint.Tobs0;
+  %% ----- check TobsMax constraint, if violated: need to resolve for crOpt at Tobs = TobsMax
+  if ( have_TobsMax && ( TobsOpt > constraints.TobsMax ) )
     %% solve computing-cost ratio equation Eq.(87) for given Tobs
-    lhsTobs = Tobs0^D / cost_fact_Tobs;
+    lhsTobs = constraints.TobsMax^D / cost_fact_Tobs;
     deltaTobs_fcr = @(cr) misfract_Tobs(cr) - lhsTobs;
-
     x0 = [1e-6, 1e6];
     try
       [crOpt, residual, INFO, OUTPUT] = fzero ( deltaTobs_fcr, x0 );
     catch
-      error ("CATCH: fzero() failed to find Tobs0-constrained solution for crOpt.\n");
+      error ("CATCH: fzero() failed to find TobsMax-constrained solution for crOpt.\n");
     end_try_catch
     assert ( INFO == 1, "Tobs-constrained solution failed to converge, residual = %f, OUTPUT = '%s'\n", {residual, OUTPUT} );
-
-  elseif ( have_Nseg0 )
-
-    %% solve computing-cost ratio equation Eq.(86) for given Nseg
-    lhsNseg = constraint.Nseg0^D / cost_fact_Nseg;
-    deltaNseg_fcr = @(cr) misfract_Nseg(cr) - lhsNseg;
-
-    x0 = [1e-6, 1e6];
-    if ( deltaNseg_fcr(x0(1)) * deltaNseg_fcr(x0(2)) >= 0 )
-      error ("No solution expected for Nseg-constrained in the range cr in [%g, %g] .. giving up.\n", x0(1), x0(2) );
-    endif
-    try
-      [crOpt, residual, INFO, OUTPUT] = fzero ( deltaNseg_fcr, x0 );
-    catch
-      error ("CATCH: fzero() failed to find Nseg-constrained solution for crOpt.\n");
-    end_try_catch
-    assert ( INFO == 1, "Nseg-constrained solution failed to converge, residual = %f, OUTPUT = '%s'\n", {residual, OUTPUT} );
-
-  else
-    error ("Logical error!\n");
   endif
 
-  %% compute all derived quantities from crOpt
+  %% (re-)compute all derived quantities from crOpt
   mcOpt    = mcOpt_fcr ( crOpt );
   mfOpt    = mfOpt_fcr ( crOpt );
   TobsOpt  = TobsOpt_fcr ( crOpt );
@@ -213,9 +189,9 @@ endfunction
 %!  coef_f.eta = 4;
 %!  coef_f.kappa = 2.38382054e-33;
 %!
-%!  constraint.cost0 = 471.981444 * 86400;
+%!  constraints.cost0 = 471.981444 * 86400;
 %!  xi = 0.5;
-%!  stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraint, w = 1, xi );
+%!  stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraints, w = 1, xi );
 %!  assert ( stackparams.cr, 1, 1e-6 );			## Eq.(117)
 %!  assert ( stackparams.mc, 0.16, 1e-6 );		## Eq.(118)
 %!  assert ( stackparams.mf, 0.24, 1e-6 );		## Eq.(118)
@@ -233,14 +209,14 @@ endfunction
 %!  coef_f.eta = 2;
 %!  coef_f.kappa = 1.56944271959491e-47;
 %!
-%!  constraint.cost0 = 3258.42235987226;
-%!  constraint.Tobs0 = 365*86400;
+%!  constraints.cost0 = 3258.42235987226;
+%!  constraints.TobsMax = 365*86400;
 %!  xi = 1/3;
 %!  pFA = 1e-10; pFD = 0.1;
 %!  NsegRef = 527.6679900489286;
 %!  w = SensitivityScalingDeviationN ( pFA, pFD, NsegRef );
 %!  assert ( w, 1.09110798102039, 1e-6 );
-%!  stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraint, w, xi );
+%!  stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraints, w, xi );
 %!  assert ( stackparams.cr, 0.869163870996078, 1e-4 );
 %!  assert ( stackparams.mc, 0.144345898957936, 1e-4 );
 %!  assert ( stackparams.mf, 0.1660744351839173, 1e-4 );

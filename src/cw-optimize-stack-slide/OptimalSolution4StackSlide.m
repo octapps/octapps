@@ -18,16 +18,15 @@
 ## Usage: stackparams = OptimalSolution4StackSlide ( "option", val, "option", val, ... )
 ##
 ## Computes a *self-consistent* solution for (locally-)optimal StackSlide parameters,
-## given computing cost-functions (coherent and incoherent) and constraints (cost0, Tobs0, Nseg0...)
+## given computing cost-functions (coherent and incoherent) and constraints (cost0, TobsMax, ...)
 ##
 ## The available options are:
 ##
 ## "costFunCoh"		coherent-cost function (handle), must be of the form cost_fun(Nseg, Tseg, mis)
 ## "costFunInc"		incoherent-cost function (handle), must be of the form cost_fun(Nseg, Tseg, mis)
 ## "cost0": 		total computing cost (in CPU seconds),
-## You can optionally provide (at most) one of the following two additional constraints:
-##    "Tobs0": 	 	fix total observation time
-##    "Nseg0": 		fix number of segments
+## You can optionally provide the following additional constraints:
+## "TobsMax":  		maximal total observation time
 ##
 ## "stackparamsGuess"	initial "guess" for solution, must contain fields {Nseg, Tseg, mc, mf}
 ##
@@ -55,8 +54,7 @@ function stackparams = OptimalSolution4StackSlide ( varargin )
                        {"costFunCoh", "_function_handle" },
                        {"costFunInc", "_function_handle" },
                        {"cost0", "real,strictpos,scalar" },
-                       {"Tobs0", "real,strictpos,scalar", [] },
-                       {"Nseg0", "real,strictpos,scalar", [] },
+                       {"TobsMax", "real,strictpos,scalar", [] },
                        {"stackparamsGuess", "struct", [] },
                        {"pFA", "real,strictpos,scalar", 1e-10 },
                        {"pFD", "real,strictpos,scalar", 0.1 },
@@ -80,25 +78,22 @@ function stackparams = OptimalSolution4StackSlide ( varargin )
             );
   endif
 
-  constraint.cost0 = uvar.cost0;
-  if ( !isempty(uvar.Tobs0) )
-    constraint.Tobs0 = uvar.Tobs0;
-  endif
-  if ( !isempty(uvar.Nseg0) )
-    constraint.Nseg0 = uvar.Nseg0;
+  constraints.cost0 = uvar.cost0;
+  if ( !isempty(uvar.TobsMax) )
+    constraints.TobsMax = uvar.TobsMax;
   endif
 
   iter = 0;
   do
     ## determine local power-law coefficients at the current guess 'solution'
-    w = SensitivityScalingDeviationN ( uvar.pFA, uvar.pFD, stackparams.Nseg );
-    coef_c = LocalCostCoefficients ( uvar.costFunCoh, stackparams.Nseg, stackparams.Tseg, stackparams.mc );
-    coef_f = LocalCostCoefficients ( uvar.costFunInc, stackparams.Nseg, stackparams.Tseg, stackparams.mf );
+    w = SensitivityScalingDeviationN ( uvar.pFA, uvar.pFD, stackparams.Nseg )
+    coef_c = LocalCostCoefficients ( uvar.costFunCoh, stackparams.Nseg, stackparams.Tseg, stackparams.mc )
+    coef_f = LocalCostCoefficients ( uvar.costFunInc, stackparams.Nseg, stackparams.Tseg, stackparams.mf )
 
-    new_stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraint, w, uvar.xi );
-    if ( isempty(uvar.Tobs0) && (new_stackparams.cr == 0) )	%% unbounded solution
+    new_stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraints, w, uvar.xi )
+    if ( isempty(uvar.TobsMax) && (new_stackparams.cr == 0) )	%% unbounded solution
       new_stackparams
-      error ("Unbounded solution found, need 'Tobs0' constraint!\n");
+      error ("Unbounded solution found, need 'TobsMax' constraint!\n");
     endif
     is_converged = checkConvergence ( new_stackparams, stackparams, uvar.tol );
 
