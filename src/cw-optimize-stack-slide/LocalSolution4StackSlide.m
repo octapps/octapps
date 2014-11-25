@@ -27,10 +27,14 @@
 ##                    of *incoherent* computing cost ~ mis^{-nDim/2} * Nseg^eta * Tseg^delta,
 ##                    where 'nDim' is the associated template-bank dimension
 ##
-## "constraints.cost0": constraint on total computing cost
+## "constraints":     struct holding the following fields specifying constraints:
+## {
+##       "cost0":     constraint on total computing cost
 ##
-##                    You can optionally also provide the following additional constraints:
-## "constraints.TobsMax"[optional] constraint on maximal total observation time
+##                    and the following _optional_ additional constraints:
+##     "Tobs0":       constraint on total observation time
+##     "Tseg0":       constraint on segment length
+## }
 ##
 ##
 ## "w"                Power-law correction in sensitivity Nseg-scaling: hth^{-2} ~ N^{-1/(2w)},
@@ -63,8 +67,11 @@ function stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraints, w
   cost0 = constraints.cost0;
   assert ( cost0 > 0 );
 
-  have_TobsMax = isfield ( constraints, "TobsMax" );
-  assert ( !have_TobsMax || (constraints.TobsMax > 0) );
+  have_Tobs0 = isfield ( constraints, "Tobs0" );
+  assert ( !have_Tobs0 || (constraints.Tobs0 > 0) );
+  have_Tseg0 = isfield ( constraints, "Tseg0" );
+  assert ( !have_Tseg0 || (constraints.Tseg0 > 0) );
+  assert ( !(have_Tseg0 && !have_Tobs0), "Constraint 'Tseg0' only valid together with 'Tobs0'\n");
 
   assert ( ! isempty ( coef_c ) );
   assert ( ! isempty ( coef_f ) );
@@ -96,12 +103,48 @@ function stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraints, w
   %% derived quantities 'epsilon' of Eq.(66)
   eps_c   = delta_c - eta_c;
   eps_f   = delta_f - eta_f;
+
+  %% degenerate case can only be solved with Tseg0 and Tobs0 constraints
   if ( (abs(eps_c) < 1e-6) && (abs(eps_f) < 1e-6 ) )
-    is_degenerate = true;
-  else
-    is_degenerate = false;
+    if ( !(have_Tobs0 && have_Tseg0) )
+      warning ( "Degenerate case (eps_c=eps_f=0), need both constraints 'Tobs0' and 'Tseg0'\n");
+      stackparams.need_TsegMax = true;
+      return;
+    else
+      warning ("Degenerate case, using constraints Tobs0=%g, Tseg0=%g!\n", constraints.Tobs0, constraints.Tseg0 );
+    endif
   endif
-  assert ( !is_degenerate, "Degenerate case of eps_c = eps_f = 0 currently not handled!\n");
+
+  %% ----- first: special handling of Tobs0 + Tseg0 constrained case ----------
+  if ( have_Tobs0 && have_Tseg0 )
+    Tobs0 = constraints.Tobs0;
+    Tseg0 = constraints.Tseg0;
+    Nseg0 = Tobs0/Tseg0;
+
+    Tau0 = (kappa_c * n_c)/(kappa_f * n_f) * Tobs0^(delta_c - delta_f) * Nseg0^(-eps_c + eps_f);
+    cost0_fmf = @(m_f) (kappa_c) * m_f.^(-n_c/2 * (n_f + 2) / (n_c + 2)) * Tau0^(-n_c/(n_c+2)) * Tobs0^delta_c * Nseg0^(-eps_c) + (kappa_f) * m_f.^(-n_f/2) * Tobs0^delta_f * Nseg0^(-eps_f);
+    eq0_fmf = @(m_f) cost0_fmf(m_f)/cost0 - 1;
+    mf0 = [0, 2];
+    try
+      [mfOpt, residual, INFO, OUTPUT] = fzero ( eq0_fmf, mf0 );
+    catch
+      error ("CATCH: fzero() failed to find cost solution for m_f in degenerate case.\n");
+    end_try_catch
+    assert ( INFO == 1, "degenerate case: solution failed to converge, residual = %f, OUTPUT = '%s'\n", {residual, OUTPUT} );
+
+    mcOpt = mfOpt^((n_f + 2)/(n_c+2)) * Tau0^(2/(n_c+2));
+    crOpt = (mcOpt/n_c)/(mfOpt/n_f);
+
+    stackparams.mf = mfOpt;
+    stackparams.mc = mcOpt;
+    stackparams.cr = crOpt;
+    stackparams.Tseg = Tseg0;
+    stackparams.Nseg = Nseg0;
+    return;
+
+  endif
+
+  %% ----- then: handle unconstrained and Tobs0-constrained cases ----------
 
   %% and 'critical exponent' a of Eq.(77)
   a_c = 2 * w * eps_c - delta_c;
@@ -137,31 +180,26 @@ function stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraints, w
   TobsOpt_fcr = @(cr) ( cost_fact_Tobs * misfract_Tobs(cr) )^Dinv;	%% Eq.(87) for Tobs(cr)
   NsegOpt_fcr = @(cr) ( cost_fact_Nseg * misfract_Nseg(cr) )^Dinv;	%% Eq.(86) for Nseg(cr)
 
-  %% ----- now proceed in the following way to arrive at an optimal solution ----------
-  %% 1) assume unconstrainted Tobs, solve
-  %% 2) if have TobsMax, check that TobsOpt < TobsMax
-  %% 3) if NOT: recompute for fixed Tobs = TobsMax
-
-  crOpt = -a_f / a_c;		%% Eq.(103): if bounded solution
-  crOpt = max ( 0, crOpt );	%% must be >= 0
-
-  TobsOpt  = TobsOpt_fcr ( crOpt ); %% compute optimal Tobs from that
-
-  %% ----- check TobsMax constraint, if violated: need to resolve for crOpt at Tobs = TobsMax
-  if ( have_TobsMax && ( TobsOpt > constraints.TobsMax ) )
+  %% ----- compute optimal solution for different given constraints ----------
+  if ( !have_Tobs0 )
+    crOpt = -a_f / a_c;		%% Eq.(103): if bounded solution
+    if ( crOpt <= 0 )
+      stackparams.need_TobsMax = true;
+    endif
+  else
     %% solve computing-cost ratio equation Eq.(87) for given Tobs
-    lhsTobs = constraints.TobsMax^D / cost_fact_Tobs;
+    lhsTobs = constraints.Tobs0^D / cost_fact_Tobs;
     deltaTobs_fcr = @(cr) misfract_Tobs(cr) - lhsTobs;
     x0 = [1e-6, 1e6];
     try
       [crOpt, residual, INFO, OUTPUT] = fzero ( deltaTobs_fcr, x0 );
     catch
-      error ("CATCH: fzero() failed to find TobsMax-constrained solution for crOpt.\n");
+      error ("CATCH: fzero() failed to find Tobs0-constrained solution for crOpt.\n");
     end_try_catch
     assert ( INFO == 1, "Tobs-constrained solution failed to converge, residual = %f, OUTPUT = '%s'\n", {residual, OUTPUT} );
   endif
 
-  %% (re-)compute all derived quantities from crOpt
+  %% compute all derived quantities from crOpt
   mcOpt    = mcOpt_fcr ( crOpt );
   mfOpt    = mfOpt_fcr ( crOpt );
   TobsOpt  = TobsOpt_fcr ( crOpt );
@@ -210,7 +248,7 @@ endfunction
 %!  coef_f.kappa = 1.56944271959491e-47;
 %!
 %!  constraints.cost0 = 3258.42235987226;
-%!  constraints.TobsMax = 365*86400;
+%!  constraints.Tobs0 = 365*86400;
 %!  xi = 1/3;
 %!  pFA = 1e-10; pFD = 0.1;
 %!  NsegRef = 527.6679900489286;
