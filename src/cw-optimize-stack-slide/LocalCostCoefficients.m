@@ -35,11 +35,11 @@
 function coef = LocalCostCoefficients ( cost_fun, Nseg, Tseg, mis=0.5 )
 
   ## 'natural' spacings for computing the discrete derivatives: 5% variation around input point
-  dTseg = 0.05 * Tseg;
-  dmis = 0.05 * mis;
-
+  dTseg = 1e-4 * Tseg;
+  dmis = 1e-4 * mis;
+  dNseg   = 1e-4 * Nseg;
   ## Eq.(62a)
-  Nseg_i = [ max(1,Nseg - 1), Nseg + 1];
+  Nseg_i = [ Nseg - dNseg, Nseg + dNseg];
   dlogCostN = diff ( log ( cost_fun ( Nseg_i, Tseg, mis ) ) );
   dlogN = diff ( log ( Nseg_i ) );
   coef.eta = dlogCostN / dlogN;
