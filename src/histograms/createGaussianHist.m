@@ -53,7 +53,7 @@ function hgrm = createGaussianHist ( varargin )
     newsamples = normrnd ( uvar.mean, uvar.std, N, 1);     ## N-vector of Gaussian random draws
 
     if ( !isempty ( uvar.domain ) )
-      iKeep = find ( (newsamples >= min(uvar.domain)) & (newsamples <= max(uvar.domain)) );
+      iKeep = find ( (newsamples >= min(uvar.domain)) & (newsamples <= max(uvar.domain) - uvar.binsize) );
       newsamples = newsamples(iKeep);
     endif
 
