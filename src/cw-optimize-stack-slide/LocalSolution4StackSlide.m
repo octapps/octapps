@@ -107,11 +107,11 @@ function stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraints, w
   %% degenerate case can only be solved with Tseg0 and Tobs0 constraints
   if ( (abs(eps_c) < 1e-6) && (abs(eps_f) < 1e-6 ) )
     if ( !(have_Tobs0 && have_Tseg0) )
-      warning ( "Degenerate case (eps_c=eps_f=0), need both constraints 'Tobs0' and 'Tseg0'\n");
+      %%warning ( "Degenerate case (eps_c=eps_f=0), need both constraints 'Tobs0' and 'Tseg0'\n");
       stackparams.need_TsegMax = true;
       return;
     else
-      warning ("Degenerate case, using constraints Tobs0=%g, Tseg0=%g!\n", constraints.Tobs0, constraints.Tseg0 );
+      %%warning ("Degenerate case, using constraints Tobs0=%g, Tseg0=%g!\n", constraints.Tobs0, constraints.Tseg0 );
     endif
   endif
 
