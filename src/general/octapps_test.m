@@ -26,7 +26,6 @@ function octapps_test(varargin)
       continue
     endif
     [~, name] = fileparts(strtrim(scripts(i, :)));
-    printf("\nSCRIPT Checking %s...\n", strrep(scripts(i, :), " ", "."));
     total = 0;
     fid = fopen(which(name), "r");
     assert(fid >= 0);
@@ -37,9 +36,8 @@ function octapps_test(varargin)
       endif
     until !ischar(s)
     fclose(fid);
-    if total == 0
-      printf("\nSTATUS\n");
-    else
+    if total > 0
+      printf("\nSCRIPT Checking %s...\n", strrep(scripts(i, :), " ", "."));
       octapps_skipped_tests = 0;
       [ntests, ~] = test(name, "quiet");
       [demos, idx] = example(name);
