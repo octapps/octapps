@@ -52,12 +52,9 @@ function Rsqr_H = SqrSNRGeometricFactorHist(varargin)
                {"hist_err", "numeric,scalar", 1e-4}
                );
 
-  ## check mismatch histogram bins are positive
+  ## restrict mismatch histogram to range [0.0, 1.0]
   if ~isempty(mism_hgrm)
-    xl = histBinGrids(mism_hgrm, 1, "finite", "lower");
-    if xl(1) < 0
-      error("%s: mismatch histogram bins must be positive", funcName);
-    endif
+    mism_hgrm = restrictHist(mism_hgrm, @(x) 0.0 <= min(x) && max(x) <= 1.0);
   endif
 
   ## product of angular sidereal frequency and observation time
