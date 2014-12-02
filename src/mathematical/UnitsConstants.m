@@ -111,3 +111,7 @@ EQU2ECL = [1, 0, 0;
 ECL2EQU = [1, 0, 0;
            0, cos(IEARTH), -sin(IEARTH);
            0, sin(IEARTH), cos(IEARTH)];
+
+%% an "Einstein@Home month" computing-cost unit: 1 month on E@H
+%% in 2014 this is roughly ~12000 machines 24x7:
+EM2014 = 12000 * 30 * DAYS;
