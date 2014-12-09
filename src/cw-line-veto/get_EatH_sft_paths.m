@@ -15,9 +15,12 @@
 %% Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 %% MA  02111-1307  USA
 
-function [sfts, firstsft] = get_EatH_sft_paths ( sftdir, filenamebit, sft_width, sftstartfreq, num_sfts_to_load, IFO )
- ## [sfts, firstsft] = get_sft_paths ( sftdir, filenamebit, sft_width, sftstartfreq, num_sfts_to_load, IFO )
- ## function to get the full SFT paths (assuming Atlas-like directory structure) and cat them into argument strings for, e.g., lalapps_ComputePSD
+function [sfts, firstsft, sfts_cell] = get_EatH_sft_paths ( sftdir, filenamebit, sft_width, sftstartfreq, num_sfts_to_load, IFO )
+ ## [sfts, firstsft, sfts_cell] = get_sft_paths ( sftdir, filenamebit, sft_width, sftstartfreq, num_sfts_to_load, IFO )
+ ## function to get the full SFT paths (assuming Atlas-like directory structure)
+ ## and cat them into argument strings for, e.g., lalapps_ComputePSD
+ ## and also return first single SFT file path
+ ## and a cell array of all SFT paths
 
  global SMALL_EPS;
 
@@ -47,6 +50,7 @@ function [sfts, firstsft] = get_EatH_sft_paths ( sftdir, filenamebit, sft_width,
   if ( numsft == 1 )
    firstsft = sftfile;
   endif
+  sfts_cell{numsft} = sftfile;
 
   if ( numsft < num_sfts_to_load )
    sfts = [sfts, ";"];
