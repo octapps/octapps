@@ -22,7 +22,12 @@ function [sfts, firstsft, sfts_cell] = get_EatH_sft_paths ( sftdir, filenamebit,
  ## and also return first single SFT file path
  ## and a cell array of all SFT paths
 
- global SMALL_EPS;
+ % if SMALL_EPS not already defined globally, use a reasonable local default
+ if ( isglobal("SMALL_EPS") )
+  global SMALL_EPS;
+ else
+  SMALL_EPS = 1.0e-6;
+ endif
 
  sfts = [];
 
