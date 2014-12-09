@@ -123,7 +123,7 @@ function ret = GetNormSFTPowerFiles ( varargin )
   [sftstartfreq, num_sfts_to_load] = get_sft_range ( params_init, curr_freq, curr_band );
 
   # find all required sfts
-  [sfts, firstsft] = get_EatH_sft_paths ( params_init, sftstartfreq, num_sfts_to_load, params_init.IFO );
+  [sfts, firstsft] = get_EatH_sft_paths ( params_init.sftdir, params_init.sft_filenamebit, params_init.sft_width, sftstartfreq, num_sfts_to_load, params_init.IFO );
 
   if ( ( curr_step == 1 ) && ( params_init.SFTpower_fA > 0 ) )
    printf("First band, converting SFTpower_fA=%g to SFTpower_thresh", params_init.SFTpower_fA);

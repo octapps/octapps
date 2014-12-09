@@ -119,8 +119,8 @@ function ret = TuneAdaptiveLVPriors ( varargin )
    [sftstartfreq, num_sfts_to_load, rngmedbins_effective] = get_sft_range ( params_init, params_run, frequencies.psd_start(curr_step), frequencies.psd_band(curr_step) );
 
    # load in all required sfts
-   [sfts.h1, firstsft.h1] = get_EatH_sft_paths ( params_init, sftstartfreq, num_sfts_to_load, "h1" );
-   [sfts.l1, firstsft.l1] = get_EatH_sft_paths ( params_init, sftstartfreq, num_sfts_to_load, "l1" );
+   [sfts.h1, firstsft.h1] = get_EatH_sft_paths ( params_init.sftdir, params_init.sft_filenamebit, params_init.sft_width, sftstartfreq, num_sfts_to_load, "h1" );
+   [sfts.l1, firstsft.l1] = get_EatH_sft_paths ( params_init.sftdir, params_init.sft_filenamebit, params_init.sft_width, sftstartfreq, num_sfts_to_load, "l1" );
 
    if ( ( curr_step == 1 ) && ( params_init.SFTpower_fA > 0 ) )
     printf("First band, converting SFTpower_fA=%g to SFTpower_thresh", params_init.SFTpower_fA);
