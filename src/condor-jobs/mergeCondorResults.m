@@ -99,7 +99,7 @@ function mergeCondorResults(varargin)
   job_merged_total = length(jobs_to_merge);
   job_save_period = ceil(max(10, min(0.1*job_merged_total, 100)));
   argument_strs = cellfun(@(x) stringify(x), merged.arguments, "UniformOutput", false);
-  
+
   ## iterate over jobs which need to be merged
   for n = jobs_to_merge
 
@@ -173,39 +173,42 @@ function mergeCondorResults(varargin)
 
   endfor
 
-  ## if given, call normalisation function for each merged results
-  if !isempty(norm_function)
-    for idx = 1:size(merged.results, 1)
-      for i = 1:size(merged.results, 2)
-        merged.results{idx, i} = feval(norm_function{i}, merged.results{idx, i}, merged.jobs_per_result(idx));
-      endfor
-    endfor
-  endif
-
-  ## flatten merged arguments into struct array, if possible
-  try
-    arguments = struct;
-    for idx = 1:length(merged.arguments)
-      arguments(idx, 1) = struct(merged.arguments{idx}{:});
-    endfor
-    merged.arguments = arguments;
-  end_try_catch
-
-  ## flatten merged results into struct array, if possible
-  try
-    results = struct;
-    for idx = 1:size(merged.results, 1)
-      for i = 1:size(merged.results, 2)
-        results(idx, i) = merged.results{idx, i};
-      endfor
-    endfor
-    merged.results = results;
-  end_try_catch
-
-  ## save merged job results for later use
+  ## if no more jobs to merge ...
   if isempty(merged.jobs_to_merge)
     merged = rmfield(merged, "jobs_to_merge");
+
+    ## if given, call normalisation function for each merged results
+    if !isempty(norm_function)
+      for idx = 1:size(merged.results, 1)
+        for i = 1:size(merged.results, 2)
+          merged.results{idx, i} = feval(norm_function{i}, merged.results{idx, i}, merged.jobs_per_result(idx));
+        endfor
+      endfor
+    endif
+
+    ## flatten merged arguments into struct array, if possible
+    try
+      arguments = struct;
+      for idx = 1:length(merged.arguments)
+        arguments(idx, 1) = struct(merged.arguments{idx}{:});
+      endfor
+      merged.arguments = arguments;
+    end_try_catch
+
+    ## flatten merged results into struct array, if possible
+    try
+      results = struct;
+      for idx = 1:size(merged.results, 1)
+        for i = 1:size(merged.results, 2)
+          results(idx, i) = merged.results{idx, i};
+        endfor
+      endfor
+      merged.results = results;
+    end_try_catch
+
   endif
+
+  ## save merged job results for later use
   printf("%s: saving '%s' ...", funcName, dag_merged_file);
   save("-binary", "-zip", dag_merged_file, "merged");
   printf(" done\n");
