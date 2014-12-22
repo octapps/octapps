@@ -149,7 +149,6 @@ function stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraints, w
   %% and 'critical exponent' a of Eq.(77)
   a_c = 2 * w * eps_c - delta_c;
   a_f = 2 * w * eps_f - delta_f;
-  assert ( a_c > 0 );
 
   %% coefficient-matrix determinant of Eq.(88)
   D = delta_c * eta_f - delta_f * eta_c;
