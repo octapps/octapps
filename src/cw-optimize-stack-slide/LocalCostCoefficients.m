@@ -69,7 +69,7 @@ endfunction
 %!  %% trivial test example first
 %!  cost_fun = @(Nseg, Tseg, mis)  pi * mis.^(-3.3/2) .* Nseg.^2.2 .* Tseg.^4.4;
 %!  coef = LocalCostCoefficients ( cost_fun, 100, 86400, 0.5 );
-%!  assert ( coef.eta, 2.2, 1e-9 );
-%!  assert ( coef.delta, 4.4, 1e-9 );
-%!  assert ( coef.nDim, 3.3, 1e-9 );
-%!  assert ( coef.kappa, pi, 1e-9 );
+%!  assert ( coef.eta, 2.2, 2e-9 );
+%!  assert ( coef.delta, 4.4, 2e-9 );
+%!  assert ( coef.nDim, 3.3, 2e-9 );
+%!  assert ( coef.kappa, pi, 2e-9 );
