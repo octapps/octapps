@@ -25,8 +25,9 @@ SWIG := $(call CheckProg, swig)
 version := $(shell $(OCTAVE) --eval "disp(OCTAVE_VERSION)")
 vers_num := -DOCT_VERS_NUM=$(shell $(OCTAVE) --eval "disp(strcat(\"0x\", sprintf(\"%02i\", str2double(strsplit(OCTAVE_VERSION, \".\")))))")
 
+curdir := $(shell pwd -L)
 # OctApps source path and file list
-srcpath := $(shell $(FIND) $(CURDIR)/src -type d ! \( -name private \) | $(SORT))
+srcpath := $(shell $(FIND) $(curdir)/src -type d ! \( -name private \) | $(SORT))
 srcmfiles := $(wildcard $(srcpath:%=%/*.m))
 srccfiles := $(wildcard $(srcpath:%=%/*.hpp) $(srcpath:%=%/*.cpp))
 
@@ -44,8 +45,8 @@ octapps-user-env.sh octapps-user-env.csh : Makefile
 		*) empty='#'; setenv='export'; equals='=';; \
 	esac; \
 	cleanpath="$(SED) -e 's/^/:/;s/$$/:/;:A;s/:\([^:]*\)\(:.*\|\):\1:/:\1:\2:/g;s/:::*/:/g;tA;s/^:*//;s/:*$$//'"; \
-	octave_path="$(CURDIR)/$(octdir):`echo $(srcpath) | $(SED) 's/  */:/g'`:\$${OCTAVE_PATH}"; \
-	path="$(CURDIR)/bin:\$${PATH}"; \
+	octave_path="$(curdir)/$(octdir):`echo $(srcpath) | $(SED) 's/  */:/g'`:\$${OCTAVE_PATH}"; \
+	path="$(curdir)/bin:\$${PATH}"; \
 	echo "# source this file to access OctApps" > $@; \
 	echo "test \$${$${empty}OCTAVE_PATH} -eq 0 && $${setenv} OCTAVE_PATH" >>$@; \
 	echo "$${setenv} OCTAVE_PATH$${equals}\`echo $${octave_path} | $${cleanpath}\`" >>$@; \
@@ -100,7 +101,7 @@ endif # neq ($(MKOCTFILE),false)
 # run test scripts
 check : all
 	@source octapps-user-env.sh; \
-	$(OCTAVE) --eval "octapps_test $(subst $(CURDIR)/src/,,$(srcmfiles))" 2>&1 | while read id line; do \
+	$(OCTAVE) --eval "octapps_test $(subst $(curdir)/src/,,$(srcmfiles))" 2>&1 | while read id line; do \
 		case $${id} in \
 			SCRIPT) printf "%s" "$${line}";; \
 			STATUS) printf " %s\n" "$${line}";; \
@@ -120,7 +121,7 @@ endif # neq ($(CTAGSEX),false)
 # print list of deprecated functions
 all .PHONY : list-deprecated
 list-deprecated :
-	@$(FIND) $(CURDIR)/src -path '*/deprecated/*' | $(SED) 's|^.*/|Warning: deprecated function |'
+	@$(FIND) $(curdir)/src -path '*/deprecated/*' | $(SED) 's|^.*/|Warning: deprecated function |'
 
 # cleanup
 clean :
