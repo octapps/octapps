@@ -25,7 +25,7 @@
 ##     endfor
 ##   endfor
 
-function prog = printProgress(prog, ii, NN)
+function prog = printProgress(prog, ii, NN, fp=stdout)
 
   # check input
   assert(isvector(ii));
@@ -85,7 +85,7 @@ function prog = printProgress(prog, ii, NN)
 
     # print progress
     pso = page_screen_output(0);
-    printf("%s: task %i/%i (%0.1f%%), CPU %0.1f%%, %0.0fs elapsed, %0.0fs remain\n", name, n, N, npc, cpupc, wall, wall_rem);
+    fprintf(fp, "%s: task %i/%i (%0.1f%%), CPU %0.1f%%, %0.0fs elapsed, %0.0fs remain\n", name, n, N, npc, cpupc, wall, wall_rem);
     page_screen_output(pso);
 
     ## update time since progress was printed
