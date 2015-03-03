@@ -244,14 +244,19 @@ function [results, multiSFTs, multiTser] = DoFstatInjections(varargin)
   results.SFT_min_freq = min_freq;
   results.SFT_max_freq = max_freq;
 
-  ## setup F-statistic input struct
-  extraParams = new_FstatExtraParams;
-  extraParams.SSBprec = SSBPREC_RELATIVISTICOPT;
-  extraParams.randSeed = randSeed;
-  extraParams.Dterms = Dterms;
-  Fstatin = XLALCreateFstatInput ( fakeSFTcat, min_freq, max_freq, sources, injectSqrtSX, assumeSqrtSX, ...
-                              sft_noise_window, ephemerides, lalpulsar.FMETHOD_DEMOD_BEST, extraParams );
+  Tspan = ( endTime - startTime ).__float__();
+  dFreq0 = 1.0/Tspan;
+  ## setup F-statistic input struct FIXME: couldn't figure out how to struct-copy FstatOptionalArgsDefaults
+  optionalArgs = new_FstatOptionalArgs;
+  optionalArgs.randSeed = randSeed
+  optionalArgs.Dterms = Dterms;
+  optionalArgs.injectSources = sources;
+  optionalArgs.injectSqrtSX = injectSqrtSX;
+  optionalArgs.assumeSqrtSX = assumeSqrtSX;
+  optionalArgs.runningMedianWindow = sft_noise_window;
+  optionalArgs.FstatMethod = lalpulsar.FstatOptionalArgsDefaults.FstatMethod;
 
+  Fstatin = XLALCreateFstatInput ( fakeSFTcat, min_freq, max_freq, dFreq0, ephemerides, optionalArgs );
   ## run ComputeFstat() for each injection point
   Fstatres = 0;
   Doppler = new_PulsarDopplerParams;
@@ -272,7 +277,7 @@ function [results, multiSFTs, multiTser] = DoFstatInjections(varargin)
     endif
 
     ## run ComputeFstat() and return F-statistic values
-    Fstatres = XLALComputeFstat(Fstatres, Fstatin, Doppler, 0, 1, FSTATQ_2F + FSTATQ_2F_PER_DET);
+    Fstatres = XLALComputeFstat ( Fstatres, Fstatin, Doppler, 1, FSTATQ_2F + FSTATQ_2F_PER_DET);
     results.sch_twoF(i) = Fstatres.twoF;
     for n = 1:size(results.sch_twoFPerDet, 1)
       results.sch_twoFPerDet(n, :) = reshape(Fstatres.twoFPerDet(n-1), 1, []);
