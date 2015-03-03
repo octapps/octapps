@@ -15,13 +15,16 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## Create the super-sky and reduced super-sky phase metrics.
+## Create the supersky and reduced supersky phase metrics.
 ## Usage:
-##   [ssky_metric, rssky_metric, rssky_transf] = CreateSuperSkyMetrics("opt", val, ...)
-## where:
-##   ssky_metric        = (untransformed) super-sky metric
-##   rssky_metric       = reduced super-sky metric
-##   rssky_transf       = reduced super-sky metric coordinate transform data
+##   out = CreateSuperskyMetrics("opt", val, ...)
+## where 'out' is a struct containing the fields:
+##   rssky_metric       = Reduced supersky metric, appropriately averaged over segments
+##   rssky_transf       = Reduced supersky metric transform data
+##   ssky_metric        = (Full) supersky metric, appropriately averaged over segments
+##   rssky_metric_seg   = Reduced supersky metrics for each segment as a cell array
+##   rssky_transf_seg   = Reduced supersky metric transform data for each segment as a cell array
+##   ssky_metric_seg    = (Full) supersky metrics for each segment as a cell array
 ## Options:
 ##   "spindowns"        : number of spindown coordinates: 0=none, 1=1st spindown, 2=1st+2nd spindown, etc.
 ##   "ref_time"         : reference time in GPS seconds [default: mean of segment start/end times]
@@ -35,7 +38,7 @@
 ##   "detector_motion"  : which detector motion to use [default: spin+orbit]
 ##   "ephemerides"      : Earth/Sun ephemerides [default: load from loadEphemerides()]
 
-function [ssky_metric, rssky_metric, rssky_transf] = CreateSuperSkyMetrics(varargin)
+function out = CreateSuperskyMetrics(varargin)
 
   ## load LAL libraries
   lal;
@@ -86,40 +89,33 @@ function [ssky_metric, rssky_metric, rssky_transf] = CreateSuperSkyMetrics(varar
     error("%s: unknown detector motion '%s'", funcName, detector_motion)
   end_try_catch
 
-  ## calculate expanded super-sky metric
+  ## compute supersky metrics
   try
-    ESSkyMetric = XLALExpandedSuperSkyMetric(spindowns, ref_time, SegmentList, fiducial_freq, ...
-                                             MultiLALDet, MultiNoise, DetMotion, ephemerides);
+    [rssky_metric, rssky_transf, ssky_metric, ...
+     rssky_metric_seg, rssky_transf_seg, ssky_metric_seg] = ...
+    XLALComputeSuperskyMetrics(0, 0, 0, 0, 0, 0, ...
+                               spindowns, ref_time, SegmentList, fiducial_freq, ...
+                               MultiLALDet, MultiNoise, DetMotion, ephemerides);
   catch
-    error("%s: Could not calculate expanded super-sky metric", funcName);
+    error("%s: Could not compute supersky metric", funcName);
   end_try_catch
 
-  ## calculate super-sky metric
-  try
-    SSkyMetric = XLALSuperSkyMetric(ESSkyMetric);
-    ssky_metric = native(SSkyMetric);
-  catch
-    error("%s: Could not calculate super-sky metric", funcName);
-  end_try_catch
-
-  ## calculate reduced super-sky metric
-  if nargout > 1
-    try
-      [RSSkyMetric, RSSkyTransform] = XLALReducedSuperSkyMetric(ESSkyMetric);
-      rssky_metric = native(RSSkyMetric);
-      rssky_transf = native(RSSkyTransform);
-    catch
-      error("%s: Could not calculate reduced super-sky metric", funcName);
-    end_try_catch
-  endif
+  ## return metrics
+  out = struct;
+  out.rssky_metric = native(rssky_metric);
+  out.rssky_transf = native(rssky_transf);
+  out.ssky_metric = native(ssky_metric);
+  out.rssky_metric_seg = mat2cell(native(rssky_metric_seg), size(out.rssky_metric, 1), size(out.rssky_metric, 2) * ones(1, length(start_time)));
+  out.rssky_transf_seg = mat2cell(native(rssky_transf_seg), size(out.rssky_transf, 1), size(out.rssky_transf, 2) * ones(1, length(start_time)));
+  out.ssky_metric_seg = mat2cell(native(ssky_metric_seg), size(out.ssky_metric, 1), size(out.ssky_metric, 2) * ones(1, length(start_time)));
 
 endfunction
 
 
-##### first implementation of the reduced super-sky metric construction in Octave #####
-##### now a reference implementation to compare against CreateSuperSkyMetric()    #####
+##### first implementation of the reduced supersky metric construction in Octave #####
+##### now a reference implementation to compare against CreateSuperskyMetric()    #####
 
-%!function [ssky_metric, rssky_metric, rssky_transf] = ConstructSuperSkyMetrics(varargin)
+%!function out = ConstructSuperskyMetrics(varargin)
 %!
 %!  ## load LAL libraries
 %!  lal;
@@ -143,7 +139,7 @@ endfunction
 %!    ephemerides = loadEphemerides();
 %!  endif
 %!
-%!  ## call CreateDopplerMetric() to create expanded super-sky metric
+%!  ## call CreateDopplerMetric() to create expanded supersky metric
 %!  [metric, ess_cIDs] = CreateDopplerMetric("coords", "spin_equ,orbit_ecl,fdots,freq", ...
 %!                                           "spindowns", spindowns, ...
 %!                                           "ref_time", ref_time, ...
@@ -159,11 +155,11 @@ endfunction
 %!  assert(isvector(ess_cIDs));
 %!  assert(length(unique(ess_cIDs)) == length(ess_cIDs));
 %!
-%!  ## diagonal-normalise expanded super-sky metric
+%!  ## diagonal-normalise expanded supersky metric
 %!  ## use "tolerant" since orbital Z may be zero, for Ptolemaic ephemerides
 %!  [nessky_metric, dessky_metric, idessky_metric] = DiagonalNormaliseMetric(essky_metric, "tolerant");
 %!
-%!  ## check diagonalised expanded super-sky metric does not have more than 1 negative eigenvalue
+%!  ## check diagonalised expanded supersky metric does not have more than 1 negative eigenvalue
 %!  nessky_metric_num_neg_eval = length(find(eig(nessky_metric) <= 0));
 %!  if nessky_metric_num_neg_eval > 1
 %!    error("%s: 'nessky_metric' is not sufficiently positive definite (%i negative eigenvalues)", funcName, nessky_metric_num_neg_eval);
@@ -186,7 +182,7 @@ endfunction
 %!         find(ess_cIDs == DOPPLERCOORD_F3DOT)];
 %!  assert(length(ifs) > 0);
 %!
-%!  ## reconstruct super-sky metric from spin and orbital metric, in requested coordinates
+%!  ## reconstruct supersky metric from spin and orbital metric, in requested coordinates
 %!  ## adjust coordinate IDs and coordinate indices appropriately
 %!  inx = insx;
 %!  iny = insy;
@@ -209,7 +205,7 @@ endfunction
 %!  ss_iff = ifs;
 %!  ss_iff(ss_iff > inz) -= 2;
 %!
-%!  ## reconstruct super-sky metric
+%!  ## reconstruct supersky metric
 %!  ssky_metric = reconstruct' * essky_metric * reconstruct;
 %!
 %!  ## ensure metric is exactly symmetric
@@ -233,7 +229,7 @@ endfunction
 %!  subtractfit = eye(size(essky_metric));
 %!  subtractfit(fitting, fitted) = -fitcoeffs;
 %!
-%!  ## construct residual super-sky metric
+%!  ## construct residual supersky metric
 %!  residual = dessky_metric * subtractfit * idessky_metric * reconstruct;
 %!  rssky_metric = residual' * essky_metric * residual;
 %!
@@ -250,17 +246,17 @@ endfunction
 %!  [nrss_ff, drss_ff, idrss_ff] = DiagonalNormaliseMetric(rss_ff);
 %!
 %!  ## calculate additional sky offset and sky metric adjustment to
-%!  ## zero the sky-frequency block of the residual super-sky metric
+%!  ## zero the sky-frequency block of the residual supersky metric
 %!  decoupleoff = drss_ff * (nrss_ff \ (drss_ff * rss_sf'));
 %!  decouple_ss = -rss_sf * decoupleoff;
 %!
-%!  ## decouple residual super-sky metric and sky offset vectors
+%!  ## decouple residual supersky metric and sky offset vectors
 %!  rssky_metric(ss_inn, ss_inn) += decouple_ss;
 %!  rssky_metric(ss_inn, ss_iff) = 0;
 %!  rssky_metric(ss_iff, ss_inn) = 0;
 %!  skyoff = skyoff + decoupleoff;
 %!
-%!  ## eigendecompose residual super-sky metric sky-sky block
+%!  ## eigendecompose residual supersky metric sky-sky block
 %!  rss_ss = rssky_metric(ss_inn, ss_inn);
 %!  [rss_ss_evec, rss_ss_eval] = eig(rss_ss);
 %!
@@ -280,7 +276,7 @@ endfunction
 %!    rss_ss_evec(:,3) *= -1;
 %!  endif
 %!
-%!  ## align residual super-sky metric and sky offset vectors
+%!  ## align residual supersky metric and sky offset vectors
 %!  alignsky = rss_ss_evec';
 %!  rssky_metric(ss_inn, ss_inn) = rss_ss_eval;
 %!  skyoff = skyoff * alignsky';
@@ -295,9 +291,15 @@ endfunction
 %!  ## return transform data
 %!  rssky_transf = [alignsky; skyoff([2:end, 1], :)];
 %!
+%!  ## return metrics
+%!  out = struct;
+%!  out.ssky_metric = ssky_metric;
+%!  out.rssky_metric = rssky_metric;
+%!  out.rssky_transf = rssky_transf;
+%!
 %!endfunction
 
-##### compare CreateSuperSkyMetrics() against ConstructSuperSkyMetrics() #####
+##### compare CreateSuperskyMetrics() against ConstructSuperskyMetrics() #####
 
 %!test
 %!  try
@@ -316,11 +318,11 @@ endfunction
 %!    "detector_motion", "spin+orbit", ...
 %!    "ephemerides", edat ...
 %!  };
-%!  [ssky, rssky, rsstf] = CreateSuperSkyMetrics(args{:});
-%!  [ssky0, rssky0, rsstf0] = ConstructSuperSkyMetrics(args{:});
-%!  assert(all(abs(ssky - ssky0) < 1e-8 * max(abs(ssky0), 1)));
-%!  assert(all(abs(rssky - rssky0) < 1e-8 * max(abs(rssky0), 1)));
-%!  assert(all(abs(rsstf - rsstf0) < 1e-8 * max(abs(rsstf0), 1)));
+%!  out = CreateSuperskyMetrics(args{:});
+%!  out0 = ConstructSuperskyMetrics(args{:});
+%!  assert(all(abs(out.ssky_metric - out0.ssky_metric) < 1e-8 * max(abs(out0.ssky_metric), 1)));
+%!  assert(all(abs(out.rssky_metric - out0.rssky_metric) < 1e-8 * max(abs(out0.rssky_metric), 1)));
+%!  assert(all(abs(out.rssky_transf - out0.rssky_transf) < 1e-8 * max(abs(out0.rssky_transf), 1)));
 
 %!test
 %!  try
@@ -339,11 +341,11 @@ endfunction
 %!    "detector_motion", "spin+orbit", ...
 %!    "ephemerides", edat ...
 %!  };
-%!  [ssky, rssky, rsstf] = CreateSuperSkyMetrics(args{:});
-%!  [ssky0, rssky0, rsstf0] = ConstructSuperSkyMetrics(args{:});
-%!  assert(all(abs(ssky - ssky0) < 1e-8 * max(abs(ssky0), 1)));
-%!  assert(all(abs(rssky - rssky0) < 1e-8 * max(abs(rssky0), 1)));
-%!  assert(all(abs(rsstf - rsstf0) < 1e-6 * max(abs(rsstf0), 1)));
+%!  out = CreateSuperskyMetrics(args{:});
+%!  out0 = ConstructSuperskyMetrics(args{:});
+%!  assert(all(abs(out.ssky_metric - out0.ssky_metric) < 1e-8 * max(abs(out0.ssky_metric), 1)));
+%!  assert(all(abs(out.rssky_metric - out0.rssky_metric) < 1e-8 * max(abs(out0.rssky_metric), 1)));
+%!  assert(all(abs(out.rssky_transf - out0.rssky_transf) < 1e-6 * max(abs(out0.rssky_transf), 1)));
 
 %!test
 %!  try
@@ -362,11 +364,11 @@ endfunction
 %!    "detector_motion", "spin+orbit", ...
 %!    "ephemerides", edat ...
 %!  };
-%!  [ssky, rssky, rsstf] = CreateSuperSkyMetrics(args{:});
-%!  [ssky0, rssky0, rsstf0] = ConstructSuperSkyMetrics(args{:});
-%!  assert(all(abs(ssky - ssky0) < 1e-8 * max(abs(ssky0), 1)));
-%!  assert(all(abs(rssky - rssky0) < 1e-8 * max(abs(rssky0), 1)));
-%!  assert(all(abs(rsstf - rsstf0) < 1e-8 * max(abs(rsstf0), 1)));
+%!  out = CreateSuperskyMetrics(args{:});
+%!  out0 = ConstructSuperskyMetrics(args{:});
+%!  assert(all(abs(out.ssky_metric - out0.ssky_metric) < 1e-8 * max(abs(out0.ssky_metric), 1)));
+%!  assert(all(abs(out.rssky_metric - out0.rssky_metric) < 1e-8 * max(abs(out0.rssky_metric), 1)));
+%!  assert(all(abs(out.rssky_transf - out0.rssky_transf) < 1e-8 * max(abs(out0.rssky_transf), 1)));
 
 %!test
 %!  try
@@ -385,8 +387,8 @@ endfunction
 %!    "detector_motion", "spin+orbit", ...
 %!    "ephemerides", edat ...
 %!  };
-%!  [ssky, rssky, rsstf] = CreateSuperSkyMetrics(args{:});
-%!  [ssky0, rssky0, rsstf0] = ConstructSuperSkyMetrics(args{:});
-%!  assert(all(abs(ssky - ssky0) < 1e-8 * max(abs(ssky0), 1)));
-%!  assert(all(abs(rssky - rssky0) < 1e-8 * max(abs(rssky0), 1)));
-%!  assert(all(abs(rsstf - rsstf0) < 1e-8 * max(abs(rsstf0), 1)));
+%!  out = CreateSuperskyMetrics(args{:});
+%!  out0 = ConstructSuperskyMetrics(args{:});
+%!  assert(all(abs(out.ssky_metric - out0.ssky_metric) < 1e-8 * max(abs(out0.ssky_metric), 1)));
+%!  assert(all(abs(out.rssky_metric - out0.rssky_metric) < 1e-8 * max(abs(out0.rssky_metric), 1)));
+%!  assert(all(abs(out.rssky_transf - out0.rssky_transf) < 1e-8 * max(abs(out0.rssky_transf), 1)));
