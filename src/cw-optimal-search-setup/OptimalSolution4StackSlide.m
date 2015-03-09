@@ -171,7 +171,7 @@ function is_converged = checkConvergence ( new_stackparams, stackparams, tol )
 endfunction
 
 function relerr = relError ( a, b )
-  relerr = (a - b) ./ (0.5 * (abs(a) + abs(b)) );
+  relerr = abs(a - b) ./ (0.5 * (abs(a) + abs(b)) );
   return;
 endfunction
 
