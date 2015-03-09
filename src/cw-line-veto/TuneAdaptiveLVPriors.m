@@ -20,35 +20,38 @@ function ret = TuneAdaptiveLVPriors ( varargin )
  ## ret = TuneAdaptiveLVPriors ( varargin )
  ## function to count outliers in SFT power statistic over a large set of frequency bands (input sft files) and derive LV priors from that
  ## command-line parameters can be taken from parseOptions call below
- ## example call: octapps_run TuneAdaptiveLVPriors --sftdir=sfts --sft_filenamebit=S5R2 --runname=S5R3 --freqmin=50 --freqmax=50.5
+ ## example call: octapps_run TuneAdaptiveLVPriors --sftdir=sfts --sft_filenamebit=S6GC1 --freqmin=50 --freqmax=50.5
 
  # read in and check input parameters
  params_init = parseOptions(varargin,
-                     {"sftdir", "char"},
-                     {"sft_filenamebit", "char", ""},
-                     {"freqmin", "numeric,scalar"},
-                     {"freqmax", "numeric,scalar", 0}, # default: set to freqmin
-                     {"freqstep", "numeric,scalar", 0.05},
-                     {"runconfig", "char"},
-                     {"debug", "numeric,scalar", 0},
-                     {"cleanup", "numeric,scalar", 1},
-                     {"workingdir", "char", "."},
-                     {"lalpath", "char", ""},
-                     {"outfile", "char", "power_outliers.dat"},
-                     {"rngmedbins", "numeric,scalar", 101},
-                     {"SFTpower_thresh", "numeric,scalar", 0},
-                     {"SFTpower_fA", "numeric,scalar", 0},
-                     {"LVlmin", "numeric,scalar", 0.001},
-                     {"LVlmax", "numeric,scalar", 1000},
-                     {"sft_width", "numeric,scalar", 0.05},
-                     {"timestampsfiles", "char", ""}
-                );
+ %% essential input
+                     {"sftdir",          "char"}, # directory where the SFTs are stored - can handle either one flat directory or freq-dependent subdirs like "0050"
+                     {"sft_filenamebit", "char", ""}, # run-dependent part of SFT file-names, e.g. S6GC1 for S6Bucket run
+                     {"freqmin",         "numeric,scalar,positive"}, # lower range of input SFT frequencies
+                     {"freqmax",         "numeric,scalar,positive", 0}, # upper range of input SFT frequencies, default: set to freqmin (single step)
+                     {"runconfig",       "char"}, # a file, based on a project-daemons CFS_runname_setup.C file, defining important E@H run quantities
+                     {"timestampsfiles", "char", ""}, # comma-separated list of per-IFO timestamps-files (FIXME: only H1L1 supported)
+                     {"SFTpower_thresh", "numeric,scalar,positive", 0}, # use a fixed threshold for outlier counting
+                     {"SFTpower_fA",     "numeric,scalar,positive", 0}, # compute threshold from false-alarm rate (depends on NSFTX, so can be different for each detector)
+ %% output
+                     {"outfile",         "char", "power_outliers.dat"}, # main output file for the band info and oLGX priors
+ %% additional parameters
+                     {"freqstep",        "numeric,scalar,strictpos", 0.05}, # frequency step (in Hz) in search bands
+                     {"sft_width",       "numeric,scalar,strictpos", 0.05}, # assumed width of each SFT file in Hz
+                     {"rngmedbins",      "numeric,scalar,positive", 101}, # running median bins (including both sides)
+                     {"oLGXmin",         "numeric,scalar,positive", 0.001}, # minimum cutoff for oLGX output
+                     {"oLGXmax",         "numeric,scalar,positive", 1000}, # maximum cutoff for oLGX output
+                     {"debug",           "bool,scalar", false}, # switch for detailed command-line output
+                     {"cleanup",         "bool,scalar", true}, # switch to keep or remove intermediate data products
+                     {"workingdir",      "char", "."}, # local directory where intermediate data is kept
+                     {"lalpath",         "char", ""}, # path to lalapps installation (bin directory)
+                     []);
  writeCommandLineToFile ( params_init.outfile, params_init, mfilename );
  params_init = check_input_parameters ( params_init ); # this already processes some of the input params, so have to do output before
 
  format long;
 
- if ( params_init.debug == 1 )
+ if ( params_init.debug )
   printf("Running from directory '%s'. LAL path is '%s'. Local octave version is '%s'. Input parameters are:\n", pwd, params_init.lalpath, version);
   params_init
  endif
@@ -81,33 +84,33 @@ function ret = TuneAdaptiveLVPriors ( varargin )
  num_outliers.L1 = [];
  max_outlier.H1  = [];
  max_outlier.L1  = [];
- l.H1            = [];
- l.L1            = [];
+ oLGX.H1         = [];
+ oLGX.L1         = [];
  curr_step  = 0;
  offset     = 0;
- valid_band = 1;
+ valid_band = true;
  iFreq0_old = 0;
 
  # prepare temporary directory, if it does not exist yet
  if ( isdir ( params_init.workingdir ) )
-   temp_working_dir = 0;
+   use_temp_working_dir = false;
  else
   printf("Working directory '%s' does not exist yet, creating it...\n", params_init.workingdir );
   [status, msg, msgid] = mkdir ( params_init.workingdir );
   if ( status != 1 )
    error (["Failed to create output directory '", params_init.workingdir , "': msg = ", msg, "\n"] );
   endif
-  temp_working_dir = 1;
+  use_temp_working_dir = true;
  endif
 
  # main loop over freqbands - break when params_run.FreqMax reached
- while ( ( curr_step < num_freqsteps+offset ) && ( valid_band == 1 ) )
+ while ( ( curr_step < num_freqsteps+offset ) && valid_band )
   curr_step++;
 
   # compute the relevant frequencies and bands
   [valid_band, frequencies, offset, iFreq0_old] = get_freq_ranges ( frequencies, params_init, params_run, offset, iFreq0_old, curr_step );
 
-  if ( valid_band == 0 )
+  if ( !valid_band )
 
    printf("Frequency band %d/%d, WUfreq=%f Hz, physical searchfreq=%f Hz would lie outside params_run.FreqMax=%f, skipping all bands from here on.\n", curr_step, num_freqsteps+offset, frequencies.wu_start(curr_step), frequencies.search_start(curr_step), params_run.FreqMax);
 
@@ -124,7 +127,7 @@ function ret = TuneAdaptiveLVPriors ( varargin )
 
    if ( ( curr_step == 1 ) && ( params_init.SFTpower_fA > 0 ) )
     printf("First band, converting SFTpower_fA=%g to SFTpower_thresh", params_init.SFTpower_fA);
-    if ( params_init.usetimestampsfiles == 1 ) # get number of SFTs from timestamps
+    if ( params_init.usetimestampsfiles ) # get number of SFTs from timestamps
      printf(" using num_SFTs from timestamps files...\n");
      timestamps_H1 = load(params_init.timestampsfiles{1});
      num_SFTs.H1 = length(timestamps_H1);
@@ -148,7 +151,7 @@ function ret = TuneAdaptiveLVPriors ( varargin )
    params_psd.Freq           = frequencies.psd_start(curr_step);
    params_psd.blocksRngMed   = rngmedbins_effective;
    params_psd.inputData      = sfts.h1;
-   if ( params_init.usetimestampsfiles == 1 )
+   if ( params_init.usetimestampsfiles )
     params_psd.timeStampsFile = params_init.timestampsfiles{1};
    endif
    params_psd.outputPSD      = [params_init.workingdir, filesep, "psd_H1_med_", num2str(params_psd.blocksRngMed), "_band_", int2str(curr_step), ".dat"];
@@ -157,7 +160,7 @@ function ret = TuneAdaptiveLVPriors ( varargin )
     [err, msg] = unlink (params_psd.outputPSD);
    endif
    params_psd.inputData      = sfts.l1;
-   if ( params_init.usetimestampsfiles == 1 )
+   if ( params_init.usetimestampsfiles )
     params_psd.timeStampsFile = params_init.timestampsfiles{2};
    endif
    params_psd.outputPSD      = [params_init.workingdir, filesep, "psd_L1_med_", num2str(params_psd.blocksRngMed), "_band_", int2str(curr_step), ".dat"];
@@ -169,36 +172,36 @@ function ret = TuneAdaptiveLVPriors ( varargin )
    # compute the line prior for H1
    num_bins_below_thresh = (freqbins.H1(curr_step)-num_outliers.H1(curr_step));
    if ( num_bins_below_thresh == 0 ) # avoid division by 0 warnings
-    l.H1(curr_step) = params_init.LVlmax;
+    oLGX.H1(curr_step) = params_init.oLGXmax;
    else
-    l.H1(curr_step) = max(params_init.LVlmin, num_outliers.H1(curr_step)/num_bins_below_thresh);
-    l.H1(curr_step) = min(l.H1(curr_step), params_init.LVlmax);
+    oLGX.H1(curr_step) = max(params_init.oLGXmin, num_outliers.H1(curr_step)/num_bins_below_thresh);
+    oLGX.H1(curr_step) = min(oLGX.H1(curr_step), params_init.oLGXmax);
    endif
 
    # same for L1
    num_bins_below_thresh = (freqbins.L1(curr_step)-num_outliers.L1(curr_step));
    if ( num_bins_below_thresh == 0 )
-    l.L1(curr_step) = params_init.LVlmax;
+    oLGX.L1(curr_step) = params_init.oLGXmax;
    else
-    l.L1(curr_step) = max(params_init.LVlmin, num_outliers.L1(curr_step)/num_bins_below_thresh);
-    l.L1(curr_step) = min(l.L1(curr_step), params_init.LVlmax);
+    oLGX.L1(curr_step) = max(params_init.oLGXmin, num_outliers.L1(curr_step)/num_bins_below_thresh);
+    oLGX.L1(curr_step) = min(oLGX.L1(curr_step), params_init.oLGXmax);
    endif
 
-  endif # valid_band == 1
+  endif # valid_band
 
  endwhile # main loop over freqbands
 
  # needed to ignore last entry in outmatrix if last band failed outside params_run.FreqMax
  num_steps_done = curr_step;
- if ( valid_band == 0 )
+ if ( !valid_band )
   num_steps_done--;
  endif
 
  # save outliers to file as an ascii matrix with custom header
- write_results_to_file (params_init.outfile, frequencies, freqbins, num_outliers, max_outlier, l, num_steps_done, curr_step, params_run.FreqMax );
+ write_results_to_file (params_init.outfile, frequencies, freqbins, num_outliers, max_outlier, oLGX, num_steps_done, curr_step, params_run.FreqMax );
 
  # if we created a temporary working directory, remove it again
- if ( ( params_init.cleanup == 1 ) && ( temp_working_dir == 1 ) )
+ if ( params_init.cleanup && use_temp_working_dir )
   [status, msg, msgid] = rmdir ( params_init.workingdir );
   if ( status != 1 )
    error (["Failed to remove temporary working directory '", params_init.workingdir, "': msg = ", msg, ", msgid = ", msgid, "\n"]);
@@ -219,64 +222,28 @@ function [params_init] = check_input_parameters ( params_init )
   error(["Invalid input parameter (sftdir): ", params_init.sftdir, " is not a directory."])
  endif
 
- if ( params_init.freqmin < 0.0 )
-  error(["Invalid input parameter (freqmin): ", num2str(params_init.freqmin), " must be >= 0."]);
- endif
-
  if ( params_init.freqmax == 0 )
   params_init.freqmax = params_init.freqmin;
  elseif ( params_init.freqmax < params_init.freqmin )
   error(["Invalid input parameter (freqmax): ", num2str(params_init.freqmax), " is lower than freqmin=", num2str(params_init.freqmin), "."]);
  endif
 
- if ( params_init.freqstep <= 0.0 )
-  error(["Invalid input parameter (freqstep): ", num2str(params_init.freqstep), " must be > 0."]);
- endif
-
  if ( exist(params_init.runconfig,"file") !=2 )
   error(["Invalid input parameter (runconfig): '", params_init.runconfig, "' is not an existing file."])
  endif
 
- if ( ( params_init.debug != 0 ) && ( params_init.debug != 1 ) )
-  error(["Invalid input parameter (debug): ", int2str(params_init.debug), " is neither 0 or 1."])
- endif
-
- if ( ( params_init.cleanup != 0 ) && ( params_init.cleanup != 1 ) )
-  error(["Invalid input parameter (cleanup): ", int2str(params_init.cleanup), " is neither 0 or 1."])
- endif
-
- if ( ( length(params_init.lalpath) > 0 ) && ( !isdir(params_init.lalpath) ) )
+ if ( !isempty(params_init.lalpath) && !isdir(params_init.lalpath) )
   error(["Invalid input parameter (lalpath): ", params_init.lalpath, " is not a directory."]);
  endif
 
- if ( params_init.rngmedbins < 0 )
-   error(["Invalid input parameter (rngmedbins): ", num2str(params_init.rngmedbins), " must be >= 0."])
+ if ( params_init.oLGXmax < params_init.oLGXmin )
+   error(["Invalid input parameter (oLGXmax): ", num2str(params_init.oLGXmax), " must be >= oLGXmin = ", num2str(params_init.oLGXmin), "."])
  endif
 
- if ( params_init.SFTpower_thresh < 0 )
-   error(["Invalid input parameter (SFTpower_thresh): ", num2str(params_init.SFTpower_thresh), " must be positive (or 0 to not use)."])
- endif
-
- if ( params_init.SFTpower_fA < 0 )
-  error(["Invalid input parameter (SFTpower_fA): '", num2str(params_init.SFTpower_fA), "' must be positive (or 0 to not use)."])
- endif
-
- if ( params_init.LVlmin < 0 )
-   error(["Invalid input parameter (LVlmin): ", num2str(params_init.LVlmin), " must be >= 0."])
- endif
-
- if ( params_init.LVlmax < params_init.LVlmin )
-   error(["Invalid input parameter (LVlmax): ", num2str(params_init.LVlmax), " must be >= LVlmin = ", num2str(params_init.LVlmin), "."])
- endif
-
- if ( params_init.sft_width <= 0.0 )
-  error(["Invalid input parameter (sft_width): ", num2str(params_init.sft_width), " must be > 0."]);
- endif
-
- if ( length(params_init.timestampsfiles) == 0 )
-  params_init.usetimestampsfiles = 0;
+ if ( isempty(params_init.timestampsfiles) )
+  params_init.usetimestampsfiles = false;
  else
-  params_init.usetimestampsfiles = 1;
+  params_init.usetimestampsfiles = true;
   splitinstring = strsplit(params_init.timestampsfiles, ",");
   params_init = rmfield(params_init,"timestampsfiles");
   for n=1:1:length(splitinstring)
@@ -285,7 +252,7 @@ function [params_init] = check_input_parameters ( params_init )
     error(["Invalid input parameter (timestampsfiles{", int2str(n), "}): '", params_init.timestampsfiles{n}, "' does not exist."])
    endif
   endfor
-  if ( length(params_init.timestampsfiles) != 2 ) # hardcoded H1 L1 right now, generalize to numdetectors later
+  if ( length(params_init.timestampsfiles) != 2 ) # hardcoded H1 L1 right now, FIXME: generalize to numdetectors
    error(["Invalid input parameter (timestampsfiles): need exactly 2 comma-separated files for H1, L1."])
   endif
  endif
@@ -298,7 +265,7 @@ function params_run = get_params_run ( runconfigfile )
  ## get EatH run parameters from a config file and check that all required fields were provided
 
  source ( runconfigfile );
- if ( exist("params_run","var") != 1 )
+ if ( !exist("params_run","var") )
   error(["Input runconfig='", runconfigfile, "' does not provide a structure 'params_run'."]);
  endif
 
@@ -316,8 +283,8 @@ function params_run = get_params_run ( runconfigfile )
  params_run.f1dotSideband = getf1dotSidebands ( params_run.f1dot, params_run.f1dotBand, params_run.Tspan );
  params_run.GCSideband    = 2.0 * abs(params_run.df1dot/2.0) * params_run.Tspan/2.0;
  # account for SFT-sidebands
- params_run.FreqMin       = params_run.DataFreqMin + 1.01 * getSidebandAtFreq ( params_run.DataFreqMin, params_run, use_rngmedSideband=1 );
- params_run.FreqMax       = params_run.DataFreqMax - getSidebandAtFreq ( params_run.DataFreqMax, params_run, use_rngmedSideband=1 ) - params_run.sft_dfreq;
+ params_run.FreqMin       = params_run.DataFreqMin + 1.01 * getSidebandAtFreq ( params_run.DataFreqMin, params_run, use_rngmedSideband=true );
+ params_run.FreqMax       = params_run.DataFreqMax - getSidebandAtFreq ( params_run.DataFreqMax, params_run, use_rngmedSideband=true ) - params_run.sft_dfreq;
 
 endfunction # get_params_run()
 
@@ -333,7 +300,7 @@ function sideBand = getSidebandAtFreq ( Freq, params_run, use_rngmedSideband )
   GCSideband      = 0.5 * params_run.GCSideband; # GCTSideband referes to both sides of frequency-interval
 
   sideBand = dopplerSideband + params_run.f1dotSideband + GCSideband; # HS-app SUMS them, not max(,)!!
-  if ( use_rngmedSideband == 1 )
+  if ( use_rngmedSideband )
    rngmedSideband  =  fix(params_run.RngMedWindow/2 + 1) * params_run.sft_dfreq; # "fix" needed because original C code does integer summation and only afterwards casts the bracket to float
    sideBand += rngmedSideband;
   endif
@@ -369,11 +336,11 @@ function [iFreq0, iFreq1] = get_iFreqRange4DataFile ( f0, params_run )
  global SMALL_EPS;
 
  # lowest physical search frequency needing this as the lowest data-files
- f0Eff = f0 + getSidebandAtFreq ( f0, params_run, use_rngmedSideband=1 );
+ f0Eff = f0 + getSidebandAtFreq ( f0, params_run, use_rngmedSideband=true );
 
  # lowest physical search frequency using the *next one* as the lowest data-file
  f1 = f0 + params_run.DataFileBand; # first bin in next-highest datafile
- f1Eff = f1 + getSidebandAtFreq ( f1, params_run, use_rngmedSideband=1 );
+ f1Eff = f1 + getSidebandAtFreq ( f1, params_run, use_rngmedSideband=true );
 
  if ( f0Eff >= params_run.FreqMax )
   iFreq0 = iFreq1 = -1; # no work in this file
@@ -406,11 +373,11 @@ function [valid_band, frequencies, offset, iFreq0_old] = get_freq_ranges ( frequ
   # get the frequency index of the first WU input SFT file
   [iFreq0, iFreq1] = get_iFreqRange4DataFile ( frequencies.wu_start(curr_step), params_run );
   if ( iFreq0 < 0 ) # this means we are outside params_run.FreqMax
-   valid_band = 0;
-   frequencies.search_start(curr_step) = frequencies.wu_start(curr_step) + getSidebandAtFreq ( frequencies.wu_start(curr_step), params_run, use_rngmedSideband=1 ); # needed for commandline output
+   valid_band = false;
+   frequencies.search_start(curr_step) = frequencies.wu_start(curr_step) + getSidebandAtFreq ( frequencies.wu_start(curr_step), params_run, use_rngmedSideband=true ); # needed for commandline output
    frequencies.psd_start(curr_step)    = 0; # irrelevant from here on
   else
-   valid_band = 1;
+   valid_band = true;
 
    if ( curr_step > 1 )
     iFreq0diff = iFreq0 - iFreq0_old;
@@ -426,12 +393,15 @@ function [valid_band, frequencies, offset, iFreq0_old] = get_freq_ranges ( frequ
 
    # get the start of the physical search band
    frequencies.search_start(curr_step) = params_run.FreqMin + 1.0 * ( iFreq0 + params_run.offsetFreqIndex ) * params_run.FreqBand;
+
    # get back down to start of contributing frequencies, including Doppler and spindown, but not running median bins
-   sideBand1  = getSidebandAtFreq ( frequencies.search_start(curr_step), params_run, use_rngmedSideband=0 );
+   sideBand1  = getSidebandAtFreq ( frequencies.search_start(curr_step), params_run, use_rngmedSideband=false );
    frequencies.psd_start(curr_step)    = frequencies.search_start(curr_step) - sideBand1; # we do not round this to an exact bin, as ComputePSD already reads in from the next-lowest bin frequency
+
    # do the same at upper end
-   sideBand2  = getSidebandAtFreq ( frequencies.search_start(curr_step)+params_init.freqstep, params_run, use_rngmedSideband=0 );
+   sideBand2  = getSidebandAtFreq ( frequencies.search_start(curr_step)+params_init.freqstep, params_run, use_rngmedSideband=false );
    frequencies.psd_band(curr_step)    += sideBand1 + sideBand2; # we do not round this to exact bins, as ComputePSD already reads in up to and including the next-highest bin frequency
+
    # add Dterms correction to actually match GCT code data read-in (not present in CFS_*_setup.C)
    frequencies.psd_start(curr_step)   -= params_run.Dterms*params_run.sft_dfreq;
    frequencies.psd_band(curr_step)    += 2.0*params_run.Dterms*params_run.sft_dfreq;
@@ -473,6 +443,7 @@ function [sftstartfreq, num_sfts_to_load, rngmedbins_effective] = get_sft_range 
    break;
   endif
  endwhile
+
  # load more SFTs if above the upper boundary
  while ( startfreq + freqband + rngmed_wing >= sftstartfreq + num_sfts_to_load*params_init.sft_width - params_run.sft_dfreq )
   if ( sftstartfreq + num_sfts_to_load*params_init.sft_width <= params_run.DataFreqMax )
@@ -486,14 +457,14 @@ function [sftstartfreq, num_sfts_to_load, rngmedbins_effective] = get_sft_range 
 endfunction # get_sft_range()
 
 
-function write_results_to_file (outfile, frequencies, freqbins, num_outliers, max_outlier, l, num_steps_done, curr_step, FreqMax )
- ## write_results_to_file (outfile, frequencies, freqbins, num_outliers, max_outlier, l, num_steps_done, curr_step, FreqMax )
+function write_results_to_file (outfile, frequencies, freqbins, num_outliers, max_outlier, oLGX, num_steps_done, curr_step, FreqMax )
+ ## write_results_to_file (outfile, frequencies, freqbins, num_outliers, max_outlier, oLGX, num_steps_done, curr_step, FreqMax )
  ## save outliers to file as an ascii matrix with custom header
 
  # header (commandline has already been written into this file)
  fid = fopen ( outfile, "a" ); # append mode
  fprintf ( fid, "# \n# columns:\n" );
- columnlabels = {"wufreq", "searchfreq", "psd_startfreq", "psd_freqband", "freqbins_H1", "freqbins_L1", "num_outliers_H1", "num_outliers_L1", "max_outlier_H1", "max_outlier_L1", "l_H1", "l_L1"};
+ columnlabels = {"wufreq", "searchfreq", "psd_startfreq", "psd_freqband", "freqbins_H1", "freqbins_L1", "num_outliers_H1", "num_outliers_L1", "max_outlier_H1", "max_outlier_L1", "oLG^H1", "oLG^L1"};
  majordigits = 4*ones(length(columnlabels),1); # assume only frequencies, bin numbers, power values etc up to 9999
  minordigits = [2,10,10,10,0,0,0,0,6,6,6,6]; # these must be the same as the ".2f" and similar in the body formatstring
  formatstring = "#"; # comment marker for beginning of line
@@ -510,17 +481,17 @@ function write_results_to_file (outfile, frequencies, freqbins, num_outliers, ma
  fprintf ( fid, formatstring, columnlabels{:} );
 
  # body
- if ( length(l.H1) == 0 ) # if first band is already outside params_run.FreqMax, skip output
-  skip_output = 1;
+ if ( isempty(oLGX.H1) ) # if first band is already outside params_run.FreqMax, skip output
+  skip_output = true;
  else
-  skip_output = 0;
+  skip_output = false;
   columnwidths(1) += 2; # now need to pad for leading "# " in heading also
   formatstring = sprintf("%%%d.2f %%%d.10f %%%d.10f %%%d.10f %%%dd %%%dd %%%dd %%%dd %%%d.6f %%%d.6f %%%d.6f %%%d.6f\n", columnwidths); # pad to standard with; ".2f" and similar must be same numbers of minor digits as above
   for n=1:1:num_steps_done
-   fprintf ( fid, formatstring, frequencies.wu_start(n),frequencies.search_start(n),frequencies.psd_start(n),frequencies.psd_band(n),freqbins.H1(n),freqbins.L1(n),num_outliers.H1(n),num_outliers.L1(n),max_outlier.H1(n),max_outlier.L1(n),l.H1(n),l.L1(n) );
+   fprintf ( fid, formatstring, frequencies.wu_start(n),frequencies.search_start(n),frequencies.psd_start(n),frequencies.psd_band(n),freqbins.H1(n),freqbins.L1(n),num_outliers.H1(n),num_outliers.L1(n),max_outlier.H1(n),max_outlier.L1(n),oLGX.H1(n),oLGX.L1(n) );
   endfor
  endif
- if ( ( skip_output == 1 ) || ( num_steps_done < curr_step ) ) # if no output at all or skipped some bands at end of freq range, note so in the file
+ if ( skip_output || ( num_steps_done < curr_step ) ) # if no output at all or skipped some bands at end of freq range, note so in the file
   fprintf ( fid, "# params_run.FreqMax=%.10f reached, no more bands processed.\n", FreqMax );
  endif
 
