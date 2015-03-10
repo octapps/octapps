@@ -125,13 +125,23 @@ function stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraints, w
     Tau0 = (kappa_c * n_c)/(kappa_f * n_f) * Tobs0^(delta_c - delta_f) * Nseg0^(-eps_c + eps_f);
     cost0_fmf = @(m_f) (kappa_c) * m_f.^(-n_c/2 * (n_f + 2) / (n_c + 2)) * Tau0^(-n_c/(n_c+2)) * Tobs0^delta_c * Nseg0^(-eps_c) + (kappa_f) * m_f.^(-n_f/2) * Tobs0^delta_f * Nseg0^(-eps_f);
     eq0_fmf = @(m_f) cost0_fmf(m_f)/cost0 - 1;
-    mf0 = [0, 2];
-    try
-      [mfOpt, residual, INFO, OUTPUT] = fzero ( eq0_fmf, mf0 );
-    catch
-      error ("CATCH: fzero() failed to find cost solution for m_f in degenerate case.\n");
-    end_try_catch
-    assert ( INFO == 1, "degenerate case: solution failed to converge, residual = %f, OUTPUT = '%s'\n", {residual, OUTPUT} );
+
+    %% try to find working bounds for mfOpt
+    x = [0, 1e4];
+    y = arrayfun( @(x) eq0_fmf(x), x );
+    [~, imax] = max( y );
+    if sign( eq0_fmf(x(1)) ) * sign( eq0_fmf(x(imax)) ) < 0
+      x0 = [ x(1), x(imax) ];
+    elseif sign( eq0_fmf(x(imax)) ) * sign( eq0_fmf(x(end)) ) < 0
+      x0 = [ x(imax), x(end) ];
+    else
+      error( "Could not bound mfOpt for Tobs0+Tseg0-constrained solution" );
+    endif
+
+    [mfOpt, residual, INFO, OUTPUT] = fzero ( eq0_fmf, x0 );
+    assert( INFO == 1,
+            "fzero() failed to find cost solution for mfOpt in degenerate case: INFO=%i, residual=%g, iterations=%i, mfOpt=[%g,%g], eq0_fmf=[%g,%g]\n",
+            INFO, residual, OUTPUT.iterations, OUTPUT.bracketx(1), OUTPUT.bracketx(2), OUTPUT.brackety(1), OUTPUT.brackety(2) );
 
     mcOpt = mfOpt^((n_f + 2)/(n_c+2)) * Tau0^(2/(n_c+2));
     crOpt = (mcOpt/n_c)/(mfOpt/n_f);
@@ -197,16 +207,27 @@ function stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraints, w
       stackparams.need_TobsMax = true;
     endif
   else
-    %% solve computing-cost ratio equation Eq.(87) for given Tobs
-    lhsTobs = constraints.Tobs0^D / cost_fact_Tobs;
-    deltaTobs_fcr = @(cr) misfract_Tobs(cr) - lhsTobs;
-    x0 = [1e-6, 1e6];
-    try
-      [crOpt, residual, INFO, OUTPUT] = fzero ( deltaTobs_fcr, x0 );
-    catch
-      error ("CATCH: fzero() failed to find Tobs0-constrained solution for crOpt.\n");
-    end_try_catch
-    assert ( INFO == 1, "Tobs-constrained solution failed to converge, residual = %f, OUTPUT = '%s'\n", {residual, OUTPUT} );
+    %% solve **log of** computing-cost ratio equation Eq.(87) for given Tobs
+    log_lhsTobs = D * log( constraints.Tobs0 ) - log_cost_fact_Tobs;
+    log_deltaTobs_fcr = @(cr) log( misfract_Tobs(cr) ) - log_lhsTobs;
+
+    %% try to find working bounds for crOpt
+    x = logspace( -10, 10, 500 );
+    y = arrayfun( @(x) log_deltaTobs_fcr(x), x );
+    [~, imax] = max( y );
+    if sign( log_deltaTobs_fcr(x(1)) ) * sign( log_deltaTobs_fcr(x(imax)) ) < 0
+      x0 = [ x(1), x(imax) ];
+    elseif sign( log_deltaTobs_fcr(x(imax)) ) * sign( log_deltaTobs_fcr(x(end)) ) < 0
+      x0 = [ x(imax), x(end) ];
+    else
+      error( "Could not bound crOpt for Tobs0-constrained solution" );
+    endif
+
+    [crOpt, residual, INFO, OUTPUT] = fzero ( log_deltaTobs_fcr, x0 );
+    assert( INFO == 1 || ( INFO == -5 && abs( diff( OUTPUT.bracketx ) ) < 1e-3 ),
+            "fzero() failed to find Tobs0-constrained solution for crOpt: INFO=%i, residual=%g, iterations=%i, crOpt=[%g,%g], log_deltaTobs_fcr=[%g,%g]\n",
+            INFO, residual, OUTPUT.iterations, OUTPUT.bracketx(1), OUTPUT.bracketx(2), OUTPUT.brackety(1), OUTPUT.brackety(2) );
+
   endif
 
   %% compute all derived quantities from crOpt
