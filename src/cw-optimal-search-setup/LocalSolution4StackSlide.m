@@ -181,8 +181,9 @@ function stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraints, w
   m0_f = ( xi_f * ( 1 + 4 * w * eps_f / n_f ) )^(-1);
 
   %% ----- optimal mismatches as functions of 'cr', Eq.(94)
-  mcOpt_fcr = @(cr) ( ( 1 / m0_c ) + ( cr^(-1) / m0_f ) * ( n_f / n_c ) )^(-1);
-  mfOpt_fcr = @(cr) ( ( 1 / m0_f ) + ( cr      / m0_c ) * ( n_c / n_f ) )^(-1);
+  %% restrict mismatches to be >= 1e-3 to prevent numerical problems in later equations
+  mcOpt_fcr = @(cr) max( 1e-3, ( ( 1 / m0_c ) + ( cr^(-1) / m0_f ) * ( n_f / n_c ) )^(-1) );
+  mfOpt_fcr = @(cr) max( 1e-3, ( ( 1 / m0_f ) + ( cr      / m0_c ) * ( n_c / n_f ) )^(-1) );
 
   %% ----- construct optimal Nseg(cr), Tobs(cr) given by Eqs.(86,87):
 
