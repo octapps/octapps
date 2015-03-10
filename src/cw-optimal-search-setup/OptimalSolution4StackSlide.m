@@ -22,26 +22,26 @@
 ##
 ## The available options are:
 ##
-## "costFuns":		structure containing cost function handles:
-##    "costFunCoh"	   coherent-cost function (handle), must be of the form cost_fun(Nseg, Tseg, mis)
-##    "costFunInc"	   incoherent-cost function (handle), must be of the form cost_fun(Nseg, Tseg, mis)
+## "costFuns":          structure containing cost function handles:
+##    "costFunCoh"         coherent-cost function (handle), must be of the form cost_fun(Nseg, Tseg, mis)
+##    "costFunInc"         incoherent-cost function (handle), must be of the form cost_fun(Nseg, Tseg, mis)
 ##
-## "cost0": 		total computing cost (in CPU seconds),
+## "cost0":             total computing cost (in CPU seconds),
 ##
 ## You can optionally provide the following additional constraints:
-## "TobsMax":  		maximal total observation time
-## "TsegMax":  		maximal segment length
+## "TobsMax":           maximal total observation time
+## "TsegMax":           maximal segment length
 ##
-## "stackparamsGuess"	initial "guess" for solution, must contain fields {Nseg, Tseg, mc, mf}
+## "stackparamsGuess"   initial "guess" for solution, must contain fields {Nseg, Tseg, mc, mf}
 ##
-## "pFA"              	false-alarm probability at which to optimize sensitivity [1e-10]
-## "pFD"              	false-dismissal probability (=1-detection-probability) [0.1]
+## "pFA"                false-alarm probability at which to optimize sensitivity [1e-10]
+## "pFD"                false-dismissal probability (=1-detection-probability) [0.1]
 ##
-## "tol"              	tolerance on the obtained relative difference of the solution, required for convergence [1e-2]
-## "maxiter"          	maximal allowed number of iterations [100]
+## "tol"                tolerance on the obtained relative difference of the solution, required for convergence [1e-2]
+## "maxiter"            maximal allowed number of iterations [100]
 ##
-## "xi":              	[optional] average mismatch-factor 'xi' linking average and maximal mismatch: <m> = xi * mis_max
-##                    	[default = 1/3 for hypercubic lattice]
+## "xi":                [optional] average mismatch-factor 'xi' linking average and maximal mismatch: <m> = xi * mis_max
+##                      [default = 1/3 for hypercubic lattice]
 ##
 ## The return structure 'stackparams' has fields {Nseg, Tseg, mc, mf, cr }
 ## where Nseg is the optimal (fractional!) number of segments, Tseg is the optimal segment length (in seconds)
