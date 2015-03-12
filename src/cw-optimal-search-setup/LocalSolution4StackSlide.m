@@ -163,7 +163,9 @@ function stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraints, w
 
   %% coefficient-matrix determinant of Eq.(88)
   D = delta_c * eta_f - delta_f * eta_c;
-  assert ( D > 0 );
+  %% in some extreme cases (e.g. supersky metrics with T < 1 day),
+  %% D can become negative, so only require that it be nonzero.
+  assert ( D != 0, "Failed assertion: D = %g * %g - %g * %g != 0", delta_c, eta_f, delta_f, eta_c );
   Dinv = 1/D;
 
   %% ----- average mismatch factor linking average and maximal mismatch for selected lattice
