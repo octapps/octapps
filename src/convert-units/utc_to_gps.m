@@ -43,6 +43,6 @@ endfunction
 %!  try
 %!    lal; lalpulsar;
 %!  catch
-%!    octapps_skip_test("LALSuite wrappings are not available"); return;
+%!    disp("skipping test: LALSuite bindings not available"); return;
 %!  end_try_catch
 %!  assert(utc_to_gps("13-May-2005 06:13:07") == 800000000);

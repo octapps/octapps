@@ -25,8 +25,8 @@ SWIG := $(call CheckProg, swig)
 version := $(shell $(OCTAVE) --eval "disp(OCTAVE_VERSION)")
 vers_num := -DOCT_VERS_NUM=$(shell $(OCTAVE) --eval "disp(strcat(\"0x\", sprintf(\"%02i\", str2double(strsplit(OCTAVE_VERSION, \".\")))))")
 
-curdir := $(shell pwd -L)
 # OctApps source path and file list
+curdir := $(shell pwd -L)
 srcpath := $(shell $(FIND) $(curdir)/src -type d ! \( -name private \) | $(SORT))
 srcmfiles := $(wildcard $(srcpath:%=%/*.m))
 srccfiles := $(wildcard $(srcpath:%=%/*.hpp) $(srcpath:%=%/*.cpp))
@@ -36,6 +36,18 @@ octdir := oct/$(version)
 
 # main targets
 .PHONY : all check clean
+
+# print list of deprecated functions at finish
+all :
+	@$(FIND) $(curdir)/src -path '*/deprecated/*' | $(SED) 's|^.*/|Warning: deprecated function |'
+	@echo "=================================================="; \
+	echo "OctApps has been successfully built!"; \
+	echo "To set up your environment, please add the line"; \
+	echo "  . $(curdir)/octapps-user-env.sh"; \
+	echo "to ~/.profile for Bourne shells (e.g. bash), or"; \
+	echo "  source $(curdir)/octapps-user-env.csh"; \
+	echo "to ~/.login for C shells (e.g. tcsh)."; \
+	echo "=================================================="
 
 # generate environment scripts
 all .PHONY : octapps-user-env.sh octapps-user-env.csh
@@ -100,14 +112,22 @@ endif # neq ($(MKOCTFILE),false)
 
 # run test scripts
 check : all
+	@$(MAKE) $(patsubst $(curdir)/src/%.m,%.test,$(srcmfiles))
+	@echo "=================================================="; \
+	echo "OctApps test suite has passed successfully!"; \
+	echo "=================================================="
+
+%.test :
 	@source octapps-user-env.sh; \
-	$(OCTAVE) --eval "octapps_test $(subst $(curdir)/src/,,$(srcmfiles))" 2>&1 | while read id line; do \
-		case $${id} in \
-			SCRIPT) printf "%s" "$${line}";; \
-			STATUS) printf " %s\n" "$${line}";; \
-			*);; \
+	status=""; while read line; do \
+		case "$${line}" in \
+			"skip"*) status="skip";; \
+			"PASSES"*) status="pass";; \
+			"!!!!!"*) status="FAIL";; \
 		esac; \
-	done
+	done < <( $(OCTAVE) --eval "test $*" 2>&1 ); \
+	test -n "$${status}" && echo "$${status}: $*"; \
+	test "$${status}" != FAIL
 
 # generate tags
 ifneq ($(CTAGSEX),false)
@@ -117,11 +137,6 @@ TAGS :
 	$(verbose_0)$(CTAGSEX) -e $(srcmfiles) $(srccfiles)
 
 endif # neq ($(CTAGSEX),false)
-
-# print list of deprecated functions
-all .PHONY : list-deprecated
-list-deprecated :
-	@$(FIND) $(curdir)/src -path '*/deprecated/*' | $(SED) 's|^.*/|Warning: deprecated function |'
 
 # cleanup
 clean :

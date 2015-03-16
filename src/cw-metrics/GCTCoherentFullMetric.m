@@ -172,7 +172,7 @@ endfunction
 %!    lal; lalpulsar;
 %!    ephemerides = loadEphemerides();
 %!  catch
-%!    octapps_skip_test("LALSuite wrappings are not available"); return;
+%!    disp("skipping test: LALSuite bindings not available"); return;
 %!  end_try_catch
 %!
 %!  # common parameters

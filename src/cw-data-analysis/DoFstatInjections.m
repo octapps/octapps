@@ -300,7 +300,7 @@ endfunction
 %!  try
 %!    lal; lalpulsar;
 %!  catch
-%!    octapps_skip_test("LALSuite wrappings are not available"); return;
+%!    disp("skipping test: LALSuite bindings not available"); return;
 %!  end_try_catch
 %!  res = DoFstatInjections(common_args{:}, "det_sqrt_PSD", 1.0, "OrbitParams", false);
 %!  assert(res.inj_alpha == res.sch_alpha);
@@ -315,7 +315,7 @@ endfunction
 %!  try
 %!    lal; lalpulsar;
 %!  catch
-%!    octapps_skip_test("LALSuite wrappings are not available"); return;
+%!    disp("skipping test: LALSuite bindings not available"); return;
 %!  end_try_catch
 %!  res = DoFstatInjections(common_args{:}, "inj_sqrt_PSD", 1.0, "OrbitParams", false);
 %!  assert(res.inj_alpha == res.sch_alpha);
@@ -330,7 +330,7 @@ endfunction
 %!  try
 %!    lal; lalpulsar;
 %!  catch
-%!    octapps_skip_test("LALSuite wrappings are not available"); return;
+%!    disp("skipping test: LALSuite bindings not available"); return;
 %!  end_try_catch
 %!  res = DoFstatInjections(common_args{:}, "det_sqrt_PSD", 1.0, "OrbitParams", true, ...
 %!                          "inj_orbitasini", 1e-5, "inj_orbitPeriod", 10800, ...
