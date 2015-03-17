@@ -98,9 +98,8 @@ function [g, gcache] = GCTCoherentFullMetric(gcache, varargin)
     fiducial_freq = 1.0;
     [metric, coordIDs] = CreateDopplerMetric("coords", "gct_nu,ssky_equ",
                                              "spindowns", smax,
-                                             "start_time", tj - 0.5 * T,
+                                             "segment_list", [tj - 0.5 * T, tj + 0.5 * T],
                                              "ref_time", t0,
-                                             "time_span", T,
                                              "detectors", detector,
                                              "ephemerides", ephemerides,
                                              "fiducial_freq", fiducial_freq,
@@ -191,7 +190,7 @@ endfunction
 %!      tj = t0 + dt;
 %!
 %!      # compute super-sky metric in GCT coordinates
-%!      metric = CreateDopplerMetric("coords", "freq,fdots,ssky_equ", "spindowns", smax, "start_time", tj - 0.5 * T, "ref_time", t0, "time_span", T, "detectors", detector, "ephemerides", ephemerides, "fiducial_freq", fiducial_freq, "det_motion", ptole{p, 2});
+%!      metric = CreateDopplerMetric("coords", "freq,fdots,ssky_equ", "spindowns", smax, "segment_list", [tj - 0.5 * T, tj + 0.5 * T], "ref_time", t0, "detectors", detector, "ephemerides", ephemerides, "fiducial_freq", fiducial_freq, "det_motion", ptole{p, 2});
 %!      g_ssky = metric.g_ij;
 %!
 %!      # compute full GCT metric
