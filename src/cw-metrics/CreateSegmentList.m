@@ -13,47 +13,64 @@
 ## You should have received a copy of the GNU General Public License
 ## along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-## Create segment list(s) with the given reference time 'reftime', total time span 'Tspan', number
-## of segments 'Nseg', and (optionally) duty cycle 'duty' (= Nseg * Tseg / Tspan). Aside from
-## 'reftime', each parameter may be vectorised to return multiple segment lists with all possible
-## parameter combinations. Note that 'duty' has an effect only for 'Nseg' > 1.
+## Create segment list(s) with the given mean timestamp 'mean_time', and exactly 3 of the following
+## 4 input parameters: number of segments 'Nseg', segment time-span 'Tseg', total time span 'Tspan',
+## and incoherent duty cycle 'duty'. Aside from 'mean_time', each parameter may be vectorised to
+## return multiple segment lists with all possible parameter combinations.
 ## Usage:
-##   segment_lists = CreateSegmentList(reftime, Tspan, Nseg, duty=1)
+##   segment_lists = CreateSegmentList(mean_time, Nseg, Tseg, Tspan, duty)
 
-function varargout = CreateSegmentList(reftime, Tspan, Nseg, duty=1)
+function varargout = CreateSegmentList(mean_time, Nseg, Tseg, Tspan, duty)
 
   ## check input
-  assert(isscalar(reftime));
-  assert(isvector(Tspan) && all(Tspan > 0));
-  assert(isvector(Nseg) && all(Nseg > 0) && all(mod(Nseg, 1) == 0));
-  assert(isvector(duty) && all(duty > 0) && all(duty <= 1));
+  assert(isscalar(mean_time));
+  nparams = 0;
+  if !isempty(Nseg)
+    assert(isvector(Nseg) && all(Nseg > 0) && all(mod(Nseg, 1) == 0));
+    ++nparams;
+  endif
+  if !isempty(Tseg)
+    assert(isvector(Tseg) && all(Tseg > 0));
+    ++nparams;
+  endif
+  if !isempty(Tspan)
+    assert(isvector(Tspan) && all(Tspan > 0));
+    ++nparams;
+  endif
+  if !isempty(duty)
+    assert(isvector(duty) && all(duty > 0) && all(duty <= 1));
+    ++nparams;
+  endif
+  assert(nparams == 3, "Exactly 3 out of the 4 input parameters {'Nseg','Tseg','Tspan','duty'} must be used");
 
-  ## create grid out of segment input parameters
-  [Tspan, Nseg, duty] = ndgrid(Tspan, Nseg, duty);
+  ## create grid out of the 3 input parameters, and compute the missing 4th
+  if isempty(Nseg)
+    [Tseg, Tspan, duty] = ndgrid(Tseg, Tspan, duty);
+    Nseg = Tspan .* duty ./ Tseg;
+  elseif isempty(Tseg)
+    [Nseg, Tspan, duty] = ndgrid(Nseg, Tspan, duty);
+    Tseg = Tspan .* duty ./ Nseg;
+  elseif isempty(Tspan)
+    [Nseg, Tseg, duty] = ndgrid(Nseg, Tseg, duty);
+    Tspan = Nseg .* Tseg ./ duty;
+  elseif isempty(duty)
+    [Nseg, Tseg, Tspan] = ndgrid(Nseg, Tseg, Tspan);
+    duty = Nseg .* Tseg ./ Tspan;
+  endif
+  assert(!cellfun(@isempty, {Nseg, Tseg, Tspan, duty}));
 
   ## generate segment lists
-  segment_lists = cell(size(Tspan));
+  segment_lists = cell(size(Nseg));
   for i = 1:numel(segment_lists)
-
-    ## compute segment length
-    if Nseg(i) > 1
-      Tseg = Tspan(i) * duty(i) / Nseg(i);
-    else
-      Tseg = Tspan(i);
-    endif
-
-    ## generate segment timestamps, with mean of timestamps equal to reference time
-    ts = linspace(0, Tspan(i) - Tseg, Nseg(i));
-    ts = ts(:) - mean(ts) + reftime;
-
-    ## generate segment list
-    segment_lists{i} = [ts, ts + Tseg];
-
+    ts = reshape(linspace(0, Tspan(i) - Tseg(i), Nseg(i)), [], 1);
+    S = [ts, ts + Tseg(i)];
+    S = S - mean(S(:)) + mean_time;
+    segment_lists{i} = S;
   endfor
 
   ## return segment lists
   if nargout == numel(segment_lists)
-     varargout = segment_lists;
+    varargout = segment_lists;
   else
     varargout = {segment_lists};
   endif
@@ -61,29 +78,28 @@ function varargout = CreateSegmentList(reftime, Tspan, Nseg, duty=1)
 endfunction
 
 
-%!test
-%!  reftime = 1234567890;
-%!  Tspan = [10, 55, 365.25];
-%!  Nseg = [1, 3, 7, 15];
-%!  duty = [1.0, 0.75, 0.5];
-%!  S = CreateSegmentList(reftime, Tspan, Nseg, duty);
-%!  assert(size(S) == [3, 4, 3]);
-%!  for i = 1:size(S, 1)   ## Tspan
-%!    for j = 1:size(S, 2)   ## Nseg
-%!      for k = 1:size(S, 3)   ## duty
-%!        s = S{i, j, k};
-%!        if Nseg(j) > 1
-%!          Tseg = Tspan(i) * duty(k) / Nseg(j);
-%!        else
-%!          Tseg = Tspan(i);
-%!        endif
-%!        assert(size(s) == [Nseg(j), 2]);
-%!        assert(s(end, 2) - s(1, 1), Tspan(i), 1e-5);
-%!        assert(diff(s, [], 2), Tseg * ones(Nseg(j), 1), 1e-5);
-%!        if Nseg(j) > 1
-%!          assert(diff(s, [], 1), (Tspan(i) - Tseg) / (Nseg(j) - 1) * ones(Nseg(j) - 1, 2), 1e-5);
-%!          assert(s(2:end, 1) - s(1:end-1, 2), (Tspan(i) - Nseg(j) * Tseg) / (Nseg(j) - 1) * ones(Nseg(j) - 1, 1), 1e-5);
-%!        endif
-%!      endfor
-%!    endfor
-%!  endfor
+%!assert( AnalyseSegmentList(CreateSegmentList(456, [], 7.3, 140.9, 0.87)).mean_time, 456, 1e-5 )
+%!assert( AnalyseSegmentList(CreateSegmentList(456, [], 7.3, 140.9, 0.87)).num_segments, 16, 1e-5 )
+%!assert( mean(AnalyseSegmentList(CreateSegmentList(456, [], 7.3, 140.9, 0.87)).coh_Tspan), 7.3, 1e-5 )
+%!assert( AnalyseSegmentList(CreateSegmentList(456, [], 7.3, 140.9, 0.87)).inc_Tspan, 140.9, 1e-5 )
+%!assert( AnalyseSegmentList(CreateSegmentList(456, [], 7.3, 140.9, 0.87)).inc_duty, 0.82896, 1e-5 )
+
+%!assert( AnalyseSegmentList(CreateSegmentList(345, 50, [], 256.7, 0.77)).mean_time, 345, 1e-5 )
+%!assert( AnalyseSegmentList(CreateSegmentList(345, 50, [], 256.7, 0.77)).num_segments, 50, 1e-5 )
+%!assert( mean(AnalyseSegmentList(CreateSegmentList(345, 50, [], 256.7, 0.77)).coh_Tspan), 3.95318, 1e-5 )
+%!assert( AnalyseSegmentList(CreateSegmentList(345, 50, [], 256.7, 0.77)).inc_Tspan, 256.7, 1e-5 )
+%!assert( AnalyseSegmentList(CreateSegmentList(345, 50, [], 256.7, 0.77)).inc_duty, 0.77, 1e-5 )
+
+%!assert( AnalyseSegmentList(CreateSegmentList(234, 200, 3.7, [], 0.77)).mean_time, 234, 1e-5 )
+%!assert( AnalyseSegmentList(CreateSegmentList(234, 200, 3.7, [], 0.77)).num_segments, 200, 1e-5 )
+%!assert( mean(AnalyseSegmentList(CreateSegmentList(234, 200, 3.7, [], 0.77)).coh_Tspan), 3.7, 1e-5 )
+%!assert( AnalyseSegmentList(CreateSegmentList(234, 200, 3.7, [], 0.77)).inc_Tspan, 961.03896, 1e-5 )
+%!assert( AnalyseSegmentList(CreateSegmentList(234, 200, 3.7, [], 0.77)).inc_duty, 0.77, 1e-5 )
+
+%!assert( AnalyseSegmentList(CreateSegmentList(123, 100, 2.3, 365.25, [])).mean_time, 123, 1e-5 )
+%!assert( AnalyseSegmentList(CreateSegmentList(123, 100, 2.3, 365.25, [])).num_segments, 100, 1e-5 )
+%!assert( mean(AnalyseSegmentList(CreateSegmentList(123, 100, 2.3, 365.25, [])).coh_Tspan), 2.3, 1e-5 )
+%!assert( AnalyseSegmentList(CreateSegmentList(123, 100, 2.3, 365.25, [])).inc_Tspan, 365.25, 1e-5 )
+%!assert( AnalyseSegmentList(CreateSegmentList(123, 100, 2.3, 365.25, [])).inc_duty, 0.62971, 1e-5 )
+
+%!assert( AnalyseSegmentList(CreateSegmentList(123, 1, 2.3, 365.25, [])).inc_duty, 1.0, 1e-5 )
