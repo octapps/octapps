@@ -107,13 +107,29 @@ function stackparams = OptimalSolution4StackSlide ( varargin )
     have_TsegMax = false;
   endif
 
+  is_converged = false;
   iter = 0;
-  do
+  while true
+
     ## determine local power-law coefficients at the current guess 'solution'
     w = SensitivityScalingDeviationN ( uvar.pFA, uvar.pFD, stackparams.Nseg );
     coef_c = LocalCostCoefficients ( uvar.costFuns.costFunCoh, stackparams.Nseg, stackparams.Tseg, stackparams.mc );
     coef_f = LocalCostCoefficients ( uvar.costFuns.costFunInc, stackparams.Nseg, stackparams.Tseg, stackparams.mf );
 
+    ## store some meta-info about the solution
+    stackparams.converged = is_converged;
+    stackparams.iter = iter;
+    stackparams.w = w;
+    stackparams.coef_c = coef_c;
+    stackparams.coef_f = coef_f;
+    stackparams.cost = coef_c.cost + coef_f.cost;
+    stackparams.cr = coef_c.cost / coef_f.cost;
+
+    if ( is_converged || ( ++iter >= uvar.maxiter ) )
+      break
+    endif
+
+    ## compute new guess 'solution'
     new_stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraints0, w, uvar.xi );
 
     %% ----- check special failure modes and handle them separately ----------
@@ -137,16 +153,7 @@ function stackparams = OptimalSolution4StackSlide ( varargin )
 
     stackparams = new_stackparams;
 
-    iter ++;
-  until ( is_converged || (iter > uvar.maxiter) )
-
-  ## store some meta-info about that solution
-  stackparams.converged = is_converged;
-  stackparams.iter = iter;
-
-  stackparams.w = w;
-  stackparams.coef_c = coef_c;
-  stackparams.coef_f = coef_f;
+  endwhile
 
   return;
 
