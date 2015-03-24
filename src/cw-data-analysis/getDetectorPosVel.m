@@ -52,7 +52,7 @@ function [p, v, sp, sv, op, ov] = getDetectorPosVel(varargin)
   ## parse detector string
   multiIFO = new_MultiLALDetector();
   detNames = XLALCreateStringVector(detector);
-  XLALParseMultiLALDetector(multiIFO, detNames, []);
+  XLALParseMultiLALDetector(multiIFO, detNames);
   if multiIFO.length != 1
     error("%s: can only return positions and velocities for a single detector", funcName);
   endif
