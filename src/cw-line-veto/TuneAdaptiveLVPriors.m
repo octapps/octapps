@@ -156,7 +156,7 @@ function ret = TuneAdaptiveLVPriors ( varargin )
    endif
    params_psd.outputPSD      = [params_init.workingdir, filesep, "psd_H1_med_", num2str(params_psd.blocksRngMed), "_band_", int2str(curr_step), ".dat"];
    [num_outliers.H1(curr_step), max_outlier.H1(curr_step), freqbins.H1(curr_step)] = CountSFTPowerOutliers ( params_psd, thresh.H1, params_init.lalpath, params_init.debug );
-   if ( params_init.cleanup == 1 )
+   if ( params_init.cleanup )
     [err, msg] = unlink (params_psd.outputPSD);
    endif
    params_psd.inputData      = sfts.l1;
@@ -165,7 +165,7 @@ function ret = TuneAdaptiveLVPriors ( varargin )
    endif
    params_psd.outputPSD      = [params_init.workingdir, filesep, "psd_L1_med_", num2str(params_psd.blocksRngMed), "_band_", int2str(curr_step), ".dat"];
    [num_outliers.L1(curr_step), max_outlier.L1(curr_step), freqbins.L1(curr_step)] = CountSFTPowerOutliers ( params_psd, thresh.L1, params_init.lalpath, params_init.debug );
-   if ( params_init.cleanup == 1 )
+   if ( params_init.cleanup )
     [err, msg] = unlink (params_psd.outputPSD);
    endif
 

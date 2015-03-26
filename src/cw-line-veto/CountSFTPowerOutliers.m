@@ -36,8 +36,11 @@ function [num_outliers, max_outlier, freqbins] = CountSFTPowerOutliers ( params_
 
  ComputePSD      = [lalpath, "lalapps_ComputePSD"];
 
- if ( debug == 1 )
+ if ( debug )
   printf("Computing PSDs for a running median window of %d bins.\n", params_psd.blocksRngMed);
+  params_psd.LAL_DEBUG_LEVEL = "MSGLVL2"; # errors and warnings
+ else
+  params_psd.LAL_DEBUG_LEVEL = 0;
  endif
 
  # run ComputePSD on all input SFTs
