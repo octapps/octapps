@@ -32,7 +32,9 @@ function sol = testEaH()
   cost0 = cost_co + cost_ic;
   TobsMax = 365 * 86400;
 
-  sol = OptimalSolution4StackSlide ( "costFunCoh", @cost_coh, "costFunInc", @cost_inc, "cost0", cost0, "TobsMax", TobsMax, "stackparamsGuess", refParams );
+  cost_funs = struct( "costFunCoh", @cost_coh, "costFunInc", @cost_inc );
+
+  sol = OptimalSolution4StackSlide ( "costFuns", cost_funs, "cost0", cost0, "TobsMax", TobsMax, "stackparamsGuess", refParams );
 
   tol = -1e-3;
   assert ( sol.mc, 0.1443, tol );

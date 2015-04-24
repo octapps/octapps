@@ -22,9 +22,12 @@
 ##
 ## The available options are:
 ##
-## "costFunCoh"		coherent-cost function (handle), must be of the form cost_fun(Nseg, Tseg, mis)
-## "costFunInc"		incoherent-cost function (handle), must be of the form cost_fun(Nseg, Tseg, mis)
+## "costFuns":		structure containing cost function handles:
+##    "costFunCoh"	   coherent-cost function (handle), must be of the form cost_fun(Nseg, Tseg, mis)
+##    "costFunInc"	   incoherent-cost function (handle), must be of the form cost_fun(Nseg, Tseg, mis)
+##
 ## "cost0": 		total computing cost (in CPU seconds),
+##
 ## You can optionally provide the following additional constraints:
 ## "TobsMax":  		maximal total observation time
 ## "TsegMax":  		maximal segment length
@@ -52,8 +55,7 @@ function stackparams = OptimalSolution4StackSlide ( varargin )
 
   ## parse options
   uvar = parseOptions ( varargin,
-                       {"costFunCoh", "_function_handle" },
-                       {"costFunInc", "_function_handle" },
+                       {"costFuns", "struct,scalar" },
                        {"cost0", "real,strictpos,scalar" },
                        {"TobsMax", "real,strictpos,scalar", [] },
                        {"TsegMax", "real,strictpos,scalar", [] },
@@ -64,6 +66,8 @@ function stackparams = OptimalSolution4StackSlide ( varargin )
                        {"tol", "real,strictpos,scalar", 1e-2 },
                        {"maxiter", "integer,strictpos,scalar", 100 },
                        []);
+  assert( isfield( uvar.costFuns, "costFunCoh" ) && is_function_handle( uvar.costFuns.costFunCoh ) );
+  assert( isfield( uvar.costFuns, "costFunInc" ) && is_function_handle( uvar.costFuns.costFunInc ) );
 
   ## if no initial guess given, use a simple one
   if ( isempty ( uvar.stackparamsGuess ) )
@@ -107,8 +111,8 @@ function stackparams = OptimalSolution4StackSlide ( varargin )
   do
     ## determine local power-law coefficients at the current guess 'solution'
     w = SensitivityScalingDeviationN ( uvar.pFA, uvar.pFD, stackparams.Nseg );
-    coef_c = LocalCostCoefficients ( uvar.costFunCoh, stackparams.Nseg, stackparams.Tseg, stackparams.mc );
-    coef_f = LocalCostCoefficients ( uvar.costFunInc, stackparams.Nseg, stackparams.Tseg, stackparams.mf );
+    coef_c = LocalCostCoefficients ( uvar.costFuns.costFunCoh, stackparams.Nseg, stackparams.Tseg, stackparams.mc );
+    coef_f = LocalCostCoefficients ( uvar.costFuns.costFunInc, stackparams.Nseg, stackparams.Tseg, stackparams.mf );
 
     new_stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraints0, w, uvar.xi );
 
