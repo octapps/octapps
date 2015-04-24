@@ -16,38 +16,13 @@
 ## MA  02111-1307  USA
 
 
-## Dedicated test-function for OptimalSolution4StackSlide(), which would have been too long&messy
-## to include as an octave test.
-## Recomputes the E@H S5GC1 solution given in Prix&Shaltev,PRD85,084010(2012) Table~II
-## and compares with reference result. This function either passes or fails depending on the result.
-function sol = testEaH()
-
-  refParams.Nseg = 205;
-  refParams.Tseg = 25 * 3600;	## 25(!) hours
-  refParams.mc   = 0.5;
-  refParams.mf   = 0.5;
-
-  cost_co = cost_coh(refParams.Nseg, refParams.Tseg, refParams.mc );
-  cost_ic = cost_inc(refParams.Nseg, refParams.Tseg, refParams.mf );
-  cost0 = cost_co + cost_ic;
-  TobsMax = 365 * 86400;
-
-  cost_funs = struct( "costFunCoh", @cost_coh, "costFunInc", @cost_inc );
-
-  sol = OptimalSolution4StackSlide ( "costFuns", cost_funs, "cost0", cost0, "TobsMax", TobsMax, "stackparamsGuess", refParams );
-
-  tol = -1e-3;
-  assert ( sol.mc, 0.1443, tol );
-  assert ( sol.mf, 0.1660, tol );
-  assert ( sol.Nseg, 527.7, tol );
-  assert ( sol.Tseg, 59762, tol );
-  assert ( sol.cr, 0.8691, tol );
-
-  return;
+## Returns the cost functions used to compute the E@H S5GC1
+## solution given in Prix&Shaltev,PRD85,084010(2012) Table~II
+function costFuns = EaHS5GC1CostFunctions()
+  costFuns = struct( "costFunCoh", @cost_coh, "costFunInc", @cost_inc );
 endfunction
 
 
-%%
 function ret = jn ( n, x )
   %% spherical bessel function j_n(x), using expression in terms of
   %% ordinary Bessel functions J_n(x) from wikipedia:
@@ -185,6 +160,3 @@ function [cost, s] = cost_inc ( Nseg, Tseg, mis )
   return;
 
 endfunction ## cost_inc()
-
-%!test
-%!  testEaH();
