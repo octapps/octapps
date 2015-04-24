@@ -43,6 +43,8 @@
 ## "xi":                [optional] average mismatch-factor 'xi' linking average and maximal mismatch: <m> = xi * mis_max
 ##                      [default = 1/3 for hypercubic lattice]
 ##
+## "verbose"            [optional] print useful information about solution at each iteration [default: false]
+##
 ## The return structure 'stackparams' has fields {Nseg, Tseg, mc, mf, cr }
 ## where Nseg is the optimal (fractional!) number of segments, Tseg is the optimal segment length (in seconds)
 ## mc is the optimal coarse-grid mismatch, mf the optimal fine-grid mismatch, and cr the resulting optimal
@@ -52,6 +54,9 @@
 ##
 
 function stackparams = OptimalSolution4StackSlide ( varargin )
+
+  ## load constants
+  UnitsConstants;
 
   ## parse options
   uvar = parseOptions ( varargin,
@@ -65,6 +70,7 @@ function stackparams = OptimalSolution4StackSlide ( varargin )
                        {"xi", "real,strictpos,scalar", 1/3 },
                        {"tol", "real,strictpos,scalar", 1e-2 },
                        {"maxiter", "integer,strictpos,scalar", 100 },
+                       {"verbose", "logical,scalar", false },
                        []);
   assert( isfield( uvar.costFuns, "costFunCoh" ) && is_function_handle( uvar.costFuns.costFunCoh ) );
   assert( isfield( uvar.costFuns, "costFunInc" ) && is_function_handle( uvar.costFuns.costFunInc ) );
@@ -124,6 +130,24 @@ function stackparams = OptimalSolution4StackSlide ( varargin )
     stackparams.coef_f = coef_f;
     stackparams.cost = coef_c.cost + coef_f.cost;
     stackparams.cr = coef_c.cost / coef_f.cost;
+
+    if ( uvar.verbose )
+      printf("\n%s iteration %i", funcName(), stackparams.iter);
+      if ( stackparams.converged )
+        printf(" has converged!\n");
+      else
+        printf(":\n");
+      endif
+      printf("  Nseg = %g, Tseg = %g days, mc = %g, mf = %g\n", stackparams.Nseg, stackparams.Tseg/DAYS, stackparams.mc, stackparams.mf);
+      printf("  cost_coh ~ Nseg^%g * Tseg^%g * mc^(-%g/2)\n", stackparams.coef_c.eta, stackparams.coef_c.delta, stackparams.coef_c.nDim);
+      printf("  cost_inc ~ Nseg^%g * Tseg^%g * mc^(-%g/2)\n", stackparams.coef_f.eta, stackparams.coef_f.delta, stackparams.coef_f.nDim);
+      printf("  cost / cost0 = %0.2e sec / %0.2e sec = %g\n", stackparams.cost, uvar.cost0, stackparams.cost / uvar.cost0);
+      if ( have_TobsMax )
+        Tobs = stackparams.Nseg * stackparams.Tseg;
+        printf("  Tobs / TobsMax = %0.2e days / %0.2e days = %g\n", Tobs/DAYS, uvar.TobsMax/DAYS, Tobs / uvar.TobsMax);
+      endif
+      printf("\n");
+    endif
 
     if ( is_converged || ( ++iter >= uvar.maxiter ) )
       break
