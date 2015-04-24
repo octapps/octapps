@@ -30,6 +30,7 @@
 ##
 ## You can optionally provide the following additional constraints:
 ## "TobsMax":           maximal total observation time
+## "TsegMin":           minimal segment length
 ## "TsegMax":           maximal segment length
 ##
 ## "stackparamsGuess"   initial "guess" for solution, must contain fields {Nseg, Tseg, mc, mf}
@@ -62,6 +63,7 @@ function stackparams = OptimalSolution4StackSlide ( varargin )
                        {"costFuns", "struct,scalar" },
                        {"cost0", "real,strictpos,scalar" },
                        {"TobsMax", "real,strictpos,scalar", [] },
+                       {"TsegMin", "real,strictpos,scalar", [] },
                        {"TsegMax", "real,strictpos,scalar", [] },
                        {"stackparamsGuess", "struct", [] },
                        {"pFA", "real,strictpos,scalar", 1e-10 },
@@ -92,24 +94,33 @@ function stackparams = OptimalSolution4StackSlide ( varargin )
   %% ----- handle different levels of constraints ----------
   constraints0.cost0 = uvar.cost0;
 
-  if ( !isempty(uvar.TobsMax) )
-    have_TobsMax = true;
+  have_TobsMax = !isempty(uvar.TobsMax);
+  if ( have_TobsMax )
     assert ( uvar.TobsMax > 0 );
     constraintsTobs = constraints0;
     constraintsTobs.Tobs0 = uvar.TobsMax;
-  else
-    have_TobsMax = false;
   endif
 
-  if ( !isempty(uvar.TsegMax) )
-    have_TsegMax = true;
-    assert ( uvar.TsegMax > 0 );
+  have_TsegMin = !isempty(uvar.TsegMin);
+  if ( have_TsegMin )
+    assert ( uvar.TsegMin > 0 );
+    assert ( have_TobsMax, "Constraint 'TobsMax' required if given 'TsegMin'\n");
+    constraintsTsegMin = constraints0;
+    constraintsTsegMin.Tobs0 = uvar.TobsMax;
+    constraintsTsegMin.Tseg0 = uvar.TsegMin;
+  endif
+
+  have_TsegMax = !isempty(uvar.TsegMax);
+  if ( have_TsegMax )
+    if ( have_TsegMin )
+      assert ( uvar.TsegMax > uvar.TsegMin );
+    else
+      assert ( uvar.TsegMax > 0 );
+    endif
     assert ( have_TobsMax, "Constraint 'TobsMax' required if given 'TsegMax'\n");
-    constraintsTseg = constraints0;
-    constraintsTseg.Tobs0 = uvar.TobsMax;
-    constraintsTseg.Tseg0 = uvar.TsegMax;
-  else
-    have_TsegMax = false;
+    constraintsTsegMax = constraints0;
+    constraintsTsegMax.Tobs0 = uvar.TobsMax;
+    constraintsTsegMax.Tseg0 = uvar.TsegMax;
   endif
 
   is_converged = false;
@@ -168,8 +179,11 @@ function stackparams = OptimalSolution4StackSlide ( varargin )
     if ( have_TobsMax && (Tobs > uvar.TobsMax) )
       new_stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraintsTobs, w, uvar.lattice );
     endif
+    if ( have_TsegMin && (new_stackparams.Tseg < uvar.TsegMin ) )
+      new_stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraintsTsegMin, w, uvar.lattice );
+    endif
     if ( have_TsegMax && (new_stackparams.Tseg > uvar.TsegMax ) )
-      new_stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraintsTseg, w, uvar.lattice );
+      new_stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraintsTsegMax, w, uvar.lattice );
     endif
 
     is_converged = checkConvergence ( new_stackparams, stackparams, uvar.tol );
