@@ -28,8 +28,9 @@ vers_num := -DOCT_VERS_NUM=$(shell $(OCTAVE) --eval "disp(strcat(\"0x\", sprintf
 # OctApps source path and file list
 curdir := $(shell pwd -L)
 srcpath := $(shell $(FIND) $(curdir)/src -type d ! \( -name private \) | $(SORT))
-srcmfiles := $(wildcard $(srcpath:%=%/*.m))
-srccfiles := $(wildcard $(srcpath:%=%/*.hpp) $(srcpath:%=%/*.cpp))
+srcfilepath := $(filter-out %/deprecated, $(srcpath))
+srcmfiles := $(wildcard $(srcfilepath:%=%/*.m))
+srccfiles := $(wildcard $(srcfilepath:%=%/*.hpp) $(srcfilepath:%=%/*.cpp))
 
 # OctApps extension module directory
 octdir := oct/$(version)
