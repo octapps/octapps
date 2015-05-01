@@ -113,8 +113,9 @@ endif # neq ($(MKOCTFILE),false)
 
 # run test scripts
 check : all
-	@$(MAKE) $(patsubst $(curdir)/src/%.m,%.test,$(srcmfiles))
-	@echo "=================================================="; \
+	@test -n "$${TESTS}" || TESTS="$(patsubst %.m,%,$(notdir $(srcmfiles)))"; \
+	$(MAKE) `printf " %s.test" $${TESTS}` || exit 1; \
+	echo "=================================================="; \
 	echo "OctApps test suite has passed successfully!"; \
 	echo "=================================================="
 
