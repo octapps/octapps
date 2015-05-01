@@ -15,17 +15,19 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## Usage: stackparams = LocalSolution4Fstat ( coef_c, cost0, xi = 1/3 )
+## Usage: stackparams = LocalSolution4Fstat ( coef_c, cost0, xi_or_latt = 1/3 )
 ## where options are:
 ## "coef_c":          structure holding local power-law coefficients { delta, kappa, nDim }
 ##                    of coherent computing cost ~ mis^{-nDim/2} * Tseg^delta,
 ##                    where 'nDim' is the associated template-bank dimension
 ## "cost0":           computing cost constraint
-## "xi":              average mismatch-factor 'xi' linking average and maximal mismatch: <m> = xi * mis_max
+##
+## "xi_or_latt":      [optional] EITHER: average mismatch-factor 'xi' linking average and maximal mismatch: <m> = xi * mis_max
+##                    OR: string giving lattice type to use (e.g. "Zn", "Ans"), from which 'xi' is computed 
 ##                    [default = 1/3 for hypercubic lattice]
 ##
 ## Compute the local solution for optimal F-statistic search parameters at given (local) power-law coefficients 'coef_c',
-## and given computing-cost constraint 'cost0', and (optional) average-mismatch geometrical factor 'xi' in [0,1]
+## and given computing-cost constraint 'cost0', and (optional) average-mismatch geometrical factor 'xi' in [0,1] or lattice string.
 ##
 ## NOTE: this solution is *not* guaranteed to be self-consistent, in the sense that the power-law coefficients
 ## at the point of this local solution may be different from the input 'coef_c'
@@ -38,7 +40,7 @@
 ## [Equation numbers refer to Prix&Shaltev, PRD85, 084010 (2012)]
 ##
 
-function stackparams = LocalSolution4Fstat ( coef_c, cost0, xi = 1/3 )
+function stackparams = LocalSolution4Fstat ( coef_c, cost0, xi_or_latt = 1/3 )
 
   ## check user-input sanity
   assert ( cost0 > 0 );
@@ -50,6 +52,15 @@ function stackparams = LocalSolution4Fstat ( coef_c, cost0, xi = 1/3 )
   deltac = coef_c.delta;
   kappac = coef_c.kappa;
   nc     = coef_c.nDim;
+
+  %% ----- average mismatch factor linking average and maximal mismatch for selected lattice
+  if ( ischar ( xi_or_latt ) )
+    xi = meanOfHist( LatticeMismatchHist( round(nc), xi_or_latt ) );
+  elseif ( isnumeric ( xi_or_latt ) )
+    xi = xi_or_latt;
+  else
+    error( "Invalid value given for 'xi_or_latt'" )
+  endif
 
   mcOpt   = ( xi * ( 1 + 2 * deltac / nc ))^(-1);			## Eq.(69)
   TobsOpt = ( cost0 / kappac )^(1/deltac) * mcOpt^(nc/(2*deltac));	## Eq.(70)

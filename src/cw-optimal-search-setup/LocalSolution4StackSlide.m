@@ -15,7 +15,7 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## Usage: stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraints, w=1, xi=1/3 )
+## Usage: stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraints, w = 1, xi_or_latt = 1/3 )
 ## where options are:
 ##
 ## "coef_c":          structure holding local power-law coefficients { delta, kappa, nDim, [eta] }
@@ -40,12 +40,13 @@
 ## "w"                Power-law correction in sensitivity Nseg-scaling: hth^{-2} ~ N^{-1/(2w)},
 ##                    where w=1 corresponds to the Gaussian weak-signal limit
 ##
-## "xi":              [optional] average mismatch-factor 'xi' linking average and maximal mismatch: <m> = xi * mis_max
+## "xi_or_latt":      [optional] EITHER: average mismatch-factor 'xi' linking average and maximal mismatch: <m> = xi * mis_max
+##                    OR: string giving lattice type to use (e.g. "Zn", "Ans"), from which 'xi' is computed 
 ##                    [default = 1/3 for hypercubic lattice]
 ##
 ##
 ## Compute the local solution for optimal StackSlide search parameters at given (local) power-law coefficients 'coef_c', 'coef_f'
-## and given computing-cost constraint 'cost0', and (optional) average-mismatch geometrical factor 'xi' in [0,1]
+## and given computing-cost constraint 'cost0', and (optional) average-mismatch geometrical factor 'xi' in [0,1] or lattice string.
 ##
 ## NOTE: this solution is *not* guaranteed to be self-consistent, in the sense that the power-law coefficients
 ## at the point of this local solution may be different from the input 'coef_c', 'coef_f'
@@ -58,7 +59,7 @@
 ## [Equation numbers refer to Prix&Shaltev, PRD85, 084010 (2012)]
 ##
 
-function stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraints, w = 1, xi = 1/3 )
+function stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraints, w = 1, xi_or_latt = 1/3 )
 
   %% check user-input sanity
   assert ( !isempty( constraints ) );
@@ -155,9 +156,19 @@ function stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraints, w
   assert ( D > 0 );
   Dinv = 1/D;
 
+  %% ----- average mismatch factor linking average and maximal mismatch for selected lattice
+  if ( ischar ( xi_or_latt ) )
+    xi_c = meanOfHist( LatticeMismatchHist( round(n_c), xi_or_latt ) );
+    xi_f = meanOfHist( LatticeMismatchHist( round(n_f), xi_or_latt ) );
+  elseif ( isnumeric ( xi_or_latt ) )
+    xi_c = xi_f = xi_or_latt;
+  else
+    error( "Invalid value given for 'xi_or_latt'" )
+  endif
+
   %% ----- asymptotic mismatches, Eq.(78):
-  m0_c = ( xi * ( 1 + 4 * w * eps_c / n_c ) )^(-1);
-  m0_f = ( xi * ( 1 + 4 * w * eps_f / n_f ) )^(-1);
+  m0_c = ( xi_c * ( 1 + 4 * w * eps_c / n_c ) )^(-1);
+  m0_f = ( xi_f * ( 1 + 4 * w * eps_f / n_f ) )^(-1);
 
   %% ----- optimal mismatches as functions of 'cr', Eq.(94)
   mcOpt_fcr = @(cr) ( ( 1 / m0_c ) + ( cr^(-1) / m0_f ) * ( n_f / n_c ) )^(-1);
