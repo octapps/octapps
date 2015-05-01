@@ -44,9 +44,7 @@
 ##   "det_motion"      : which detector motion to use (default: spin+orbit)
 ##   "alpha"           : for physical sky coordinates, right ascension to compute metric at
 ##   "delta"           : for physical sky coordinates, declination to compute metric at
-##   "npos_eval"       : if >0, return a metric with no more than this number of non-positive eigenvalues
-##   "metric_type"     : compute either phase metric (METRIC_TYPE_PHASE), F-stat metric (METRIC_TYPE_FSTAT)
-##                       or both (METRIC_TYPE_ALL)
+##   "metric_type"     : compute either phase metric ("phase"), F-stat metric ("Fstat"), or both ("all")
 ##   "cosi"            : cos(iota) signal parameter for full F-stat metric (gF_ij)
 ##   "psi"             : polarization angle signal parameter for full F-stat metric (gF_ij)
 
@@ -68,11 +66,11 @@ function [metric, coordIDs] = CreateDopplerMetric(varargin)
                {"det_motion", "char", "spin+orbit"},
                {"alpha", "real,scalar", 0},
                {"delta", "real,scalar", 0},
-               {"npos_eval", "integer,positive,scalar", 0},
-               {"metric_type", "integer,scalar", METRIC_TYPE_PHASE},
+               {"metric_type", "char", "phase"},
                {"cosi", "real,scalar", 0},
                {"psi", "real,scalar", 0},
                []);
+  assert(strcmp(metric_type, "phase") || strcmp(metric_type, "Fstat") || strcmp(metric_type, "all"));
 
   ## load ephemerides if not supplied
   if isempty(ephemerides)
@@ -158,9 +156,6 @@ function [metric, coordIDs] = CreateDopplerMetric(varargin)
   ## do not include sky-position-dependent Roemer delay in time variable
   par.approxPhase = true;
 
-  ## set metric type to return
-  par.metricType = metric_type;
-
   ## do not project coordinates
   par.projectCoord = -1;
 
@@ -185,23 +180,25 @@ function [metric, coordIDs] = CreateDopplerMetric(varargin)
   endif
   par.signalParams.Doppler.refTime = ref_time;
 
-  ## set non-positive eigenvalue threshold
-  par.nonposEigValThresh = npos_eval;
-
-  ## calculate Doppler metric
-  try
-    retn = XLALDopplerFstatMetric(par, ephemerides);
-  catch
-    error("%s: Could not calculate Doppler metric", funcName);
-  end_try_catch
-
-  ## return Doppler metric
-  if ( (metric_type == METRIC_TYPE_PHASE) || (metric_type == METRIC_TYPE_ALL) )
+  ## calculate Doppler phase metric
+  if strcmp(metric_type, "phase") || strcmp(metric_type, "all")
+    try
+      retn = XLALComputeDopplerPhaseMetric(par, ephemerides);
+    catch
+      error("%s: Could not calculate Doppler phase metric", funcName);
+    end_try_catch
     metric.g_ij = native(retn.g_ij);
   else
     metric.g_ij = [];
   endif
-  if ( (metric_type == METRIC_TYPE_FSTAT) || (metric_type == METRIC_TYPE_ALL) )
+
+  ## calculate Doppler Fstat metric
+  if strcmp(metric_type, "Fstat") || strcmp(metric_type, "all")
+    try
+      retn = XLALComputeDopplerFstatMetric(par, ephemerides);
+    catch
+      error("%s: Could not calculate Doppler Fstat metric", funcName);
+    end_try_catch
     metric.gF_ij = native(retn.gF_ij);
     metric.gFav_ij = native(retn.gFav_ij);
   else
@@ -213,3 +210,21 @@ function [metric, coordIDs] = CreateDopplerMetric(varargin)
   XLALSegListClear(par.segmentList);
 
 endfunction
+
+
+%!test
+%!  try
+%!    lal; lalpulsar;
+%!  catch
+%!    disp("skipping test: LALSuite bindings not available"); return;
+%!  end_try_catch
+%!  out = CreateDopplerMetric(...
+%!    "coords", "spin_equ,orbit_ecl,fdots,freq", ...
+%!    "spindowns", 1, ...
+%!    "segment_list", [800000000, 800200000], ...
+%!    "ref_time", 800100000, ...
+%!    "fiducial_freq", 123.4, ...
+%!    "detectors", "L1", ...
+%!    "det_motion", "spin+orbit" ...
+%!  );
+%!  assert(isfield(out, "g_ij"));
