@@ -15,11 +15,11 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## Usage: coef = LocalCostCoefficients ( cost_fun, Nseg, Tseg, mis=0.5 )
+## Usage: coef = LocalCostCoefficients ( cost_fun, Nseg, Tseg, mis=0.5, lattice="Zn" )
 ##
 ## Compute local power-law coefficients fit to given computing-cost function
 ## 'cost_fun' at StackSlide parameters 'Nseg' and 'Tseg = Tobs/Nseg', and
-## (optionally) mismatch 'mis'.
+## (optionally) mismatch 'mis' and lattice type 'lattice'.
 ##
 ## The computing-cost function must be of the form 'cost_fun(Nseg, Tseg, mis)'
 ## and allow for vector inputs in all three input arguments.
@@ -32,7 +32,7 @@
 ## [Equation numbers refer to Prix&Shaltev, PRD85, 084010 (2012)]
 ##
 
-function coef = LocalCostCoefficients ( cost_fun, Nseg, Tseg, mis=0.5 )
+function coef = LocalCostCoefficients ( cost_fun, Nseg, Tseg, mis=0.5, lattice="Zn" )
 
   ## 'natural' spacings for computing the discrete derivatives: 5% variation around input point
   dTseg = 1e-4 * Tseg;
@@ -40,23 +40,23 @@ function coef = LocalCostCoefficients ( cost_fun, Nseg, Tseg, mis=0.5 )
   dNseg   = 1e-4 * Nseg;
   ## Eq.(62a)
   Nseg_i = [ Nseg - dNseg, Nseg + dNseg];
-  dlogCostN = diff ( log ( cost_fun ( Nseg_i, Tseg, mis ) ) );
+  dlogCostN = diff ( log ( cost_fun ( Nseg_i, Tseg, mis, lattice ) ) );
   dlogN = diff ( log ( Nseg_i ) );
   coef.eta = dlogCostN / dlogN;
 
   ## Eq.(62b)
   Tseg_i = [ Tseg - dTseg, Tseg + dTseg ];
-  dlogCostTseg = diff ( log ( cost_fun ( Nseg, Tseg_i, mis ) ) );
+  dlogCostTseg = diff ( log ( cost_fun ( Nseg, Tseg_i, mis, lattice ) ) );
   dlogTseg = diff ( log ( Tseg_i ) );
   coef.delta = dlogCostTseg / dlogTseg;
 
   ## Eq.(64)
   mis_i  = [ mis - dmis, mis + dmis ];
-  dlogCostMis = diff ( log ( cost_fun ( Nseg, Tseg, mis_i ) ) );
+  dlogCostMis = diff ( log ( cost_fun ( Nseg, Tseg, mis_i, lattice ) ) );
   dlogMis = diff ( log ( mis_i ) );
   coef.nDim = -2 * dlogCostMis / dlogMis;
 
-  coef.cost = cost_fun ( Nseg, Tseg, mis );
+  coef.cost = cost_fun ( Nseg, Tseg, mis, lattice );
 
   ## Eq.(63)
   coef.kappa = coef.cost / ( mis^(-0.5*coef.nDim) * Nseg^coef.eta * Tseg^coef.delta );
