@@ -40,8 +40,7 @@
 ## "tol"                tolerance on the obtained relative difference of the solution, required for convergence [1e-2]
 ## "maxiter"            maximal allowed number of iterations [100]
 ##
-## "xi":                [optional] average mismatch-factor 'xi' linking average and maximal mismatch: <m> = xi * mis_max
-##                      [default = 1/3 for hypercubic lattice]
+## "lattice":           [optional] string giving lattice type to use, e.g. "Zn", "Ans" [default: "Zn"]
 ##
 ## "verbose"            [optional] print useful information about solution at each iteration [default: false]
 ##
@@ -67,7 +66,7 @@ function stackparams = OptimalSolution4StackSlide ( varargin )
                        {"stackparamsGuess", "struct", [] },
                        {"pFA", "real,strictpos,scalar", 1e-10 },
                        {"pFD", "real,strictpos,scalar", 0.1 },
-                       {"xi", "real,strictpos,scalar", 1/3 },
+                       {"lattice", "char", "Zn" },
                        {"tol", "real,strictpos,scalar", 1e-2 },
                        {"maxiter", "integer,strictpos,scalar", 100 },
                        {"verbose", "logical,scalar", false },
@@ -119,8 +118,8 @@ function stackparams = OptimalSolution4StackSlide ( varargin )
 
     ## determine local power-law coefficients at the current guess 'solution'
     w = SensitivityScalingDeviationN ( uvar.pFA, uvar.pFD, stackparams.Nseg );
-    coef_c = LocalCostCoefficients ( uvar.costFuns.costFunCoh, stackparams.Nseg, stackparams.Tseg, stackparams.mc );
-    coef_f = LocalCostCoefficients ( uvar.costFuns.costFunInc, stackparams.Nseg, stackparams.Tseg, stackparams.mf );
+    coef_c = LocalCostCoefficients ( uvar.costFuns.costFunCoh, stackparams.Nseg, stackparams.Tseg, stackparams.mc, uvar.lattice );
+    coef_f = LocalCostCoefficients ( uvar.costFuns.costFunInc, stackparams.Nseg, stackparams.Tseg, stackparams.mf, uvar.lattice );
 
     ## store some meta-info about the solution
     stackparams.converged = is_converged;
@@ -154,23 +153,23 @@ function stackparams = OptimalSolution4StackSlide ( varargin )
     endif
 
     ## compute new guess 'solution'
-    new_stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraints0, w, uvar.xi );
+    new_stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraints0, w, uvar.lattice );
 
     %% ----- check special failure modes and handle them separately ----------
     if ( isfield(new_stackparams,"need_TsegMax") && new_stackparams.need_TsegMax )
       assert ( have_TobsMax && have_TsegMax, "LocalSolution4StackSlide() asked for both 'TobsMax' and 'TsegMax' constraints\n");
-      new_stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraintsTseg, w, uvar.xi );
+      new_stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraintsTseg, w, uvar.lattice );
     elseif ( isfield(new_stackparams,"need_TobsMax") && new_stackparams.need_TobsMax )
       assert ( have_TobsMax, "LocalSolution4StackSlide() asked for 'TobsMax' constraint!\n");
-      new_stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraintsTobs, w, uvar.xi );
+      new_stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraintsTobs, w, uvar.lattice );
     endif
     %% ----- sucess, but check if constraints violated, if yes need to recompute:
     Tobs = new_stackparams.Nseg * new_stackparams.Tseg;
     if ( have_TobsMax && (Tobs > uvar.TobsMax) )
-      new_stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraintsTobs, w, uvar.xi );
+      new_stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraintsTobs, w, uvar.lattice );
     endif
     if ( have_TsegMax && (new_stackparams.Tseg > uvar.TsegMax ) )
-      new_stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraintsTseg, w, uvar.xi );
+      new_stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraintsTseg, w, uvar.lattice );
     endif
 
     is_converged = checkConvergence ( new_stackparams, stackparams, uvar.tol );
