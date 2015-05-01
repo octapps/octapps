@@ -69,7 +69,7 @@ octapps-user-env.sh octapps-user-env.csh : Makefile
 # build extension modules
 ifneq ($(MKOCTFILE),false)
 
-VPATH = $(srcpath)
+VPATH = $(srcfilepath)
 
 COMPILE = $(MKOCTFILE) $(vers_num) -g -c -o $@ $<
 LINK = $(MKOCTFILE) -g -o $@ $(filter %.o,$^) $(LIBS)
