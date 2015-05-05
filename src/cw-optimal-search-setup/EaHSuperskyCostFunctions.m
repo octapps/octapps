@@ -143,6 +143,7 @@ function [cost_funs, params, guess] = EaHSuperskyCostFunctions(setup, varargin)
                         params_optspec(params, "resampling", "logical,scalar", false),
                         params_optspec(params, "coh_c0_demod", "real,strictpos,scalar", 7.4e-08 / 1800),
                         params_optspec(params, "coh_c0_resamp", "real,strictpos,scalar", 1e-7),
+                        params_optspec(params, "summation_tree", "logical,scalar", false),
                         params_optspec(params, "inc_c0", "real,strictpos,scalar", 4.7e-09),
                         {"verbose", "logical,scalar", false},
                         []);
@@ -347,8 +348,13 @@ function cost = cost_inc_wparams(Nseg, Tseg, mf, lattice, params)
       printf("cost_inc( Nseg=%g, Tseg=%g days, mf=%g ) = ", Nseg(i), Tseg(i)/DAYS, mf(i));
     endif
 
-    ## incoherent cost per template
-    c0T = params.inc_c0 * Nseg(i);
+    if params.summation_tree
+      ## incoherent cost per template using UNPROVEN summation tree
+      c0T = params.inc_c0 * log2(Nseg(i));
+    else
+      ## incoherent cost per template using full summation
+      c0T = params.inc_c0 * Nseg(i);
+    endif
 
     ## number of templates
     Ntf = rssky_num_templates(Nseg(i), Tseg(i), mf(i), lattice, params);
