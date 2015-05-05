@@ -19,6 +19,7 @@
 ## Syntax:
 ##   parseOptions(opts, optspec, optspec, ...)
 ##   paropts = parseOptions(...)
+##   [~, paropts] = parseOptions(...)
 ## where:
 ##   opts    = function options
 ##   optspec = option specification, one of:
@@ -31,8 +32,8 @@
 ##         defvalue = default value given to <name>
 ##   paropts = struct of parsed function options (optional)
 ## Notes:
-##   * using the first syntax, <name> will be assigned in
-##     the context of the calling function; using the second
+##   * using the 1st or 3rd syntax, <name> will be assigned in
+##     the context of the calling function; using the 2nd or 3rd
 ##     syntax, <name> will be assigned in the return struct.
 ##   * each 'type' in <types> must correspond to a function
 ##     'istype': each function will be called to check that
@@ -48,6 +49,9 @@
 ##     regular options may also be given as keyword-values.
 
 function varargout = parseOptions(opts, varargin)
+
+  ## check number of output arguments
+  nargoutchk(0, 2);
 
   ## check for option specifications
   if length(varargin) == 0
@@ -312,10 +316,13 @@ function varargout = parseOptions(opts, varargin)
     endif
   endfor
 
-  ## return options struct, or assign to option variables in caller namespace
-  if nargout > 0
+  ## return options struct, and/or assign to option variables in caller namespace
+  if nargout == 1
     varargout = {paropts};
-  else
+  elseif nargout == 2
+    varargout = {[], paropts};
+  endif
+  if nargout != 1
     for n = 1:length(paroptnames)
       assignin("caller", paroptnames{n}, paropts.(paroptnames{n}));
     endfor
