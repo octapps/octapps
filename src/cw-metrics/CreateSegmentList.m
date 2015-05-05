@@ -65,7 +65,7 @@ function varargout = CreateSegmentList(mean_time, Nseg, Tseg, Tspan, duty)
     ts = reshape(linspace(0, Tspan(i) - Tseg(i), Nseg(i)), [], 1);
     S = [ts, ts + Tseg(i)];
     S = S - mean(S(:)) + mean_time;
-    segment_lists{i} = S;
+    segment_lists{i} = round(S);
   endfor
 
   ## return segment lists
@@ -80,26 +80,26 @@ endfunction
 
 %!assert( AnalyseSegmentList(CreateSegmentList(456, [], 7.3, 140.9, 0.87)).mean_time, 456, 1e-5 )
 %!assert( AnalyseSegmentList(CreateSegmentList(456, [], 7.3, 140.9, 0.87)).num_segments, 16, 1e-5 )
-%!assert( mean(AnalyseSegmentList(CreateSegmentList(456, [], 7.3, 140.9, 0.87)).coh_Tspan), 7.3, 1e-5 )
-%!assert( AnalyseSegmentList(CreateSegmentList(456, [], 7.3, 140.9, 0.87)).inc_Tspan, 140.9, 1e-5 )
-%!assert( AnalyseSegmentList(CreateSegmentList(456, [], 7.3, 140.9, 0.87)).inc_duty, 0.82896, 1e-5 )
+%!assert( mean(AnalyseSegmentList(CreateSegmentList(456, [], 7.3, 140.9, 0.87)).coh_Tspan), 7.375, 1e-5 )
+%!assert( AnalyseSegmentList(CreateSegmentList(456, [], 7.3, 140.9, 0.87)).inc_Tspan, 140, 1e-5 )
+%!assert( AnalyseSegmentList(CreateSegmentList(456, [], 7.3, 140.9, 0.87)).inc_duty, 0.84286, 1e-5 )
 
 %!assert( AnalyseSegmentList(CreateSegmentList(345, 50, [], 256.7, 0.77)).mean_time, 345, 1e-5 )
 %!assert( AnalyseSegmentList(CreateSegmentList(345, 50, [], 256.7, 0.77)).num_segments, 50, 1e-5 )
-%!assert( mean(AnalyseSegmentList(CreateSegmentList(345, 50, [], 256.7, 0.77)).coh_Tspan), 3.95318, 1e-5 )
-%!assert( AnalyseSegmentList(CreateSegmentList(345, 50, [], 256.7, 0.77)).inc_Tspan, 256.7, 1e-5 )
-%!assert( AnalyseSegmentList(CreateSegmentList(345, 50, [], 256.7, 0.77)).inc_duty, 0.77, 1e-5 )
+%!assert( mean(AnalyseSegmentList(CreateSegmentList(345, 50, [], 256.7, 0.77)).coh_Tspan), 4, 1e-5 )
+%!assert( AnalyseSegmentList(CreateSegmentList(345, 50, [], 256.7, 0.77)).inc_Tspan, 256, 1e-5 )
+%!assert( AnalyseSegmentList(CreateSegmentList(345, 50, [], 256.7, 0.77)).inc_duty, 0.78125, 1e-5 )
 
 %!assert( AnalyseSegmentList(CreateSegmentList(234, 200, 3.7, [], 0.77)).mean_time, 234, 1e-5 )
 %!assert( AnalyseSegmentList(CreateSegmentList(234, 200, 3.7, [], 0.77)).num_segments, 200, 1e-5 )
 %!assert( mean(AnalyseSegmentList(CreateSegmentList(234, 200, 3.7, [], 0.77)).coh_Tspan), 3.7, 1e-5 )
-%!assert( AnalyseSegmentList(CreateSegmentList(234, 200, 3.7, [], 0.77)).inc_Tspan, 961.03896, 1e-5 )
-%!assert( AnalyseSegmentList(CreateSegmentList(234, 200, 3.7, [], 0.77)).inc_duty, 0.77, 1e-5 )
+%!assert( AnalyseSegmentList(CreateSegmentList(234, 200, 3.7, [], 0.77)).inc_Tspan, 962, 1e-5 )
+%!assert( AnalyseSegmentList(CreateSegmentList(234, 200, 3.7, [], 0.77)).inc_duty, 0.76923, 1e-5 )
 
 %!assert( AnalyseSegmentList(CreateSegmentList(123, 100, 2.3, 365.25, [])).mean_time, 123, 1e-5 )
 %!assert( AnalyseSegmentList(CreateSegmentList(123, 100, 2.3, 365.25, [])).num_segments, 100, 1e-5 )
-%!assert( mean(AnalyseSegmentList(CreateSegmentList(123, 100, 2.3, 365.25, [])).coh_Tspan), 2.3, 1e-5 )
-%!assert( AnalyseSegmentList(CreateSegmentList(123, 100, 2.3, 365.25, [])).inc_Tspan, 365.25, 1e-5 )
-%!assert( AnalyseSegmentList(CreateSegmentList(123, 100, 2.3, 365.25, [])).inc_duty, 0.62971, 1e-5 )
+%!assert( mean(AnalyseSegmentList(CreateSegmentList(123, 100, 2.3, 365.25, [])).coh_Tspan), 2.34, 1e-5 )
+%!assert( AnalyseSegmentList(CreateSegmentList(123, 100, 2.3, 365.25, [])).inc_Tspan, 366, 1e-5 )
+%!assert( AnalyseSegmentList(CreateSegmentList(123, 100, 2.3, 365.25, [])).inc_duty, 0.63934, 1e-5 )
 
 %!assert( AnalyseSegmentList(CreateSegmentList(123, 1, 2.3, 365.25, [])).inc_duty, 1.0, 1e-5 )
