@@ -20,14 +20,14 @@
 ## Used to compute the E@H S5GC1 solution given in Prix&Shaltev,PRD85,
 ## 084010(2012) Table~II.
 ## Usage:
-##   cost_funs = EaHGCTCostFunctions("setup", "opt", val, ...)
+##   cost_funs = EaHGCTCostFunctions("opt", val, ...)
 ## where
 ##   cost_funs = struct of computing-cost functions to pass to OptimalSolution4StackSlide()
 ## Options:
 ##   "fracSky":       fraction of sky covered by search
 ##   "fmin":          minimum frequency covered by search (in Hz)
 ##   "fmax":          maximum frequency covered by search (in Hz)
-##   "tau_min":       minimum spindown age, determines spindowm ranges
+##   "tau_min":       minimum spindown age, determines spindown ranges
 ##   "Ndet":          number of detectors
 ##   "resampling":    use F-statistic 'resampling' instead of 'demod' for coherent cost [default: false]
 ##   "coh_c0_demod":  computational cost of F-statistic 'demod' per template per second [optional]
