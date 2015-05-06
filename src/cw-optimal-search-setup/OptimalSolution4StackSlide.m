@@ -55,6 +55,9 @@
 
 function stackparams = OptimalSolution4StackSlide ( varargin )
 
+  ## do not page output
+  pso = page_screen_output(0, "local");
+
   ## load constants
   UnitsConstants;
 
