@@ -15,11 +15,45 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
+## Return computing-cost functions used by OptimalSolution4StackSlide()
+## to compute optimal Einstein@Home search setups for the GCT code.
+## Used to compute the E@H S5GC1 solution given in Prix&Shaltev,PRD85,
+## 084010(2012) Table~II.
+## Usage:
+##   cost_funs = EaHGCTCostFunctions("setup", "opt", val, ...)
+## where
+##   cost_funs = struct of computing-cost functions to pass to OptimalSolution4StackSlide()
+## Options:
+##   "fracSky":       fraction of sky covered by search
+##   "fmin":          minimum frequency covered by search (in Hz)
+##   "fmax":          maximum frequency covered by search (in Hz)
+##   "tau_min":       minimum spindown age, determines spindowm ranges
+##   "Ndet":          number of detectors
+##   "resampling":    use F-statistic 'resampling' instead of 'demod' for coherent cost [default: false]
+##   "coh_c0_demod":  computational cost of F-statistic 'demod' per template per second [optional]
+##   "coh_c0_resamp": computational cost of F-statistic 'resampling' per template [optional]
+##   "inc_c0":        computational cost of incoherent step per template per segment [optional]
+function cost_funs = EaHGCTCostFunctions(varargin)
 
-## Returns the cost functions used to compute the E@H S5GC1
-## solution given in Prix&Shaltev,PRD85,084010(2012) Table~II
-function costFuns = EaHS5GC1CostFunctions()
-  costFuns = struct( "costFunCoh", @cost_coh, "costFunInc", @cost_inc );
+  ## parse options
+  params = parseOptions(varargin,
+                        {"fracSky", "real,strictpos,scalar", 1/3},
+                        {"fmin", "real,strictpos,scalar", 50},
+                        {"fmax", "real,strictpos,scalar", 50.05},
+                        {"tau_min", "real,strictpos,scalar", 600 * 365 * 86400},
+                        {"Ndet", "integer,strictpos,scalar", 2},
+                        {"resampling", "logical,scalar", false},
+                        {"coh_c0_demod", "real,strictpos,scalar", 7.4e-08 / 1800},
+                        {"coh_c0_resamp", "real,strictpos,scalar", 1e-7},
+                        {"inc_c0", "real,strictpos,scalar", 4.7e-09},
+                        []);
+
+  ## make closures of functions with 'params'
+  cost_funs = struct( ...
+                     "costFunCoh", @(Nseg, Tseg, mc=0.5, lattice="Zn") cost_coh_wparams(Nseg, Tseg, mc, lattice, params), ...
+                     "costFunInc", @(Nseg, Tseg, mf=0.5, lattice="Zn") cost_inc_wparams(Nseg, Tseg, mf, lattice, params) ...
+                     );
+
 endfunction
 
 
@@ -59,7 +93,7 @@ function ret = refinement ( s, Nseg )
 
 endfunction ## refinement()
 
-function ret = func_Nt_given_s ( s, Nseg, Tseg, mis )
+function ret = func_Nt_given_s ( s, Nseg, Tseg, mis, lattice, params )
   ## number of templates Nt for given search-parameters {Nseg, Tseg, mis} and spindown-order 's'
   ## using Eqs.(56) and (82) in Pletsch(2010)
   C_SI 		= 299792458;		%% Speed of light in vacuo, m s^-1
@@ -67,24 +101,16 @@ function ret = func_Nt_given_s ( s, Nseg, Tseg, mis )
   REARTH_SI	= 6.378140e6;		%% Earth equatorial radius, m
   OmE = 2*pi / DAYSID_SI;
   tauE = REARTH_SI / C_SI;
-  days = 86400;
-  years = 365 * days;
-
 
   n = 3 + s;	%% 2 x sky + 1 x Freq + s x spindowns
 
-  %% rho0 = AnsNormalizedThickness ( n ) * mis ^(-n/2);
-  rho0 = ZnNormalizedThickness ( n ) * mis^(-n/2);
+  rho0 = LatticeNormalizedThickness ( n, lattice ) * mis^(-n/2);
   phi = OmE .* Tseg / 2;	%%  Eq.(49) in Pletsch(2010)
 
-  ## ---------- S5GC1: ----------
-  numSkyPatches = 3;
-  tau_min = 600*years;
-  fmin 	= 50;
-  fmax 	= 50.05;
-
-  %% WU covers only a fraction of the sky:
-  fracSky = 1/numSkyPatches;
+  fracSky = params.fracSky;	%% WU covers only a fraction of the sky
+  fmin = params.fmin;
+  fmax = params.fmax;
+  tau_min = params.tau_min;
 
   switch ( s )
 
@@ -109,13 +135,13 @@ function ret = func_Nt_given_s ( s, Nseg, Tseg, mis )
 endfunction ## func_Nt_given_s()
 
 
-function [Nt, s] = func_Nt ( Nseg, Tseg, mis )
+function [Nt, s] = func_Nt ( Nseg, Tseg, mis, lattice, params )
   ## number of templates Nt for given search-parameters 'Nseg,Tseg,mis' and
   ## maximization over spindown-order 's'
   ## using Eqs.(56) and (82) in Pletsch(2010)
   Nt_s = ones (1, 2);
   for k = 1:2
-    Nt_s(k) = func_Nt_given_s ( k, Nseg, Tseg, mis );
+    Nt_s(k) = func_Nt_given_s ( k, Nseg, Tseg, mis, lattice, params );
   endfor
 
   [Nt, s] = max ( Nt_s );
@@ -124,18 +150,18 @@ function [Nt, s] = func_Nt ( Nseg, Tseg, mis )
 
 endfunction # func_Nt()
 
-function cost = cost_coh ( Nseg, Tseg, mis )
-  c0 = 7e-8;
-  Tsft=1800;
-  NDet = 2;
+function [cost, s] = cost_coh_wparams ( Nseg, Tseg, mc, lattice, params )
 
-  [err, Nseg, Tseg, mis] = common_size( Nseg, Tseg, mis);
+  c0 = params.coh_c0_demod;
+  Ndet = params.Ndet;
+
+  [err, Nseg, Tseg, mc] = common_size( Nseg, Tseg, mc);
   assert ( err == 0 );
 
   for i = 1:length(Nseg(:))
-    c0T = c0 * NDet * (Tseg(i) / Tsft);
+    c0T = c0 * Ndet * Tseg(i);
 
-    [Ntc, si] = func_Nt ( 1, Tseg(i), mis(i) );
+    [Ntc, s] = func_Nt ( 1, Tseg(i), mc(i), lattice, params );
 
     cost(i) = Nseg(i) * Ntc * c0T;
   endfor
@@ -144,15 +170,15 @@ function cost = cost_coh ( Nseg, Tseg, mis )
 
 endfunction ## cost_coh()
 
-function [cost, s] = cost_inc ( Nseg, Tseg, mis )
+function [cost, s] = cost_inc_wparams ( Nseg, Tseg, mf, lattice, params )
 
-  c0 = 6e-9;
+  c0 = params.inc_c0;
 
-  [err, Nseg, Tseg, mis] = common_size( Nseg, Tseg, mis);
+  [err, Nseg, Tseg, mf] = common_size( Nseg, Tseg, mf);
   assert ( err == 0 );
 
   for i = 1:length(Nseg(:))
-    [Ntf, s] = func_Nt ( Nseg(i), Tseg(i), mis(i) );
+    [Ntf, s] = func_Nt ( Nseg(i), Tseg(i), mf(i), lattice, params );
 
     cost(i) = Nseg(i) * Ntf * c0;
   endfor
