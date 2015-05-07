@@ -92,6 +92,7 @@ function job_file = makeCondorJob(varargin)
     otherwise
       error("%s: unknown output format '%s'", funcName, output_format);
   endswitch
+  save_args = strjoin(save_args, "\", \"");
 
   ## check that log directory exists
   if exist(log_dir, "dir")
@@ -244,37 +245,41 @@ function job_file = makeCondorJob(varargin)
     envvar = env_vars.(envvarname);
     bootstr = strcat(bootstr, sprintf("%s=\"%s\"\nexport %s\n", envvarname, envvar, envvarname));
   endfor
-  bootstr = strcat(bootstr, "MAKE_CONDOR_JOB_ID=$1\nMAKE_CONDOR_JOB_NODE=`hostname`\n");
-  bootstr = strcat(bootstr, "cat <<EOF\n");
-  bootstr = strcat(bootstr, "# Condor ID: ${MAKE_CONDOR_JOB_ID}\n");
-  bootstr = strcat(bootstr, "# Condor Node: ${MAKE_CONDOR_JOB_NODE}\n");
-  bootstr = strcat(bootstr, sprintf("# Octave Command: %s($2{:})\n", func_name));
-  bootstr = strcat(bootstr, "EOF\n");
   bootstr = strcat(bootstr, "cat <<EOF | exec octave --silent --norc --no-history --no-window-system\n");
-  bootstr = strcat(bootstr, "arguments=$2;\nwall_time=tic();\ncpu_time=cputime();\n");
+  bootstr = strcat(bootstr, "condor_ID = str2num(\"$1\");\n");
+  bootstr = strcat(bootstr, "[_, condor_node] = system(\"printf %s `hostname`\");\n");
+  bootstr = strcat(bootstr, "arguments = {$2};\n");
+  bootstr = strcat(bootstr, "printf(\"# Condor ID: %i\\n\", condor_ID);\n");
+  bootstr = strcat(bootstr, "printf(\"# Condor Node: %s\\n\", condor_node);\n");
+  bootstr = strcat(bootstr, "printf(\"# Octave Process Group ID: %i\\n\", getpgrp());\n");
+  bootstr = strcat(bootstr, cstrcat("printf(\"# Octave Command: ", func_name, "(%s)\\n\", \"$2\");\n"));
+  bootstr = strcat(bootstr, "wall_time = tic();\n");
+  bootstr = strcat(bootstr, "cpu_time = cputime();\n");
   if length(arguments) > 0
     callfuncstr = sprintf("%s(arguments{:})", func_name);
   else
     callfuncstr = sprintf("%s", func_name);
   endif
   if func_nargout > 0
-    bootstr = strcat(bootstr, sprintf("[results{1:%i}]=%s;\n", func_nargout, callfuncstr));
+    bootstr = strcat(bootstr, sprintf("[results{1:%i}] = %s;\n", func_nargout, callfuncstr));
   else
-    bootstr = strcat(bootstr, sprintf("results={};\n%s;\n", callfuncstr));
+    bootstr = strcat(bootstr, sprintf("results = {}; %s;\n", callfuncstr));
   endif
-  bootstr = strcat(bootstr, "wall_time=(double(tic())-double(wall_time))*1e-6;\ncpu_time=cputime()-cpu_time;\n");
-  bootstr = strcat(bootstr, "condor_ID=${MAKE_CONDOR_JOB_ID};\ncondor_node=\"${MAKE_CONDOR_JOB_NODE}\";\n");
-  bootstr = strcat(bootstr, sprintf("save(\"%s\",\"stdres.%s\",\"%s\");\n", ...
-                                    strjoin(save_args, "\",\""), save_ext, ...
-                                    strjoin({"arguments", "results", ...
-                                             "wall_time", "cpu_time", ...
-                                             "condor_ID", "condor_node"}, "\",\"")));
+  bootstr = strcat(bootstr, "wall_time = ( double(tic()) - double(wall_time) ) * 1e-6;\n");
+  bootstr = strcat(bootstr, "cpu_time = cputime() - cpu_time;\n");
+  save_vars = strjoin({ ...
+                       "condor_ID", "condor_node", "arguments", ...
+                       "results", "wall_time", "cpu_time", ...
+                       }, "\", \"");
+  bootstr = strcat(bootstr, sprintf("save(\"%s\", \"stdres.%s\", \"%s\");\n", save_args, save_ext, save_vars));
   bootstr = strcat(bootstr, "EOF\n");
 
   ## build Condor arguments string containing Octave function arguments
   argstr = stringify(arguments);
   argstr = strrep(argstr, "'", "''");
   argstr = strrep(argstr, "\"", "\"\"");
+  assert(strcmp(argstr([1,end]), "{}"));
+  argstr = argstr(2:end-1);
 
   ## build Condor job submit file spec
   job_spec = { ...
