@@ -186,16 +186,16 @@ function mergeCondorResults(varargin)
       endfor
     endif
 
-    ## flatten merged arguments into struct array, if possible
+    ## flatten merged arguments into struct array with sorted fields, if possible
     try
       arguments = struct;
       for idx = 1:length(merged.arguments)
         arguments(idx, 1) = struct(merged.arguments{idx}{:});
       endfor
-      merged.arguments = arguments;
+      merged.arguments = sortStructFields(arguments);
     end_try_catch
 
-    ## flatten merged results into struct array, if possible
+    ## flatten merged results into struct array with sorted fields, if possible
     try
       results = struct;
       for idx = 1:size(merged.results, 1)
@@ -203,7 +203,7 @@ function mergeCondorResults(varargin)
           results(idx, i) = merged.results{idx, i};
         endfor
       endfor
-      merged.results = results;
+      merged.results = sortStructFields(results);
     end_try_catch
 
   endif
