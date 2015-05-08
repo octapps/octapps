@@ -175,7 +175,7 @@ function Nt = rssky_num_templates(Nseg, Tseg, mis, lattice, params)
   UnitsConstants;
 
   ## check input
-  assert(isscalar(Nseg) && Nseg >= 1);
+  assert(isscalar(Nseg) && Nseg >= 0.95);
   assert(isscalar(Tseg) && Tseg > 0);
   assert(isscalar(mis) && mis > 0);
   assert(ischar(lattice));
@@ -276,7 +276,7 @@ function Nt = rssky_num_templates(Nseg, Tseg, mis, lattice, params)
   endif
 
   ## compute interpolated number of templates at requested Nseg and Tseg
-  Nt = interp2(Tseg_interp, Nseg_interp, Nt_interp, Tseg, Nseg, "spline");
+  Nt = interp2(Tseg_interp, Nseg_interp, Nt_interp, Tseg, max(1, Nseg), "spline");
   assert(!isnan(Nt), "%s: could not evaluate Nt(Nseg=%g, Tseg=%g)", funcName, Nseg, Tseg);
 
 endfunction
