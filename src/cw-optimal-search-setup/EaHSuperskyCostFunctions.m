@@ -203,14 +203,21 @@ function Nt = rssky_num_templates(Nseg, Tseg, mis, lattice, params)
   endif
 
   ## cache of previously-computed metrics
-  persistent cached_metrics;
+  persistent cache;
+  if isempty(cache)
+    cache = struct;
+  endif
 
-  ## string of parameters used in computing cached metrics
-  persistent cached_param_str;
+  ## loop up cache based on hash of stringified parameters
   param_str = stringify(params);
-  if !strcmp(cached_param_str, param_str)
-    cached_param_str = param_str;
-    cached_metrics = {};
+  cache_key = strcat("key_", md5sum(param_str, true));
+  if !isfield(cache, cache_key)
+    cache.(cache_key) = struct;
+    cache.(cache_key).param_str = "";
+  endif
+  if !strcmp(param_str, cache.(cache_key).param_str)
+    cache.(cache_key).param_str = param_str;
+    cache.(cache_key).metrics = {};
     if verbose
       printf("(new cache) ");
     endif
@@ -232,10 +239,10 @@ function Nt = rssky_num_templates(Nseg, Tseg, mis, lattice, params)
     for j = 1:length(Tseg_interp)
 
       ## try to find metric in cache
-      if all([Nseg_ii(i), Tseg_jj(j)] <= size(cached_metrics)) && !isempty(cached_metrics{Nseg_ii(i), Tseg_jj(j)})
+      if all([Nseg_ii(i), Tseg_jj(j)] <= size(cache.(cache_key).metrics)) && !isempty(cache.(cache_key).metrics{Nseg_ii(i), Tseg_jj(j)})
 
         ## retrieve metric from cache
-        rssky_metric = cached_metrics{Nseg_ii(i), Tseg_jj(j)};
+        rssky_metric = cache.(cache_key).metrics{Nseg_ii(i), Tseg_jj(j)};
         ++cache_hits;
 
       else
@@ -255,7 +262,7 @@ function Nt = rssky_num_templates(Nseg, Tseg, mis, lattice, params)
                                              );
 
         ## add metric to cache
-        cached_metrics{Nseg_ii(i), Tseg_jj(j)} = rssky_metric;
+        cache.(cache_key).metrics{Nseg_ii(i), Tseg_jj(j)} = rssky_metric;
 
       endif
 
