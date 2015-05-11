@@ -113,8 +113,23 @@ endif # neq ($(MKOCTFILE),false)
 
 # run test scripts
 check : all
-	@test -n "$${TESTS}" || TESTS="$(patsubst %.m,%,$(notdir $(srcmfiles)))"; \
-	$(MAKE) `printf " %s.test" $${TESTS}` || exit 1; \
+	@allmfiles="$(patsubst $(curdir)/src/%.m,%,$(srcmfiles))"; mfiles=; \
+	for mfile in $${allmfiles}; do \
+		mfiledir=`dirname $${mfile}`; \
+		mfilename=`basename $${mfile}`; \
+		if test -n "$${TESTS}"; then \
+			case " $${TESTS} " in \
+				*" $${mfilename} "*) mfiles="$${mfiles} $${mfilename}";; \
+			esac; \
+		elif test x"$${mfiledir}" = x"$${TESTDIR}"; then \
+			mfiles="$${mfiles} $${mfilename}"; \
+		fi; \
+	done; \
+	if test -z "$${mfiles}"; then \
+		echo "$(MAKE) $@ ERROR: no tests matched TESTS='$${TESTS}' or TESTDIR='$${TESTDIR}'" >&2; \
+		exit 1; \
+	fi; \
+	$(MAKE) `printf " %s.test" $${mfiles}` || exit 1; \
 	echo "=================================================="; \
 	echo "OctApps test suite has passed successfully!"; \
 	echo "=================================================="
