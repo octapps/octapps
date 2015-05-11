@@ -243,16 +243,19 @@ function job_file = makeCondorJob(varargin)
   for i = 1:length(env_var_names)
     envvarname = env_var_names{i};
     envvar = env_vars.(envvarname);
-    bootstr = strcat(bootstr, sprintf("%s=\"%s\"\nexport %s\n", envvarname, envvar, envvarname));
+    bootstr = strcat(bootstr, sprintf("export %s=\"%s\"\n", envvarname, envvar));
   endfor
+  bootstr = strcat(bootstr, "export MAKE_CONDOR_JOB_ID=\"$1\"\n");
+  bootstr = strcat(bootstr, "export MAKE_CONDOR_JOB_NODE=`hostname`\n");
+  bootstr = strcat(bootstr, "export MAKE_CONDOR_JOB_ARGS=\"$2\"\n");
   bootstr = strcat(bootstr, "cat <<EOF | exec octave --silent --norc --no-history --no-window-system\n");
-  bootstr = strcat(bootstr, "condor_ID = str2num(\"$1\");\n");
-  bootstr = strcat(bootstr, "[_, condor_node] = system(\"printf %s `hostname`\");\n");
+  bootstr = strcat(bootstr, "condor_ID = str2double(getenv(\"MAKE_CONDOR_JOB_ID\"));\n");
+  bootstr = strcat(bootstr, "condor_node = getenv(\"MAKE_CONDOR_JOB_NODE\");\n");
   bootstr = strcat(bootstr, "arguments = {$2};\n");
   bootstr = strcat(bootstr, "printf(\"# Condor ID: %i\\n\", condor_ID);\n");
   bootstr = strcat(bootstr, "printf(\"# Condor Node: %s\\n\", condor_node);\n");
   bootstr = strcat(bootstr, "printf(\"# Octave Process Group ID: %i\\n\", getpgrp());\n");
-  bootstr = strcat(bootstr, cstrcat("printf(\"# Octave Command: ", func_name, "(%s)\\n\", \"$2\");\n"));
+  bootstr = strcat(bootstr, cstrcat("printf(\"# Octave Command: ", func_name, "(%s)\\n\", getenv(\"MAKE_CONDOR_JOB_ARGS\"));\n"));
   bootstr = strcat(bootstr, "wall_time = tic();\n");
   bootstr = strcat(bootstr, "cpu_time = cputime();\n");
   if length(arguments) > 0
@@ -371,7 +374,7 @@ function job_file = makeCondorJob(varargin)
   if fid < 0
     error("%s: could not open file '%s' for writing", funcName, job_boot_file);
   endif
-  fprintf(fid, "#!/bin/sh\n%s", bootstr);
+  fprintf(fid, "#!/bin/bash\n%s", bootstr);
   fclose(fid);
   status = system(sprintf("chmod a+x '%s'", job_boot_file));
   if status != 0
