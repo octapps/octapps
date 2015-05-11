@@ -138,10 +138,7 @@ function hgrm = resampleHist(hgrm, varargin)
       ## restore original dimension order
       siz(1) = size(newcounts, 1);
       newcounts = reshape(newcounts, siz);
-      ## octave-3.2.3 bug : ipermute doesn't work!
-      iperm = zeros(size(perm));
-      iperm(perm) = 1:length(perm);
-      newcounts = permute(newcounts, iperm);
+      newcounts = ipermute(newcounts, perm);
 
       ## resampled histogram
       hgrm.bins{k} = [-inf, newbins, inf];
