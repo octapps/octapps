@@ -86,7 +86,15 @@ function varargout = plotHist(varargin)
 
           ## find maximum range of non-zero probabilities
           ii = find(p > 0);
-          ii = min(ii):max(ii);
+          min_ii = min(ii);
+          max_ii = max(ii);
+          if min_ii == length(p)
+             --min_ii;
+          endif
+          if max_ii == 1;
+             ++max_ii;
+          endif
+          ii = min_ii:max_ii;
           xl = reshape(xl(ii), 1, []);
           xh = reshape(xh(ii), 1, []);
           p = reshape(p(ii), 1, []);
