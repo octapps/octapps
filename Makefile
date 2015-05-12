@@ -121,12 +121,16 @@ check : all
 			case " $${TESTS} " in \
 				*" $${mfilename} "*) mfiles="$${mfiles} $${mfilename}";; \
 			esac; \
-		elif test x"$${mfiledir}" = x"$${TESTDIR}"; then \
+		elif test -n "$${TESTSDIR}"; then \
+			if x"$${mfiledir}" = x"$${TESTSDIR}"; then \
+				mfiles="$${mfiles} $${mfilename}"; \
+			fi; \
+		else \
 			mfiles="$${mfiles} $${mfilename}"; \
 		fi; \
 	done; \
 	if test -z "$${mfiles}"; then \
-		echo "$(MAKE) $@ ERROR: no tests matched TESTS='$${TESTS}' or TESTDIR='$${TESTDIR}'" >&2; \
+		echo "$(MAKE) $@ ERROR: no tests matched TESTS='$${TESTS}' or TESTSDIR='$${TESTSDIR}'" >&2; \
 		exit 1; \
 	fi; \
 	$(MAKE) `printf " %s.test" $${mfiles}` || exit 1; \
