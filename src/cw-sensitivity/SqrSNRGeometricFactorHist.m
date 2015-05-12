@@ -54,7 +54,7 @@ function Rsqr_H = SqrSNRGeometricFactorHist(varargin)
 
   ## restrict mismatch histogram to range [0.0, 1.0]
   if ~isempty(mism_hgrm)
-    mism_hgrm = restrictHist(mism_hgrm, @(x) 0.0 <= min(x) && max(x) <= 1.0);
+    mism_hgrm = restrictHist(mism_hgrm, [0.0, 1.0]);
   endif
 
   ## product of angular sidereal frequency and observation time
