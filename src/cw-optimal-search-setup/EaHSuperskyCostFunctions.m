@@ -287,7 +287,7 @@ function Nt = rssky_num_templates(Nseg, Tseg, mis, lattice, params)
 
 endfunction
 
-function cost = cost_coh_wparams(Nseg, Tseg, mc, lattice, params)
+function [cost, Ntc] = cost_coh_wparams(Nseg, Tseg, mc, lattice, params)
 
   ## do not page output
   pso = page_screen_output(0, "local");
@@ -321,10 +321,10 @@ function cost = cost_coh_wparams(Nseg, Tseg, mc, lattice, params)
     c0T *= params.coh_duty;
 
     ## number of templates per segment
-    Ntc = rssky_num_templates(1, Tseg(i), mc(i), lattice, params);
+    Ntc(i) = rssky_num_templates(1, Tseg(i), mc(i), lattice, params);
 
     ## total coherent cost
-    cost(i) = Nseg(i) * Ntc * c0T;
+    cost(i) = Nseg(i) * Ntc(i) * c0T;
 
     ## print progress message
     if params.verbose
@@ -335,7 +335,7 @@ function cost = cost_coh_wparams(Nseg, Tseg, mc, lattice, params)
 
 endfunction
 
-function cost = cost_inc_wparams(Nseg, Tseg, mf, lattice, params)
+function [cost, Ntf] = cost_inc_wparams(Nseg, Tseg, mf, lattice, params)
 
   ## do not page output
   pso = page_screen_output(0, "local");
@@ -358,10 +358,10 @@ function cost = cost_inc_wparams(Nseg, Tseg, mf, lattice, params)
     c0T = params.inc_c0 * Nseg(i);
 
     ## number of templates
-    Ntf = rssky_num_templates(Nseg(i), Tseg(i), mf(i), lattice, params);
+    Ntf(i) = rssky_num_templates(Nseg(i), Tseg(i), mf(i), lattice, params);
 
     ## total incoherent cost
-    cost(i) = Ntf * c0T;
+    cost(i) = Ntf(i) * c0T;
 
     ## print progress message
     if params.verbose
