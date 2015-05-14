@@ -142,7 +142,7 @@ function [cost_funs, params, guess] = EaHSuperskyCostFunctions(setup, varargin)
                         params_optspec(params, "coh_duty", "real,strictpos,scalar", 1.0),
                         params_optspec(params, "resampling", "logical,scalar", false),
                         params_optspec(params, "coh_c0_demod", "real,strictpos,scalar", 7.4e-08 / 1800),
-                        params_optspec(params, "coh_c0_resamp", "real,strictpos,scalar", 1e-7),
+                        params_optspec(params, "coh_c0_resamp", "real,strictpos,scalar", 2.8e-7),
                         params_optspec(params, "inc_c0", "real,strictpos,scalar", 4.7e-09),
                         {"verbose", "logical,scalar", false},
                         []);
