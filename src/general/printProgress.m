@@ -23,9 +23,10 @@
 ##       doSomeTask(i, j, ...);
 ##       prog = printProgress(prog, [i, j], [5000, 5]);
 ##     endfor
+##     [prog, printed] = printProgress(prog, [i, j], [5000, 5]);
 ##   endfor
 
-function prog = printProgress(prog, ii, NN, fp=stdout)
+function [prog, printed] = printProgress(prog, ii, NN, fp=stdout)
 
   # check input
   assert(isvector(ii));
@@ -55,7 +56,8 @@ function prog = printProgress(prog, ii, NN, fp=stdout)
   ## - converges to 1h after >1d has elapsed
   interval = 10*ceil(360*(1 - exp(-wall/42000)));
 
-  if last > interval
+  printed = (last > interval);
+  if printed
 
     ## uses dbstack() to get the name of the
     ## calling function - see funcName()
