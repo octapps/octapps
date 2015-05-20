@@ -77,6 +77,7 @@ LINK = $(MKOCTFILE) -g -o $@ $(filter %.o,$^) $(LIBS)
 
 octs = \
 	depends \
+	simulateLRUCache \
 	$(END_OF_LIST)
 
 all : $(octdir) $(octs:%=$(octdir)/%.oct)
