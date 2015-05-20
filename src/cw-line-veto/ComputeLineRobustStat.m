@@ -60,11 +60,12 @@ function LRstat = ComputeLineRobustStat ( twoF_multi, twoF_single, Fstar0, oLGX,
 
  # special treatment for additional denominator term (1-pL)exp(F*0)  - octave seems to work fine with log(0)=-inf
  logFstar0Term = Fstar0 + log(1-pL);
- denomterms = logFstar0Term*ones(numcands,1);
+ denomterms      = zeros(numcands,1+numdets); # pre-allocate with fixed size, for minor speedup
+ denomterms(:,1) = logFstar0Term*ones(numcands,1);
 
  # get log per-detector terms
  for X = 1:1:numdets
-  denomterms = cat( 2, denomterms, 0.5*twoF_single(:,X) + log(rX(X)) );
+  denomterms(:,1+X) = 0.5*twoF_single(:,X) + log(rX(X));
  endfor
  denomterms(:,2:end) += log(pL) - log(numdets);
 
