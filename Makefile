@@ -31,6 +31,7 @@ srcpath := $(shell $(FIND) $(curdir)/src -type d ! \( -name private \) | $(SORT)
 srcfilepath := $(filter-out %/deprecated, $(srcpath))
 srcmfiles := $(wildcard $(srcfilepath:%=%/*.m))
 srccfiles := $(wildcard $(srcfilepath:%=%/*.hpp) $(srcfilepath:%=%/*.cpp))
+srctestfiles := $(wildcard $(srcfilepath:%=%/*.m) $(srcfilepath:%=%/*.cpp) $(srcfilepath:%=%/*.i))
 
 # OctApps extension module directory
 octdir := oct/$(version)
@@ -115,27 +116,27 @@ endif # neq ($(MKOCTFILE),false)
 
 # run test scripts
 check : all
-	@allmfiles="$(patsubst $(curdir)/src/%.m,%,$(srcmfiles))"; mfiles=; \
-	for mfile in $${allmfiles}; do \
-		mfiledir=`dirname $${mfile}`; \
-		mfilename=`basename $${mfile}`; \
+	@testfiles=; \
+	for testfile in $(patsubst $(curdir)/src/%,%,$(srctestfiles)); do \
+		testfiledir=`dirname $${testfile}`; \
+		testfilename=`basename $${testfile}`; \
 		if test -n "$${TESTS}"; then \
 			case " $${TESTS} " in \
-				*" $${mfilename} "*) mfiles="$${mfiles} $${mfilename}";; \
+				*" $${testfilename%.*} "*) testfiles="$${testfiles} $${testfilename}";; \
 			esac; \
 		elif test -n "$${TESTSDIR}"; then \
-			if x"$${mfiledir}" = x"$${TESTSDIR}"; then \
-				mfiles="$${mfiles} $${mfilename}"; \
+			if test x"$${testfiledir}" = x"$${TESTSDIR}"; then \
+				testfiles="$${testfiles} $${testfilename}"; \
 			fi; \
 		else \
-			mfiles="$${mfiles} $${mfilename}"; \
+			testfiles="$${testfiles} $${testfilename}"; \
 		fi; \
 	done; \
-	if test -z "$${mfiles}"; then \
+	if test -z "$${testfiles}"; then \
 		echo "$(MAKE) $@ ERROR: no tests matched TESTS='$${TESTS}' or TESTSDIR='$${TESTSDIR}'" >&2; \
 		exit 1; \
 	fi; \
-	$(MAKE) `printf " %s.test" $${mfiles}` || exit 1; \
+	$(MAKE) `printf " %s.test" $${testfiles}` || exit 1; \
 	echo "=================================================="; \
 	echo "OctApps test suite has passed successfully!"; \
 	echo "=================================================="
