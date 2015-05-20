@@ -75,7 +75,8 @@ COMPILE = $(MKOCTFILE) $(vers_num) -g -c -o $@ $<
 LINK = $(MKOCTFILE) -g -o $@ $(filter %.o,$^) $(LIBS)
 
 octs = \
-	depends
+	depends \
+	$(END_OF_LIST)
 
 all : $(octdir) $(octs:%=$(octdir)/%.oct)
 
@@ -92,7 +93,8 @@ $(octdir)/%.oct : $(octdir)/%.o Makefile
 ifneq ($(SWIG),false)
 
 swig_octs = \
-	gsl
+	gsl \
+	$(END_OF_LIST)
 
 $(octdir)/gsl.oct : LIBS = -lgsl
 
