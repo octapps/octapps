@@ -178,10 +178,11 @@ function job_file = makeCondorJob(varargin)
     [func_file_path, func_file_name, func_file_ext] = fileparts(func_files{i});
     if strcmp(func_file_ext, ".oct")
       try
-        eval(strcat(func_file_name, ";"));
+        autoload(func_file_name, func_files{i});
       catch
         error("%s: could not load required module '%s'", funcName, func_file_name);
       end_try_catch
+      eval(strcat(func_file_name, ";"), "");
     endif
   endfor
   loaded_oct_files = unique({autoload.file});
