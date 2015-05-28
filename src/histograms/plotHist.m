@@ -23,6 +23,10 @@
 ##   hgrm    = histogram class
 ##   options = options to pass to graphics function
 ##   hh      = return graphics handles
+## plotHist-specific options:
+##   "stairs":   if true [default], plot histogram as a stair-stepped
+##               graph; otherwise, plot a smooth line through bin centres
+##   "infbins":  if true [default], plot stalks for counts in infinite bins
 
 function varargout = plotHist(varargin)
 
@@ -54,11 +58,15 @@ function varargout = plotHist(varargin)
 
     ## parse options, removing unknown options for plot()
     stairs = true;
+    infbins = true;
     for i = 1:2:length(opts)
       switch opts{i}
         case "stairs"
           assert(islogical(opts{i+1}), "%s: argument is 'stairs' is not a logical value", funcName);
           stairs = opts{i+1};
+        case "infbins"
+          assert(islogical(opts{i+1}), "%s: argument is 'infbins' is not a logical value", funcName);
+          infbins = opts{i+1};
         otherwise
           plotopts(end+1:end+2) = opts(i:i+1);
       endswitch
@@ -89,10 +97,10 @@ function varargout = plotHist(varargin)
           min_ii = min(ii);
           max_ii = max(ii);
           if min_ii == length(p)
-             --min_ii;
+            --min_ii;
           endif
           if max_ii == 1;
-             ++max_ii;
+            ++max_ii;
           endif
           ii = min_ii:max_ii;
           xl = reshape(xl(ii), 1, []);
@@ -129,13 +137,13 @@ function varargout = plotHist(varargin)
 
           ## plot histogram and possibly stems, delete lines which are not needed
           h = plot(x, y, plotopts{:}, x(2), y(2), plotopts{:}, x(end-1), y(end-1), plotopts{:});
-          if isinf(xl(1))
+          if infbins && isinf(xl(1))
             set(h(2), "color", get(h(1), "color"), "marker", "o");
           else
             delete(h(2));
             h(2) = NaN;
           endif
-          if isinf(xh(end))
+          if infbins && isinf(xh(end))
             set(h(3), "color", get(h(1), "color"), "marker", "o");
           else
             delete(h(3));
@@ -172,7 +180,7 @@ function varargout = plotHist(varargin)
 
     ## return handles
     if nargout == 1
-      varargout{1}(j) = h;
+      varargout{1}(j) = h(1);
     endif
 
     ## save hold state, then hold on
