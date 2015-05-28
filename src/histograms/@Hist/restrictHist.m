@@ -56,10 +56,19 @@ function hgrm = restrictHist(hgrm, varargin)
     assert(length(xlh) == 2);
     xl = xlh(1);
     xh = xlh(2);
+    clear xlh;
     assert(xl < xh);
 
-    ## resample histogram to ensure bin boundaries at range boundaries
+    ## set infinite bin limits to largest finite bin
     bins = hgrm.bins{k};
+    if isinf(xl)
+      xl = bins(2);
+    endif
+    if isinf(xh)
+      xh = bins(end-1);
+    endif
+
+    ## resample histogram to ensure bin boundaries at range boundaries
     hgrm = resampleHist(hgrm, k, unique([bins, xl, xh]));
     bins = hgrm.bins{k};
 
