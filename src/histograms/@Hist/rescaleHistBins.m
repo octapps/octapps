@@ -21,12 +21,6 @@
 ## where:
 ##   hgrm = histogram class
 ##   s    = strictly positive scale to apply to bin in each dimension
-##   F    = function to apply to bins:
-##          - should accept column vectors as inputs and return
-##            an array whose columns are vectorised outputs
-##          - number of input/output arguments must match
-##            histogram dimensionality
-##   err  = convergence requirement on histogram (default = 1e-2)
 
 function hgrm = rescaleHistBins(hgrm, s)
 
