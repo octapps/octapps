@@ -19,7 +19,7 @@ MKOCTFILE := $(call CheckProg, mkoctfile)
 OCTAVE := $(call CheckProg, octave) --silent --norc --no-history --no-window-system
 SED := $(call CheckProg, gsed sed)
 SORT := LC_ALL=C $(call CheckProg, sort) -f
-SWIG := $(call CheckProg, swig)
+SWIG := $(call CheckProg, swig3.0 swig2.0 swig)
 
 # Octave version string, and hex number define for use in C code
 version := $(shell $(OCTAVE) --eval "disp(OCTAVE_VERSION)")
