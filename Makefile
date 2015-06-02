@@ -111,7 +111,19 @@ $(swig_octs:%=oct/%_wrap.cpp) : oct/%_wrap.cpp : %.i Makefile
 $(swig_octs:%=$(octdir)/%.oct) : $(octdir)/%.oct : $(octdir)/%.o Makefile
 	$(verbose)$(LINK)
 
+else # eq ($(SWIG),false)
+
+all .PHONY : no_swig
+no_swig :
+	@echo "No SWIG binary found; SWIG C++ extensions were NOT built"
+
 endif # neq ($(SWIG),false)
+
+else # eq ($(MKOCTFILE),false)
+
+all .PHONY : no_mkoctfile
+no_mkoctfile :
+	@echo "No MKOCTFILE binary found; C++ extensions were NOT built"
 
 endif # neq ($(MKOCTFILE),false)
 
