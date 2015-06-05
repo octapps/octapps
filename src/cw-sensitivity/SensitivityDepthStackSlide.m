@@ -15,9 +15,9 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## Estimate StackSlide sensitivity depth sensSigma = sqrt(Sh)/h0
+## Estimate StackSlide sensitivity depth sensDepth = sqrt(Sh)/h0
 ## Usage:
-##   sensSigma = SensFactStackSlide("opt", val, ...)
+##   sensDepth = SensitivityDepthStackSlide("opt", val, ...)
 ## Options are:
 ##   "Nseg":            number of StackSlide segments
 ##   "Tdata":           total amount of data used, in seconds
@@ -28,7 +28,7 @@
 ##   "alpha":           source right ascension in radians (default: all-sky)
 ##   "delta":           source declination (default: all-sky)
 
-function sensSigma = SensFactStackSlide ( varargin )
+function sensDepth = SensitivityDepthStackSlide ( varargin )
 
   ## parse options
   uvar = parseOptions ( varargin,
@@ -48,8 +48,8 @@ function sensSigma = SensFactStackSlide ( varargin )
 
   ## convert to sensitivity depth
   TdataSeg = uvar.Tdata / uvar.Nseg;
-  sensSigmaInv = 5/2 .* rho .* TdataSeg.^(-1/2);
-  sensSigma = 1 ./ sensSigmaInv;
+  sensDepthInv = 5/2 .* rho .* TdataSeg.^(-1/2);
+  sensDepth = 1 ./ sensDepthInv;
 
 endfunction
 
@@ -62,5 +62,5 @@ endfunction
 %!  pFD = 0.1;
 %!  pFA = [1e-14, 1e-12, 1e-10];
 %!  dets = "HL";
-%!  sigma = SensFactStackSlide("Nseg", Nseg, "Tdata", Tdata, "misHist", misHist, "pFD", pFD, "pFA", pFA, "detectors", dets);
+%!  sigma = SensitivityDepthStackSlide("Nseg", Nseg, "Tdata", Tdata, "misHist", misHist, "pFD", pFD, "pFA", pFA, "detectors", dets);
 %!  assert(max(abs(sigma - [38.038, 40.114, 42.682])) < 0.05);

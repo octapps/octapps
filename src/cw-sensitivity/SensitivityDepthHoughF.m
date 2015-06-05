@@ -15,9 +15,9 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## Estimate Hough-on-Fstat sensitivity depth sensSigma = sqrt(Sh)/h0
+## Estimate Hough-on-Fstat sensitivity depth sensDepth = sqrt(Sh)/h0
 ## Usage:
-##   sensSigma = SensFactHoughF("opt", val, ...)
+##   sensDepth = SensitivityDepthHoughF("opt", val, ...)
 ## Options are:
 ##   "Nseg":            number of StackSlide segments
 ##   "Tdata":           total amount of data used, in seconds
@@ -29,7 +29,7 @@
 ##   "alpha":           source right ascension in radians (default: all-sky)
 ##   "delta":           source declination (default: all-sky)
 
-function sensSigma = SensFactHoughF ( varargin )
+function sensDepth = SensitivityDepthHoughF ( varargin )
 
   ## parse options
   uvar = parseOptions ( varargin,
@@ -50,8 +50,8 @@ function sensSigma = SensFactHoughF ( varargin )
 
   ## convert to sensitivity depth
   TdataSeg = uvar.Tdata / uvar.Nseg;
-  sensSigmaInv = 5/2 .* rho .* TdataSeg.^(-1/2);
-  sensSigma = 1 ./ sensSigmaInv;
+  sensDepthInv = 5/2 .* rho .* TdataSeg.^(-1/2);
+  sensDepth = 1 ./ sensDepthInv;
 
 endfunction
 
@@ -65,5 +65,5 @@ endfunction
 %!  pFA = [1e-10, 1e-8, 1e-6];
 %!  Fth = 2.5;
 %!  dets = "HL";
-%!  sigma = SensFactHoughF("Nseg", Nseg, "Tdata", Tdata, "misHist", misHist, "pFD", pFD, "pFA", pFA, "Fth", Fth, "detectors", dets);
+%!  sigma = SensitivityDepthHoughF("Nseg", Nseg, "Tdata", Tdata, "misHist", misHist, "pFD", pFD, "pFA", pFA, "Fth", Fth, "detectors", dets);
 %!  assert(max(abs(sigma - [27.629, 35.970, 42.702])) < 0.05);
