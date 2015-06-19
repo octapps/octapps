@@ -126,18 +126,11 @@ function stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraints, w
     cost0_fmf = @(m_f) (kappa_c) * m_f.^(-n_c/2 * (n_f + 2) / (n_c + 2)) * Tau0^(-n_c/(n_c+2)) * Tobs0^delta_c * Nseg0^(-eps_c) + (kappa_f) * m_f.^(-n_f/2) * Tobs0^delta_f * Nseg0^(-eps_f);
     eq0_fmf = @(m_f) cost0_fmf(m_f)/cost0 - 1;
 
-    %% try to find working bounds for mfOpt
+    %% try to go with wide bounds for mfOpt, check if sign change
     x = [0, 1e4];
-    y = arrayfun( @(x) eq0_fmf(x), x );
-    [~, imax] = max( y );
-    if sign( eq0_fmf(x(1)) ) * sign( eq0_fmf(x(imax)) ) < 0
-      x0 = [ x(1), x(imax) ];
-    elseif sign( eq0_fmf(x(imax)) ) * sign( eq0_fmf(x(end)) ) < 0
-      x0 = [ x(imax), x(end) ];
-    else
-      error( "Could not bound mfOpt for Tobs0+Tseg0-constrained solution" );
+    if ( eq0_fmf( x(1) )  * eq0_fmf ( x(2) ) >= 0 )
+      error( "No sign change for eq0_fmf(x) betweeen x0=%g and x1=%g, fzero() won't work!\n", x(1), x(2) );
     endif
-
     [mfOpt, residual, INFO, OUTPUT] = fzero ( eq0_fmf, x0 );
     assert( INFO == 1,
             "fzero() failed to find cost solution for mfOpt in degenerate case: INFO=%i, residual=%g, iterations=%i, mfOpt=[%g,%g], eq0_fmf=[%g,%g]\n",
