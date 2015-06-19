@@ -23,7 +23,7 @@
 ## "cost0":           computing cost constraint
 ##
 ## "xi_or_latt":      [optional] EITHER: average mismatch-factor 'xi' linking average and maximal mismatch: <m> = xi * mis_max
-##                    OR: string giving lattice type to use (e.g. "Zn", "Ans"), from which 'xi' is computed 
+##                    OR: string giving lattice type to use (e.g. "Zn", "Ans"), from which 'xi' is computed
 ##                    [default = 1/3 for hypercubic lattice]
 ##
 ## Compute the local solution for optimal F-statistic search parameters at given (local) power-law coefficients 'coef_c',

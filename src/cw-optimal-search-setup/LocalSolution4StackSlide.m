@@ -41,7 +41,7 @@
 ##                    where w=1 corresponds to the Gaussian weak-signal limit
 ##
 ## "xi_or_latt":      [optional] EITHER: average mismatch-factor 'xi' linking average and maximal mismatch: <m> = xi * mis_max
-##                    OR: string giving lattice type to use (e.g. "Zn", "Ans"), from which 'xi' is computed 
+##                    OR: string giving lattice type to use (e.g. "Zn", "Ans"), from which 'xi' is computed
 ##                    [default = 1/3 for hypercubic lattice]
 ##
 ##
@@ -294,4 +294,3 @@ endfunction
 %!  assert ( stackparams.mf, 0.1660744351839173, 1e-4 );
 %!  assert ( stackparams.Tseg, 59764.8513746905, -1e-4 );
 %!  assert ( stackparams.Nseg, NsegRef, -1e-4 );
-
