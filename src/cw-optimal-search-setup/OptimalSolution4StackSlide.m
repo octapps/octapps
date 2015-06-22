@@ -170,10 +170,16 @@ function stackparams = OptimalSolution4StackSlide ( varargin )
     new_stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraints0, w, uvar.lattice );
 
     %% ----- check special failure modes and handle them separately ----------
-    if ( isfield(new_stackparams,"need_TsegMax") && new_stackparams.need_TsegMax )
-      assert ( have_TobsMax && have_TsegMax, "LocalSolution4StackSlide() asked for both 'TobsMax' and 'TsegMax' constraints\n");
-      new_stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraintsTseg, w, uvar.lattice );
-    elseif ( isfield(new_stackparams,"need_TobsMax") && new_stackparams.need_TobsMax )
+    need_TsegMax = isfield(new_stackparams,"need_TsegMax") && new_stackparams.need_TsegMax;
+    need_TobsMax = isfield(new_stackparams,"need_TobsMax") && new_stackparams.need_TobsMax;
+    if ( need_TsegMax )
+      if ( need_TobsMax )
+        assert ( have_TobsMax && have_TsegMax, "LocalSolution4StackSlide() asked for both 'TobsMax' and 'TsegMax' constraints\n");
+        new_stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraintsTseg, w, uvar.lattice );
+      else
+        error ("Currently only handle the case when requiring 'TsegMax' also requires 'TobsMax'\n");
+      endif
+    elseif ( need_TobsMax )
       assert ( have_TobsMax, "LocalSolution4StackSlide() asked for 'TobsMax' constraint!\n");
       new_stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraintsTobs, w, uvar.lattice );
     endif
