@@ -128,9 +128,9 @@ function stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraints, w
     eq0_fmf = @(m_f) cost0_fmf(m_f)/cost0 - 1;
 
     %% try to go with wide bounds for mfOpt, check if sign change
-    x = [0, 1e4];
-    if ( eq0_fmf( x(1) )  * eq0_fmf ( x(2) ) >= 0 )
-      error( "No sign change for eq0_fmf(x) betweeen x0=%g and x1=%g, fzero() won't work!\n", x(1), x(2) );
+    x0 = [0, 1e4];
+    if ( eq0_fmf( x0(1) )  * eq0_fmf ( x0(2) ) >= 0 )
+      error( "No sign change for eq0_fmf(x) betweeen x0=%g and x1=%g, fzero() won't work!\n", x0(1), x0(2) );
     endif
     [mfOpt, residual, INFO, OUTPUT] = fzero ( eq0_fmf, x0 );
     assert( INFO == 1,
