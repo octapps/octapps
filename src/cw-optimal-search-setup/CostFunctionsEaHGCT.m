@@ -20,7 +20,7 @@
 ## Used to compute the E@H S5GC1 solution given in Prix&Shaltev,PRD85,
 ## 084010(2012) Table~II.
 ## Usage:
-##   cost_funs = EaHGCTCostFunctions("opt", val, ...)
+##   cost_funs = CostFunctionsEaHGCT("opt", val, ...)
 ## where
 ##   cost_funs = struct of computing-cost functions to pass to OptimalSolution4StackSlide()
 ## Options:
@@ -34,7 +34,7 @@
 ##   "coh_c0_resamp": computational cost of F-statistic 'resampling' per template [optional]
 ##   "inc_c0":        computational cost of incoherent step per template per segment [optional]
 ##   "gridInterpolation": use interpolating StackSlide or non-interpolating (ie coarse-grids == fine-grid)
-function cost_funs = EaHGCTCostFunctions(varargin)
+function cost_funs = CostFunctionsEaHGCT(varargin)
 
   ## parse options
   params = parseOptions(varargin,

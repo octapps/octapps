@@ -18,7 +18,7 @@
 ## OptimalSolution4StackSlide() to compute optimal Einstein@Home
 ## search setups using the reduced supersky metric.
 ## Usage:
-##   [cost_funs, params, guess] = EaHSuperskyCostFunctions("setup", "opt", val, ...)
+##   [cost_funs, params, guess] = CostFunctionsEaHSupersky("setup", "opt", val, ...)
 ## where
 ##   cost_funs = struct of computing-cost functions to pass to OptimalSolution4StackSlide()
 ##   params    = associated parameters, some of which are passed to OptimalSolution4StackSlide()
@@ -41,7 +41,7 @@
 ## Other options:
 ##   "verbose":       computing-cost functions print info messages when called [default: false]
 
-function [cost_funs, params, guess] = EaHSuperskyCostFunctions(setup, varargin)
+function [cost_funs, params, guess] = CostFunctionsEaHSupersky(setup, varargin)
 
   ## load modules
   lal;
