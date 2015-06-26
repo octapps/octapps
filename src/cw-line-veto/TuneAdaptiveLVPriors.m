@@ -64,8 +64,8 @@ function ret = TuneAdaptiveLVPriors ( varargin )
  global SMALL_EPS = 1.0e-6;
 
  # prepare PSD parameters
- params_psd.PSDmthopSFTs = 1;
- params_psd.PSDmthopIFOs = 8;
+ params_psd.nSFTmthopSFTs = 1;
+ params_psd.nSFTmthopIFOs = 8;
  thresh.H1 = params_init.SFTpower_thresh;
  thresh.L1 = params_init.SFTpower_thresh;
 
