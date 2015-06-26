@@ -33,6 +33,7 @@
 ##   "coh_c0_demod":  computational cost of F-statistic 'demod' per template per second [optional]
 ##   "coh_c0_resamp": computational cost of F-statistic 'resampling' per template [optional]
 ##   "inc_c0":        computational cost of incoherent step per template per segment [optional]
+##   "gridInterpolation": use interpolating StackSlide or non-interpolating (ie coarse-grids == fine-grid)
 function cost_funs = EaHGCTCostFunctions(varargin)
 
   ## parse options
@@ -46,6 +47,7 @@ function cost_funs = EaHGCTCostFunctions(varargin)
                         {"coh_c0_demod", "real,strictpos,scalar", 7.4e-08 / 1800},
                         {"coh_c0_resamp", "real,strictpos,scalar", 1e-7},
                         {"inc_c0", "real,strictpos,scalar", 4.7e-09},
+                        {"gridInterpolation", "logical,scalar", true},
                         []);
 
   ## make closures of functions with 'params'
@@ -161,7 +163,11 @@ function [cost, s] = cost_coh_wparams ( Nseg, Tseg, mc, lattice, params )
   for i = 1:length(Nseg(:))
     c0T = c0 * Ndet * Tseg(i);
 
-    [Ntc, s] = func_Nt ( 1, Tseg(i), mc(i), lattice, params );
+    if ( params.gridInterpolation )
+      [Ntc, s] = func_Nt ( 1, Tseg(i), mc(i), lattice, params );
+    else
+      [Ntc, s] = func_Nt ( Nseg(i), Tseg(i), mc(i), lattice, params );
+    endif
 
     cost(i) = Nseg(i) * Ntc * c0T;
   endfor
