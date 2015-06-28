@@ -33,7 +33,8 @@
 ##   "coh_c0_demod":  computational cost of F-statistic 'demod' per template per second [optional]
 ##   "coh_c0_resamp": computational cost of F-statistic 'resampling' per template [optional]
 ##   "inc_c0":        computational cost of incoherent step per template per segment [optional]
-##   "gridInterpolation": use interpolating StackSlide or non-interpolating (ie coarse-grids == fine-grid)
+##   "grid_interpolation": whether to use interpolating or non-interpolating StackSlide (ie coarse-grids == fine-grid)
+##
 function cost_funs = CostFunctionsEaHGCT(varargin)
 
   ## parse options
@@ -47,7 +48,7 @@ function cost_funs = CostFunctionsEaHGCT(varargin)
                         {"coh_c0_demod", "real,strictpos,scalar", 7.4e-08 / 1800},
                         {"coh_c0_resamp", "real,strictpos,scalar", 1e-7},
                         {"inc_c0", "real,strictpos,scalar", 4.7e-09},
-                        {"gridInterpolation", "logical,scalar", true},
+                        {"grid_interpolation", "logical,scalar", true},
                         []);
 
   ## make closures of functions with 'params'
@@ -154,22 +155,24 @@ endfunction # func_Nt()
 
 function [cost, s] = cost_coh_wparams ( Nseg, Tseg, mc, lattice, params )
 
-  c0 = params.coh_c0_demod;
-  Ndet = params.Ndet;
-
   [err, Nseg, Tseg, mc] = common_size( Nseg, Tseg, mc);
   assert ( err == 0 );
+  cost = zeros ( size ( Nseg ) );
 
   for i = 1:length(Nseg(:))
-    c0T = c0 * Ndet * Tseg(i);
 
-    if ( params.gridInterpolation )
+    if ( params.grid_interpolation )
       [Ntc, s] = func_Nt ( 1, Tseg(i), mc(i), lattice, params );
     else
       [Ntc, s] = func_Nt ( Nseg(i), Tseg(i), mc(i), lattice, params );
     endif
 
-    cost(i) = Nseg(i) * Ntc * c0T;
+    if ( params.resampling )
+      cost(i) = Nseg(i) * Ntc * params.Ndet * params.coh_c0_resamp;
+    else
+      cost(i) = Nseg(i) * Ntc * params.Ndet * (params.coh_c0_demod * Tseg(i));
+    endif
+
   endfor
 
   return;
@@ -178,15 +181,14 @@ endfunction ## cost_coh()
 
 function [cost, s] = cost_inc_wparams ( Nseg, Tseg, mf, lattice, params )
 
-  c0 = params.inc_c0;
-
   [err, Nseg, Tseg, mf] = common_size( Nseg, Tseg, mf);
   assert ( err == 0 );
+  cost = zeros ( size ( Nseg ) );
 
   for i = 1:length(Nseg(:))
     [Ntf, s] = func_Nt ( Nseg(i), Tseg(i), mf(i), lattice, params );
 
-    cost(i) = Nseg(i) * Ntf * c0;
+    cost(i) = Nseg(i) * Ntf * params.inc_c0;
   endfor
 
   return;

@@ -38,9 +38,10 @@
 ##   "coh_c0_demod":  computational cost of F-statistic 'demod' per template per second [optional]
 ##   "coh_c0_resamp": computational cost of F-statistic 'resampling' per template [optional]
 ##   "inc_c0":        computational cost of incoherent step per template per segment [optional]
+##   "grid_interpolation": whether to use interpolating or non-interpolating StackSlide (ie coarse-grids == fine-grid)
 ## Other options:
 ##   "verbose":       computing-cost functions print info messages when called [default: false]
-
+##
 function [cost_funs, params, guess] = CostFunctionsEaHSupersky(setup, varargin)
 
   ## load modules
@@ -144,6 +145,7 @@ function [cost_funs, params, guess] = CostFunctionsEaHSupersky(setup, varargin)
                         params_optspec(params, "coh_c0_demod", "real,strictpos,scalar", 7.4e-08 / 1800),
                         params_optspec(params, "coh_c0_resamp", "real,strictpos,scalar", 2.8e-7),
                         params_optspec(params, "inc_c0", "real,strictpos,scalar", 4.7e-09),
+                        params_optspec(params, "grid_interpolation", "logical,scalar", true),
                         {"verbose", "logical,scalar", false},
                         []);
 
@@ -321,7 +323,11 @@ function [cost, Ntc] = cost_coh_wparams(Nseg, Tseg, mc, lattice, params)
     c0T *= params.coh_duty;
 
     ## number of templates per segment
-    Ntc(i) = rssky_num_templates(1, Tseg(i), mc(i), lattice, params);
+    if ( params.grid_interpolation )
+      Ntc(i) = rssky_num_templates(1, Tseg(i), mc(i), lattice, params);
+    else
+      Ntc(i) = rssky_num_templates(Nseg(i), Tseg(i), mc(i), lattice, params);
+    endif
 
     ## total coherent cost
     cost(i) = Nseg(i) * Ntc(i) * c0T;
