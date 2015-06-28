@@ -30,6 +30,7 @@
 ##   "tau_min":       minimum spindown age, determines spindown ranges
 ##   "Ndet":          number of detectors
 ##   "resampling":    use F-statistic 'resampling' instead of 'demod' for coherent cost [default: false]
+##   "lattice":       template-bank lattice ("Zn", "Ans",..) [default: "Zn"]
 ##   "coh_c0_demod":  computational cost of F-statistic 'demod' per template per second [optional]
 ##   "coh_c0_resamp": computational cost of F-statistic 'resampling' per template [optional]
 ##   "inc_c0":        computational cost of incoherent step per template per segment [optional]
@@ -49,12 +50,13 @@ function cost_funs = CostFunctionsEaHGCT(varargin)
                         {"coh_c0_resamp", "real,strictpos,scalar", 1e-7},
                         {"inc_c0", "real,strictpos,scalar", 4.7e-09},
                         {"grid_interpolation", "logical,scalar", true},
+                        {"lattice", "char", "Zn"},
                         []);
 
   ## make closures of functions with 'params'
   cost_funs = struct( ...
-                     "costFunCoh", @(Nseg, Tseg, mc=0.5, lattice="Zn") cost_coh_wparams(Nseg, Tseg, mc, lattice, params), ...
-                     "costFunInc", @(Nseg, Tseg, mf=0.5, lattice="Zn") cost_inc_wparams(Nseg, Tseg, mf, lattice, params) ...
+                     "costFunCoh", @(Nseg, Tseg, mc=0.5) cost_coh_wparams(Nseg, Tseg, mc, params), ...
+                     "costFunInc", @(Nseg, Tseg, mf=0.5) cost_inc_wparams(Nseg, Tseg, mf, params) ...
                      );
 
 endfunction
@@ -96,7 +98,7 @@ function ret = refinement ( s, Nseg )
 
 endfunction ## refinement()
 
-function ret = func_Nt_given_s ( s, Nseg, Tseg, mis, lattice, params )
+function ret = func_Nt_given_s ( s, Nseg, Tseg, mis, params )
   ## number of templates Nt for given search-parameters {Nseg, Tseg, mis} and spindown-order 's'
   ## using Eqs.(56) and (82) in Pletsch(2010)
   C_SI 		= 299792458;		%% Speed of light in vacuo, m s^-1
@@ -107,7 +109,7 @@ function ret = func_Nt_given_s ( s, Nseg, Tseg, mis, lattice, params )
 
   n = 3 + s;	%% 2 x sky + 1 x Freq + s x spindowns
 
-  rho0 = LatticeNormalizedThickness ( n, lattice ) * mis^(-n/2);
+  rho0 = LatticeNormalizedThickness ( n, params.lattice ) * mis^(-n/2);
   phi = OmE .* Tseg / 2;	%%  Eq.(49) in Pletsch(2010)
 
   fracSky = params.fracSky;	%% WU covers only a fraction of the sky
@@ -138,13 +140,13 @@ function ret = func_Nt_given_s ( s, Nseg, Tseg, mis, lattice, params )
 endfunction ## func_Nt_given_s()
 
 
-function [Nt, s] = func_Nt ( Nseg, Tseg, mis, lattice, params )
+function [Nt, s] = func_Nt ( Nseg, Tseg, mis, params )
   ## number of templates Nt for given search-parameters 'Nseg,Tseg,mis' and
   ## maximization over spindown-order 's'
   ## using Eqs.(56) and (82) in Pletsch(2010)
   Nt_s = ones (1, 2);
   for k = 1:2
-    Nt_s(k) = func_Nt_given_s ( k, Nseg, Tseg, mis, lattice, params );
+    Nt_s(k) = func_Nt_given_s ( k, Nseg, Tseg, mis, params );
   endfor
 
   [Nt, s] = max ( Nt_s );
@@ -153,44 +155,48 @@ function [Nt, s] = func_Nt ( Nseg, Tseg, mis, lattice, params )
 
 endfunction # func_Nt()
 
-function [cost, s] = cost_coh_wparams ( Nseg, Tseg, mc, lattice, params )
+function [cost, Ntc, lattice] = cost_coh_wparams ( Nseg, Tseg, mc, params )
 
   [err, Nseg, Tseg, mc] = common_size( Nseg, Tseg, mc);
   assert ( err == 0 );
-  cost = zeros ( size ( Nseg ) );
+  Ntc = cost = zeros ( size ( Nseg ) );
 
   for i = 1:length(Nseg(:))
 
     if ( params.grid_interpolation )
-      [Ntc, s] = func_Nt ( 1, Tseg(i), mc(i), lattice, params );
+      [Ntc(i), s] = func_Nt ( 1, Tseg(i), mc(i), params );
     else
-      [Ntc, s] = func_Nt ( Nseg(i), Tseg(i), mc(i), lattice, params );
+      [Ntc(i), s] = func_Nt ( Nseg(i), Tseg(i), mc(i), params );
     endif
 
     if ( params.resampling )
-      cost(i) = Nseg(i) * Ntc * params.Ndet * params.coh_c0_resamp;
+      cost(i) = Nseg(i) * Ntc(i) * params.Ndet * params.coh_c0_resamp;
     else
-      cost(i) = Nseg(i) * Ntc * params.Ndet * (params.coh_c0_demod * Tseg(i));
+      cost(i) = Nseg(i) * Ntc(i) * params.Ndet * (params.coh_c0_demod * Tseg(i));
     endif
 
   endfor
 
+  lattice = params.lattice;
+
   return;
 
-endfunction ## cost_coh()
+endfunction ## cost_coh_wparams()
 
-function [cost, s] = cost_inc_wparams ( Nseg, Tseg, mf, lattice, params )
+function [cost, Ntf, lattice] = cost_inc_wparams ( Nseg, Tseg, mf, params )
 
   [err, Nseg, Tseg, mf] = common_size( Nseg, Tseg, mf);
   assert ( err == 0 );
-  cost = zeros ( size ( Nseg ) );
+  Ntf = cost = zeros ( size ( Nseg ) );
 
   for i = 1:length(Nseg(:))
-    [Ntf, s] = func_Nt ( Nseg(i), Tseg(i), mf(i), lattice, params );
+    [Ntf(i), s] = func_Nt ( Nseg(i), Tseg(i), mf(i), params );
 
-    cost(i) = Nseg(i) * Ntf * params.inc_c0;
+    cost(i) = Nseg(i) * Ntf(i) * params.inc_c0;
   endfor
+
+  lattice = params.lattice;
 
   return;
 
-endfunction ## cost_inc()
+endfunction ## cost_inc_wparams()

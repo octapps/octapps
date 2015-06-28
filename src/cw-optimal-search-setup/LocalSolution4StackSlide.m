@@ -15,15 +15,15 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## Usage: stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraints, w = 1, xi_or_latt = 1/3 )
+## Usage: stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraints, w = 1, lattice = "Zn" )
 ## where options are:
 ##
-## "coef_c":          structure holding local power-law coefficients { delta, kappa, nDim, [eta] }
+## "coef_c":          structure holding local power-law coefficients { delta, kappa, nDim, [eta] } and lattice type
 ##                    of *coherent* computing cost ~ mis^{-nDim/2} * Nseg^eta * Tseg^delta,
 ##                    where 'nDim' is the associated template-bank dimension.
 ##                    (Usually eta=1 and doesn't need to be passed, but will be used if given)
 ##
-## "coef_f":          structure holding local power-law coefficients { delta, eta, kappa, nDim }
+## "coef_f":          structure holding local power-law coefficients { delta, eta, kappa, nDim } and lattice type
 ##                    of *incoherent* computing cost ~ mis^{-nDim/2} * Nseg^eta * Tseg^delta,
 ##                    where 'nDim' is the associated template-bank dimension
 ##
@@ -40,13 +40,8 @@
 ## "w"                Power-law correction in sensitivity Nseg-scaling: hth^{-2} ~ N^{-1/(2w)},
 ##                    where w=1 corresponds to the Gaussian weak-signal limit
 ##
-## "xi_or_latt":      [optional] EITHER: average mismatch-factor 'xi' linking average and maximal mismatch: <m> = xi * mis_max
-##                    OR: string giving lattice type to use (e.g. "Zn", "Ans"), from which 'xi' is computed
-##                    [default = 1/3 for hypercubic lattice]
-##
-##
 ## Compute the local solution for optimal StackSlide search parameters at given (local) power-law coefficients 'coef_c', 'coef_f'
-## and given computing-cost constraint 'cost0', and (optional) average-mismatch geometrical factor 'xi' in [0,1] or lattice string.
+## and given computing-cost constraint 'cost0'.
 ##
 ## NOTE: this solution is *not* guaranteed to be self-consistent, in the sense that the power-law coefficients
 ## at the point of this local solution may be different from the input 'coef_c', 'coef_f'
@@ -59,7 +54,7 @@
 ## [Equation numbers refer to Prix&Shaltev, PRD85, 084010 (2012)]
 ##
 
-function stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraints, w = 1, xi_or_latt = 1/3 )
+function stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraints, w = 1 )
 
   %% check user-input sanity
   assert ( !isempty( constraints ) );
@@ -80,11 +75,13 @@ function stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraints, w
   assert ( isfield ( coef_c, "delta" ) );
   assert ( isfield ( coef_c, "kappa" ) );
   assert ( isfield ( coef_c, "nDim" ) );
+  assert ( isfield ( coef_c, "lattice" ) && ischar ( coef_c.lattice ) );
 
   assert ( isfield ( coef_f, "delta" ) );
   assert ( isfield ( coef_f, "eta" ) );
   assert ( isfield ( coef_f, "kappa" ) );
   assert ( isfield ( coef_f, "nDim" ) );
+  assert ( isfield ( coef_f, "lattice" ) && ischar ( coef_f.lattice ) );
 
   %% coherent power-law coefficients
   delta_c = coef_c.delta;
@@ -104,6 +101,10 @@ function stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraints, w
   %% derived quantities 'epsilon' of Eq.(66)
   eps_c   = delta_c - eta_c;
   eps_f   = delta_f - eta_f;
+
+  %% ----- average mismatch factor linking average and maximal mismatch for lattices used
+  xi_c = meanOfHist( LatticeMismatchHist( round(n_c), coef_c.lattice ) );
+  xi_f = meanOfHist( LatticeMismatchHist( round(n_f), coef_f.lattice ) );
 
   %% degenerate case can only be solved with Tseg0 and Tobs0 constraints
   if ( (abs(eps_c) < 1e-6) && (abs(eps_f) < 1e-6 ) )
@@ -161,16 +162,6 @@ function stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraints, w
   %% D can become negative, so only require that it be nonzero.
   assert ( D != 0, "Failed assertion: D = %g * %g - %g * %g != 0", delta_c, eta_f, delta_f, eta_c );
   Dinv = 1/D;
-
-  %% ----- average mismatch factor linking average and maximal mismatch for selected lattice
-  if ( ischar ( xi_or_latt ) )
-    xi_c = meanOfHist( LatticeMismatchHist( round(n_c), xi_or_latt ) );
-    xi_f = meanOfHist( LatticeMismatchHist( round(n_f), xi_or_latt ) );
-  elseif ( isnumeric ( xi_or_latt ) )
-    xi_c = xi_f = xi_or_latt;
-  else
-    error( "Invalid value given for 'xi_or_latt'" )
-  endif
 
   %% ----- asymptotic mismatches, Eq.(78):
   m0_c = ( xi_c * ( 1 + 4 * w * eps_c / n_c ) )^(-1);
@@ -248,40 +239,42 @@ endfunction
 %!  coef_c.nDim = 2;
 %!  coef_c.delta = 4.00;
 %!  coef_c.kappa = 3.1358511e-17;
+%!  coef_c.lattice = "Ans";
 %!
 %!  coef_f.nDim = 3;
 %!  coef_f.delta = 6.0;
 %!  coef_f.eta = 4;
 %!  coef_f.kappa = 2.38382054e-33;
+%!  coef_f.lattice = "Ans";
 %!
 %!  constraints.cost0 = 471.981444 * 86400;
-%!  xi = 0.5;
-%!  stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraints, w = 1, xi );
+%!  stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraints, w = 1 );
 %!  assert ( stackparams.cr, 1, 1e-6 );			## Eq.(117)
-%!  assert ( stackparams.mc, 0.16, 1e-6 );		## Eq.(118)
-%!  assert ( stackparams.mf, 0.24, 1e-6 );		## Eq.(118)
-%!  assert ( stackparams.Tseg / 86400, 2.3448, 1e-3 );	## corrected result, found in Shaltev thesis, Eq.(4.119)
-%!  assert ( stackparams.Nseg, 61.7557, 1e-4 );		## corrected result, found in Shaltev thesis, Eq.(4.119)
+%!  assert ( stackparams.mc, 0.180879057028436, 1e-6 );		## Eq.(118), corrected for xi_c from "Ans(2)" instead of 0.5
+%!  assert ( stackparams.mf, 0.271318585542655, 1e-6 );		## Eq.(118), corrected for xi_f  from "Ans(3)" instead of 0.5
+%!  assert ( stackparams.Tseg / 86400, 2.4178, 1e-3 );	## corrected result, found in Shaltev thesis, Eq.(4.119), corrected for accurate xi_c, xi_f
+%!  assert ( stackparams.Nseg, 61.7557, 1e-4 );		## corrected result, found in Shaltev thesis, Eq.(4.119), corrected for accurate xi_c, xi_f
 
 %!test
 %!  %% check recovery of published results in Prix&Shaltev(2012): V.B: all-sky E@H [S5GC1], TableII
 %!  coef_c.nDim = 4;
 %!  coef_c.delta = 10.0111962295912;
 %!  coef_c.kappa = 9.09857109479269e-50;
+%!  coef_c.lattice = "Zn";
 %!
 %!  coef_f.nDim = 4;
 %!  coef_f.delta = 9.01119622959135;
 %!  coef_f.eta = 2;
 %!  coef_f.kappa = 1.56944271959491e-47;
+%!  coef_f.lattice = "Zn";
 %!
 %!  constraints.cost0 = 3258.42235987226;
 %!  constraints.Tobs0 = 365*86400;
-%!  xi = 1/3;
 %!  pFA = 1e-10; pFD = 0.1;
 %!  NsegRef = 527.6679900489286;
 %!  w = SensitivityScalingDeviationN ( pFA, pFD, NsegRef );
 %!  assert ( w, 1.09110798102039, 1e-6 );
-%!  stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraints, w, xi );
+%!  stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraints, w );
 %!  assert ( stackparams.cr, 0.869163870996078, 1e-4 );
 %!  assert ( stackparams.mc, 0.144345898957936, 1e-4 );
 %!  assert ( stackparams.mf, 0.1660744351839173, 1e-4 );

@@ -41,7 +41,6 @@
 ## "tol"                tolerance on the obtained relative difference of the solution, required for convergence [1e-2]
 ## "maxiter"            maximal allowed number of iterations [100]
 ##
-## "lattice":           [optional] string giving lattice type to use, e.g. "Zn", "Ans" [default: "Zn"]
 ##
 ## "verbose"            [optional] print useful information about solution at each iteration [default: false]
 ##
@@ -71,7 +70,6 @@ function stackparams = OptimalSolution4StackSlide ( varargin )
                        {"stackparamsGuess", "struct", [] },
                        {"pFA", "real,strictpos,scalar", 1e-10 },
                        {"pFD", "real,strictpos,scalar", 0.1 },
-                       {"lattice", "char", "Zn" },
                        {"tol", "real,strictpos,scalar", 1e-2 },
                        {"maxiter", "integer,strictpos,scalar", 100 },
                        {"verbose", "logical,scalar", false },
@@ -132,8 +130,8 @@ function stackparams = OptimalSolution4StackSlide ( varargin )
 
     ## determine local power-law coefficients at the current guess 'solution'
     w = SensitivityScalingDeviationN ( uvar.pFA, uvar.pFD, stackparams.Nseg );
-    coef_c = LocalCostCoefficients ( uvar.costFuns.costFunCoh, stackparams.Nseg, stackparams.Tseg, stackparams.mc, uvar.lattice );
-    coef_f = LocalCostCoefficients ( uvar.costFuns.costFunInc, stackparams.Nseg, stackparams.Tseg, stackparams.mf, uvar.lattice );
+    coef_c = LocalCostCoefficients ( uvar.costFuns.costFunCoh, stackparams.Nseg, stackparams.Tseg, stackparams.mc );
+    coef_f = LocalCostCoefficients ( uvar.costFuns.costFunInc, stackparams.Nseg, stackparams.Tseg, stackparams.mf );
 
     ## store some meta-info about the solution
     stackparams.converged = is_converged;
@@ -167,7 +165,7 @@ function stackparams = OptimalSolution4StackSlide ( varargin )
     endif
 
     ## compute new guess 'solution'
-    new_stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraints0, w, uvar.lattice );
+    new_stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraints0, w );
 
     %% ----- check special failure modes and handle them separately ----------
     need_TsegMax = isfield(new_stackparams,"need_TsegMax") && new_stackparams.need_TsegMax;
@@ -175,24 +173,24 @@ function stackparams = OptimalSolution4StackSlide ( varargin )
     if ( need_TsegMax )
       if ( need_TobsMax )
         assert ( have_TobsMax && have_TsegMax, "LocalSolution4StackSlide() asked for both 'TobsMax' and 'TsegMax' constraints\n");
-        new_stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraintsTseg, w, uvar.lattice );
+        new_stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraintsTseg, w );
       else
         error ("Currently only handle the case when requiring 'TsegMax' also requires 'TobsMax'\n");
       endif
     elseif ( need_TobsMax )
       assert ( have_TobsMax, "LocalSolution4StackSlide() asked for 'TobsMax' constraint!\n");
-      new_stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraintsTobs, w, uvar.lattice );
+      new_stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraintsTobs, w );
     endif
     %% ----- sucess, but check if constraints violated, if yes need to recompute:
     Tobs = new_stackparams.Nseg * new_stackparams.Tseg;
     if ( have_TobsMax && (Tobs > uvar.TobsMax) )
-      new_stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraintsTobs, w, uvar.lattice );
+      new_stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraintsTobs, w );
     endif
     if ( have_TsegMin && (new_stackparams.Tseg < uvar.TsegMin ) )
-      new_stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraintsTsegMin, w, uvar.lattice );
+      new_stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraintsTsegMin, w );
     endif
     if ( have_TsegMax && (new_stackparams.Tseg > uvar.TsegMax ) )
-      new_stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraintsTsegMax, w, uvar.lattice );
+      new_stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraintsTsegMax, w );
     endif
 
     is_converged = checkConvergence ( new_stackparams, stackparams, uvar.tol );
@@ -254,7 +252,7 @@ endfunction
 %!  cost0 = cost_co + cost_ic;
 %!  TobsMax = 365 * 86400;
 %!
-%!  sol = OptimalSolution4StackSlide ( "costFuns", costFuns, "cost0", cost0, "TobsMax", TobsMax, "stackparamsGuess", refParams );
+%!  sol = OptimalSolution4StackSlide ( "costFuns", costFuns, "cost0", cost0, "TobsMax", TobsMax, "stackparamsGuess", refParams )
 %!
 %!  tol = -1e-3;
 %!  assert ( sol.mc, 0.1443, tol );

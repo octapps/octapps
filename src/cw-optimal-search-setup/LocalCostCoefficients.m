@@ -15,11 +15,11 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## Usage: coef = LocalCostCoefficients ( cost_fun, Nseg, Tseg, mis=0.5, lattice="Zn" )
+## Usage: coef = LocalCostCoefficients ( cost_fun, Nseg, Tseg, mis=0.5 )
 ##
 ## Compute local power-law coefficients fit to given computing-cost function
 ## 'cost_fun' at StackSlide parameters 'Nseg' and 'Tseg = Tobs/Nseg', and
-## (optionally) mismatch 'mis' and lattice type 'lattice'.
+## (optionally) mismatch 'mis'.
 ##
 ## The computing-cost function must be of the form 'cost_fun(Nseg, Tseg, mis)'
 ## and allow for vector inputs in all three input arguments.
@@ -32,7 +32,7 @@
 ## [Equation numbers refer to Prix&Shaltev, PRD85, 084010 (2012)]
 ##
 
-function coef = LocalCostCoefficients ( cost_fun, Nseg, Tseg, mis=0.5, lattice="Zn" )
+function coef = LocalCostCoefficients ( cost_fun, Nseg, Tseg, mis=0.5 )
 
   ## 'natural' spacings for computing the discrete derivatives: 5% variation around input point
   dTseg = 1e-4 * Tseg;
@@ -40,23 +40,23 @@ function coef = LocalCostCoefficients ( cost_fun, Nseg, Tseg, mis=0.5, lattice="
   dNseg   = 1e-4 * Nseg;
   ## Eq.(62a)
   Nseg_i = [ Nseg - dNseg, Nseg + dNseg];
-  dlogCostN = diff ( log ( cost_fun ( Nseg_i, Tseg, mis, lattice ) ) );
+  dlogCostN = diff ( log ( cost_fun ( Nseg_i, Tseg, mis ) ) );
   dlogN = diff ( log ( Nseg_i ) );
   coef.eta = dlogCostN / dlogN;
 
   ## Eq.(62b)
   Tseg_i = [ Tseg - dTseg, Tseg + dTseg ];
-  dlogCostTseg = diff ( log ( cost_fun ( Nseg, Tseg_i, mis, lattice ) ) );
+  dlogCostTseg = diff ( log ( cost_fun ( Nseg, Tseg_i, mis ) ) );
   dlogTseg = diff ( log ( Tseg_i ) );
   coef.delta = dlogCostTseg / dlogTseg;
 
   ## Eq.(64)
   mis_i  = [ mis - dmis, mis + dmis ];
-  dlogCostMis = diff ( log ( cost_fun ( Nseg, Tseg, mis_i, lattice ) ) );
+  dlogCostMis = diff ( log ( cost_fun ( Nseg, Tseg, mis_i ) ) );
   dlogMis = diff ( log ( mis_i ) );
   coef.nDim = -2 * dlogCostMis / dlogMis;
 
-  coef.cost = cost_fun ( Nseg, Tseg, mis, lattice );
+  [coef.cost, ~, coef.lattice ] = cost_fun ( Nseg, Tseg, mis );
 
   ## Eq.(63)
   coef.kappa = coef.cost / ( mis^(-0.5*coef.nDim) * Nseg^coef.eta * Tseg^coef.delta );
@@ -65,11 +65,18 @@ function coef = LocalCostCoefficients ( cost_fun, Nseg, Tseg, mis=0.5, lattice="
 
 endfunction
 
+%!function [cost, Nt, lattice] = testCostFunction (Nseg, Tseg, mis)
+%!  cost = pi * mis.^(-3.3/2) .* Nseg.^2.2 .* Tseg.^4.4;
+%!  Nt = NA;
+%!  lattice = "Ans";
+%!  return;
+%!endfunction
+%!
 %!test
 %!  %% trivial test example first
-%!  cost_fun = @(Nseg, Tseg, mis)  pi * mis.^(-3.3/2) .* Nseg.^2.2 .* Tseg.^4.4;
-%!  coef = LocalCostCoefficients ( cost_fun, 100, 86400, 0.5 );
+%!  coef = LocalCostCoefficients ( @testCostFunction, 100, 86400, 0.5 );
 %!  assert ( coef.eta, 2.2, 2e-9 );
 %!  assert ( coef.delta, 4.4, 2e-9 );
 %!  assert ( coef.nDim, 3.3, 2e-9 );
 %!  assert ( coef.kappa, pi, 2e-9 );
+%!  assert ( coef.lattice, "Ans");

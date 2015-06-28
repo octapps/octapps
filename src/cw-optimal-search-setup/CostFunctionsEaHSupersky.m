@@ -35,6 +35,7 @@
 ##   "total_Tspan":   total time span of segment list [default: 1 year]
 ##   "coh_duty":      duty cycle of data within each coherent segment [default: 1.0]
 ##   "resampling":    use F-statistic 'resampling' instead of 'demod' timings for coherent cost [default: false]
+##   "lattice":       template-bank lattice ("Zn", "Ans",..) [default: "Ans"]
 ##   "coh_c0_demod":  computational cost of F-statistic 'demod' per template per second [optional]
 ##   "coh_c0_resamp": computational cost of F-statistic 'resampling' per template [optional]
 ##   "inc_c0":        computational cost of incoherent step per template per segment [optional]
@@ -146,13 +147,14 @@ function [cost_funs, params, guess] = CostFunctionsEaHSupersky(setup, varargin)
                         params_optspec(params, "coh_c0_resamp", "real,strictpos,scalar", 2.8e-7),
                         params_optspec(params, "inc_c0", "real,strictpos,scalar", 4.7e-09),
                         params_optspec(params, "grid_interpolation", "logical,scalar", true),
+                        params_optspec(params, "lattice", "char", "Ans"),
                         {"verbose", "logical,scalar", false},
                         []);
 
   ## make closures of functions with 'params'
   cost_funs = struct( ...
-                     "costFunCoh", @(Nseg, Tseg, mc=0.5, lattice="Ans") cost_coh_wparams(Nseg, Tseg, mc, lattice, params), ...
-                     "costFunInc", @(Nseg, Tseg, mf=0.5, lattice="Ans") cost_inc_wparams(Nseg, Tseg, mf, lattice, params) ...
+                     "costFunCoh", @(Nseg, Tseg, mc=0.5) cost_coh_wparams(Nseg, Tseg, mc, params), ...
+                     "costFunInc", @(Nseg, Tseg, mf=0.5) cost_inc_wparams(Nseg, Tseg, mf, params) ...
                      );
 
 endfunction
@@ -167,7 +169,7 @@ function optspec = params_optspec(params, name, type, defvalue=[])
   endif
 endfunction
 
-function Nt = rssky_num_templates(Nseg, Tseg, mis, lattice, params)
+function Nt = rssky_num_templates(Nseg, Tseg, mis, params)
 
   ## do not page output
   pso = page_screen_output(0, "local");
@@ -179,7 +181,7 @@ function Nt = rssky_num_templates(Nseg, Tseg, mis, lattice, params)
   assert(isscalar(Nseg) && Nseg >= 0.95);
   assert(isscalar(Tseg) && Tseg > 0);
   assert(isscalar(mis) && mis > 0);
-  assert(ischar(lattice));
+  assert(ischar(params.lattice));
   assert(isstruct(params));
 
   ## minimum computable value for Tseg
@@ -270,7 +272,7 @@ function Nt = rssky_num_templates(Nseg, Tseg, mis, lattice, params)
       ## compute number of templates
       fkdot_param_space = abs([params.fkdot_bands(2:end); params.fkdot_bands(1)]);
       Nt_interp(i, j) = NumberOfLatticeBankTemplates(
-                                                     "lattice", lattice,
+                                                     "lattice", params.lattice,
                                                      "metric", rssky_metric,
                                                      "max_mismatch", mis,
                                                      "param_space", {"rssky", fkdot_param_space},
@@ -289,7 +291,7 @@ function Nt = rssky_num_templates(Nseg, Tseg, mis, lattice, params)
 
 endfunction
 
-function [cost, Ntc] = cost_coh_wparams(Nseg, Tseg, mc, lattice, params)
+function [cost, Ntc, lattice] = cost_coh_wparams(Nseg, Tseg, mc, params)
 
   ## do not page output
   pso = page_screen_output(0, "local");
@@ -321,9 +323,9 @@ function [cost, Ntc] = cost_coh_wparams(Nseg, Tseg, mc, lattice, params)
 
     ## number of templates per segment
     if ( params.grid_interpolation )
-      Ntc(i) = rssky_num_templates(1, Tseg(i), mc(i), lattice, params);
+      Ntc(i) = rssky_num_templates(1, Tseg(i), mc(i), params);
     else
-      Ntc(i) = rssky_num_templates(Nseg(i), Tseg(i), mc(i), lattice, params);
+      Ntc(i) = rssky_num_templates(Nseg(i), Tseg(i), mc(i), params);
     endif
 
     ## total coherent cost
@@ -336,9 +338,11 @@ function [cost, Ntc] = cost_coh_wparams(Nseg, Tseg, mc, lattice, params)
 
   endfor
 
+  lattice = params.lattice;
+
 endfunction
 
-function [cost, Ntf] = cost_inc_wparams(Nseg, Tseg, mf, lattice, params)
+function [cost, Ntf, lattice] = cost_inc_wparams(Nseg, Tseg, mf, params)
 
   ## do not page output
   pso = page_screen_output(0, "local");
@@ -361,7 +365,7 @@ function [cost, Ntf] = cost_inc_wparams(Nseg, Tseg, mf, lattice, params)
     c0T = params.inc_c0 * Nseg(i);
 
     ## number of templates
-    Ntf(i) = rssky_num_templates(Nseg(i), Tseg(i), mf(i), lattice, params);
+    Ntf(i) = rssky_num_templates(Nseg(i), Tseg(i), mf(i), params);
 
     ## total incoherent cost
     cost(i) = Ntf(i) * c0T;
@@ -372,5 +376,7 @@ function [cost, Ntf] = cost_inc_wparams(Nseg, Tseg, mf, lattice, params)
     endif
 
   endfor
+
+  lattice = params.lattice;
 
 endfunction
