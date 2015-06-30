@@ -175,7 +175,7 @@ function stackparams = OptimalSolution4StackSlide ( varargin )
     if ( need_TsegMax )
       if ( need_TobsMax )
         assert ( have_TobsMax && have_TsegMax, "LocalSolution4StackSlide() asked for both 'TobsMax' and 'TsegMax' constraints\n");
-        new_stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraintsTseg, w );
+        new_stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraintsTsegMax, w );
       else
         error ("Currently only handle the case when requiring 'TsegMax' also requires 'TobsMax'\n");
       endif
