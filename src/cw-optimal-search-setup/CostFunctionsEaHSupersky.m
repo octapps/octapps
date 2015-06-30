@@ -316,11 +316,8 @@ function [cost, Ntc] = cost_coh_wparams(Nseg, Tseg, mc, lattice, params)
       c0T = params.coh_c0_resamp * Ndet;
     else
       ## demod cost per template
-      c0T = params.coh_c0_demod * Ndet * Tseg(i);
+      c0T = params.coh_c0_demod * Net * params.coh_duty * Tseg(i);
     endif
-
-    ## account for coherent duty cycle
-    c0T *= params.coh_duty;
 
     ## number of templates per segment
     if ( params.grid_interpolation )
