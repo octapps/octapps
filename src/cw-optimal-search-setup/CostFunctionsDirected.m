@@ -138,8 +138,6 @@ function [cost, Nt, lattice] = cost_coh_wparams ( Nseg, Tseg, mc, params )
   [err, Nseg, Tseg, mc] = common_size(Nseg, Tseg, mc);
   assert(err == 0);
 
-  ref_time = 1119599826;	## dummy, doesn't matter for directed search
-
   cost = Nt = zeros ( size ( Nseg )  );
   for i = 1:length(Nseg(:))
 
@@ -172,8 +170,6 @@ function [cost, Nt, lattice] = cost_inc_wparams ( Nseg, Tseg, mf, params )
   ## check input parameters
   [err, Nseg, Tseg, mf] = common_size(Nseg, Tseg, mf);
   assert(err == 0);
-
-  ref_time = 1119599826;	## dummy, doesn't matter for directed search
 
   cost = Nt = zeros ( size ( Nseg )  );
   for i = 1:length(Nseg(:))
