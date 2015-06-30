@@ -41,6 +41,7 @@
 ## "tol"                tolerance on the obtained relative difference of the solution, required for convergence [1e-2]
 ## "maxiter"            maximal allowed number of iterations [100]
 ##
+## "sensApprox":        sensitivity approximation to use in SensitivityScalingDeviationN() [default: none] {[], "none", "Gauss", "WSG}
 ##
 ## "verbose"            [optional] print useful information about solution at each iteration [default: false]
 ##
@@ -73,6 +74,7 @@ function stackparams = OptimalSolution4StackSlide ( varargin )
                        {"tol", "real,strictpos,scalar", 1e-2 },
                        {"maxiter", "integer,strictpos,scalar", 100 },
                        {"verbose", "logical,scalar", false },
+                       {"sensApprox", "char", [] },
                        []);
   assert( isfield( uvar.costFuns, "costFunCoh" ) && is_function_handle( uvar.costFuns.costFunCoh ) );
   assert( isfield( uvar.costFuns, "costFunInc" ) && is_function_handle( uvar.costFuns.costFunInc ) );
@@ -129,7 +131,7 @@ function stackparams = OptimalSolution4StackSlide ( varargin )
   while true
 
     ## determine local power-law coefficients at the current guess 'solution'
-    w = SensitivityScalingDeviationN ( uvar.pFA, uvar.pFD, stackparams.Nseg );
+    w = SensitivityScalingDeviationN ( uvar.pFA, uvar.pFD, stackparams.Nseg, uvar.sensApprox );
     coef_c = LocalCostCoefficients ( uvar.costFuns.costFunCoh, stackparams.Nseg, stackparams.Tseg, stackparams.mc );
     coef_f = LocalCostCoefficients ( uvar.costFuns.costFunInc, stackparams.Nseg, stackparams.Tseg, stackparams.mf );
 
