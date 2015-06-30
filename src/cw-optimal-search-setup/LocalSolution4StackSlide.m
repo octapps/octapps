@@ -211,11 +211,10 @@ function stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraints, w
     %% try to find working bounds for crOpt
     x = logspace( -10, 10, 500 );
     y = arrayfun( @(x) log_deltaTobs_fcr(x), x );
-    [~, imax] = max( y );
-    if sign( log_deltaTobs_fcr(x(1)) ) * sign( log_deltaTobs_fcr(x(imax)) ) < 0
-      x0 = [ x(1), x(imax) ];
-    elseif sign( log_deltaTobs_fcr(x(imax)) ) * sign( log_deltaTobs_fcr(x(end)) ) < 0
-      x0 = [ x(imax), x(end) ];
+    [ymax, imax] = max( y );
+    [ymin, imin] = min( y );
+    if ( ymin * ymax < 0 )
+      x0 = [ x(imin), x(imax) ];
     else
       error( "Could not bound crOpt for Tobs0-constrained solution" );
     endif
