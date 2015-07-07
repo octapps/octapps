@@ -33,8 +33,7 @@
 ##                       merged_res = norm_function(merged_res, n)
 ##                     where 'n' is the number of merged Condor jobs
 ##                     One function per element of job 'results' must be given.
-##   "save_period":    How often merged job results should be saved to file
-##                     (default: between 10 and 100 results, depending on total).
+##   "save_period":    How often merged results should be saved (default: 90 sec).
 
 function mergeCondorResults(varargin)
 
@@ -43,7 +42,7 @@ function mergeCondorResults(varargin)
                {"dag_name", "char"},
                {"merge_function", "function,vector"},
                {"norm_function", "function,vector", []},
-               {"save_period", "integer,strictpos,vector", [10, 100]},
+               {"save_period", "real,strictpos,scalar", 90},
                []);
   if length(merge_function) == 1
     merge_function = {merge_function};
@@ -104,6 +103,7 @@ function mergeCondorResults(varargin)
   argument_strs = cellfun(@(x) stringify(x), merged.arguments, "UniformOutput", false);
 
   ## iterate over jobs which need to be merged
+  t = cputime();
   for n = jobs_to_merge
 
     ## load job node results, skipping missing files
@@ -165,10 +165,11 @@ function mergeCondorResults(varargin)
 
     ## save merged jobs results at periodic intervals
     ++job_merged_count;
-    if mod(job_merged_count, job_save_period) == 0
+    if job_merged_count == 1 || cputime() - t > save_period
       printf("%s: saving '%s' ...", funcName, dag_merged_file);
       save("-binary", "-zip", dag_merged_file, "merged");
       printf(" done\n");
+      t = cputime();
     endif
 
     ## print progress
