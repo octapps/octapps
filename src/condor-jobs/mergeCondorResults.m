@@ -33,6 +33,8 @@
 ##                       merged_res = norm_function(merged_res, n)
 ##                     where 'n' is the number of merged Condor jobs
 ##                     One function per element of job 'results' must be given.
+##   "save_period":    How often merged job results should be saved to file
+##                     (default: between 10 and 100 results, depending on total).
 
 function mergeCondorResults(varargin)
 
@@ -41,6 +43,7 @@ function mergeCondorResults(varargin)
                {"dag_name", "char"},
                {"merge_function", "function,vector"},
                {"norm_function", "function,vector", []},
+               {"save_period", "integer,strictpos,vector", [10, 100]},
                []);
   if length(merge_function) == 1
     merge_function = {merge_function};
@@ -97,7 +100,7 @@ function mergeCondorResults(varargin)
   jobs_to_merge = merged.jobs_to_merge;
   job_merged_count = 0;
   job_merged_total = length(jobs_to_merge);
-  job_save_period = ceil(max(10, min(0.1*job_merged_total, 100)));
+  job_save_period = ceil(max(min(save_period), min(0.1*job_merged_total, max(save_period))));
   argument_strs = cellfun(@(x) stringify(x), merged.arguments, "UniformOutput", false);
 
   ## iterate over jobs which need to be merged
