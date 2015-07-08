@@ -313,19 +313,19 @@ function spec = parse_spec(spec, numfmt)
 endfunction
 
 
-%!test
+%!demo
 %! disp(buildTeXTable({{1, 2, 3}, {4, 5, 6}}))
 
-%!test
+%!demo
 %! disp(buildTeXTable({"\\hline", {1, 2, 3}, {4, 5, 6}, "\\hline"}))
 
-%!test
+%!demo
 %! disp(buildTeXTable({"\\hline", {1, 2.2, 3}, {4, 5, 6}, "\\hline"}))
 
-%!test
+%!demo
 %! disp(buildTeXTable({"\\hline", {"A", "B", "C"}, "\\hline", {1, 2.2, 3}, {4, 5, 6}, "\\hline"}))
 
-%!test
+%!demo
 %! disp(buildTeXTable({"\\hline", ...
 %!                    {[], "A", "B"}, ...
 %!                    {[], {"A1", "A2"}, "B"}, ...
