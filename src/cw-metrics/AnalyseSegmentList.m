@@ -59,12 +59,15 @@ function props = AnalyseSegmentList(segment_list, Ndet, Tsft=1800)
   str = strcat(str, sprintf("Mean time: %0.9f\n", props.mean_time));
   if size(segment_list, 2) == 4
     props.coh_Tobs = nSFTs * Tsft / Ndet;
+    props.coh_mean_Tobs = mean(props.coh_Tobs);
     str = strcat(str, sprintf("Coherent observation times: %0.3f to %0.3f days\n", min(props.coh_Tobs)/DAYS, max(props.coh_Tobs)/DAYS));
   endif
   props.coh_Tspan = te - ts;
+  props.coh_mean_Tspan = mean(props.coh_Tspan);
   str = strcat(str, sprintf("Coherent time spans: %0.3f to %0.3f days\n", min(props.coh_Tspan)/DAYS, max(props.coh_Tspan)/DAYS));
   if size(segment_list, 2) == 4
     props.coh_duty = props.coh_Tobs ./ props.coh_Tspan;
+    props.coh_mean_duty = mean(props.coh_duty);
     str = strcat(str, sprintf("Coherent duty cycles: %0.3f to %0.3f\n", min(props.coh_duty), max(props.coh_duty)));
   endif
   props.inc_Tobs = sum(te - ts);
