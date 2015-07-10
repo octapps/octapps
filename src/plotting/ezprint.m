@@ -24,6 +24,7 @@
 ##   "dpi": resolution of printed figure, in dots per inch (default: 300)
 ##   "fontsize": font size of printed figure, in points (default: 10)
 ##   "linescale": factor to scale line width of figure objects (default: 1)
+##   "texregex": regular expression to apply to TeX output files
 
 function ezprint(filepath, varargin)
 
@@ -34,6 +35,7 @@ function ezprint(filepath, varargin)
                {"dpi", "integer,strictpos,scalar", 300},
                {"fontsize", "integer,strictpos,scalar", 10},
                {"linescale", "real,strictpos,scalar", 1.0},
+               {"texregex", "char", ""},
                []);
 
   ## only works with gnuplot
@@ -88,11 +90,15 @@ function ezprint(filepath, varargin)
 
   if strcmp(fileext, ".tex")
 
+    ## escape slashes in 'texregex'
+    texregex = strrep(texregex, "\\", "\\\\");
+
     ## get the name of the just-printed EPS file
     epsfilepath = fullfile(filedir, strcat(filename, "-inc.eps"));
 
-    ## remove the CreationDate information from the EPS file, so that re-generated
-    ## figures do not show up as changed in e.g. git unless their content has changed
+    ## run 'sed' on EPS file to:
+    ## - remove the CreationDate informatio, so that re-generated figures do
+    ##   not show up as changed in e.g. git unless their content has changed
     [status, output] = system(cstrcat("sed -i.bak '\\!^\\(%%\\| */\\)CreationDate!d' ", epsfilepath));
     if status != 0
       error("%s: 'sed' failed", funcName);
@@ -100,14 +106,19 @@ function ezprint(filepath, varargin)
       unlink ( strcat(epsfilepath, ".bak" ) );
     endif
 
-    ## replace 10^0 with 1, and 10^1 with 10, in plot tick labels in the TeX file
-    [status, output] = system(cstrcat("sed -i.bak 's|\\$10\\^{0}\\$|$1$|g;s|\\$10\\^{1}\\$|$10$|g' ", filepath));
+    ## run 'sed' on TeX file to:
+    ## - replace 10^0 with 1, and 10^1 with 10, in plot tick labels in the TeX file
+    ## - apply any user-specified regular expression in 'texregex'
+    cstrcat("sed -i.bak 's|\\$10\\^{0}\\$|$1$|g;s|\\$10\\^{1}\\$|$10$|g;", texregex, "' ", filepath)
+    [status, output] = system(cstrcat("sed -i.bak 's|\\$10\\^{0}\\$|$1$|g;s|\\$10\\^{1}\\$|$10$|g;", texregex, "' ", filepath));
     if status != 0
       error("%s: 'sed' failed", funcName);
     else
       unlink ( strcat( filepath, ".bak" ) );
     endif
 
+  else
+    assert(isempty(texregex), "'texregex' only works with TeX figures");
   endif
 
 endfunction
