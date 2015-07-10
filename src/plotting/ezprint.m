@@ -109,7 +109,6 @@ function ezprint(filepath, varargin)
     ## run 'sed' on TeX file to:
     ## - replace 10^0 with 1, and 10^1 with 10, in plot tick labels in the TeX file
     ## - apply any user-specified regular expression in 'texregex'
-    cstrcat("sed -i.bak 's|\\$10\\^{0}\\$|$1$|g;s|\\$10\\^{1}\\$|$10$|g;", texregex, "' ", filepath)
     [status, output] = system(cstrcat("sed -i.bak 's|\\$10\\^{0}\\$|$1$|g;s|\\$10\\^{1}\\$|$10$|g;", texregex, "' ", filepath));
     if status != 0
       error("%s: 'sed' failed", funcName);
