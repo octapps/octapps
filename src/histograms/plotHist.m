@@ -122,8 +122,8 @@ function varargout = plotHist(varargin)
           else
 
             ## create straight line, possibly with stems for infinite values
-            x = 0.5*(xl+xh);
-            y = p;
+            x = [xl(1), 0.5*(xl+xh), xh(end)];
+            y = [0, p, 0];
             if isinf(xl(1))
               x = [xl(2)*[1,1,1], x(2:end)];
               y = [0, p(1), 0, y(2:end)];
