@@ -143,11 +143,11 @@ function [cost_funs, params, guess] = CostFunctionsEaHSupersky(setup, varargin)
                         params_optspec(params, "total_Tspan", "real,strictpos,scalar", 1.0*YEARS),
                         params_optspec(params, "coh_duty", "real,strictpos,scalar", 1.0),
                         params_optspec(params, "resampling", "logical,scalar", false),
+                        params_optspec(params, "lattice", "char", "Ans"),
                         params_optspec(params, "coh_c0_demod", "real,strictpos,scalar", 7.4e-08 / 1800),
                         params_optspec(params, "coh_c0_resamp", "real,strictpos,scalar", 2.8e-7),
                         params_optspec(params, "inc_c0", "real,strictpos,scalar", 4.7e-09),
                         params_optspec(params, "grid_interpolation", "logical,scalar", true),
-                        params_optspec(params, "lattice", "char", "Ans"),
                         {"verbose", "logical,scalar", false},
                         []);
 
@@ -190,6 +190,7 @@ function Nt = rssky_num_templates(Nseg, Tseg, mis, params)
 
   ## only keep parameters needed to compute metrics
   verbose = params.verbose;
+  lattice = params.lattice;
   params = struct( ...
                   "ref_time", params.ref_time, ...
                   "freq", params.freq, ...
@@ -272,7 +273,7 @@ function Nt = rssky_num_templates(Nseg, Tseg, mis, params)
       ## compute number of templates
       fkdot_param_space = abs([params.fkdot_bands(2:end); params.fkdot_bands(1)]);
       Nt_interp(i, j) = NumberOfLatticeBankTemplates(
-                                                     "lattice", params.lattice,
+                                                     "lattice", lattice,
                                                      "metric", rssky_metric,
                                                      "max_mismatch", mis,
                                                      "param_space", {"rssky", fkdot_param_space},
@@ -318,7 +319,7 @@ function [cost, Ntc, lattice] = cost_coh_wparams(Nseg, Tseg, mc, params)
       c0T = params.coh_c0_resamp * Ndet;
     else
       ## demod cost per template
-      c0T = params.coh_c0_demod * Net * params.coh_duty * Tseg(i);
+      c0T = params.coh_c0_demod * Ndet * params.coh_duty * Tseg(i);
     endif
 
     ## number of templates per segment
@@ -338,6 +339,7 @@ function [cost, Ntc, lattice] = cost_coh_wparams(Nseg, Tseg, mc, params)
 
   endfor
 
+  ## return type of lattice
   lattice = params.lattice;
 
 endfunction
@@ -377,6 +379,7 @@ function [cost, Ntf, lattice] = cost_inc_wparams(Nseg, Tseg, mf, params)
 
   endfor
 
+  ## return type of lattice
   lattice = params.lattice;
 
 endfunction
