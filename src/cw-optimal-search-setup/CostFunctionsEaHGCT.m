@@ -200,3 +200,38 @@ function [cost, Ntf, lattice] = cost_inc_wparams ( Nseg, Tseg, mf, params )
   return;
 
 endfunction ## cost_inc_wparams()
+
+
+## Recomputes the E@H S5GC1 solution given in Prix&Shaltev,PRD85,084010(2012) Table~II
+## and compares with reference result. This function either passes or fails depending on the result.
+%!test
+%!
+%!  refParams.Nseg = 205;
+%!  refParams.Tseg = 25 * 3600;	## 25(!) hours
+%!  refParams.mc   = 0.5;
+%!  refParams.mf   = 0.5;
+%!
+%!  costFuns = CostFunctionsEaHGCT( ...
+%!                                  "fracSky", 1/3, ...
+%!                                  "fmin", 50, ...
+%!                                  "fmax", 50.05, ...
+%!                                  "tau_min", 600 * 365 * 86400, ...
+%!                                  "Ndet", 2, ...
+%!                                  "resampling", false, ...
+%!                                  "coh_c0_demod", 7e-8 / 1800, ...
+%!                                  "inc_c0", 6e-9 ...
+%!                                );
+%!
+%!  cost_co = costFuns.costFunCoh(refParams.Nseg, refParams.Tseg, refParams.mc );
+%!  cost_ic = costFuns.costFunInc(refParams.Nseg, refParams.Tseg, refParams.mf );
+%!  cost0 = cost_co + cost_ic;
+%!  TobsMax = 365 * 86400;
+%!
+%!  sol = OptimalSolution4StackSlide ( "costFuns", costFuns, "cost0", cost0, "TobsMax", TobsMax, "stackparamsGuess", refParams )
+%!
+%!  tol = -1e-3;
+%!  assert ( sol.mc, 0.1443, tol );
+%!  assert ( sol.mf, 0.1660, tol );
+%!  assert ( sol.Nseg, 527.7, tol );
+%!  assert ( sol.Tseg, 59762, tol );
+%!  assert ( sol.cr, 0.8691, tol );
