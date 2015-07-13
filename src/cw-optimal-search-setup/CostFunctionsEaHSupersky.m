@@ -73,10 +73,10 @@ function [cost_funs, params, guess] = CostFunctionsEaHSupersky(setup, varargin)
       params.coh_duty = 0.87364;                   ## mean(props.coh_duty)
       params.total_Tspan = 22836793;               ## props.inc_Tspan
 
-      guess.Nseg = 121;
-      guess.Tseg = 25*HOURS;
-      guess.mc = 0.5;
-      guess.mf = 0.5;
+      guess.Nseg = 126.041666666667;
+      guess.Tseg = 86400;
+      guess.mc = 0.224885317242746;
+      guess.mf = 3.797731029707;
 
     case "S5GC1"        ## E@H run 'S5GC1' parameters, from https://wiki.ligo.org/CW/EaHsetupS5GCE
 
@@ -97,10 +97,10 @@ function [cost_funs, params, guess] = CostFunctionsEaHSupersky(setup, varargin)
       params.coh_duty = 0.86892;                   ## mean(props.coh_duty)
       params.total_Tspan = 56435059;               ## props.inc_Tspan
 
-      guess.Nseg = 205;
-      guess.Tseg = 25*HOURS;
-      guess.mc = 0.5;
-      guess.mf = 0.5;
+      guess.Nseg = 213.541666666667;
+      guess.Tseg = 86400;
+      guess.mc = 0.553338076176338;
+      guess.mf = 27.3041066881259;
 
     case "S6Bucket"     ## E@H run 'S6Bucket' parameters, from https://wiki.ligo.org/CW/EaHsetupS6Bucket
 
@@ -121,10 +121,10 @@ function [cost_funs, params, guess] = CostFunctionsEaHSupersky(setup, varargin)
       params.coh_duty = 0.57955;                   ## mean(props.coh_duty)
       props.total_Tspan = 22059873;                ## props.inc_Tspan
 
-      guess.Nseg = 90;
-      guess.Tseg = 60*HOURS;
-      guess.mc = 0.5;
-      guess.mf = 0.5;
+      guess.Nseg = 225;
+      guess.Tseg = 86400;
+      guess.mc = 0.0992523850405064;
+      guess.mf = 3.69093754566403;
 
     otherwise
       error("%s: unknown default setup '%s'", funcName, name);
@@ -383,3 +383,58 @@ function [cost, Ntf, lattice] = cost_inc_wparams(Nseg, Tseg, mf, params)
   lattice = params.lattice;
 
 endfunction
+
+
+%!test
+%!  try
+%!    lal; lalpulsar;
+%!  catch
+%!    disp("skipping test: LALSuite bindings not available"); return;
+%!  end_try_catch
+%!  [cost_funs, params, guess] = CostFunctionsEaHSupersky("S5R5", "verbose", true);
+%!  cost_c = 3.622659282697512e+03; cost_f = 6.117734023987012e+04;
+%!  assert(abs(cost_funs.costFunCoh(guess.Nseg, guess.Tseg, guess.mc) - cost_c) < 1e-6);
+%!  assert(abs(cost_funs.costFunInc(guess.Nseg, guess.Tseg, guess.mf) - cost_f) < 1e-6);
+%!  sp = OptimalSolution4StackSlide("costFuns", cost_funs, ...
+%!                                  "cost0", params.cost0, ...
+%!                                  "TobsMax", params.TobsMax, ...
+%!                                  "TsegMin", 86400, ...
+%!                                  "stackparamsGuess", guess, "verbose", true);
+%!  assert(abs(sp.coef_c.cost - cost_c) < 1e-6);
+%!  assert(abs(sp.coef_f.cost - cost_f) < 1e-6);
+
+%!test
+%!  try
+%!    lal; lalpulsar;
+%!  catch
+%!    disp("skipping test: LALSuite bindings not available"); return;
+%!  end_try_catch
+%!  [cost_funs, params, guess] = CostFunctionsEaHSupersky("S5GC1", "verbose", true);
+%!  cost_c = 1.287135543221262e+03; cost_f = 6.351286439032721e+04;
+%!  assert(abs(cost_funs.costFunCoh(guess.Nseg, guess.Tseg, guess.mc) - cost_c) < 1e-6);
+%!  assert(abs(cost_funs.costFunInc(guess.Nseg, guess.Tseg, guess.mf) - cost_f) < 1e-6);
+%!  sp = OptimalSolution4StackSlide("costFuns", cost_funs, ...
+%!                                  "cost0", params.cost0, ...
+%!                                  "TobsMax", params.TobsMax, ...
+%!                                  "TsegMin", 86400, ...
+%!                                  "stackparamsGuess", guess, "verbose", true);
+%!  assert(abs(sp.coef_c.cost - cost_c) < 1e-6);
+%!  assert(abs(sp.coef_f.cost - cost_f) < 1e-6);
+
+%!test
+%!  try
+%!    lal; lalpulsar;
+%!  catch
+%!    disp("skipping test: LALSuite bindings not available"); return;
+%!  end_try_catch
+%!  [cost_funs, params, guess] = CostFunctionsEaHSupersky("S6Bucket", "verbose", true);
+%!  cost_c = 2.884721571610171e+04; cost_f = 1.072752775973491e+06;
+%!  assert(abs(cost_funs.costFunCoh(guess.Nseg, guess.Tseg, guess.mc) - cost_c) < 1e-6);
+%!  assert(abs(cost_funs.costFunInc(guess.Nseg, guess.Tseg, guess.mf) - cost_f) < 1e-6);
+%!  sp = OptimalSolution4StackSlide("costFuns", cost_funs, ...
+%!                                  "cost0", params.cost0, ...
+%!                                  "TobsMax", params.TobsMax, ...
+%!                                  "TsegMin", 86400, ...
+%!                                  "stackparamsGuess", guess, "verbose", true);
+%!  assert(abs(sp.coef_c.cost - cost_c) < 1e-6);
+%!  assert(abs(sp.coef_f.cost - cost_f) < 1e-6);
