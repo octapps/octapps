@@ -20,7 +20,9 @@
 ##   mergeCondorResults("opt", val, ...)
 ## Options:
 ##   "dag_name":       Name of Condor DAG, used to name DAG submit file.
-##                     Merged results are saved as 'dag_name' + _merged.bin.gz
+##   "merged_suffix":  Suffix to append to merged results file name
+##                        'dag_name'_'merged_suffix'.bin.gz
+##                     Default is "merged".
 ##   "merge_function": Function(s) used to merge results from two Condor
 ##                     jobs with the same arguments, as determined by
 ##                     the DAG job name 'vars' field. Syntax is:
@@ -40,6 +42,7 @@ function mergeCondorResults(varargin)
   ## parse options
   parseOptions(varargin,
                {"dag_name", "char"},
+               {"merged_suffix", "char", "merged"},
                {"merge_function", "function,vector"},
                {"norm_function", "function,vector", []},
                {"save_period", "real,strictpos,scalar", 90},
@@ -65,7 +68,7 @@ function mergeCondorResults(varargin)
   printf(" done\n");
 
   ## load merged job results file if it already exists
-  dag_merged_file = strcat(dag_name, "_merged.bin.gz");
+  dag_merged_file = sprintf("%s_%s.bin.gz", dag_name, merged_suffix);
   if exist(dag_merged_file, "file")
     printf("%s: loading '%s' ...", funcName, dag_merged_file);
     load(dag_merged_file);
