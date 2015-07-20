@@ -34,32 +34,44 @@
 
 function coef = LocalCostCoefficients ( cost_fun, Nseg, Tseg, mis=0.5 )
 
-  ## 'natural' spacings for computing the discrete derivatives: 5% variation around input point
+  ## 'natural' spacings for computing the discrete derivatives: 1e-4 variation around input point
   dTseg = 1e-4 * Tseg;
-  dmis = 1e-4 * mis;
-  dNseg   = 1e-4 * Nseg;
+  dmis  = 1e-2 * mis;
+  dNseg = 1e-4 * Nseg;
   ## Eq.(62a)
-  Nseg_i = [ Nseg - dNseg, Nseg + dNseg];
+  Nseg_i = [ Nseg - 2 * dNseg, Nseg - dNseg, Nseg, Nseg + dNseg, Nseg + 2 * dNseg ];
   dlogCostN = diff ( log ( cost_fun ( Nseg_i, Tseg, mis ) ) );
   dlogN = diff ( log ( Nseg_i ) );
-  coef.eta = dlogCostN / dlogN;
+  eta = dlogCostN ./ dlogN;
+  coef.eta = min ( eta );
 
   ## Eq.(62b)
-  Tseg_i = [ Tseg - dTseg, Tseg + dTseg ];
+  Tseg_i = [ Tseg - 2 * dTseg, Tseg - dTseg, Tseg, Tseg + dTseg, Tseg + 2 * dTseg ];
   dlogCostTseg = diff ( log ( cost_fun ( Nseg, Tseg_i, mis ) ) );
   dlogTseg = diff ( log ( Tseg_i ) );
-  coef.delta = dlogCostTseg / dlogTseg;
+  delta = dlogCostTseg ./ dlogTseg;
+  coef.delta = min ( delta );
 
   ## Eq.(64)
-  mis_i  = [ mis - dmis, mis + dmis ];
+  mis_i  = [ mis - 2 * dmis, mis - dmis, mis, mis + dmis, mis + 2 * dmis ];
   dlogCostMis = diff ( log ( cost_fun ( Nseg, Tseg, mis_i ) ) );
   dlogMis = diff ( log ( mis_i ) );
-  coef.nDim = -2 * dlogCostMis / dlogMis;
+  nDim = -2 * dlogCostMis ./ dlogMis;
+  coef.nDim = min ( nDim );
 
   [coef.cost, ~, coef.lattice ] = cost_fun ( Nseg, Tseg, mis );
 
+  coef.xi = meanOfHist ( LatticeMismatchHist ( round ( coef.nDim ), coef.lattice ) );
+
   ## Eq.(63)
   coef.kappa = coef.cost / ( mis^(-0.5*coef.nDim) * Nseg^coef.eta * Tseg^coef.delta );
+
+  ## check sanity of local cost coefficients:
+  if ( coef.eta <= 0 || coef.delta <= 0 || coef.nDim <= 0 || coef.kappa <= 0 )
+    printf ("at Nseg=%f, Tseg=%f d, mis=%f:\n", Nseg, Tseg/86400, mis );
+    printf ("cost ~ %g * Nseg^%g * Tseg^%g * mc^(-%g/2)\n", coef.kappa, coef.eta, coef.delta, coef.nDim);
+    error  ("LocalCostCoefficient(): got invalid local cost power law\n");
+  endif
 
   return;
 
@@ -74,9 +86,10 @@ endfunction
 %!
 %!test
 %!  %% trivial test example first
+%! tol = 1e-8;
 %!  coef = LocalCostCoefficients ( @testCostFunction, 100, 86400, 0.5 );
-%!  assert ( coef.eta, 2.2, 2e-9 );
-%!  assert ( coef.delta, 4.4, 2e-9 );
-%!  assert ( coef.nDim, 3.3, 2e-9 );
-%!  assert ( coef.kappa, pi, 2e-9 );
+%!  assert ( coef.eta, 2.2, tol);
+%!  assert ( coef.delta, 4.4, tol );
+%!  assert ( coef.nDim, 3.3, tol );
+%!  assert ( coef.kappa, pi, tol );
 %!  assert ( coef.lattice, "Ans");
