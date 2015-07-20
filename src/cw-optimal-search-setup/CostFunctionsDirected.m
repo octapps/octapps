@@ -331,14 +331,14 @@ function ret = frequencyMetricNat ( sMax, Nseg, Tseg )
   assert ( isscalar(sMax) && ( sMax == round(sMax)), "Invalid non-integer scalar 'sMax'\n");
   assert ( ( sMax >= 0) && (sMax <= 3), "The maximal spindown-order 'sMax'=%d must be in the range {0,..,3}!", sMax );
 
-  if ( Nseg == 1 )	%% coherent metric
-    D = zeros ( 1, 6 );
-  else
-    D2 = 1/3 * ( Nseg^2 - 1);
-    D4 = D2 * (3*Nseg^2 - 7)/5;
-    D6 = D2 * ( 3*Nseg^4 - 18*Nseg^2 + 31 ) / 7;
-    D = [ 0, D2, 0, D4, 0, D6 ];
+  if ( (Nseg > 1) && (Nseg < 2) )	%% avoid negative determinants that happen for N in (1,2)
+    Nseg = 2;
   endif
+
+  D2 = 1/3 * ( Nseg^2 - 1);
+  D4 = D2 * (3*Nseg^2 - 7)/5;
+  D6 = D2 * ( 3*Nseg^4 - 18*Nseg^2 + 31 ) / 7;
+  D = [ 0, D2, 0, D4, 0, D6 ];
 
   %% HACK required to correctly describe GCT-code behaviour: need finer coarse-grid in f2dot by factor of "finef2"
   global finef2 = 1;	## default=1 but won't change if set in global context already
