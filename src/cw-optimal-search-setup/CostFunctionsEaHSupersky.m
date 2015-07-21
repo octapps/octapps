@@ -25,23 +25,23 @@
 ##   guess     = initial guess at solution to pass to OptimalSolution4StackSlide()
 ##   setup     = string name of previous E@H search on which to base search setup
 ## Search setup options:
-##   "cost0":         total computing cost (in CPU seconds)
-##   "TobsMax":       constraint on maximum total observation time [default: 1 year]
-##   "ref_time":      reference time at which to compute metrics
-##   "freq":          frequency at which to compute metrics and parameter-space
-##   "fkdot_bands":   frequency and spindown bandwidths
-##   "detectors":     detectors to use when computing metrics and coherent cost
-##   "det_motion":    type of detector motion [default: "spin+orbit", i.e. full ephemeris]
-##   "total_Tspan":   total time span of segment list [default: 1 year]
-##   "coh_duty":      duty cycle of data within each coherent segment [default: 1.0]
-##   "resampling":    use F-statistic 'resampling' instead of 'demod' timings for coherent cost [default: false]
-##   "lattice":       template-bank lattice ("Zn", "Ans",..) [default: "Ans"]
-##   "coh_c0_demod":  computational cost of F-statistic 'demod' per template per second [optional]
-##   "coh_c0_resamp": computational cost of F-statistic 'resampling' per template [optional]
-##   "inc_c0":        computational cost of incoherent step per template per segment [optional]
-##   "grid_interpolation": whether to use interpolating or non-interpolating StackSlide (ie coarse-grids == fine-grid)
+##   "cost0":                total computing cost (in CPU seconds)
+##   "TobsMax":              constraint on maximum total observation time [default: 1 year]
+##   "ref_time":             reference time at which to compute metrics
+##   "freq":                 frequency at which to compute metrics and parameter-space
+##   "fkdot_bands":          frequency and spindown bandwidths
+##   "detectors":            detectors to use when computing metrics and coherent cost
+##   "det_motion":           type of detector motion [default: "spin+orbit", i.e. full ephemeris]
+##   "total_Tspan":          total time span of segment list [default: 1 year]
+##   "coh_duty":             duty cycle of data within each coherent segment [default: 1.0]
+##   "resampling":           use F-statistic 'resampling' instead of 'demod' timings for coherent cost [default: false]
+##   "lattice":              template-bank lattice ("Zn", "Ans",..) [default: "Ans"]
+##   "coh_c0_demod":         computational cost of F-statistic 'demod' per template per second [optional]
+##   "coh_c0_resamp":        computational cost of F-statistic 'resampling' per template [optional]
+##   "inc_c0":               computational cost of incoherent step per template per segment [optional]
+##   "grid_interpolation":   whether to use interpolating or non-interpolating StackSlide (ie coarse-grids == fine-grid)
 ## Other options:
-##   "verbose":       computing-cost functions print info messages when called [default: false]
+##   "verbose":              computing-cost functions print info messages when called [default: false]
 ##
 function [cost_funs, params, guess] = CostFunctionsEaHSupersky(setup, varargin)
 
