@@ -34,6 +34,7 @@
 ##   "det_motion":           type of detector motion [default: "spin+orbit", i.e. full ephemeris]
 ##   "total_Tspan":          total time span of segment list [default: 1 year]
 ##   "coh_duty":             duty cycle of data within each coherent segment [default: 1.0]
+##   "inc_duty":             duty cycle of segments within total time spanned by segment list
 ##   "resampling":           use F-statistic 'resampling' instead of 'demod' timings for coherent cost [default: false]
 ##   "lattice":              template-bank lattice ("Zn", "Ans",..) [default: "Ans"]
 ##   "coh_c0_demod":         computational cost of F-statistic 'demod' per template per second [optional]
@@ -71,6 +72,7 @@ function [cost_funs, params, guess] = CostFunctionsEaHSupersky(setup, varargin)
       ## > props = AnalyseSegmentList(load("S5R5/AnalysisSegmentsS5R4.txt"), 2);
       params.ref_time = 864165816;                 ## props.mean_time
       params.coh_duty = 0.87364;                   ## mean(props.coh_duty)
+      params.inc_duty = 0.47636;                   ## props.inc_duty
       params.total_Tspan = 22836793;               ## props.inc_Tspan
 
       guess.Nseg = 126.041666666667;
@@ -95,6 +97,7 @@ function [cost_funs, params, guess] = CostFunctionsEaHSupersky(setup, varargin)
       ## > props = AnalyseSegmentList(load("S5RunsGC/AnalysisSegmentsS5R3u4.txt"), 2);
       params.ref_time = 853516276;                 ## props.mean_time
       params.coh_duty = 0.86892;                   ## mean(props.coh_duty)
+      params.inc_duty = 0.32663;                   ## props.inc_duty
       params.total_Tspan = 56435059;               ## props.inc_Tspan
 
       guess.Nseg = 213.541666666667;
@@ -119,6 +122,7 @@ function [cost_funs, params, guess] = CostFunctionsEaHSupersky(setup, varargin)
       ## > props = AnalyseSegmentList(load("S6Bucket+LV/S6GC1_T60h_v1_Segments.seg"), 2);
       params.ref_time = 960733655;                 ## props.mean_time
       params.coh_duty = 0.57955;                   ## mean(props.coh_duty)
+      params.inc_duty = 0.84395;                   ## props.inc_duty
       props.total_Tspan = 22059873;                ## props.inc_Tspan
 
       guess.Nseg = 225;
@@ -142,6 +146,7 @@ function [cost_funs, params, guess] = CostFunctionsEaHSupersky(setup, varargin)
                         params_optspec(params, "det_motion", "char", "spin+orbit"),
                         params_optspec(params, "total_Tspan", "real,strictpos,scalar", 1.0*YEARS),
                         params_optspec(params, "coh_duty", "real,strictpos,scalar", 1.0),
+                        params_optspec(params, "inc_duty", "real,strictpos,scalar", 1.0),
                         params_optspec(params, "resampling", "logical,scalar", false),
                         params_optspec(params, "lattice", "char", "Ans"),
                         params_optspec(params, "coh_c0_demod", "real,strictpos,scalar", 7.4e-08 / 1800),
@@ -195,6 +200,7 @@ function Nt = rssky_num_templates(Nseg, Tseg, mis, params)
                   "ref_time", params.ref_time, ...
                   "freq", params.freq, ...
                   "fkdot_bands", params.fkdot_bands, ...
+                  "inc_duty", params.inc_duty, ...
                   "total_Tspan", params.total_Tspan, ...
                   "detectors", params.detectors, ...
                   "det_motion", params.det_motion ...
@@ -252,7 +258,7 @@ function Nt = rssky_num_templates(Nseg, Tseg, mis, params)
       else
 
         ## create segment list
-        segment_list = CreateSegmentList(params.ref_time, Nseg_interp(i), Tseg_interp(j), params.total_Tspan, []);
+        segment_list = CreateSegmentList(params.ref_time, Nseg_interp(i), Tseg_interp(j), [], params.inc_duty);
 
         ## compute metric
         rssky_metric = CreateSuperskyMetrics(
