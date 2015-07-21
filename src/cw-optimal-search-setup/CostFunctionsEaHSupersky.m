@@ -57,7 +57,8 @@ function [cost_funs, params, guess] = CostFunctionsEaHSupersky(setup, varargin)
     case "S5R5"         ## E@H run 'S5R5_IV' parameters, from https://wiki.ligo.org/CW/SettingUpS5R4
 
       defpar.cost0 = 6*HOURS * 3;                  ## tauWU * min(numSkyPatches)
-      defpar.TobsMax = 121 * 25*HOURS;             ## Nstack * Tstack
+      defpar.Nseg = 121;                           ## Nstack
+      defpar.Tseg = 25*HOURS;                      ## Tstack
 
       defpar.freq = 50;                            ## FreqMin
       defpar.fkdot_bands(1) = 0.02079;             ## FreqBand
@@ -75,6 +76,9 @@ function [cost_funs, params, guess] = CostFunctionsEaHSupersky(setup, varargin)
       defpar.coh_duty = 0.87364;                   ## mean(props.coh_duty)
       defpar.inc_duty = 0.47636;                   ## props.inc_duty
 
+      guess.EaH_Nseg = defpar.Nseg;
+      guess.EaH_Tseg = defpar.Tseg;
+
       guess.Nseg = 126.041666666667;
       guess.Tseg = 86400;
       guess.mc = 0.225075907869835;
@@ -85,7 +89,8 @@ function [cost_funs, params, guess] = CostFunctionsEaHSupersky(setup, varargin)
     case "S5GC1"        ## E@H run 'S5GC1' parameters, from https://wiki.ligo.org/CW/EaHsetupS5GCE
 
       defpar.cost0 = 6*HOURS * 3;                  ## tauWU * min(numSkyPatches)
-      defpar.TobsMax = 205 * 25*HOURS;             ## Nstack * Tstack
+      defpar.Nseg = 205;                           ## Nstack
+      defpar.Tseg = 25*HOURS;                      ## Tstack
 
       defpar.freq = 50;                            ## FreqMin
       defpar.fkdot_bands(1) = 0.05;                ## FreqBand
@@ -103,6 +108,9 @@ function [cost_funs, params, guess] = CostFunctionsEaHSupersky(setup, varargin)
       defpar.coh_duty = 0.86892;                   ## mean(props.coh_duty)
       defpar.inc_duty = 0.32663;                   ## props.inc_duty
 
+      guess.EaH_Nseg = defpar.Nseg;
+      guess.EaH_Tseg = defpar.Tseg;
+
       guess.Nseg = 213.541666666667;
       guess.Tseg = 86400;
       guess.mc = 0.553416808369889;
@@ -113,7 +121,8 @@ function [cost_funs, params, guess] = CostFunctionsEaHSupersky(setup, varargin)
     case "S6Bucket"     ## E@H run 'S6Bucket' parameters, from https://wiki.ligo.org/CW/EaHsetupS6Bucket
 
       defpar.cost0 = 6*HOURS * 51;                 ## tauWU * min(numSkyPatches)
-      defpar.TobsMax = 90 * 60*HOURS;              ## Nstack * Tstack
+      defpar.Nseg = 90;                            ## Nstack
+      defpar.Tseg = 60*HOURS;                      ## Tstack
 
       defpar.freq = 50;                            ## FreqMin
       defpar.fkdot_bands(1) = 0.05;                ## FreqBand
@@ -131,6 +140,9 @@ function [cost_funs, params, guess] = CostFunctionsEaHSupersky(setup, varargin)
       defpar.coh_duty = 0.57955;                   ## mean(props.coh_duty)
       defpar.inc_duty = 0.84395;                   ## props.inc_duty
 
+      guess.EaH_Nseg = defpar.Nseg;
+      guess.EaH_Tseg = defpar.Tseg;
+
       guess.Nseg = 225;
       guess.Tseg = 86400;
       guess.mc = 0.080188889728355;
@@ -146,7 +158,7 @@ function [cost_funs, params, guess] = CostFunctionsEaHSupersky(setup, varargin)
   ## parse options
   params = parseOptions(varargin,
                         {"cost0", "real,strictpos,scalar", defpar.cost0},
-                        {"TobsMax", "real,strictpos,scalar", defpar.TobsMax},
+                        {"TobsMax", "real,strictpos,scalar", defpar.Nseg * defpar.Tseg},
                         {"ref_time", "real,strictpos,scalar", defpar.ref_time},
                         {"freq", "real,strictpos,scalar", defpar.freq},
                         {"fkdot_bands", "real,strictpos,vector", defpar.fkdot_bands},
