@@ -24,24 +24,23 @@
 ##   params    = associated parameters, some of which are passed to OptimalSolution4StackSlide()
 ##   guess     = initial guess at solution to pass to OptimalSolution4StackSlide()
 ##   setup     = string name of previous E@H search on which to base search setup
-## Search setup options:
-##   "cost0":                total computing cost (in CPU seconds)
-##   "TobsMax":              constraint on maximum total observation time [default: 1 year]
-##   "ref_time":             reference time at which to compute metrics
-##   "freq":                 frequency at which to compute metrics and parameter-space
-##   "fkdot_bands":          frequency and spindown bandwidths
+## Search setup options [defaults: given by "setup"]:
+##   "cost0":                total computing cost, in CPU seconds
+##   "TobsMax":              constraint on maximum total observation time, in seconds
+##   "ref_time":             reference time at which to compute metrics, in GPS seconds
+##   "freq":                 frequency at which to compute metrics and parameter-space, in Hz
+##   "fkdot_bands":          frequency and spindown bandwidths, in Hz/s^k
 ##   "detectors":            detectors to use when computing metrics and coherent cost
-##   "det_motion":           type of detector motion [default: "spin+orbit", i.e. full ephemeris]
-##   "total_Tspan":          total time span of segment list [default: 1 year]
-##   "coh_duty":             duty cycle of data within each coherent segment [default: 1.0]
+##   "coh_duty":             duty cycle of data within each coherent segment
 ##   "inc_duty":             duty cycle of segments within total time spanned by segment list
 ##   "resampling":           use F-statistic 'resampling' instead of 'demod' timings for coherent cost [default: false]
-##   "lattice":              template-bank lattice ("Zn", "Ans",..) [default: "Ans"]
-##   "coh_c0_demod":         computational cost of F-statistic 'demod' per template per second [optional]
-##   "coh_c0_resamp":        computational cost of F-statistic 'resampling' per template [optional]
-##   "inc_c0":               computational cost of incoherent step per template per segment [optional]
-##   "grid_interpolation":   whether to use interpolating or non-interpolating StackSlide (ie coarse-grids == fine-grid)
+##   "coh_c0_demod":         computational cost of F-statistic 'demod' per template per second
+##   "coh_c0_resamp":        computational cost of F-statistic 'resampling' per template
+##   "inc_c0":               computational cost of incoherent step per template per segment
 ## Other options:
+##   "det_motion":           type of detector motion [default: "spin+orbit", i.e. full ephemeris]
+##   "lattice":              template-bank lattice ("Zn", "Ans",..) [default: "Ans"]
+##   "grid_interpolation":   whether to use interpolating or non-interpolating StackSlide, i.e. coarse grids equal fine grid [default: false]
 ##   "verbose":              computing-cost functions print info messages when called [default: false]
 ##
 function [cost_funs, params, guess] = CostFunctionsEaHSupersky(setup, varargin)
@@ -52,83 +51,92 @@ function [cost_funs, params, guess] = CostFunctionsEaHSupersky(setup, varargin)
   UnitsConstants;
 
   ## get default parameters and search setup
-  params = guess = struct;
+  defpar = guess = struct;
   switch setup
 
     case "S5R5"         ## E@H run 'S5R5_IV' parameters, from https://wiki.ligo.org/CW/SettingUpS5R4
 
-      params.cost0 = 6*HOURS * 3;                  ## tauWU * min(numSkyPatches)
-      params.TobsMax = 121 * 25*HOURS;             ## Nstack * Tstack
+      defpar.cost0 = 6*HOURS * 3;                  ## tauWU * min(numSkyPatches)
+      defpar.TobsMax = 121 * 25*HOURS;             ## Nstack * Tstack
 
-      params.freq = 50;                            ## FreqMin
-      params.fkdot_bands(1) = 0.02079;             ## FreqBand
-      params.fkdot_bands(2) = 2.2e-9;              ## f1dotBand
-      params.detectors = "H1,L1";
-      params.resampling = false;
-      params.coh_c0_demod = 1.8e-07 / 1800;        ## tauF0 / Tsft
-      params.inc_c0 = 6.135e-9;                    ## tauG0 from "S5GC1" (below)
+      defpar.freq = 50;                            ## FreqMin
+      defpar.fkdot_bands(1) = 0.02079;             ## FreqBand
+      defpar.fkdot_bands(2) = 2.2e-9;              ## f1dotBand
+      defpar.detectors = "H1,L1";
+      defpar.coh_c0_demod = 1.8e-07 / 1800;        ## tauF0 / Tsft
+      defpar.inc_c0 = 6.135e-9;                    ## tauG0 from "S5GC1" (below)
+
+      defpar.resampling = false;
+      defpar.coh_c0_resamp = 2.8e-7;
 
       ## from gitmaster.atlas.aei.uni-hannover.de:einsteinathome/run-design-gw.git, commit 839be7c
       ## > props = AnalyseSegmentList(load("S5R5/AnalysisSegmentsS5R4.txt"), 2);
-      params.ref_time = 864165816;                 ## props.mean_time
-      params.coh_duty = 0.87364;                   ## mean(props.coh_duty)
-      params.inc_duty = 0.47636;                   ## props.inc_duty
-      params.total_Tspan = 22836793;               ## props.inc_Tspan
+      defpar.ref_time = 864165816;                 ## props.mean_time
+      defpar.coh_duty = 0.87364;                   ## mean(props.coh_duty)
+      defpar.inc_duty = 0.47636;                   ## props.inc_duty
 
       guess.Nseg = 126.041666666667;
       guess.Tseg = 86400;
-      guess.mc = 0.224885317242746;
-      guess.mf = 3.797731029707;
+      guess.mc = 0.225075907869835;
+      guess.mf = 3.80777662870061;
+      guess.cost_c = 3.616526662088050e+03;
+      guess.cost_f = 6.118347286167773e+04;
 
     case "S5GC1"        ## E@H run 'S5GC1' parameters, from https://wiki.ligo.org/CW/EaHsetupS5GCE
 
-      params.cost0 = 6*HOURS * 3;                  ## tauWU * min(numSkyPatches)
-      params.TobsMax = 205 * 25*HOURS;             ## Nstack * Tstack
+      defpar.cost0 = 6*HOURS * 3;                  ## tauWU * min(numSkyPatches)
+      defpar.TobsMax = 205 * 25*HOURS;             ## Nstack * Tstack
 
-      params.freq = 50;                            ## FreqMin
-      params.fkdot_bands(1) = 0.05;                ## FreqBand
-      params.fkdot_bands(2) = 2.91e-09;            ## f1dotBand
-      params.detectors = "H1,L1";
-      params.resampling = false;
-      params.coh_c0_demod = 7.215e-08 / 1800;      ## tauF0 / Tsft
-      params.inc_c0 = 6.135e-09;                   ## tauG0
+      defpar.freq = 50;                            ## FreqMin
+      defpar.fkdot_bands(1) = 0.05;                ## FreqBand
+      defpar.fkdot_bands(2) = 2.91e-09;            ## f1dotBand
+      defpar.detectors = "H1,L1";
+      defpar.coh_c0_demod = 7.215e-08 / 1800;      ## tauF0 / Tsft
+      defpar.inc_c0 = 6.135e-09;                   ## tauG0
+
+      defpar.resampling = false;
+      defpar.coh_c0_resamp = 2.8e-7;
 
       ## from gitmaster.atlas.aei.uni-hannover.de:einsteinathome/run-design-gw.git, commit 839be7c
       ## > props = AnalyseSegmentList(load("S5RunsGC/AnalysisSegmentsS5R3u4.txt"), 2);
-      params.ref_time = 853516276;                 ## props.mean_time
-      params.coh_duty = 0.86892;                   ## mean(props.coh_duty)
-      params.inc_duty = 0.32663;                   ## props.inc_duty
-      params.total_Tspan = 56435059;               ## props.inc_Tspan
+      defpar.ref_time = 853516276;                 ## props.mean_time
+      defpar.coh_duty = 0.86892;                   ## mean(props.coh_duty)
+      defpar.inc_duty = 0.32663;                   ## props.inc_duty
 
       guess.Nseg = 213.541666666667;
       guess.Tseg = 86400;
-      guess.mc = 0.553338076176338;
-      guess.mf = 27.3041066881259;
+      guess.mc = 0.553416808369889;
+      guess.mf = 27.3159208108329;
+      guess.cost_c = 1.286769338961998e+03;
+      guess.cost_f = 6.351323059461516e+04;
 
     case "S6Bucket"     ## E@H run 'S6Bucket' parameters, from https://wiki.ligo.org/CW/EaHsetupS6Bucket
 
-      params.cost0 = 6*HOURS * 51;                 ## tauWU * min(numSkyPatches)
-      params.TobsMax = 90 * 60*HOURS;              ## Nstack * Tstack
+      defpar.cost0 = 6*HOURS * 51;                 ## tauWU * min(numSkyPatches)
+      defpar.TobsMax = 90 * 60*HOURS;              ## Nstack * Tstack
 
-      params.freq = 50;                            ## FreqMin
-      params.fkdot_bands(1) = 0.05;                ## FreqBand
-      params.fkdot_bands(2) = 2.91e-09;            ## f1dotBand
-      params.detectors = "H1,L1";
-      params.resampling = false;
-      params.coh_c0_demod = 7.4e-08 / 1800;        ## tauF0 / Tsft
-      params.inc_c0 = 4.7e-09;                     ## tauG0
+      defpar.freq = 50;                            ## FreqMin
+      defpar.fkdot_bands(1) = 0.05;                ## FreqBand
+      defpar.fkdot_bands(2) = 2.91e-09;            ## f1dotBand
+      defpar.detectors = "H1,L1";
+      defpar.coh_c0_demod = 7.4e-08 / 1800;        ## tauF0 / Tsft
+      defpar.inc_c0 = 4.7e-09;                     ## tauG0
+
+      defpar.resampling = false;
+      defpar.coh_c0_resamp = 2.8e-7;
 
       ## from gitmaster.atlas.aei.uni-hannover.de:einsteinathome/run-design-gw.git, commit 839be7c
       ## > props = AnalyseSegmentList(load("S6Bucket+LV/S6GC1_T60h_v1_Segments.seg"), 2);
-      params.ref_time = 960733655;                 ## props.mean_time
-      params.coh_duty = 0.57955;                   ## mean(props.coh_duty)
-      params.inc_duty = 0.84395;                   ## props.inc_duty
-      props.total_Tspan = 22059873;                ## props.inc_Tspan
+      defpar.ref_time = 960733655;                 ## props.mean_time
+      defpar.coh_duty = 0.57955;                   ## mean(props.coh_duty)
+      defpar.inc_duty = 0.84395;                   ## props.inc_duty
 
       guess.Nseg = 225;
       guess.Tseg = 86400;
-      guess.mc = 0.0992523850405064;
-      guess.mf = 3.69093754566403;
+      guess.mc = 0.080188889728355;
+      guess.mf = 1.9186634671942;
+      guess.cost_c = 4.419339894206638e+04;
+      guess.cost_f = 1.057406584984129e+06;
 
     otherwise
       error("%s: unknown default setup '%s'", funcName, name);
@@ -137,24 +145,25 @@ function [cost_funs, params, guess] = CostFunctionsEaHSupersky(setup, varargin)
 
   ## parse options
   params = parseOptions(varargin,
-                        params_optspec(params, "cost0", "real,strictpos,scalar"),
-                        params_optspec(params, "TobsMax", "real,strictpos,scalar", 1.0*YEARS),
-                        params_optspec(params, "ref_time", "real,strictpos,scalar"),
-                        params_optspec(params, "freq", "real,strictpos,scalar"),
-                        params_optspec(params, "fkdot_bands", "real,strictpos,vector"),
-                        params_optspec(params, "detectors", "char"),
-                        params_optspec(params, "det_motion", "char", "spin+orbit"),
-                        params_optspec(params, "total_Tspan", "real,strictpos,scalar", 1.0*YEARS),
-                        params_optspec(params, "coh_duty", "real,strictpos,scalar", 1.0),
-                        params_optspec(params, "inc_duty", "real,strictpos,scalar", 1.0),
-                        params_optspec(params, "resampling", "logical,scalar", false),
-                        params_optspec(params, "lattice", "char", "Ans"),
-                        params_optspec(params, "coh_c0_demod", "real,strictpos,scalar", 7.4e-08 / 1800),
-                        params_optspec(params, "coh_c0_resamp", "real,strictpos,scalar", 2.8e-7),
-                        params_optspec(params, "inc_c0", "real,strictpos,scalar", 4.7e-09),
-                        params_optspec(params, "grid_interpolation", "logical,scalar", true),
+                        {"cost0", "real,strictpos,scalar", defpar.cost0},
+                        {"TobsMax", "real,strictpos,scalar", defpar.TobsMax},
+                        {"ref_time", "real,strictpos,scalar", defpar.ref_time},
+                        {"freq", "real,strictpos,scalar", defpar.freq},
+                        {"fkdot_bands", "real,strictpos,vector", defpar.fkdot_bands},
+                        {"detectors", "char", defpar.detectors},
+                        {"coh_duty", "real,strictpos,scalar", defpar.coh_duty},
+                        {"inc_duty", "real,strictpos,scalar", defpar.inc_duty},
+                        {"resampling", "logical,scalar", defpar.resampling},
+                        {"coh_c0_demod", "real,strictpos,scalar", defpar.coh_c0_demod},
+                        {"coh_c0_resamp", "real,strictpos,scalar", defpar.coh_c0_resamp},
+                        {"inc_c0", "real,strictpos,scalar", defpar.inc_c0},
+                        [],
+                        {"det_motion", "char", "spin+orbit"},
+                        {"lattice", "char", "Ans"},
+                        {"grid_interpolation", "logical,scalar", true},
                         {"verbose", "logical,scalar", false},
                         []);
+  clear defpar;
 
   ## make closures of functions with 'params'
   cost_funs = struct( ...
@@ -162,16 +171,6 @@ function [cost_funs, params, guess] = CostFunctionsEaHSupersky(setup, varargin)
                      "costFunInc", @(Nseg, Tseg, mf=0.5) cost_inc_wparams(Nseg, Tseg, mf, params) ...
                      );
 
-endfunction
-
-function optspec = params_optspec(params, name, type, defvalue=[])
-  if isfield(params, name)
-    optspec = {name, type, getfield(params, name)};
-  elseif !isempty(defvalue)
-    optspec = {name, type, defvalue};
-  else
-    optspec = {name, type};
-  endif
 endfunction
 
 function Nt = rssky_num_templates(Nseg, Tseg, mis, params)
@@ -201,7 +200,6 @@ function Nt = rssky_num_templates(Nseg, Tseg, mis, params)
                   "freq", params.freq, ...
                   "fkdot_bands", params.fkdot_bands, ...
                   "inc_duty", params.inc_duty, ...
-                  "total_Tspan", params.total_Tspan, ...
                   "detectors", params.detectors, ...
                   "det_motion", params.det_motion ...
                   );
@@ -398,16 +396,15 @@ endfunction
 %!    disp("skipping test: LALSuite bindings not available"); return;
 %!  end_try_catch
 %!  [cost_funs, params, guess] = CostFunctionsEaHSupersky("S5R5", "verbose", true);
-%!  cost_c = 3.622659282697512e+03; cost_f = 6.117734023987012e+04;
-%!  assert(abs(cost_funs.costFunCoh(guess.Nseg, guess.Tseg, guess.mc) - cost_c) < 1e-6);
-%!  assert(abs(cost_funs.costFunInc(guess.Nseg, guess.Tseg, guess.mf) - cost_f) < 1e-6);
+%!  assert(abs(cost_funs.costFunCoh(guess.Nseg, guess.Tseg, guess.mc) - guess.cost_c) < 1e-4);
+%!  assert(abs(cost_funs.costFunInc(guess.Nseg, guess.Tseg, guess.mf) - guess.cost_f) < 1e-4);
 %!  sp = OptimalSolution4StackSlide("costFuns", cost_funs, ...
 %!                                  "cost0", params.cost0, ...
 %!                                  "TobsMax", params.TobsMax, ...
 %!                                  "TsegMin", 86400, ...
 %!                                  "stackparamsGuess", guess, "verbose", true);
-%!  assert(abs(sp.coef_c.cost - cost_c) < 1e-6);
-%!  assert(abs(sp.coef_f.cost - cost_f) < 1e-6);
+%!  assert(abs(sp.coef_c.cost - guess.cost_c) < 1e-4);
+%!  assert(abs(sp.coef_f.cost - guess.cost_f) < 1e-4);
 
 %!test
 %!  try
@@ -416,16 +413,15 @@ endfunction
 %!    disp("skipping test: LALSuite bindings not available"); return;
 %!  end_try_catch
 %!  [cost_funs, params, guess] = CostFunctionsEaHSupersky("S5GC1", "verbose", true);
-%!  cost_c = 1.287135543221262e+03; cost_f = 6.351286439032721e+04;
-%!  assert(abs(cost_funs.costFunCoh(guess.Nseg, guess.Tseg, guess.mc) - cost_c) < 1e-6);
-%!  assert(abs(cost_funs.costFunInc(guess.Nseg, guess.Tseg, guess.mf) - cost_f) < 1e-6);
+%!  assert(abs(cost_funs.costFunCoh(guess.Nseg, guess.Tseg, guess.mc) - guess.cost_c) < 1e-4);
+%!  assert(abs(cost_funs.costFunInc(guess.Nseg, guess.Tseg, guess.mf) - guess.cost_f) < 1e-4);
 %!  sp = OptimalSolution4StackSlide("costFuns", cost_funs, ...
 %!                                  "cost0", params.cost0, ...
 %!                                  "TobsMax", params.TobsMax, ...
 %!                                  "TsegMin", 86400, ...
 %!                                  "stackparamsGuess", guess, "verbose", true);
-%!  assert(abs(sp.coef_c.cost - cost_c) < 1e-6);
-%!  assert(abs(sp.coef_f.cost - cost_f) < 1e-6);
+%!  assert(abs(sp.coef_c.cost - guess.cost_c) < 1e-4);
+%!  assert(abs(sp.coef_f.cost - guess.cost_f) < 1e-4);
 
 %!test
 %!  try
@@ -434,13 +430,12 @@ endfunction
 %!    disp("skipping test: LALSuite bindings not available"); return;
 %!  end_try_catch
 %!  [cost_funs, params, guess] = CostFunctionsEaHSupersky("S6Bucket", "verbose", true);
-%!  cost_c = 2.884721571610171e+04; cost_f = 1.072752775973491e+06;
-%!  assert(abs(cost_funs.costFunCoh(guess.Nseg, guess.Tseg, guess.mc) - cost_c) < 1e-6);
-%!  assert(abs(cost_funs.costFunInc(guess.Nseg, guess.Tseg, guess.mf) - cost_f) < 1e-6);
+%!  assert(abs(cost_funs.costFunCoh(guess.Nseg, guess.Tseg, guess.mc) - guess.cost_c) < 1e-4);
+%!  assert(abs(cost_funs.costFunInc(guess.Nseg, guess.Tseg, guess.mf) - guess.cost_f) < 1e-4);
 %!  sp = OptimalSolution4StackSlide("costFuns", cost_funs, ...
 %!                                  "cost0", params.cost0, ...
 %!                                  "TobsMax", params.TobsMax, ...
 %!                                  "TsegMin", 86400, ...
 %!                                  "stackparamsGuess", guess, "verbose", true);
-%!  assert(abs(sp.coef_c.cost - cost_c) < 1e-6);
-%!  assert(abs(sp.coef_f.cost - cost_f) < 1e-6);
+%!  assert(abs(sp.coef_c.cost - guess.cost_c) < 1e-4);
+%!  assert(abs(sp.coef_f.cost - guess.cost_f) < 1e-4);
