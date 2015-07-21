@@ -70,8 +70,8 @@ function varargout = parseOptions(opts, varargin)
   for n = 1:length(varargin)
     optspec = varargin{n};
 
-    ## allow an empty optspec as the last argument
-    if n == length(varargin) && isempty(optspec)
+    ## allow [] as part of option specifications, e.g. as a spacer
+    if !iscell(optspec) && !ischar(optspec) && isempty(optspec)
       continue;
     endif
 
