@@ -130,3 +130,28 @@ endfunction
 %!                      8.881784197001253e-17,0.080754439908228,0.19381065577974,0.48378861061722,8.639163721880971e-18; ...
 %!                      0.016211389382774,0.025938223012437,1.609575867543293,8.639163721880971e-18,0.5; ...
 %!                    ]);
+
+
+## check refinement of GCT metric implementation against expressions by Prix&Shaltev from CostFunctionsEaHGCT()
+%!function ret = refinement ( s, Nseg )
+%!  gam1 = sqrt ( 5 * Nseg.^2 - 4 );	%% Eq.(77) in Pletsch(2010)
+%!  switch ( s )
+%!    case 1
+%!      ret = gam1;
+%!    case 2
+%!      ret = gam1 .* sqrt ( (35 * Nseg.^4 - 175 * Nseg.^2  + 143)/3 );%% Eq.(96) in Pletsch(2010), 'fixed' to give gam(1)=1
+%!    otherwise
+%!      error ("Invalid value of s: '%f' given, allowed are {1,2}\n", s );
+%!  endswitch
+
+%!test
+%!  T = 5;
+%!  N = 10;
+%!  t_j = ((1:N) - (N+1)/2)*T;
+%!  for s = 1:2
+%!    GCT_semi = GCTSemicoherentTaylorMetric("smax", 1, "tj_list", t_j, "t0", mean(t_j), "T", T, "Omega", 2*pi);
+%!    GCT_coh = GCTCoherentTaylorMetric("smax", 1, "tj", mean(t_j), "t0", mean(t_j), "T", T, "Omega", 2*pi);
+%!    GCT_refine = sqrt(det(GCT_semi) / det(GCT_coh));
+%!    GCT_refine_ref = refinement(1, N);
+%!    assert(abs(GCT_refine - GCT_refine_ref) < 0.005*GCT_refine_ref);
+%!  endfor
