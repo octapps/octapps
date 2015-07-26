@@ -31,6 +31,7 @@
 ##   "delta":       row vector of declinations in radians
 ##   "fndot":       matrix of frequency and spindowns in SI units
 ##   "detector":    detector name, e.g. H1
+##   "fmax":        maximum frequency to assume when converting sky coordinates
 ##   "ephemerides": Earth/Sun ephemerides from loadEphemerides()
 ##   "ptolemaic":   use Ptolemaic orbital motion
 
@@ -48,6 +49,7 @@ function varargout = GCTCoordinates(varargin)
                {"delta", "real,vector"},
                {"fndot", "real,matrix"},
                {"detector", "char"},
+               {"fmax", "real,strictpos,scalar"},
                {"ephemerides", "a:swig_ref", []},
                {"ptolemaic", "logical,scalar", false},
                []);
@@ -127,7 +129,7 @@ function varargout = GCTCoordinates(varargin)
   ## compute GCT sky position coordinates
   tau_E = LAL_REARTH_SI / LAL_C_SI;
   alphaD = detLong + zeroLong;
-  n_prefac = 2*pi .* f .* tau_E .* cos(detLat) .* cos(delta);
+  n_prefac = 2*pi .* fmax .* tau_E .* cos(detLat) .* cos(delta);
   coord(nx, :) = n_prefac .* cos(alpha - alphaD);
   coord(ny, :) = n_prefac .* sin(alpha - alphaD);
 
@@ -163,8 +165,8 @@ endfunction
 %!  gctco_ref = [1.7085e+3, 3.7728e+2, 2.0258e+3, 9.4045e+2, 2.2072e+3, 1.2517e+3, 2.7081e+3, 6.5316e+2, 2.1921e+3, 1.6492e+3, 3.4180e+2, 2.2644e+3, 2.2141e+3, 1.1432e+3, 1.9251e+2, 1.1085e+3, 8.4669e+2, 1.0548e+3;
 %!               5.9246e-4,-1.4654e-4, 2.8904e-4,-3.4929e-4,-3.5437e-4,-4.7675e-4,-1.0908e+0,-1.0396e+1,-3.9393e+1,-4.4699e+1,-3.5128e+1,-2.7784e+1,-4.7212e+1,-2.3520e+1,-5.3450e+1,-3.1288e+1,-1.1973e+1,-4.5325e+1;
 %!               1.1578e-6, 1.3190e-7,-1.0014e-6, 4.9297e-7,-7.7033e-8,-6.1422e-7,-1.6373e-6, 4.2624e-6, 2.0069e-5, 2.8420e-5,-2.3158e-5, 8.9556e-6, 2.1817e-3, 7.9903e-3, 1.5984e-3, 5.8097e-3, 1.9400e-3, 1.4695e-3;
-%!              -3.6487e-4, 1.5648e-4,-4.5766e-4, 3.9855e-4, 3.5389e-4, 3.3329e-4, 3.1139e-4, 2.1393e-4, 2.4068e-4, 3.1537e-4,-8.8979e-5, 5.3265e-4,-4.7878e-4, 3.8238e-4,-6.0843e-5,-2.6785e-5, 3.4619e-4, 6.8646e-5;
-%!              -6.1033e-4, 2.8379e-5,-9.7554e-5,-6.8342e-6, 4.9697e-4, 3.1150e-4, 7.7475e-4,-1.4815e-4, 7.6708e-4, 4.2007e-4,-1.0776e-4,-6.9694e-4, 1.1868e-4,-2.2309e-4, 5.1034e-5, 4.5261e-4, 8.8260e-5, 1.9457e-5];
+%!              -1.1593e-3, 2.2515e-3,-1.2265e-3, 2.3005e-3, 8.7039e-4, 1.4456e-3, 6.2425e-4, 1.7776e-3, 5.9593e-4, 1.0377e-3,-1.4158e-3, 1.2768e-3,-1.1741e-3, 1.8152e-3,-1.7200e-3,-1.3115e-4, 2.2189e-3, 3.5332e-4;
+%!              -1.9392e-3, 4.0833e-4,-2.6143e-4,-3.9448e-5, 1.2223e-3, 1.3511e-3, 1.5531e-3,-1.2310e-3, 1.8993e-3, 1.3822e-3,-1.7147e-3,-1.6706e-3, 2.9104e-4,-1.0591e-3, 1.4427e-3, 2.2162e-3, 5.6570e-4, 1.0014e-4];
 
 %!test
 %!  try
@@ -172,5 +174,5 @@ endfunction
 %!  catch
 %!    disp("skipping test: LALSuite bindings not available"); return;
 %!  end_try_catch
-%!  gctco = GCTCoordinates("t0", 987654321, "T", 86400, "alpha", alpha_ref, "delta", delta_ref, "fndot", fndot_ref, "detector", "L1", "ptolemaic", false);
+%!  gctco = GCTCoordinates("t0", 987654321, "T", 86400, "alpha", alpha_ref, "delta", delta_ref, "fndot", fndot_ref, "detector", "L1", "fmax", 0.02, "ptolemaic", false);
 %!  assert(all(abs(gctco - gctco_ref) < 1e-4 * abs(gctco_ref)));
