@@ -93,7 +93,8 @@ function outco = GCTCoordinates(mode, inco, varargin)
 
       ## compute physical sky coordinates
       alpha = atan2(ny, nx) + alphaD;
-      delta = acos(sqrt(nx.^2 + ny.^2) ./ n_prefac) .* sign(sgndelta);
+      cosdelta = sqrt(nx.^2 + ny.^2) ./ n_prefac;
+      delta = acos(max(-1, min(cosdelta, 1))) .* sign(sgndelta);
 
     otherwise
       error("%s: invalid first argument '%s'", funcName, mode);
