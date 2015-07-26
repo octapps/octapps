@@ -1,4 +1,4 @@
-## Copyright (C) 2013 Karl Wette
+## Copyright (C) 2013, 2015 Karl Wette
 ##
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -17,25 +17,21 @@
 ## Computes the coherent global correlation coordinates, as
 ## given in Pletsch, PRD 82 042002 (2010)
 ## Syntax:
-##   coords         = GCTCoherentMetric("opt", val, ...)
-##   [nu,...,nx,ny] = GCTCoherentMetric("opt", val, ...)
+##   gctco        = GCTCoherentMetric("togct", phyco, "opt", val, ...)
+##   phyco        = GCTCoherentMetric("tophy", gctco, "opt", val, ...)
 ## where:
-##   coords         = matrix of GCT coordinates; order matches that of GCTCoherentMetric()
-##   nu,...         = GCT frequency and spindown coordinates
-##   nx             = GCT equatorial-x sky coordinate
-##   ny             = GCT equatorial-y sky coordinate
+##   phyco        = matrix of physical coordinates: [alpha; delta; freq; f1dot; ...]
+##   gctco        = matrix of GCT coordinates; order matches that of GCTCoherentMetric()
 ## Options:
 ##   "t0":          value of t0, an overall reference time
 ##   "T":           value of T, the coherent time span
-##   "alpha":       row vector of right ascensions in radians
-##   "delta":       row vector of declinations in radians
-##   "fndot":       matrix of frequency and spindowns in SI units
 ##   "detector":    detector name, e.g. H1
 ##   "fmax":        maximum frequency to assume when converting sky coordinates
+##   "sgndelta":    sign of declination when converting to physical coordinates [default: 1]
 ##   "ephemerides": Earth/Sun ephemerides from loadEphemerides()
 ##   "ptolemaic":   use Ptolemaic orbital motion
 
-function varargout = GCTCoordinates(varargin)
+function outco = GCTCoordinates(mode, inco, varargin)
 
   ## load LAL libraries
   lal;
@@ -45,32 +41,23 @@ function varargout = GCTCoordinates(varargin)
   parseOptions(varargin,
                {"t0", "real,scalar"},
                {"T", "real,strictpos,scalar"},
-               {"alpha", "real,vector"},
-               {"delta", "real,vector"},
-               {"fndot", "real,matrix"},
                {"detector", "char"},
                {"fmax", "real,strictpos,scalar"},
+               {"sgndelta", "real,vector", 1},
                {"ephemerides", "a:swig_ref", []},
                {"ptolemaic", "logical,scalar", false},
                []);
-  smax = size(fndot, 1) - 1;
 
   ## check options
-  assert(smax <= 2, "Only up to second spindown supported");
-  assert(size(fndot, 2) > 0);
-  assert(all(size(alpha) == [1, size(fndot, 2)]));
-  assert(all(size(delta) == [1, size(fndot, 2)]));
+  smax = size(inco, 1) - 3;
+  assert(smax >= 0, "Not enough coordinate dimensions in 'inco'");
+  assert(smax <= 2, "Only up to second spindown is supported");
   assert(isempty(strfind(detector, ",")), "Only a single detector is supported");
 
   ## load ephemerides if needed and not supplied
   if !ptolemaic && isempty(ephemerides)
     ephemerides = loadEphemerides();
   endif
-
-  ## create coordinate indices
-  [ii{1:5}] = deal([]);
-  ii([1:smax+1,4,5]) = num2cell(1:3+smax);
-  [nu, nud, nudd, nx, ny] = deal(ii{:});
 
   ## get detector information
   multiIFO = new_MultiLALDetector;
@@ -82,18 +69,39 @@ function varargout = GCTCoordinates(varargin)
   ## get position of GMT at reference time t0
   zeroLong = mod(XLALGreenwichMeanSiderealTime(LIGOTimeGPS(t0)), 2*pi);
 
-  ## compute sky position vector in equatorial coordinates
-  n = [cos(alpha).*cos(delta); sin(alpha).*cos(delta); sin(delta)];
+  ## compute sky coordinates
+  tau_E = LAL_REARTH_SI / LAL_C_SI;
+  alphaD = detLong + zeroLong;
+  n_prefac = 2*pi * fmax * tau_E * cos(detLat);
+  switch mode
+    case "togct"
 
-  ## extend frequency/spindown vector up to second spindown with zeros
-  fndot(end+1:3, :) = 0;
-  f = fndot(1, :);
-  fd = fndot(2, :);
-  fdd = fndot(3, :);
+      ## 'inco' are physical coordinates
+      alpha = inco(1, :);
+      delta = inco(2, :);
+
+      ## compute GCT sky coordinates
+      nx = n_prefac .* cos(delta) .* cos(alpha - alphaD);
+      ny = n_prefac .* cos(delta) .* sin(alpha - alphaD);
+
+    case "tophy"
+
+      ## 'inco' are GCT coordinates
+      nx = inco(end-1, :);
+      ny = inco(end, :);
+      assert(isscalar(sgndelta) || all(size(sgndelta) == size(nx)));
+
+      ## compute physical sky coordinates
+      alpha = atan2(ny, nx) + alphaD;
+      delta = acos(sqrt(nx.^2 + ny.^2) ./ n_prefac) .* sign(sgndelta);
+
+    otherwise
+      error("%s: invalid first argument '%s'", funcName, mode);
+  endswitch
 
   ## compute orbital derivatives in equatorial coordinates
   if !ptolemaic
-    orbit_deriv = XLALComputeOrbitalDerivatives(smax+1, t0, ephemerides);
+    orbit_deriv = XLALComputeOrbitalDerivatives(3, t0, ephemerides);
     xindot = native(orbit_deriv);
   else
 
@@ -108,51 +116,67 @@ function varargout = GCTCoordinates(varargin)
     ecl_to_equ = [1 0; 0 LAL_COSIEARTH; 0 LAL_SINIEARTH];
 
     ## compute Ptolemaic derivatives
-    xindot = zeros(smax+2, 3);
+    xindot = zeros(4, 3);
     xindot(1, :) = ecl_to_equ * [Ro_cos_phio; Ro_sin_phio];
     xindot(2, :) = Omegao * ecl_to_equ * [-Ro_sin_phio; Ro_cos_phio];
-    if smax > 0
-      xindot(3, :) = Omegao^2 * ecl_to_equ * [-Ro_cos_phio; -Ro_sin_phio];
-      if smax > 1
-        xindot(4, :) = Omegao^3 * ecl_to_equ * [Ro_sin_phio; -Ro_cos_phio];
-      endif
-    endif
+    xindot(3, :) = Omegao^2 * ecl_to_equ * [-Ro_cos_phio; -Ro_sin_phio];
+    xindot(4, :) = Omegao^3 * ecl_to_equ * [Ro_sin_phio; -Ro_cos_phio];
 
   endif
+
+  ## compute sky position vector in equatorial coordinates
+  n = [cos(alpha).*cos(delta); sin(alpha).*cos(delta); sin(delta)];
 
   ## compute dot product of orbital derivatives with sky position vector
-  xindot_n = xindot * n;
+  xi_n = xindot(1, :) * n;
+  xid_n = xindot(2, :) * n;
+  xidd_n = xindot(3, :) * n;
+  xiddd_n = xindot(4, :) * n;
 
-  ## initialise output coordinates
-  coord = zeros(3+smax, size(fndot, 2));
+  ## compute frequency/spindown coordinates
+  switch mode
+    case "togct"
 
-  ## compute GCT sky position coordinates
-  tau_E = LAL_REARTH_SI / LAL_C_SI;
-  alphaD = detLong + zeroLong;
-  n_prefac = 2*pi .* fmax .* tau_E .* cos(detLat) .* cos(delta);
-  coord(nx, :) = n_prefac .* cos(alpha - alphaD);
-  coord(ny, :) = n_prefac .* sin(alpha - alphaD);
+      ## 'inco' are physical coordinates
+      fndot = inco(3:end, :);
+      fndot(end+1:3, :) = 0;
+      f = fndot(1, :);
+      fd = fndot(2, :);
+      fdd = fndot(3, :);
 
-  ## compute GCT frequency coordinates
-  nu_prefac = 2*pi * (T / 2).^(1:smax+1);
-  xi_n = xindot_n(1, :);
-  xid_n = xindot_n(2, :);
-  coord(nu, :) = nu_prefac(1) * (f + f.*xid_n + fd.*xi_n);
-  if !isempty(nud)
-    xidd_n = xindot_n(3, :);
-    coord(nud, :) = nu_prefac(2) * (1/2.*fd + 1/2.*f.*xidd_n + fd.*xid_n + 1/2.*fdd.*xi_n);
-    if !isempty(nudd)
-      xiddd_n = xindot_n(4, :);
-      coord(nudd, :) = nu_prefac(3) * (1/6.*fdd + 1/6.*f.*xiddd_n + 1/2.*fd.*xidd_n + 1/2.*fdd.*xid_n);
-    endif
-  endif
+      ## compute GCT frequency/spindown coordinates
+      nukdot(1, :) = 2.*pi .* (T/2) .* (f + f.*xid_n + fd.*xi_n);
+      nukdot(2, :) = 2.*pi .* (T/2).^2 .* (1/2.*fd + 1/2.*f.*xidd_n + fd.*xid_n + 1/2.*fdd.*xi_n);
+      nukdot(3, :) = 2.*pi .* (T/2).^3 .* (1/6.*fdd + 1/6.*f.*xiddd_n + 1/2.*fd.*xidd_n + 1/2.*fdd.*xid_n);
 
-  ## return coordinates, either as multiple output arguments or as a vector
-  if nargout > 1
-    varargout = mat2cell(coord, ones(1, size(coord, 1)), size(coord, 2));
-  else
-    varargout = {coord};
-  endif
+    case "tophy"
+
+      ## 'inco' are GCT coordinates
+      nukdot = inco(1:end-2, :);
+      nukdot(end+1:3, :) = 0;
+      nu = nukdot(1, :);
+      nud = nukdot(2, :);
+      nudd = nukdot(3, :);
+
+      ## compute physical frequency/spindown coordinates
+      invdet = 1 ./ ( pi .* T.^3 .* ( 1 + xid_n.*(6 + xid_n.*(11 + 6.*xid_n)) - 4.*xidd_n.*xi_n - 6.*xidd_n.*xid_n.*xi_n + xiddd_n.*xi_n.^2 ) );
+      fndot(1, :) = invdet .* ( T.^2.*(1 + xid_n.*(5 + 6.*xid_n) - 3.*xidd_n.*xi_n).*nu - 4.*T.*(1 + 3.*xid_n).*xi_n.*nud + 24.*xi_n.^2.*nudd );
+      fndot(2, :) = invdet .* ( -T.^2.*(xidd_n + 3.*xidd_n.*xid_n - xiddd_n.*xi_n).*nu + 4.*T.*(1 + xid_n).*(1 + 3.*xid_n).*nud - 24.*(1 + xid_n).*xi_n.*nudd );
+      fndot(3, :) = invdet .* ( -T.^2.*(xiddd_n - 3.*xidd_n.^2 + 2.*xiddd_n.*xid_n).*nu + 4.*T.*(-3.*xidd_n.*(1 + xid_n) + xiddd_n.*xi_n).*nud + 24.*(1 + xid_n.*(3 + 2.*xid_n) - xidd_n.*xi_n).*nudd );
+
+    otherwise
+      error("%s: invalid first argument '%s'", funcName, mode);
+  endswitch
+
+  ## return coordinates
+  switch mode
+    case "togct"
+      outco = [nukdot(1:smax+1, :); nx; ny];
+    case "tophy"
+      outco = [alpha; delta; fndot(1:smax+1, :)];
+    otherwise
+      error("%s: invalid first argument '%s'", funcName, mode);
+  endswitch
 
 endfunction
 
@@ -174,5 +198,62 @@ endfunction
 %!  catch
 %!    disp("skipping test: LALSuite bindings not available"); return;
 %!  end_try_catch
-%!  gctco = GCTCoordinates("t0", 987654321, "T", 86400, "alpha", alpha_ref, "delta", delta_ref, "fndot", fndot_ref, "detector", "L1", "fmax", 0.02, "ptolemaic", false);
+%!  gctco = GCTCoordinates("togct", [alpha_ref; delta_ref; fndot_ref], "t0", 987654321, "T", 86400, "detector", "L1", "fmax", 0.02, "ptolemaic", false);
 %!  assert(all(abs(gctco - gctco_ref) < 1e-4 * abs(gctco_ref)));
+
+%!test
+%!  try
+%!    lal; lalpulsar;
+%!  catch
+%!    disp("skipping test: LALSuite bindings not available"); return;
+%!  end_try_catch
+%!  gctco = GCTCoordinates("togct", [alpha_ref(1:16); delta_ref(1:16); fndot_ref(1:2, 1:16)], "t0", 987654321, "T", 86400, "detector", "L1", "fmax", 0.02, "ptolemaic", false);
+%!  assert(all(abs(gctco - gctco_ref([1,2,4,5], 1:16)) < 1e-4 * abs(gctco_ref([1,2,4,5], 1:16))));
+
+%!test
+%!  try
+%!    lal; lalpulsar;
+%!  catch
+%!    disp("skipping test: LALSuite bindings not available"); return;
+%!  end_try_catch
+%!  gctco = GCTCoordinates("togct", [alpha_ref(1:8); delta_ref(1:8); fndot_ref(1:1, 1:8)], "t0", 987654321, "T", 86400, "detector", "L1", "fmax", 0.02, "ptolemaic", false);
+%!  assert(all(abs(gctco - gctco_ref([1,4,5], 1:8)) < 1e-3 * abs(gctco_ref([1,4,5], 1:8))));
+
+%!test
+%!  try
+%!    lal; lalpulsar;
+%!  catch
+%!    disp("skipping test: LALSuite bindings not available"); return;
+%!  end_try_catch
+%!  phyco = GCTCoordinates("tophy", gctco_ref, "t0", 987654321, "T", 86400, "detector", "L1", "fmax", 0.02, "sgndelta", delta_ref, "ptolemaic", false);
+%!  assert(all(abs(phyco(1, :) - alpha_ref) < 1e-4 * abs(alpha_ref)));
+%!  assert(all(abs(phyco(2, :) - delta_ref) < 2e-2 * abs(delta_ref)));
+%!  for i = 1:3
+%!    assert(all(abs(phyco(2+i, :) - fndot_ref(i, :)) < max(1e-10, 1e-4 * abs(fndot_ref(i, :)))));
+%!  endfor
+
+%!test
+%!  try
+%!    lal; lalpulsar;
+%!  catch
+%!    disp("skipping test: LALSuite bindings not available"); return;
+%!  end_try_catch
+%!  phyco = GCTCoordinates("tophy", gctco_ref(:, 1:16), "t0", 987654321, "T", 86400, "detector", "L1", "fmax", 0.02, "sgndelta", delta_ref(1:16), "ptolemaic", false);
+%!  assert(all(abs(phyco(1, 1:16) - alpha_ref(1:16)) < 1e-4 * abs(alpha_ref(1:16))));
+%!  assert(all(abs(phyco(2, 1:16) - delta_ref(1:16)) < 2e-2 * abs(delta_ref(1:16))));
+%!  for i = 1:2
+%!    assert(all(abs(phyco(2+i, 1:16) - fndot_ref(i, 1:16)) < max(1e-10, 1e-4 * abs(fndot_ref(i, 1:16)))));
+%!  endfor
+
+%!test
+%!  try
+%!    lal; lalpulsar;
+%!  catch
+%!    disp("skipping test: LALSuite bindings not available"); return;
+%!  end_try_catch
+%!  phyco = GCTCoordinates("tophy", gctco_ref(:, 1:8), "t0", 987654321, "T", 86400, "detector", "L1", "fmax", 0.02, "sgndelta", delta_ref(1:8), "ptolemaic", false);
+%!  assert(all(abs(phyco(1, 1:8) - alpha_ref(1:8)) < 1e-4 * abs(alpha_ref(1:8))));
+%!  assert(all(abs(phyco(2, 1:8) - delta_ref(1:8)) < 2e-2 * abs(delta_ref(1:8))));
+%!  for i = 1:1
+%!    assert(all(abs(phyco(2+i, 1:8) - fndot_ref(i, 1:8)) < max(1e-10, 1e-4 * abs(fndot_ref(i, 1:8)))));
+%!  endfor
