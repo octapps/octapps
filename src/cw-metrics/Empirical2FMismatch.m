@@ -28,30 +28,26 @@
 function mu_twoF = Empirical2FMismatch(mu_coh, mu_semi)
 
   ## check input
-  assert(all(mu_coh(:) >= 0));
-  assert(all(mu_semi(:) >= 0));
+  assert(all(0 <= mu_coh(:)));
+  assert(all(0 <= mu_semi(:)));
   [err, mu_coh, mu_semi] = common_size(mu_coh, mu_semi);
   assert(err == 0, "'mu_coh' and 'mu_semi' are not of common size");
 
   ## coefficients of fit
-  z = 0.629509858030036;
-  n = -0.198439389875229;
-  m = -0.115612865125759;
-  a = 1.1723069920097;
-  b = 1.31565865682617;
-  c = 0.853959656503087;
-  d = 1.02814193365039;
+  n = 1.0405;
+  m = 0.0528;
+  a = 0.4921;
+  b = 0.6570;
+  c = 0.4240;
+  y = 0.8675;
+  z = 1.0220;
 
   ## compute fit
-  x = mu_semi + c .* mu_semi.*mu_coh + d .* mu_coh;
-  mu_twoF = 1 - z .* x.^n .* cosh(b + a.*log(x)).^m;
-
-  ## fit breaks down for very small mismatches
-  ii = (mu_coh < 0.05 & mu_semi < 0.05);
-  mu_twoF(ii) = mu_coh(ii) + mu_semi(ii);
+  x = mu_semi + y .* mu_semi.*mu_coh + z .* mu_coh;
+  mu_twoF = c .* x.^(0.5.*(m+n)) .* cosh(a.*log(x./b)).^(0.5.*(m-n)./a);
 
   ## sanity check
-  assert(all(mu_twoF(:) >= 0));
+  assert(all(0 <= mu_twoF(:) & mu_twoF(:) <= 1));
 
 endfunction
 
