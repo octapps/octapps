@@ -137,16 +137,16 @@ check : all
 			case " $${TESTS} " in \
 				*" $${testfilename%.*} "*) testfiles="$${testfiles} $${testfilename}";; \
 			esac; \
-		elif test -n "$${TESTSDIR}"; then \
-			if test x"$${testfiledir}" = x"$${TESTSDIR}"; then \
-				testfiles="$${testfiles} $${testfilename}"; \
-			fi; \
+		elif test -n "$${TESTDIR}"; then \
+			case "src/$${testfiledir}/" in \
+				$${TESTDIR}|$${TESTDIR}/) testfiles="$${testfiles} $${testfilename}"; \
+			esac; \
 		else \
 			testfiles="$${testfiles} $${testfilename}"; \
 		fi; \
 	done; \
 	if test -z "$${testfiles}"; then \
-		echo "$(MAKE) $@ ERROR: no tests matched TESTS='$${TESTS}' or TESTSDIR='$${TESTSDIR}'" >&2; \
+		echo "$(MAKE) $@ ERROR: no tests matched TESTS='$${TESTS}' or TESTDIR='$${TESTDIR}'" >&2; \
 		exit 1; \
 	fi; \
 	$(MAKE) `printf " %s.test" $${testfiles}` || exit 1; \
