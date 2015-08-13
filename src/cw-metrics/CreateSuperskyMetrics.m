@@ -15,7 +15,7 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## Create the supersky and reduced supersky phase metrics.
+## Create the supersky parameter-space metrics.
 ## Usage:
 ##   [rssky_metric, rssky_transf, ussky_metric] = CreateSuperskyMetrics("opt", val, ...)
 ## where:
@@ -26,7 +26,8 @@
 ##   "spindowns"        : number of spindown coordinates: 0=none, 1=1st spindown, 2=1st+2nd spindown, etc.
 ##   "segment_list"     : list of segments [start_time, end_time; start_time, end_time; ...] in GPS seconds
 ##   "ref_time"         : reference time in GPS seconds [default: mean of segment list start/end times]
-##   "fiducial_freq"    : fiducial frequency for sky-position coordinates [required]
+##   "fiducial_freq"    : fiducial frequency for sky-position coordinates; if not given, instead return
+##                        functions which give the metrics as functions of 'fiducial_freq'
 ##   "detectors"        : comma-separated list of detector names [required]
 ##   "detector_weights" : vector of weights used to combine single-detector metrics [default: unit weights]
 ##   "detector_motion"  : which detector motion to use [default: spin+orbit]
@@ -43,7 +44,7 @@ function [rssky_metric, rssky_transf, ussky_metric] = CreateSuperskyMetrics(vara
                {"spindowns", "integer,positive,scalar"},
                {"segment_list", "real,strictpos,matrix,cols:2"},
                {"ref_time", "real,strictpos,scalar", []},
-               {"fiducial_freq", "real,strictpos,scalar"},
+               {"fiducial_freq", "real,strictpos,scalar", []},
                {"detectors", "char"},
                {"detector_weights", "real,strictpos,vector", []},
                {"detector_motion", "char", "spin+orbit"},
@@ -66,6 +67,13 @@ function [rssky_metric, rssky_transf, ussky_metric] = CreateSuperskyMetrics(vara
     ref_time = mean(segment_list(:));
   endif
 
+  ## set fiducial frequency for metric calculation
+  if isempty(fiducial_freq)
+    fiducial_freq_calc = 500;
+  else
+    fiducial_freq_calc = fiducial_freq;
+  endif
+
   ## set detector information
   DetNames = XLALCreateStringVector(strsplit(detectors, ",", true){:});
   MultiLALDet = new_MultiLALDetector;
@@ -81,18 +89,58 @@ function [rssky_metric, rssky_transf, ussky_metric] = CreateSuperskyMetrics(vara
 
   ## compute supersky metrics
   try
-    [rssky_metric, rssky_transf, ussky_metric] = ...
+    [rssky_metric_calc, rssky_transf_calc, ussky_metric_calc] = ...
     XLALComputeSuperskyMetrics(0, 0, 0,  ...
-                               spindowns, ref_time, SegmentList, fiducial_freq, ...
+                               spindowns, ref_time, SegmentList, fiducial_freq_calc, ...
                                MultiLALDet, MultiNoise, DetMotion, ephemerides ...
                               );
   catch
     error("%s: Could not compute supersky metrics", funcName);
   end_try_catch
+  rssky_metric_calc = native(rssky_metric_calc);
+  rssky_transf_calc = native(rssky_transf_calc);
+  ussky_metric_calc = native(ussky_metric_calc);
 
-  ## return metrics
-  rssky_metric = native(rssky_metric);
-  rssky_transf = native(rssky_transf);
-  ussky_metric = native(ussky_metric);
+  ## return either matrices, or functions parameterizing fiducial frequency
+  if isempty(fiducial_freq)
+    rssky_metric = inline(sprintf("[%s * fiducial_freq^2, %s * fiducial_freq; %s * fiducial_freq, %s]", ...
+                                  stringify(rssky_metric_calc(1:2,1:2) / fiducial_freq_calc^2), ...
+                                  stringify(rssky_metric_calc(1:2,3:end) / fiducial_freq_calc), ...
+                                  stringify(rssky_metric_calc(3:end,1:2) / fiducial_freq_calc), ...
+                                  stringify(rssky_metric_calc(3:end,3:end)) ...
+                                 ), "fiducial_freq");
+    rssky_transf = inline(sprintf("[%s; %s * fiducial_freq]", ...
+                                  stringify(rssky_transf_calc(1:3, :)), ...
+                                  stringify(rssky_transf_calc(4:end, :) / fiducial_freq_calc) ...
+                                 ), "fiducial_freq");
+    ussky_metric = inline(sprintf("[%s * fiducial_freq^2, %s * fiducial_freq; %s * fiducial_freq, %s]", ...
+                                  stringify(ussky_metric_calc(1:3,1:3) / fiducial_freq_calc^2), ...
+                                  stringify(ussky_metric_calc(1:3,4:end) / fiducial_freq_calc), ...
+                                  stringify(ussky_metric_calc(4:end,1:3) / fiducial_freq_calc), ...
+                                  stringify(ussky_metric_calc(4:end,4:end)) ...
+                                 ), "fiducial_freq");
+  else
+    rssky_metric = rssky_metric_calc;
+    rssky_transf = rssky_transf_calc;
+    ussky_metric = ussky_metric_calc;
+  endif
 
 endfunction
+
+
+%!test
+%!  try
+%!    lal; lalpulsar;
+%!  catch
+%!    disp("skipping test: LALSuite bindings not available"); return;
+%!  end_try_catch
+%!  args = { ...
+%!           "spindowns", 1, ...
+%!           "segment_list", CreateSegmentList(1e9, 5, 86400, [], 0.75), ...
+%!           "detectors", "H1,L1" ...
+%!         };
+%!  [rssky_metric, rssky_transf, ussky_metric] = CreateSuperskyMetrics(args{:});
+%!  [rssky_metric_100, rssky_transf_100, ussky_metric_100] = CreateSuperskyMetrics(args{:}, "fiducial_freq", 100);
+%!  assert(XLALCompareMetrics(rssky_metric(100), rssky_metric_100) < 1e-8);
+%!  assert(abs(rssky_transf(100) - rssky_transf_100) < 1e-6 * abs(rssky_transf_100));
+%!  assert(XLALCompareMetrics(ussky_metric(100), ussky_metric_100) < 1e-8);
