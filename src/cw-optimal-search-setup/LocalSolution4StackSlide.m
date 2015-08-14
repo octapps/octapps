@@ -15,15 +15,15 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## Usage: stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraints, w = 1, lattice = "Zn" )
+## Usage: stackparams = LocalSolution4StackSlide ( coefCoh, coefInc, constraints, w = 1, lattice = "Zn" )
 ## where options are:
 ##
-## "coef_c":          structure holding local power-law coefficients { delta, kappa, nDim, [eta] } and lattice type
+## "coefCoh":          structure holding local power-law coefficients { delta, kappa, nDim, [eta] } and lattice type
 ##                    of *coherent* computing cost ~ mis^{-nDim/2} * Nseg^eta * Tseg^delta,
 ##                    where 'nDim' is the associated template-bank dimension.
 ##                    (Usually eta=1 and doesn't need to be passed, but will be used if given)
 ##
-## "coef_f":          structure holding local power-law coefficients { delta, eta, kappa, nDim } and lattice type
+## "coefInc":          structure holding local power-law coefficients { delta, eta, kappa, nDim } and lattice type
 ##                    of *incoherent* computing cost ~ mis^{-nDim/2} * Nseg^eta * Tseg^delta,
 ##                    where 'nDim' is the associated template-bank dimension
 ##
@@ -40,11 +40,11 @@
 ## "w"                Power-law correction in sensitivity Nseg-scaling: hth^{-2} ~ N^{-1/(2w)},
 ##                    where w=1 corresponds to the Gaussian weak-signal limit
 ##
-## Compute the local solution for optimal StackSlide search parameters at given (local) power-law coefficients 'coef_c', 'coef_f'
+## Compute the local solution for optimal StackSlide search parameters at given (local) power-law coefficients 'coefCoh', 'coefInc'
 ## and given computing-cost constraint 'cost0'.
 ##
 ## NOTE: this solution is *not* guaranteed to be self-consistent, in the sense that the power-law coefficients
-## at the point of this local solution may be different from the input 'coef_c', 'coef_f'
+## at the point of this local solution may be different from the input 'coefCoh', 'coefInc'
 ##
 ## Return structure 'stackparams' has fields {Nseg, Tseg, mc, mf, cr }
 ## where Nseg is the optimal (fractional!) number of segments, Tseg is the optimal segment length (in seconds),
@@ -54,7 +54,7 @@
 ## [Equation numbers refer to Prix&Shaltev, PRD85, 084010 (2012)]
 ##
 
-function stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraints, w = 1 )
+function stackparams = LocalSolution4StackSlide ( coefCoh, coefInc, constraints, w = 1 )
 
   %% check user-input sanity
   assert ( !isempty( constraints ) );
@@ -69,42 +69,42 @@ function stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraints, w
   assert ( !have_Tseg0 || (constraints.Tseg0 > 0) );
   assert ( !(have_Tseg0 && !have_Tobs0), "Constraint 'Tseg0' only valid together with 'Tobs0'\n");
 
-  assert ( ! isempty ( coef_c ) );
-  assert ( ! isempty ( coef_f ) );
+  assert ( ! isempty ( coefCoh ) );
+  assert ( ! isempty ( coefInc ) );
 
-  assert ( isfield ( coef_c, "delta" ) );
-  assert ( isfield ( coef_c, "kappa" ) );
-  assert ( isfield ( coef_c, "nDim" ) );
-  assert ( isfield ( coef_c, "lattice" ) && ischar ( coef_c.lattice ) );
+  assert ( isfield ( coefCoh, "delta" ) );
+  assert ( isfield ( coefCoh, "kappa" ) );
+  assert ( isfield ( coefCoh, "nDim" ) );
+  assert ( isfield ( coefCoh, "lattice" ) && ischar ( coefCoh.lattice ) );
 
-  assert ( isfield ( coef_f, "delta" ) );
-  assert ( isfield ( coef_f, "eta" ) );
-  assert ( isfield ( coef_f, "kappa" ) );
-  assert ( isfield ( coef_f, "nDim" ) );
-  assert ( isfield ( coef_f, "lattice" ) && ischar ( coef_f.lattice ) );
+  assert ( isfield ( coefInc, "delta" ) );
+  assert ( isfield ( coefInc, "eta" ) );
+  assert ( isfield ( coefInc, "kappa" ) );
+  assert ( isfield ( coefInc, "nDim" ) );
+  assert ( isfield ( coefInc, "lattice" ) && ischar ( coefInc.lattice ) );
 
   %% coherent power-law coefficients
-  delta_c = coef_c.delta;
-  kappa_c = coef_c.kappa;
-  n_c     = coef_c.nDim;
+  delta_c = coefCoh.delta;
+  kappa_c = coefCoh.kappa;
+  n_c     = coefCoh.nDim;
   eta_c   = 1;	## default value for all 'standard' cases
-  if ( isfield ( coef_c, "eta" ) )
-    eta_c = coef_c.eta;	## ... but we allow user-input to override this
+  if ( isfield ( coefCoh, "eta" ) )
+    eta_c = coefCoh.eta;	## ... but we allow user-input to override this
   endif
 
   %% incoherent power-law coefficients
-  delta_f = coef_f.delta;
-  kappa_f = coef_f.kappa;
-  n_f     = coef_f.nDim;
-  eta_f   = coef_f.eta;
+  delta_f = coefInc.delta;
+  kappa_f = coefInc.kappa;
+  n_f     = coefInc.nDim;
+  eta_f   = coefInc.eta;
 
   %% derived quantities 'epsilon' of Eq.(66)
   eps_c   = delta_c - eta_c;
   eps_f   = delta_f - eta_f;
 
   %% ----- average mismatch factor linking average and maximal mismatch for lattices used
-  xi_c = coef_c.xi;
-  xi_f = coef_f.xi;
+  xi_c = coefCoh.xi;
+  xi_f = coefInc.xi;
 
   %% degenerate case can only be solved with Tseg0 and Tobs0 constraints
   if ( (abs(eps_c) < 1e-6) && (abs(eps_f) < 1e-6 ) )
@@ -236,21 +236,21 @@ endfunction
 
 %!test
 %!  %% check recovery of published results in Prix&Shaltev(2012): V.A: directed CasA
-%!  coef_c.nDim = 2;
-%!  coef_c.delta = 4.00;
-%!  coef_c.kappa = 3.1358511e-17;
-%!  coef_c.lattice = "Ans";
-%!  coef_c.xi = meanOfHist ( LatticeMismatchHist ( coef_c.nDim, coef_c.lattice ) );
+%!  coefCoh.nDim = 2;
+%!  coefCoh.delta = 4.00;
+%!  coefCoh.kappa = 3.1358511e-17;
+%!  coefCoh.lattice = "Ans";
+%!  coefCoh.xi = meanOfHist ( LatticeMismatchHist ( coefCoh.nDim, coefCoh.lattice ) );
 %!
-%!  coef_f.nDim = 3;
-%!  coef_f.delta = 6.0;
-%!  coef_f.eta = 4;
-%!  coef_f.kappa = 2.38382054e-33;
-%!  coef_f.lattice = "Ans";
-%!  coef_f.xi = meanOfHist ( LatticeMismatchHist ( coef_f.nDim, coef_f.lattice ) );
+%!  coefInc.nDim = 3;
+%!  coefInc.delta = 6.0;
+%!  coefInc.eta = 4;
+%!  coefInc.kappa = 2.38382054e-33;
+%!  coefInc.lattice = "Ans";
+%!  coefInc.xi = meanOfHist ( LatticeMismatchHist ( coefInc.nDim, coefInc.lattice ) );
 %!
 %!  constraints.cost0 = 471.981444 * 86400;
-%!  stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraints, w = 1 );
+%!  stackparams = LocalSolution4StackSlide ( coefCoh, coefInc, constraints, w = 1 );
 %!  assert ( stackparams.cr, 1, 1e-6 );			## Eq.(117)
 %!  assert ( stackparams.mc, 0.180879057028436, 1e-6 );		## Eq.(118), corrected for xi_c from "Ans(2)" instead of 0.5
 %!  assert ( stackparams.mf, 0.271318585542655, 1e-6 );		## Eq.(118), corrected for xi_f  from "Ans(3)" instead of 0.5
@@ -259,18 +259,18 @@ endfunction
 
 %!test
 %!  %% check recovery of published results in Prix&Shaltev(2012): V.B: all-sky E@H [S5GC1], TableII
-%!  coef_c.nDim = 4;
-%!  coef_c.delta = 10.0111962295912;
-%!  coef_c.kappa = 9.09857109479269e-50;
-%!  coef_c.lattice = "Zn";
-%!  coef_c.xi = meanOfHist ( LatticeMismatchHist ( coef_c.nDim, coef_c.lattice ) );
+%!  coefCoh.nDim = 4;
+%!  coefCoh.delta = 10.0111962295912;
+%!  coefCoh.kappa = 9.09857109479269e-50;
+%!  coefCoh.lattice = "Zn";
+%!  coefCoh.xi = meanOfHist ( LatticeMismatchHist ( coefCoh.nDim, coefCoh.lattice ) );
 %!
-%!  coef_f.nDim = 4;
-%!  coef_f.delta = 9.01119622959135;
-%!  coef_f.eta = 2;
-%!  coef_f.kappa = 1.56944271959491e-47;
-%!  coef_f.lattice = "Zn";
-%!  coef_f.xi = meanOfHist ( LatticeMismatchHist ( coef_f.nDim, coef_f.lattice ) );
+%!  coefInc.nDim = 4;
+%!  coefInc.delta = 9.01119622959135;
+%!  coefInc.eta = 2;
+%!  coefInc.kappa = 1.56944271959491e-47;
+%!  coefInc.lattice = "Zn";
+%!  coefInc.xi = meanOfHist ( LatticeMismatchHist ( coefInc.nDim, coefInc.lattice ) );
 %!
 %!  constraints.cost0 = 3258.42235987226;
 %!  constraints.Tobs0 = 365*86400;
@@ -278,7 +278,7 @@ endfunction
 %!  NsegRef = 527.6679900489286;
 %!  w = SensitivityScalingDeviationN ( pFA, pFD, NsegRef );
 %!  assert ( w, 1.09110248396901, 1e-6 );
-%!  stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraints, w );
+%!  stackparams = LocalSolution4StackSlide ( coefCoh, coefInc, constraints, w );
 %!  assert ( stackparams.cr, 0.869163870996078, 1e-4 );
 %!  assert ( stackparams.mc, 0.144345898957936, 1e-4 );
 %!  assert ( stackparams.mf, 0.1660744351839173, 1e-4 );

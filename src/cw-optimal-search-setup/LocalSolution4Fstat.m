@@ -15,18 +15,18 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## Usage: stackparams = LocalSolution4Fstat ( coef_c, cost0, xi_or_latt = 1/3 )
+## Usage: stackparams = LocalSolution4Fstat ( coefCoh, cost0, xi_or_latt = 1/3 )
 ## where options are:
-## "coef_c":          structure holding local power-law coefficients { delta, kappa, nDim } (and lattice)
+## "coefCoh":          structure holding local power-law coefficients { delta, kappa, nDim } (and lattice)
 ##                    of coherent computing cost ~ mis^{-nDim/2} * Tseg^delta,
 ##                    where 'nDim' is the associated template-bank dimension
 ## "cost0":           computing cost constraint
 ##
-## Compute the local solution for optimal F-statistic search parameters at given (local) power-law coefficients 'coef_c',
+## Compute the local solution for optimal F-statistic search parameters at given (local) power-law coefficients 'coefCoh',
 ## and given computing-cost constraint 'cost0'.
 ##
 ## NOTE: this solution is *not* guaranteed to be self-consistent, in the sense that the power-law coefficients
-## at the point of this local solution may be different from the input 'coef_c'
+## at the point of this local solution may be different from the input 'coefCoh'
 ##
 ## Return structure 'stackparams' has fields {Nseg = 1, Tseg, mc, mf=0, cr = inf }
 ## where Nseg is the number of segments (here =1 by definition), optimal coherent observation time Tseg,
@@ -36,20 +36,20 @@
 ## [Equation numbers refer to Prix&Shaltev, PRD85, 084010 (2012)]
 ##
 
-function stackparams = LocalSolution4Fstat ( coef_c, cost0 )
+function stackparams = LocalSolution4Fstat ( coefCoh, cost0 )
 
   ## check user-input sanity
   assert ( cost0 > 0 );
-  assert ( isfield(coef_c, "delta" ) );
-  assert ( isfield(coef_c, "kappa" ) );
-  assert ( isfield(coef_c, "nDim" ) );
+  assert ( isfield(coefCoh, "delta" ) );
+  assert ( isfield(coefCoh, "kappa" ) );
+  assert ( isfield(coefCoh, "nDim" ) );
 
   %% useful shortcuts
-  deltac = coef_c.delta;
-  kappac = coef_c.kappa;
-  nc     = coef_c.nDim;
+  deltac = coefCoh.delta;
+  kappac = coefCoh.kappa;
+  nc     = coefCoh.nDim;
 
-  xi     = meanOfHist( LatticeMismatchHist( round(nc), coef_c.lattice ) ); %% factor linking average and maximal mismatch for selected lattice
+  xi     = meanOfHist( LatticeMismatchHist( round(nc), coefCoh.lattice ) ); %% factor linking average and maximal mismatch for selected lattice
 
   mcOpt   = ( xi * ( 1 + 2 * deltac / nc ))^(-1);			## Eq.(69)
   TobsOpt = ( cost0 / kappac )^(1/deltac) * mcOpt^(nc/(2*deltac));	## Eq.(70)
@@ -66,9 +66,9 @@ endfunction
 
 %!test
 %!  %% check recovery of published results in Prix&Shaltev(2012)
-%!  coef_c.delta = 7; coef_c.nDim = 3; coef_c.lattice = "Ans";
-%!  coef_c.kappa = 2.83216623e-36;
+%!  coefCoh.delta = 7; coefCoh.nDim = 3; coefCoh.lattice = "Ans";
+%!  coefCoh.kappa = 2.83216623e-36;
 %!  cost0 = 471.981444 * 86400;
-%!  stackparamsCoh = LocalSolution4Fstat ( coef_c, cost0 );
+%!  stackparamsCoh = LocalSolution4Fstat ( coefCoh, cost0 );
 %!  assert ( stackparamsCoh.Tseg / 86400, 13.7030102012432, 1e-6 );
 %!  assert ( stackparamsCoh.mc, 0.371528463689787, 1e-6 );

@@ -132,17 +132,17 @@ function stackparams = OptimalSolution4StackSlide ( varargin )
 
     ## determine local power-law coefficients at the current guess 'solution'
     w = SensitivityScalingDeviationN ( uvar.pFA, uvar.pFD, stackparams.Nseg, uvar.sensApprox );
-    coef_c = LocalCostCoefficients ( uvar.costFuns.costFunCoh, stackparams.Nseg, stackparams.Tseg, stackparams.mc );
-    coef_f = LocalCostCoefficients ( uvar.costFuns.costFunInc, stackparams.Nseg, stackparams.Tseg, stackparams.mf );
+    coefCoh = LocalCostCoefficients ( uvar.costFuns.costFunCoh, stackparams.Nseg, stackparams.Tseg, stackparams.mc );
+    coefInc = LocalCostCoefficients ( uvar.costFuns.costFunInc, stackparams.Nseg, stackparams.Tseg, stackparams.mf );
 
     ## store some meta-info about the solution
     stackparams.converged = is_converged;
     stackparams.iter = iter;
     stackparams.w = w;
-    stackparams.coef_c = coef_c;
-    stackparams.coef_f = coef_f;
-    stackparams.cost = coef_c.cost + coef_f.cost;
-    stackparams.cr = coef_c.cost / coef_f.cost;
+    stackparams.coefCoh = coefCoh;
+    stackparams.coefInc = coefInc;
+    stackparams.cost = coefCoh.cost + coefInc.cost;
+    stackparams.cr = coefCoh.cost / coefInc.cost;
 
     if ( uvar.verbose )
       printf("\n%s iteration %i", funcName(), stackparams.iter);
@@ -152,8 +152,8 @@ function stackparams = OptimalSolution4StackSlide ( varargin )
         printf(":\n");
       endif
       printf("  Nseg = %g, Tseg = %g days, mc = %g, mf = %g\n", stackparams.Nseg, stackparams.Tseg/DAYS, stackparams.mc, stackparams.mf);
-      printf("  cost_coh ~ Nseg^%g * Tseg^%g * mc^(-%g/2)\n", stackparams.coef_c.eta, stackparams.coef_c.delta, stackparams.coef_c.nDim);
-      printf("  cost_inc ~ Nseg^%g * Tseg^%g * mc^(-%g/2)\n", stackparams.coef_f.eta, stackparams.coef_f.delta, stackparams.coef_f.nDim);
+      printf("  cost_coh ~ Nseg^%g * Tseg^%g * mc^(-%g/2)\n", stackparams.coefCoh.eta, stackparams.coefCoh.delta, stackparams.coefCoh.nDim);
+      printf("  cost_inc ~ Nseg^%g * Tseg^%g * mf^(-%g/2)\n", stackparams.coefInc.eta, stackparams.coefInc.delta, stackparams.coefInc.nDim);
       printf("  cost / cost0 = %0.2e sec / %0.2e sec = %g\n", stackparams.cost, uvar.cost0, stackparams.cost / uvar.cost0);
       if ( have_TobsMax )
         Tobs = stackparams.Nseg * stackparams.Tseg;
@@ -167,7 +167,7 @@ function stackparams = OptimalSolution4StackSlide ( varargin )
     endif
 
     ## compute new guess 'solution'
-    new_stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraints0, w );
+    new_stackparams = LocalSolution4StackSlide ( coefCoh, coefInc, constraints0, w );
 
     %% ----- check special failure modes and handle them separately ----------
     need_TsegMax = isfield(new_stackparams,"need_TsegMax") && new_stackparams.need_TsegMax;
@@ -175,24 +175,24 @@ function stackparams = OptimalSolution4StackSlide ( varargin )
     if ( need_TsegMax )
       if ( need_TobsMax )
         assert ( have_TobsMax && have_TsegMax, "LocalSolution4StackSlide() asked for both 'TobsMax' and 'TsegMax' constraints\n");
-        new_stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraintsTsegMax, w );
+        new_stackparams = LocalSolution4StackSlide ( coefCoh, coefInc, constraintsTsegMax, w );
       else
         error ("Currently only handle the case when requiring 'TsegMax' also requires 'TobsMax'\n");
       endif
     elseif ( need_TobsMax )
       assert ( have_TobsMax, "LocalSolution4StackSlide() asked for 'TobsMax' constraint!\n");
-      new_stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraintsTobs, w );
+      new_stackparams = LocalSolution4StackSlide ( coefCoh, coefInc, constraintsTobs, w );
     endif
     %% ----- sucess, but check if constraints violated, if yes need to recompute:
     Tobs = new_stackparams.Nseg * new_stackparams.Tseg;
     if ( have_TobsMax && (Tobs > uvar.TobsMax) )
-      new_stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraintsTobs, w );
+      new_stackparams = LocalSolution4StackSlide ( coefCoh, coefInc, constraintsTobs, w );
     endif
     if ( have_TsegMin && (new_stackparams.Tseg < uvar.TsegMin ) )
-      new_stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraintsTsegMin, w );
+      new_stackparams = LocalSolution4StackSlide ( coefCoh, coefInc, constraintsTsegMin, w );
     endif
     if ( have_TsegMax && (new_stackparams.Tseg > uvar.TsegMax ) )
-      new_stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraintsTsegMax, w );
+      new_stackparams = LocalSolution4StackSlide ( coefCoh, coefInc, constraintsTsegMax, w );
     endif
 
     is_converged = checkConvergence ( new_stackparams, stackparams, uvar.tol );
