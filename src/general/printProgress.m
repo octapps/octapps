@@ -32,6 +32,8 @@ function [prog, printed] = printProgress(prog, ii, NN, fp=stdout)
   assert(isvector(ii));
   assert(isvector(NN));
   assert(length(ii) == length(NN));
+  NN = double(NN);
+  ii = double(ii);
   assert(prod(NN) > 0);
 
   ## store initial CPU and wall times, and
