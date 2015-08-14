@@ -36,8 +36,7 @@ function [prog, printed] = printProgress(prog, ii, NN, fp=stdout)
   ii = double(ii);
   assert(prod(NN) > 0);
 
-  ## store initial CPU and wall times, and
-  ## last time progress was printed
+  ## store initial CPU and wall times, and last time progress was printed
   if !isstruct(prog)
     prog = struct();
     prog.cpu0 = cputime();
@@ -45,30 +44,25 @@ function [prog, printed] = printProgress(prog, ii, NN, fp=stdout)
     prog.last0 = prog.wall0;
   endif
 
-  ## compute elapsed CPU and wall times,
-  ## and time since progress was printed
+  ## compute elapsed CPU and wall times, and time since progress was printed
   cpu = cputime() - prog.cpu0;
   wall = double(tic() - prog.wall0)*1e-6;
   last = double(tic() - prog.last0)*1e-6;
 
-  ## compute progress-printing interval from current
-  ## elapsed wall time:
+  ## compute progress-printing interval from current elapsed wall time:
   ## - smallest interval of 10s
   ## - increases to ~5m after 1h has elapsed
   ## - converges to 1h after >1d has elapsed
   interval = 10*ceil(360*(1 - exp(-wall/42000)));
-
   printed = (last > interval);
   if printed
 
-    ## uses dbstack() to get the name of the
-    ## calling function - see funcName()
+    ## uses dbstack() to get the name of the calling function - see funcName()
     stack = dbstack();
     if numel(stack) > 1
       name = stack(2).name;
     else
-      ## caller must be Octave workspace;
-      ## use script name instead
+      ## caller must be Octave workspace; use script name instead
       name = program_name();
     endif
 
