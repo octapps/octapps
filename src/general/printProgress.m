@@ -69,21 +69,18 @@ function [prog, printed] = printProgress(prog, ii, NN, fp=stdout)
     ## make sure 1 <= ii <= NN
     ii = max(1, min(ii, NN));
 
-    ## work out current and total number of tasks
-    n = sub2ind(NN(end:-1:1), num2cell(ii(end:-1:1)){:});
-    N = prod(NN);
-    npc = 100 * n / N;
+    ## work out fraction of tasks completed
+    f_tasks = sum((ii - 1) ./ cumprod(NN));
 
     ## work out CPU usage
-    cpupc = 100 * cpu / (wall + eps);
+    cpu_use = cpu / (wall + eps);
 
-    ## work out remaining wall time, assuming all
-    ## tasks take the same amount of time
-    wall_rem = wall * (N - n) / n;
+    ## work out remaining wall time, assuming all tasks take the same amount of time
+    wall_rem = wall * ( (1 / f_tasks) - 1 );
 
     # print progress
     pso = page_screen_output(0);
-    fprintf(fp, "%s: task %i/%i (%0.1f%%), CPU %0.1f%%, %0.0fs elapsed, %0.0fs remain\n", name, n, N, npc, cpupc, wall, wall_rem);
+    fprintf(fp, "%s: task %0.1f%%, CPU %0.1f%%, %0.0fs elapsed, %0.0fs remain\n", name, 100*f_tasks, 100*cpu_use, wall, wall_rem);
     page_screen_output(pso);
 
     ## update time since progress was printed
