@@ -38,6 +38,8 @@ function noncent = CriticalNoncentralityStackSlide ( pFA, pFD, Nseg, approx = []
   ## make sure pFa, pFD, Nseg are the same size
   [cserr, pFA, pFD, Nseg] = common_size ( pFA, pFD, Nseg );
   assert ( cserr == 0, "%s: pFA, pFD, and Nseg are not of common size", funcName );
+  assert ( all ( isfinite(Nseg) ), "Nseg = %g must be finite\n", Nseg );
+  assert ( all ( Nseg >= 1 ), "Nseg = %g must be >= 1\n", Nseg );
 
   alpha = erfcinv ( 2*pFA );
   beta  = erfcinv ( 2*pFD );
