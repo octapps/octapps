@@ -277,7 +277,7 @@ endfunction
 %!  pFA = 1e-10; pFD = 0.1;
 %!  NsegRef = 527.6679900489286;
 %!  w = SensitivityScalingDeviationN ( pFA, pFD, NsegRef );
-%!  assert ( w, 1.09110798102039, 1e-6 );
+%!  assert ( w, 1.09110248396901, 1e-6 );
 %!  stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraints, w );
 %!  assert ( stackparams.cr, 0.869163870996078, 1e-4 );
 %!  assert ( stackparams.mc, 0.144345898957936, 1e-4 );

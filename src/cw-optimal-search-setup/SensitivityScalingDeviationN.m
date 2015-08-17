@@ -39,28 +39,31 @@ function w = SensitivityScalingDeviationN ( pFA, pFD, Nseg, approx = [] )
   endif
 
   ## ----- treat trivial 'WSG' case first
+  w = ones ( size ( Nseg ) );
   if ( !isempty(approx) && (strcmpi ( approx, "WSG" ) == 1) )
-    w = ones ( size ( Nseg ) );
     return;
   endif
 
   ## ----- Gaussian or NO approximations
-  fun_rhoS2 = @(Nseg0) log( CriticalNoncentralityStackSlide ( pFA, pFD, Nseg0, approx ) );
+  for i = 1:length(Nseg)
+    Nseg_i = [ Nseg(i), Nseg(i) * ( 1 + 1e-4 ) ];
+    dlogRho = diff ( log ( CriticalNoncentralityStackSlide ( pFA, pFD, Nseg_i, approx ) ) );
+    dlogN = diff ( log ( Nseg_i ) );
+    deriv = dlogRho / dlogN;
 
-  deriv = Nseg .* gradient ( fun_rhoS2, Nseg, 0.01 );
-
-  w = 1 ./ ( 2 * deriv);
+    w(i) = 1 / ( 2 * deriv);
+  endfor
 
 endfunction
 
 %!test
-%!  tol = 1e-6; pFD = 0.1;
+%!  tol = -1e-6; pFD = 0.1;
 %!  ## compare numbers to those from Prix&Shaltev,PRD85,084010(2012)
 %!  wGauss1_10 = SensitivityScalingDeviationN ( 1e-10, pFD, 1, approx = "Gauss" );
-%!  assert ( wGauss1_10, 1.380267280935366, tol );
+%!  assert ( wGauss1_10, 1.38029957237533, tol );
 %!  wGauss13_10 = SensitivityScalingDeviationN ( 1e-10, pFD, 13, approx = "Gauss" );
-%!  assert ( wGauss13_10, 1.153719258981236, tol );
+%!  assert ( wGauss13_10, 1.15371666877782, tol );
 %!  w1_2 = SensitivityScalingDeviationN ( 1e-2, pFD, 1, approx = [] );
-%!  assert ( w1_2, 1.883676083410966, tol );
+%!  assert ( w1_2, 1.88370817833829, tol );
 %!  w13_2 = SensitivityScalingDeviationN ( 1e-2, pFD, 13, approx = [] );
-%!  assert ( w13_2, 1.292132066561001, tol );
+%!  assert ( w13_2, 1.29212548567877, tol );
