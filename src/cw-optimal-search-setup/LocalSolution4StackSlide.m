@@ -103,8 +103,8 @@ function stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraints, w
   eps_f   = delta_f - eta_f;
 
   %% ----- average mismatch factor linking average and maximal mismatch for lattices used
-  xi_c = meanOfHist( LatticeMismatchHist( round(n_c), coef_c.lattice ) );
-  xi_f = meanOfHist( LatticeMismatchHist( round(n_f), coef_f.lattice ) );
+  xi_c = coef_c.xi;
+  xi_f = coef_f.xi;
 
   %% degenerate case can only be solved with Tseg0 and Tobs0 constraints
   if ( (abs(eps_c) < 1e-6) && (abs(eps_f) < 1e-6 ) )
@@ -240,12 +240,14 @@ endfunction
 %!  coef_c.delta = 4.00;
 %!  coef_c.kappa = 3.1358511e-17;
 %!  coef_c.lattice = "Ans";
+%!  coef_c.xi = meanOfHist ( LatticeMismatchHist ( coef_c.nDim, coef_c.lattice ) );
 %!
 %!  coef_f.nDim = 3;
 %!  coef_f.delta = 6.0;
 %!  coef_f.eta = 4;
 %!  coef_f.kappa = 2.38382054e-33;
 %!  coef_f.lattice = "Ans";
+%!  coef_f.xi = meanOfHist ( LatticeMismatchHist ( coef_f.nDim, coef_f.lattice ) );
 %!
 %!  constraints.cost0 = 471.981444 * 86400;
 %!  stackparams = LocalSolution4StackSlide ( coef_c, coef_f, constraints, w = 1 );
@@ -261,12 +263,14 @@ endfunction
 %!  coef_c.delta = 10.0111962295912;
 %!  coef_c.kappa = 9.09857109479269e-50;
 %!  coef_c.lattice = "Zn";
+%!  coef_c.xi = meanOfHist ( LatticeMismatchHist ( coef_c.nDim, coef_c.lattice ) );
 %!
 %!  coef_f.nDim = 4;
 %!  coef_f.delta = 9.01119622959135;
 %!  coef_f.eta = 2;
 %!  coef_f.kappa = 1.56944271959491e-47;
 %!  coef_f.lattice = "Zn";
+%!  coef_f.xi = meanOfHist ( LatticeMismatchHist ( coef_f.nDim, coef_f.lattice ) );
 %!
 %!  constraints.cost0 = 3258.42235987226;
 %!  constraints.Tobs0 = 365*86400;
