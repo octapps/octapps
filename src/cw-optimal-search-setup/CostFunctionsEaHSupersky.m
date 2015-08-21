@@ -30,7 +30,7 @@
 ##   "ref_time":             reference time at which to compute metrics, in GPS seconds
 ##   "freq":                 frequency at which to compute metrics and parameter-space, in Hz
 ##   "fkdot_bands":          frequency and spindown bandwidths, in Hz/s^k
-##   "detectors":            detectors to use when computing metrics and coherent cost
+##   "detectors":            CSV list of detectors to use when computing metrics and coherent cost (e.g. "H1,L1,...")
 ##   "coh_duty":             duty cycle of data within each coherent segment
 ##   "inc_duty":             duty cycle of segments within total time spanned by segment list
 ##   "resampling":           use F-statistic 'resampling' instead of 'demod' timings for coherent cost [default: false]

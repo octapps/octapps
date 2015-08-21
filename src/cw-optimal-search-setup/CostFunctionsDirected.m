@@ -33,7 +33,8 @@
 ##                    "EaHCasA" for a freq-dependent 'box' in {f1dot,f2dot}, defined by (tau_min, brk_min)
 ##                    "S5CasA" for Karl's CasA search construction, with brk-index in [2,7]
 ##
-##   "Ndet"           number of detectors [default: 2]
+##   "detectors":     CSV list of detectors to use ("H1"=Hanford, "L1"=Livingston, "V1"=Virgo, ...)
+##   "coh_duty":      duty cycle of data within each coherent segment
 ##
 ##   "resampling":    use F-statistic 'resampling' instead of 'demod' timings for coherent cost [default: false]
 ##   "lattice":       template-bank lattice ("Zn", "Ans",..) [default: "Ans"]
@@ -50,7 +51,8 @@ function cost_funs = CostFunctionsDirected ( varargin )
                         {"brk_min", "real,strictpos,scalar", 2.0},
                         {"fmin", "real,strictpos,scalar", 50.00 },
                         {"fmax", "real,strictpos,vector", 50.05 },
-                        {"Ndet", "real,strictpos,scalar", 2},
+                        {"detectors", "char", "H1,L1" },
+                        {"coh_duty", "real,strictpos,vector", 1 },
                         {"resampling", "logical,scalar", false},
                         {"coh_c0_demod", "real,strictpos,scalar", 7.4e-08 / 1800},
                         {"coh_c0_resamp", "real,strictpos,scalar", 1e-7},
@@ -79,7 +81,8 @@ endfunction ## CostFunctionsDirected()
 %!                                  "fmin", 120, ...
 %!                                  "fmax", 1000, ...
 %!                                  "tau_min", 300 * YRSID_SI, ...
-%!                                  "Ndet", 1.0675, ...
+%!                                  "detectors", "H1,L1",
+%!                                  "coh_duty", 0.53375, ...
 %!                                  "resampling", false, ...
 %!                                  "coh_c0_demod", 7.4e-8 / 1800, ...
 %!                                  "inc_c0", 4.7e-9, ...
@@ -110,7 +113,8 @@ endfunction ## CostFunctionsDirected()
 %!                                  "fmin", 100, ...
 %!                                  "fmax", 300, ...
 %!                                  "tau_min", 300 * YRSID_SI, ...
-%!                                  "Ndet", 2 * 0.7, ...
+%!                                  "detectors", "H1,L1",
+%!                                  "coh_duty", 0.7, ...
 %!                                  "resampling", false, ...
 %!                                  "coh_c0_demod", 7e-8 / 1800, ...
 %!                                  "inc_c0", 6e-9, ...
@@ -149,10 +153,11 @@ function [cost, Nt, lattice] = cost_coh_wparams ( Nseg, Tseg, mc, params )
 
     Nt(i) = templateCountReal ( NsegCoh, Tseg(i), mc(i), params );
 
+    Ndet = length(strsplit(params.detectors, ","));
     if ( params.resampling )
-      cost(i)  = Nseg(i) * Nt(i) * params.Ndet * params.coh_c0_resamp;
+      cost(i)  = Nseg(i) * Nt(i) * Ndet * params.coh_c0_resamp;
     else
-      cost(i)  = Nseg(i) * Nt(i) * params.Ndet * (params.coh_c0_demod * Tseg(i));
+      cost(i)  = Nseg(i) * Nt(i) * Ndet * (params.coh_c0_demod * Tseg(i) * params.coh_duty );
     endif
 
   endfor

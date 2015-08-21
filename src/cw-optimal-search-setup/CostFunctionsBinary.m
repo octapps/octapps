@@ -31,7 +31,8 @@
 ##   "eccRange":      [min, max] of eccentricity search range (default: [0, 0]
 ##   "argpRange":     [min, max] of argument(periapse) search range (default: [0, 0])
 ##
-##   "Ndet"           number of detectors [default: 2]
+##   "detectors":     CSV list of detectors to use ("H1"=Hanford, "L1"=Livingston, "V1"=Virgo, ...)
+##   "coh_duty":      duty cycle of data within each coherent segment
 ##
 ##   "resampling":    use F-statistic 'resampling' instead of 'demod' timings for coherent cost [default: false]
 ##   "lattice":       template-bank lattice ("Zn", "Ans",..) [default: "Ans"]
@@ -50,7 +51,8 @@ function cost_funs = CostFunctionsBinary ( varargin )
                         {"PeriodRange", "real,strictpos,vector", [68023.5753600000, 68023.8345600000] },
                         {"eccRange", "real,positive,vector", [0, 0] },
                         {"argpRange", "real,vector", [0, 2*pi]},
-                        {"Ndet", "real,strictpos,scalar", 2},
+                        {"detectors", "char", "H1,L1"},
+                        {"coh_duty", "real,strictpos,vector", 1 },
                         {"resampling", "logical,scalar", false},
                         {"coh_c0_demod", "real,strictpos,scalar", 7.4e-08 / 1800},
                         {"coh_c0_resamp", "real,strictpos,scalar", 1e-7},
@@ -78,7 +80,7 @@ endfunction ## CostFunctionsBinary()
 %!
 %!  costFuns = CostFunctionsBinary ( ...
 %!                                  "freqRange", [20, 430],
-%!                                  "Ndet", 2,
+%!                                  "detectors", "H1,L1",
 %!                                  "resampling", false, ...
 %!                                  "coh_c0_demod", 4e-8 / Tsft, ...
 %!                                  "inc_c0", 5e-9, ...
@@ -107,7 +109,7 @@ endfunction ## CostFunctionsBinary()
 %!
 %!  costFuns = CostFunctionsBinary ( ...
 %!                                  "freqRange", [20, 630],
-%!                                  "Ndet", 2,
+%!                                  "detectors", "H1,L1",
 %!                                  "resampling", true, ...
 %!                                  "coh_c0_resamp", 3e-7,
 %!                                  "inc_c0", 5e-9, ...
@@ -137,7 +139,7 @@ endfunction ## CostFunctionsBinary()
 %!  costFuns = CostFunctionsBinary ( ...
 %!                                  "freqRange", [20, 200],
 %!                                  "eccRange", [0, 0.087],
-%!                                  "Ndet", 2,
+%!                                  "detectors", "H1,L1",
 %!                                  "resampling", true, ...
 %!                                  "coh_c0_resamp", 3e-7,
 %!                                  "inc_c0", 5e-9, ...
@@ -175,10 +177,11 @@ function [cost, Nt, lattice] = cost_coh_wparams ( Nseg, Tseg, mc, params )
 
     Nt(i) = numTemplates ( NsegCoh, Tseg(i), mc(i), params );
 
+    Ndet = length(strsplit(params.detectors, ","));
     if ( params.resampling )
-      cost(i)  = Nseg(i) * Nt(i) * params.Ndet * params.coh_c0_resamp;
+      cost(i)  = Nseg(i) * Nt(i) * Ndet * params.coh_c0_resamp;
     else
-      cost(i)  = Nseg(i) * Nt(i) * params.Ndet * (params.coh_c0_demod * Tseg(i));
+      cost(i)  = Nseg(i) * Nt(i) * Ndet * (params.coh_c0_demod * Tseg(i) * params.coh_duty);
     endif
 
   endfor

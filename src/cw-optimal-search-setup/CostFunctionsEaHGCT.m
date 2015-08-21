@@ -28,7 +28,8 @@
 ##   "fmin":          minimum frequency covered by search (in Hz)
 ##   "fmax":          maximum frequency covered by search (in Hz)
 ##   "tau_min":       minimum spindown age, determines spindown ranges
-##   "Ndet":          number of detectors
+##   "detectors":     CSV list of detectors to use ("H1"=Hanford, "L1"=Livingston, "V1"=Virgo, ...)
+##   "coh_duty":      duty cycle of data within each coherent segment
 ##   "resampling":    use F-statistic 'resampling' instead of 'demod' for coherent cost [default: false]
 ##   "lattice":       template-bank lattice ("Zn", "Ans",..) [default: "Zn"]
 ##   "coh_c0_demod":  computational cost of F-statistic 'demod' per template per second [optional]
@@ -44,7 +45,8 @@ function cost_funs = CostFunctionsEaHGCT(varargin)
                         {"fmin", "real,strictpos,scalar", 50},
                         {"fmax", "real,strictpos,scalar", 50.05},
                         {"tau_min", "real,strictpos,scalar", 600 * 365 * 86400},
-                        {"Ndet", "integer,strictpos,scalar", 2},
+                        {"detectors", "char", "H1,L1" },
+                        {"coh_duty", "real,strictpos,vector", 1 },
                         {"resampling", "logical,scalar", false},
                         {"coh_c0_demod", "real,strictpos,scalar", 7.4e-08 / 1800},
                         {"coh_c0_resamp", "real,strictpos,scalar", 1e-7},
@@ -169,10 +171,11 @@ function [cost, Ntc, lattice] = cost_coh_wparams ( Nseg, Tseg, mc, params )
       [Ntc(i), s] = func_Nt ( Nseg(i), Tseg(i), mc(i), params );
     endif
 
+    Ndet = length(strsplit(params.detectors, ","));
     if ( params.resampling )
-      cost(i) = Nseg(i) * Ntc(i) * params.Ndet * params.coh_c0_resamp;
+      cost(i) = Nseg(i) * Ntc(i) * Ndet * params.coh_c0_resamp;
     else
-      cost(i) = Nseg(i) * Ntc(i) * params.Ndet * (params.coh_c0_demod * Tseg(i));
+      cost(i) = Nseg(i) * Ntc(i) * Ndet * (params.coh_c0_demod * Tseg(i) * params.coh_duty);
     endif
 
   endfor
@@ -216,7 +219,7 @@ endfunction ## cost_inc_wparams()
 %!                                  "fmin", 50, ...
 %!                                  "fmax", 50.05, ...
 %!                                  "tau_min", 600 * 365 * 86400, ...
-%!                                  "Ndet", 2, ...
+%!                                  "detectors", "H1,L1", ...
 %!                                  "resampling", false, ...
 %!                                  "coh_c0_demod", 7e-8 / 1800, ...
 %!                                  "inc_c0", 6e-9 ...
@@ -227,7 +230,7 @@ endfunction ## cost_inc_wparams()
 %!  cost0 = cost_co + cost_ic;
 %!  TobsMax = 365 * 86400;
 %!
-%!  sol = OptimalSolution4StackSlide ( "costFuns", costFuns, "cost0", cost0, "TobsMax", TobsMax, "stackparamsGuess", refParams )
+%!  sol = OptimalSolution4StackSlide ( "costFuns", costFuns, "cost0", cost0, "TobsMax", TobsMax, "stackparamsGuess", refParams );
 %!
 %!  tol = -1e-3;
 %!  assert ( sol.mc, 0.1443, tol );
