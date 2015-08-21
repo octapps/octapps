@@ -24,7 +24,7 @@
 ##   "misHist":         mismatch histogram, produced using Hist()
 ##   "pFD":             false-dismissal probability = 1 - pDet
 ##   "pFA":             false-alarm probability (-ies) *per template* (can be a vector)
-##   "detectors":       string containing detector-network to use ("H"=Hanford, "L"=Livingston, "V"=Virgo)
+##   "detectors":       CSV list of detectors to use ("H1"=Hanford, "L1"=Livingston, "V1"=Virgo, ...)
 ##   "alpha":           source right ascension in radians (default: all-sky)
 ##   "delta":           source declination (default: all-sky)
 
@@ -37,7 +37,7 @@ function sensDepth = SensitivityDepthStackSlide ( varargin )
                        {"misHist", "Hist" },
                        {"pFD", "real,strictpos,scalar", 0.1},
                        {"pFA", "real,strictpos,vector"},
-                       {"detectors", "char", "HL" },
+                       {"detectors", "char", "H1,L1" },
                        {"alpha", "real,vector", [0, 2*pi]},
                        {"delta", "real,vector", [-pi/2, pi/2]},
                        []);
@@ -61,6 +61,6 @@ endfunction
 %!  misHist = createDeltaHist(0.1);
 %!  pFD = 0.1;
 %!  pFA = [1e-14, 1e-12, 1e-10];
-%!  dets = "HL";
-%!  sigma = SensitivityDepthStackSlide("Nseg", Nseg, "Tdata", Tdata, "misHist", misHist, "pFD", pFD, "pFA", pFA, "detectors", dets)
+%!  dets = "H1,L1";
+%!  sigma = SensitivityDepthStackSlide("Nseg", Nseg, "Tdata", Tdata, "misHist", misHist, "pFD", pFD, "pFA", pFA, "detectors", dets);
 %!  assert(max(abs(sigma - [ 38.671   40.780   43.379 ])) < 0.05);

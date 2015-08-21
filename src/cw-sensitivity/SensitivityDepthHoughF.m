@@ -25,7 +25,7 @@
 ##   "pFD":             false-dismissal probability = 1 - pDet
 ##   "pFA":             false-alarm probability (-ies) *per template* (can be a vector)
 ##   "Fth":             F-stat threshold (on F, not 2F!) in each segment for "pixel" selection
-##   "detectors":       string containing detector-network to use ("H"=Hanford, "L"=Livingston, "V"=Virgo)
+##   "detectors":       CSV list of detectors to use ("H1"=Hanford, "L1"=Livingston, "V1"=Virgo, ...)
 ##   "alpha":           source right ascension in radians (default: all-sky)
 ##   "delta":           source declination (default: all-sky)
 
@@ -39,7 +39,7 @@ function sensDepth = SensitivityDepthHoughF ( varargin )
                        {"pFD", "real,strictpos,scalar", 0.1},
                        {"pFA", "real,strictpos,vector"},
                        {"Fth", "real,strictpos,scalar", 5.2/2 },
-                       {"detectors", "char", "HL" },
+                       {"detectors", "char", "H1,L1" },
                        {"alpha", "real,vector", [0, 2*pi]},
                        {"delta", "real,vector", [-pi/2, pi/2]},
                        []);
@@ -64,6 +64,6 @@ endfunction
 %!  pFD = 0.1;
 %!  pFA = [1e-10, 1e-8, 1e-6];
 %!  Fth = 2.5;
-%!  dets = "HL";
+%!  dets = "H1,L1";
 %!  sigma = SensitivityDepthHoughF("Nseg", Nseg, "Tdata", Tdata, "misHist", misHist, "pFD", pFD, "pFA", pFA, "Fth", Fth, "detectors", dets);
 %!  assert(max(abs(sigma - [28.070   36.547   43.370])) < 0.05);
