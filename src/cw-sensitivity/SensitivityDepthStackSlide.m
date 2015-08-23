@@ -39,7 +39,7 @@ function sensDepth = SensitivityDepthStackSlide ( varargin )
                        {"pFA", "real,strictpos,vector"},
                        {"detectors", "char", "HL" },
                        {"alpha", "real,vector", [0, 2*pi]},
-                       {"delta", "real,vector", [-1, 1]},
+                       {"delta", "real,vector", [-pi/2, pi/2]},
                        []);
 
   ## compute sensitivity SNR
@@ -62,5 +62,5 @@ endfunction
 %!  pFD = 0.1;
 %!  pFA = [1e-14, 1e-12, 1e-10];
 %!  dets = "HL";
-%!  sigma = SensitivityDepthStackSlide("Nseg", Nseg, "Tdata", Tdata, "misHist", misHist, "pFD", pFD, "pFA", pFA, "detectors", dets);
-%!  assert(max(abs(sigma - [38.038, 40.114, 42.682])) < 0.05);
+%!  sigma = SensitivityDepthStackSlide("Nseg", Nseg, "Tdata", Tdata, "misHist", misHist, "pFD", pFD, "pFA", pFA, "detectors", dets)
+%!  assert(max(abs(sigma - [ 38.671   40.780   43.379 ])) < 0.05);

@@ -41,7 +41,7 @@ function sensDepth = SensitivityDepthHoughF ( varargin )
                        {"Fth", "real,strictpos,scalar", 5.2/2 },
                        {"detectors", "char", "HL" },
                        {"alpha", "real,vector", [0, 2*pi]},
-                       {"delta", "real,vector", [-1, 1]},
+                       {"delta", "real,vector", [-pi/2, pi/2]},
                        []);
 
   ## compute sensitivity SNR
@@ -66,4 +66,4 @@ endfunction
 %!  Fth = 2.5;
 %!  dets = "HL";
 %!  sigma = SensitivityDepthHoughF("Nseg", Nseg, "Tdata", Tdata, "misHist", misHist, "pFD", pFD, "pFA", pFA, "Fth", Fth, "detectors", dets);
-%!  assert(max(abs(sigma - [27.629, 35.970, 42.702])) < 0.05);
+%!  assert(max(abs(sigma - [28.070   36.547   43.370])) < 0.05);
