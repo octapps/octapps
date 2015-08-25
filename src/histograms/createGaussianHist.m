@@ -1,3 +1,4 @@
+## Copyright (C) 2015 Karl Wette
 ## Copyright (C) 2011 Reinhard Prix
 ##
 ## This program is free software; you can redistribute it and/or modify
@@ -23,7 +24,6 @@
 ## Options are:
 ##   "mean":     mean of the Gaussian distribution
 ##   "std":      standard deviation
-##   "err":      convergence requirement on histogram (default = 1e-2)
 ##   "binsize":  histogram bin-size (default = "std" / 10)
 ##   "domain":   constrain all samples to lie within this interval [min(domain), max(domain)]
 ##
@@ -33,45 +33,27 @@ function hgrm = createGaussianHist ( varargin )
   uvar = parseOptions(varargin,
                       {"mean", "real,scalar"},
                       {"std", "real,strictpos,scalar"},
-                      {"err", "real,scalar", 1e-2},
                       {"binsize", "real,scalar", []},
                       {"domain", "real,vector", []},
                       []);
   if isempty(uvar.binsize)
     uvar.binsize = uvar.std / 10.0;
   endif
+  if isempty(uvar.domain)
+    uvar.domain = uvar.mean + [-10, 10] * uvar.std;
+  endif
 
   ## create 1D histogram class
   hgrm = Hist( 1, {"lin", "dbin", uvar.binsize} );
 
-  ## iterate, adding N samples every round, and continue until
-  ## histogram has converged to within the given tolerance 'err'
-  N = 1e6;
-  do
-
-    ## generate random values
-    newsamples = normrnd ( uvar.mean, uvar.std, N, 1);     ## N-vector of Gaussian random draws
-
-    if ( !isempty ( uvar.domain ) )
-      iKeep = find ( (newsamples >= min(uvar.domain)) & (newsamples <= max(uvar.domain) - uvar.binsize) );
-      newsamples = newsamples(iKeep);
-    endif
-
-    ## add new values to histogram
-    oldhgrm = hgrm;
-    hgrm = addDataToHist ( hgrm, newsamples );
-
-    ## calculate difference between old and new histograms
-    histerr = histDistance ( hgrm, oldhgrm );
-
-    ## continue until error is small enough
-  until histerr < uvar.err
+  ## initialise histogram to a Gaussian PDF
+  hgrm = initHistFromFunc(hgrm, @(x) normpdf(x, uvar.mean, uvar.std), uvar.domain);
 
 endfunction
 
 
 ## generate Gaussian histogram and check its properties
 %!shared hgrm
-%!  hgrm = createGaussianHist(1.2, 3.4, "err", 1e-2, "binsize", 0.1);
+%!  hgrm = createGaussianHist(1.2, 3.4, "binsize", 0.1);
 %!assert(abs(meanOfHist(hgrm) - 1.2) < 0.1)
 %!assert(abs(sqrt(varianceOfHist(hgrm)) - 3.4) < 0.1)
