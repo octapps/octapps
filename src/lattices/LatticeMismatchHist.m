@@ -64,7 +64,7 @@ function hgrm = LatticeMismatchHist( dim, lattice, varargin )
           hgrm = rescaleHistBins(hgrm, mu_max);
 
           ## resample histogram to desired bin size
-          hgrm = resampleHist(hgrm, 1, unique([0.0:dbin:1.0, 1.0]));
+          hgrm = resampleHist(hgrm, 1, unique([0.0:dbin:mu_max, mu_max]));
 
           ## return cached histogram
           return
