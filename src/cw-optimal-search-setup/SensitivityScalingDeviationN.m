@@ -15,7 +15,7 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## Usage: w = SensivitiyScalingDeviationN ( pFA, pFD, Nseg, approx = "none" )
+## Usage: w = SensitivityScalingDeviationN ( pFA, pFD, Nseg, approx = "" )
 ##
 ## Compute the deviation parameter 'w' of the local StackSlide-sensitivity power-law scaling
 ## coefficient from the weak-signal limit (where w=1).
@@ -26,7 +26,7 @@
 ## of the form RHO^2 ~ N^(1/(2w), and hth ~ N^(-1/(4w)), respectively, where 'w' quantifies
 ## the devation from the WSG-scaling.
 ##
-## 'approx' == "none":  use full chi^2_(4*Nseg) distribution
+## 'approx' == "":      use full chi^2_(4*Nseg) distribution
 ## 'approx' == "Gauss": use the Gaussian (N>>1) approximation
 ## 'approx' == "WSG":   return w=1 for the "weak-signal Gaussian" case
 ##
