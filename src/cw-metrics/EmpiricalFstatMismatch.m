@@ -40,10 +40,10 @@ function [mtwoF, stwoF] = EmpiricalFstatMismatch(mcoh, msemi, scoh=0, ssemi=0)
   assert(err == 0, "Input variables are not of common size");
 
   ## data for mean mismatch fit
-  n = 1.34626;
-  a = [0.0932884, -0.708345, 1.7445, -0.374105];
-  m = 0.8329;
-  b = 0.85756;
+  n = 1.479;
+  a = [0.0763369, -0.613027, 1.52882, -0.234391];
+  m = 0.850449;
+  b = 0.859776;
 
   ## compute mean mismatch fit
   X1 = a(1).*msemi.^n + a(2).*msemi.^(0.75*n) + a(3).*msemi.^(0.5*n) + a(4).*msemi.^(0.25*n);
@@ -56,10 +56,10 @@ function [mtwoF, stwoF] = EmpiricalFstatMismatch(mcoh, msemi, scoh=0, ssemi=0)
   assert(all(0 <= mtwoF(:) & mtwoF(:) <= 1));
 
   ## data for standard deviation mismatch fit
-  u = [0.161937, 0.109856, 0.645859];
-  q = [0.882317, 1.40982, 0.840252];
-  v = [-0.431798, 0.369047, -0.0877485; 0.440843, 0, 0.695148; -1.1276, 3.34447, 1.78455];
-  w = [0.0878029, 0.155218, 0.706146];
+  u = [0.134176, 0.124245, 0.88223];
+  q = [0.873638, 1.93165, 0.786775];
+  v = [-0.391633, 0.364862, -0.0893413; 0, 0, 0.0966061; -1.28872, 3.53137, 1.94642];
+  w = [0.0428961, 0.162003, 1.14578];
 
   ## compute standard deviation mismatch fit
   U1 = u(1) + v(1,1).*scoh.^q(1) + v(1,2).*scoh.^(2*q(1)) + v(1,3).*scoh.^(4*q(1));
