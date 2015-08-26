@@ -46,9 +46,9 @@ function [mtwoF, stwoF] = EmpiricalFstatMismatch(mcoh, msemi, scoh=0, ssemi=0)
   b = 0.859776;
 
   ## compute mean mismatch fit
-  X1 = a(1).*msemi.^n + a(2).*msemi.^(0.75*n) + a(3).*msemi.^(0.5*n) + a(4).*msemi.^(0.25*n);
-  X2 = b.*mcoh.^m;
-  mtwoF = 2./pi .* atan(X1 + X2);
+  X = a(1).*msemi.^n + a(2).*msemi.^(0.75*n) + a(3).*msemi.^(0.5*n) + a(4).*msemi.^(0.25*n);
+  Y = b.*mcoh.^m;
+  mtwoF = 2./pi .* atan(X + Y);
   mtwoF(mcoh == 0 & msemi == 0) = 0;
   mtwoF(mcoh == 0 & msemi == inf) = 1;
   mtwoF(mcoh == inf & msemi == 0) = 1;
@@ -56,18 +56,16 @@ function [mtwoF, stwoF] = EmpiricalFstatMismatch(mcoh, msemi, scoh=0, ssemi=0)
   assert(all(0 <= mtwoF(:) & mtwoF(:) <= 1));
 
   ## data for standard deviation mismatch fit
-  u = [0.134176, 0.124245, 0.88223];
-  q = [0.873638, 1.93165, 0.786775];
-  v = [-0.391633, 0.364862, -0.0893413; 0, 0, 0.0966061; -1.28872, 3.53137, 1.94642];
-  w = [0.0428961, 0.162003, 1.14578];
+  u = [0.133781, 0.124426, 0.888016];
+  q = 0.918109;
+  v = [3.08587, 2.21999, 0.896751];
+  w = [0.0495105, 0.206969, 1.10315];
 
   ## compute standard deviation mismatch fit
-  U1 = u(1) + v(1,1).*scoh.^q(1) + v(1,2).*scoh.^(2*q(1)) + v(1,3).*scoh.^(4*q(1));
-  U2 = u(2) + v(2,1).*scoh.^q(2) + v(2,2).*scoh.^(2*q(2)) + v(2,3).*scoh.^(4*q(2));
-  U3 = u(3) + v(3,1).*scoh.^q(3) + v(3,2).*scoh.^(2*q(3)) + v(3,3).*scoh.^(4*q(3));
-  Y = max(0.1, log(U3.*ssemi).^2);
-  Z = max(0.1, log(w(3).*scoh).^2);
-  stwoF = abs(U1) .* exp(-abs(U2).*Y) + w(1) .* exp(-w(2).*Z);
+  X = u(1) .* exp(-u(2) .* log(u(3).*ssemi).^2);
+  Y = v(1).*scoh.^q + v(2).*scoh.^(2*q) + v(3).*scoh.^(4*q);
+  Z = w(1) .* exp(-w(2) .* log(w(3).*scoh).^2);
+  stwoF = X .* exp(-Y) + Z;
   stwoF(scoh == 0 & ssemi == 0) = 0;
   stwoF(scoh == 0 & ssemi == inf) = 0;
   stwoF(scoh == inf & ssemi == 0) = 0;
