@@ -21,6 +21,7 @@
 ## Options:
 ##   "width": width of printed figure, in points
 ##   "aspect": aspect ratio of height to width (default: 0.75)
+##   "height": height of printed figure, in points (overrides "aspect")
 ##   "dpi": resolution of printed figure, in dots per inch (default: 300)
 ##   "fontsize": font size of printed figure, in points (default: 10)
 ##   "linescale": factor to scale line width of figure objects (default: 1)
@@ -32,6 +33,7 @@ function ezprint(filepath, varargin)
   parseOptions(varargin,
                {"width", "real,strictpos,scalar"},
                {"aspect", "real,strictpos,scalar", 0.75},
+               {"height", "real,strictpos,scalar", []},
                {"dpi", "integer,strictpos,scalar", 300},
                {"fontsize", "integer,strictpos,scalar", 10},
                {"linescale", "real,strictpos,scalar", 1.0},
@@ -43,8 +45,13 @@ function ezprint(filepath, varargin)
     error("%s: only works with gnuplot", funcName);
   endif
 
-  ## convert width from points to inches
+  ## set width and height, converting from points to inches
   width = width / 72;
+  if isempty(height)
+    height = width * aspect;
+  else
+    height = height / 72;
+  endif
 
   ## scale figure line widths
   H = findall(gcf, "-property", "linewidth");
@@ -54,7 +61,6 @@ function ezprint(filepath, varargin)
 
   ## set figure width and height
   paperpos = get(gcf, "paperposition");
-  height = aspect * width;
   if width > height
     set(gcf, "paperorientation", "landscape");
   else
