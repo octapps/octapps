@@ -38,8 +38,8 @@ function ezmovie(action, varargin)
       state = parseOptions(varargin,
                            {"filebasename", "char"},
                            {"delay", "real,strictpos,scalar"},
-                           {"width", "integer,strictpos,scalar"},
-                           {"height", "integer,strictpos,scalar"},
+                           {"width", "evenint,strictpos,scalar"},
+                           {"height", "evenint,strictpos,scalar"},
                            {"fontsize", "integer,strictpos,scalar", 10},
                            {"linescale", "real,strictpos,scalar", 1.0},
                            {"verbose", "logical,scalar", false},
@@ -49,15 +49,15 @@ function ezmovie(action, varargin)
       if state.verbose
         avconv_loglevel = "verbose";
       else
-        avconv_loglevel = "quiet";
+        avconv_loglevel = "error";
       endif
-      avconv_cmd = sprintf(["%s -y -v %s -f image2pipe ", ...
-                            "-codec:v mjpeg -framerate %g -i pipe: ", ...
-                            "-codec:v libx264 -qscale 1 -profile:v baseline %s.mp4"], ...
-                           avconv, avconv_loglevel, 1.0 / state.delay, state.filebasename);
+      state.avconv_cmd = sprintf(["%s -y -v %s -f image2pipe ", ...
+                                  "-codec:v mjpeg -framerate %g -i pipe: ", ...
+                                  "-codec:v libx264 -qscale 1 -profile:v baseline %s.mp4"], ...
+                                 avconv, avconv_loglevel, 1.0 / state.delay, state.filebasename);
 
       ## create input pipe to 'avconv', which will be fed JPEG images to create movie
-      state.favconv = popen(avconv_cmd, "w");
+      state.favconv = popen(state.avconv_cmd, "w");
 
     case "add"
 
@@ -96,6 +96,9 @@ function ezmovie(action, varargin)
         unlink(jpgfile);
 
       end_unwind_protect
+
+      ## check that 'avconv' has not encountered errors
+      assert(ferror(state.favconv) == 0, "%s: '%s' has failed!", funcName, state.avconv_cmd);
 
     case "stop"   ## stop movie generation
 
