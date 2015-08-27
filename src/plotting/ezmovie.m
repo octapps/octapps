@@ -39,6 +39,11 @@ function ezmovie(action, varargin)
   ## persistent movie generation state
   persistent state;
 
+  ## 'ezprint' only works with gnuplot
+  if !strcmp(get(gcf, "__graphics_toolkit__"), "gnuplot")
+    error("%s: only works with gnuplot", funcName);
+  endif
+
   switch action
 
     case "start"   ## start movie generation
