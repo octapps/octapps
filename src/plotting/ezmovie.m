@@ -13,6 +13,27 @@
 ## You should have received a copy of the GNU General Public License
 ## along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+## Generate a H.264/MPEG-4 AVC movie from a sequence of figures.
+## Requires the command 'avconv' from Libav to be available.
+## Usage:
+##   ezmovie("start", "opt", val, ...);
+##   plot(...);
+##   ezmovie add;
+##   plot(...);
+##   ezmovie add;
+##   ...
+##   ezmovie stop;
+## Options to 'ezmovie start':
+##   "filebasename": basename of movie file; extension will be ".mp4"
+##   "delay":        delay between each figure, in seconds
+##   "width":        width of movie, in pixels
+##   "height":       height of movie, in pixels
+##   "fontsize":     font size of printed figure, in points (default: 10)
+##   "linescale":    factor to scale line width of figure objects (default: 1)
+##   "verbose":      if true, print verbose output from 'avconv'
+##                   NOTE: 'avconv' may print "pipe:: Input/output error" after
+##                   conversion; this is harmless in absence of other errors
+
 function ezmovie(action, varargin)
 
   ## persistent movie generation state
