@@ -31,8 +31,6 @@
 ##   "fontsize":     font size of printed figure, in points (default: 10)
 ##   "linescale":    factor to scale line width of figure objects (default: 1)
 ##   "verbose":      if true, print verbose output from 'avconv'
-##                   NOTE: 'avconv' may print "pipe:: Input/output error" after
-##                   conversion; this is harmless in absence of other errors
 
 function ezmovie(action, varargin)
 
@@ -75,7 +73,7 @@ function ezmovie(action, varargin)
       if state.verbose
         avconv_loglevel = "verbose";
       else
-        avconv_loglevel = "error";
+        avconv_loglevel = "quiet";
       endif
       state.avconv_cmd = sprintf(["%s -y -v %s -f image2pipe ", ...
                                   "-codec:v mjpeg -framerate %g -i pipe: ", ...
