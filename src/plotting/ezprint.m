@@ -19,13 +19,13 @@
 ## Usage:
 ##   ezprint(filepath, "opt", val, ...)
 ## Options:
-##   "width": width of printed figure, in points
-##   "aspect": aspect ratio of height to width (default: 0.75)
-##   "height": height of printed figure, in points (overrides "aspect")
-##   "dpi": resolution of printed figure, in dots per inch (default: 300)
-##   "fontsize": font size of printed figure, in points (default: 10)
+##   "width":     width of printed figure, in points
+##   "aspect":    aspect ratio of height to width (default: 0.75)
+##   "height":    height of printed figure, in points (overrides "aspect")
+##   "dpi":       resolution of printed figure, in dots per inch (default: 300)
+##   "fontsize":  font size of printed figure, in points (default: 10)
 ##   "linescale": factor to scale line width of figure objects (default: 1)
-##   "texregex": regular expression to apply to TeX output files
+##   "texregex":  regular expression to apply to TeX output files
 
 function ezprint(filepath, varargin)
 
