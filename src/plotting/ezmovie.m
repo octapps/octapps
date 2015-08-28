@@ -47,8 +47,9 @@ function ezmovie(action, varargin)
     case "start"   ## start movie generation
 
       ## close any open 'avconv' pipe
-      if isfield(state, "favconv")
-        fclose(state.favconv);
+      if isfield(state, "avconv_pid")
+        kill(state.avconv_pid, SIG.INT);
+        fclose(state.avconv_fin);
         state = [];
       endif
 
@@ -73,15 +74,20 @@ function ezmovie(action, varargin)
       if state.verbose
         avconv_loglevel = "verbose";
       else
-        avconv_loglevel = "quiet";
+        avconv_loglevel = "error";
       endif
-      state.avconv_cmd = sprintf(["%s -y -v %s -f image2pipe ", ...
-                                  "-codec:v mjpeg -framerate %g -i pipe: ", ...
-                                  "-codec:v libx264 -qscale 1 -profile:v baseline %s.mp4"], ...
-                                 avconv, avconv_loglevel, 1.0 / state.delay, state.filebasename);
+      avconv_args = { ...
+                      "-y", "-v", avconv_loglevel, ...
+                      "-f", "image2pipe", ...
+                      "-codec:v", "mjpeg", "-framerate", num2str(1.0 / state.delay), "-i", "pipe:", ...
+                      "-codec:v", "libx264", "-qscale", "1", "-profile:v", "baseline", ...
+                      strcat(state.filebasename, ".mp4") ...
+                    };
+      state.avconv_cmd = strcat(avconv, sprintf(" %s", avconv_args{:}));
 
       ## create input pipe to 'avconv', which will be fed JPEG images to create movie
-      state.favconv = popen(state.avconv_cmd, "w");
+      [state.avconv_fin, avconv_fout, state.avconv_pid] = popen2(avconv, avconv_args);
+      fclose(avconv_fout);
 
     case "add"
 
@@ -89,7 +95,7 @@ function ezmovie(action, varargin)
       assert(nargin == 1, "%s: action '%s' takes no options", funcName, action);
 
       ## check that movie generation has been correctly started
-      assert(isfield(state, "favconv"), "%s: movie generation has not been started", funcName);
+      assert(isfield(state, "avconv_pid"), "%s: movie generation has not been started", funcName);
 
       ## get temporary file name to print JPEG image to
       jpgfile = strcat(tempname, ".jpg");
@@ -109,7 +115,8 @@ function ezmovie(action, varargin)
         jpg = fread(fjpg);
 
         ## write JPEG image to 'avconv' pipe
-        fwrite(state.favconv, jpg);
+        fwrite(state.avconv_fin, jpg);
+        fflush(state.avconv_fin);
 
       unwind_protect_cleanup
 
@@ -122,7 +129,7 @@ function ezmovie(action, varargin)
       end_unwind_protect
 
       ## check that 'avconv' has not encountered errors
-      assert(ferror(state.favconv) == 0, "%s: '%s' has failed!", funcName, state.avconv_cmd);
+      assert(ferror(state.avconv_fin) == 0, "%s: '%s' has failed!", funcName, state.avconv_cmd);
 
     case "stop"   ## stop movie generation
 
@@ -130,8 +137,9 @@ function ezmovie(action, varargin)
       assert(nargin == 1, "%s: action '%s' takes no options", funcName, action);
 
       ## close any open 'avconv' pipe
-      if isfield(state, "favconv")
-        fclose(state.favconv);
+      if isfield(state, "avconv_pid")
+        kill(state.avconv_pid, SIG.INT);
+        fclose(state.avconv_fin);
         state = [];
       endif
 
