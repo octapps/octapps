@@ -18,9 +18,9 @@
 ## and incoherent duty cycle 'duty'. Aside from 'mean_time', each parameter may be vectorised to
 ## return multiple segment lists with all possible parameter combinations.
 ## Usage:
-##   segment_lists = CreateSegmentList(mean_time, Nseg, Tseg, Tspan, duty)
+##   segment_lists = CreateSegmentList(mean_time, Nseg, Tseg, Tspan, duty, [always_cell=false])
 
-function varargout = CreateSegmentList(mean_time, Nseg, Tseg, Tspan, duty)
+function varargout = CreateSegmentList(mean_time, Nseg, Tseg, Tspan, duty, always_cell=false)
 
   ## check input
   assert(isscalar(mean_time));
@@ -69,10 +69,11 @@ function varargout = CreateSegmentList(mean_time, Nseg, Tseg, Tspan, duty)
   endfor
 
   ## return segment lists
-  if nargout == numel(segment_lists)
-    varargout = segment_lists;
-  else
+  if always_cell
     varargout = {segment_lists};
+  else
+    nargoutchk(numel(segment_lists), numel(segment_lists));
+    varargout = segment_lists;
   endif
 
 endfunction
