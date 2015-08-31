@@ -25,7 +25,7 @@
 function thresh = invFalseAlarm_chi2 ( fA, dof )
 
   %% make inputs common size
-  [err, fa, dof] = common_size( fA, dof );
+  [err, fA, dof] = common_size( fA, dof );
   if err > 0
     error( "%s: fA and dof are not of common size", funcName );
   endif
