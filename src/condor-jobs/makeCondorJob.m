@@ -171,8 +171,6 @@ function job_file = makeCondorJob(varargin)
 
   ## get dependencies of job function
   [func_files, func_extra_files] = depends(octprefixes, func_name);
-  func_files
-  func_extra_files
   func_files = struct2cell(func_files);
 
   ## find if any job function dependencies are .oct modules
