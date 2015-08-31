@@ -32,10 +32,12 @@ function varargout = native(varargin)
     endif
 
     ## convert null-pointer SWIG objects to []
-    if swig_this(varargin{i}) == 0
-       varargout{i} = [];
-       continue
-    endif
+    try
+      if swig_this(varargin{i}) == 0
+        varargout{i} = [];
+        continue
+      endif
+    end_try_catch
 
     ## try extracting data from a 'data field'
     try
