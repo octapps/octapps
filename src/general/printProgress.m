@@ -21,14 +21,22 @@
 ##   for i = 1:5000
 ##     for j = 1:5
 ##       doSomeTask(i, j, ...);
-##       prog = printProgress(prog, [i, j], [5000, 5]);
+##       prog = printProgress(prog, "inner loop", [i, j], [5000, 5]);
 ##     endfor
-##     [prog, printed] = printProgress(prog, [i, j], [5000, 5]);
+##     prog = printProgress(prog, [i, j], [5000, 5]);
 ##   endfor
 
-function [prog, printed] = printProgress(prog, ii, NN, fp=stdout)
+function prog = printProgress(prog, varargin)
 
   # check input
+  narginchk(3, 4);
+  if ischar(varargin{1})
+    taskstr = varargin{1};
+    varargin(1) = [];
+  else
+    taskstr = "task";
+  endif
+  [ii, NN] = deal(varargin{:});
   assert(isvector(ii));
   assert(isvector(NN));
   assert(length(ii) == length(NN));
@@ -80,7 +88,7 @@ function [prog, printed] = printProgress(prog, ii, NN, fp=stdout)
 
     # print progress
     pso = page_screen_output(0);
-    fprintf(fp, "%s: task %0.1f%%, CPU %0.1f%%, %0.0fs elapsed, %0.0fs remain\n", name, 100*f_tasks, 100*cpu_use, wall, wall_rem);
+    printf("%s: %s %0.1f%%, CPU %0.1f%%, %0.0fs elapsed, %0.0fs remain\n", name, taskstr, 100*f_tasks, 100*cpu_use, wall, wall_rem);
     page_screen_output(pso);
 
     ## update time since progress was printed
