@@ -48,7 +48,7 @@ function hgrm = LatticeMismatchHist( dim, lattice, varargin )
   if use_cache
 
     ## load mismatch histogram cache
-    lattice_cache = load(fullfile(fileparts(mfilename("fullpath")), "lattice_mismatch_hgrms.bin.gz"));
+    lattice_cache = load(__depends_extra_files__());
 
     ## check if mismatch histogram is in cache
     lattice_cache_field = sprintf("%s_lattice_mismatch_hgrms", lattice);
@@ -101,4 +101,10 @@ function hgrm = LatticeMismatchHist( dim, lattice, varargin )
 
   endwhile
 
+endfunction
+
+
+## This function is called by depends() to record extra file dependencies
+function file = __depends_extra_files__()
+  file = fullfile(fileparts(mfilename("fullpath")), "lattice_mismatch_hgrms.bin.gz");
 endfunction
