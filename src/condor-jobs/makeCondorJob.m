@@ -170,7 +170,10 @@ function job_file = makeCondorJob(varargin)
   libprefixes = {"/lib", "/usr/lib"};
 
   ## get dependencies of job function
-  func_files = struct2cell(depends(octprefixes, func_name));
+  [func_files, func_extra_files] = depends(octprefixes, func_name);
+  func_files
+  func_extra_files
+  func_files = struct2cell(func_files);
 
   ## find if any job function dependencies are .oct modules
   ## if so, load them, then add all loaded .octs as dependencies
@@ -326,6 +329,7 @@ function job_file = makeCondorJob(varargin)
                 { exec_files, job_inexecdir }, ...
                 { shlib_files, job_inexecdir }, ...
                 { func_files, job_infuncdir }, ...
+                { func_extra_files, job_infuncdir }, ...
                 { oct_files, job_infuncdir }, ...
                 { class_dirs, job_infuncdir }
                 };

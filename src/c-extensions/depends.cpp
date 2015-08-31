@@ -18,6 +18,7 @@
 //
 
 #include <list>
+#include <set>
 #include <octave/oct.h>
 #include <octave/dynamic-ld.h>
 #include <octave/ov-usr-fcn.h>
@@ -41,6 +42,8 @@ public:
   octave_map functions;
 
   Cell exclude;
+
+  std::set<std::string> extra_files;
 
   dependency_walker(const Cell& exclude0)
     : functions(dim_vector(1,1)), exclude(exclude0)
@@ -189,6 +192,15 @@ public:
   }
 
   void visit_octave_user_function(octave_user_function& t) {
+    if (t.name().compare("__depends_extra_files__") == 0) {
+      octave_value_list files = t.do_multi_index_op(1, octave_value());
+      for (octave_idx_type i = 0; i < files.length(); ++i) {
+        std::string file = files(i).string_value();
+        if (file.length() > 0) {
+          extra_files.insert(file);
+        }
+      }
+    }
     if (t.body()) {
       t.body()->accept(*this);
     }
@@ -405,13 +417,15 @@ public:
 };
 
 static const char *const depends_usage = "-*- texinfo -*- \n\
-@deftypefn {Loadable Function} {@var{deps} =} depends(@var{function}, @dots{})\n\
-@deftypefnx{Loadable Function} {@var{deps} =} depends(@var{exclude}, @var{function}, @dots{})\n\
-\
-Returns a struct containing the names (keys) and filenames (values) \
-of functions required by the supplied @var{function}s. \
-If @var{exclude} (a cell array of strings) is given, exclude all functions \
-whose filepaths start with one of the filepath prefixes in @var{exclude}. \n\
+@deftypefn {Loadable Function} {[@var{deps},@var{extras}] =} depends(@var{function}, @dots{})\n\
+@deftypefnx{Loadable Function} {[@var{deps},@var{extras}] =} depends(@var{exclude}, @var{function}, @dots{})\n\
+\n\n\
+Returns a struct containing the names (keys) and filenames (values) of functions required by the supplied @var{function}s. \
+If @var{exclude} (a cell array of strings) is given, exclude all functions whose filepaths start with one of the filepath prefixes in @var{exclude}. \
+\n\n\
+The cell array @var{extras} returns any additional data files required by the functions. \
+It is determined by calling any dependent function named '__depends_extra_files__()', which should return file names as multiple string arguments. \
+\n\n\
 @end deftypefn";
 
 DEFUN_DLD( depends, args, nargout, depends_usage ) {
@@ -420,7 +434,7 @@ DEFUN_DLD( depends, args, nargout, depends_usage ) {
   octave_exit = ::_Exit;
 
   // Check input and output
-  if (args.length() == 0 || nargout > 1) {
+  if (args.length() == 0 || nargout != 2) {
     print_usage();
     return octave_value();
   }
@@ -456,7 +470,19 @@ DEFUN_DLD( depends, args, nargout, depends_usage ) {
 
   }
 
+  // Create cell array of extra files
+  Cell extra_files(1, dep_walk.extra_files.size());
+  {
+    std::set<std::string>::iterator i = dep_walk.extra_files.begin();
+    for (octave_idx_type j = 0; j < extra_files.numel(); ++j, ++i) {
+      extra_files.elem(j) = octave_value(*i);
+    }
+  }
+
   // Return output
-  return octave_value(dep_walk.functions);
+  octave_value_list argout;
+  argout.append(octave_value(dep_walk.functions));
+  argout.append(octave_value(extra_files));
+  return argout;
 
 }
