@@ -87,7 +87,7 @@ function [rho, pd_rho] = SensitivitySNR(pd, Ns, Rsqr_H, detstat, varargin)
       error("%s: R^2 histogram bins must be positive", funcName);
     endif
     if Rsqr_px(1) > 0 || Rsqr_px(end) > 0
-      error("%:s R^2 histogram contains non-zero probability in infinite bins", funcName);
+      error("%s: R^2 histogram contains non-zero probability in infinite bins", funcName);
     endif
 
     ## chop off infinite bins
