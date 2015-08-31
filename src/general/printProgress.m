@@ -31,9 +31,11 @@ function prog = printProgress(prog, varargin)
   # check input
   narginchk(3, 4);
   if ischar(varargin{1})
+    assert(nargin == 4);
     taskstr = varargin{1};
     varargin(1) = [];
   else
+    assert(nargin == 3);
     taskstr = "task";
   endif
   [ii, NN] = deal(varargin{:});
