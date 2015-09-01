@@ -148,6 +148,13 @@ check : all
 		echo "$(MAKE) $@ ERROR: no tests matched TESTS='$${TESTS}' or TESTDIR='$${TESTDIR}'" >&2; \
 		exit 1; \
 	fi; \
+	if test -n "$${TESTS}"; then \
+		echo "Running tests: $${TESTS}"; \
+	elif test -n "$${TESTDIR}"; then \
+		echo "Running tests in $${TESTDIR}"; \
+	else \
+		echo "Running all tests"; \
+	fi; \
 	$(MAKE) `printf " %s.test" $${testfiles}` || exit 1; \
 	echo "=================================================="; \
 	echo "OctApps test suite has passed successfully!"; \
