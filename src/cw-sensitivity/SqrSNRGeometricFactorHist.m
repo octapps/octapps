@@ -22,7 +22,7 @@
 ##   Rsqr_H      = histogram of R^2
 ## and where options are:
 ##   "T"         = observation time in sidereal days (default: inf)
-##   "detectors" = detectors to use (default: L)
+##   "detectors" = detectors to use; either e.g. "H1,L1" or "HL" (default: L1)
 ##   "mism_hgrm" = mismatch histogram (default: no mismatch)
 ##   "alpha"     = source right ascension in radians (default: all-sky)
 ##   "sdelta"    = sine of source declination (default: all-sky)
@@ -39,7 +39,7 @@ function Rsqr_H = SqrSNRGeometricFactorHist(varargin)
   ## parse options
   parseOptions(varargin,
                {"T", "numeric,scalar", inf},
-               {"detectors", "char", "L"},
+               {"detectors", "char", "L1"},
                {"mism_hgrm", "Hist", []},
                {"alpha", "numeric,vector", [0, 2*pi]},
                {"sdelta", "numeric,vector", [-1, 1]},
@@ -51,6 +51,8 @@ function Rsqr_H = SqrSNRGeometricFactorHist(varargin)
                {"hist_N", "numeric,scalar", 20000},
                {"hist_err", "numeric,scalar", 1e-4}
                );
+  assert(all(isalnum(detectors) || detectors == ","), ...
+         "%s: invalid detectors '%s'", funcName, detectors);
 
   ## restrict mismatch histogram to range [0.0, 1.0]
   if ~isempty(mism_hgrm)
@@ -63,6 +65,9 @@ function Rsqr_H = SqrSNRGeometricFactorHist(varargin)
   ## create random parameter generator for source location parameters
   rng = CreateRandParam(alpha, sdelta, psi);
   N = !!rng.allconst + !rng.allconst*hist_N;
+
+  ## remove non-letters from 'detectors', so that e.g. "H1,L1" becomes "HL"
+  detectors = detectors(isalpha(detectors));
 
   ## calculate detector null vectors at t=0 for each detector
   det = struct;
