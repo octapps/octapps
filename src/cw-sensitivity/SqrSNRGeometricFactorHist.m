@@ -51,7 +51,7 @@ function Rsqr_H = SqrSNRGeometricFactorHist(varargin)
                {"hist_N", "numeric,scalar", 20000},
                {"hist_err", "numeric,scalar", 1e-4}
                );
-  assert(all(isalnum(detectors) || detectors == ","), ...
+  assert(all(isalnum(detectors) | detectors == ","), ...
          "%s: invalid detectors '%s'", funcName, detectors);
 
   ## restrict mismatch histogram to range [0.0, 1.0]
