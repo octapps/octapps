@@ -39,8 +39,8 @@ function prog = printProgress(prog, varargin)
     taskstr = "task";
   endif
   [ii, NN] = deal(varargin{:});
-  assert(isvector(ii));
-  assert(isvector(NN));
+  assert(isvector(ii) && all(ii > 0));
+  assert(isvector(NN) && all(NN > 0));
   assert(length(ii) == length(NN));
   NN = double(NN);
   ii = double(ii);
@@ -86,7 +86,7 @@ function prog = printProgress(prog, varargin)
     cpu_use = cpu / (wall + eps);
 
     ## work out remaining wall time, assuming all tasks take the same amount of time
-    wall_rem = wall * ( (1 / f_tasks) - 1 );
+    wall_rem = wall * ( (1 / (f_tasks + eps)) - 1 );
 
     # print progress
     pso = page_screen_output(0);
