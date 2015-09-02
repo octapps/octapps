@@ -251,6 +251,7 @@ function job_file = makeCondorJob(varargin)
   bootstr = strcat(bootstr, "export MAKE_CONDOR_JOB_NODE=`hostname`\n");
   bootstr = strcat(bootstr, "export MAKE_CONDOR_JOB_ARGS=\"$2\"\n");
   bootstr = strcat(bootstr, "cat <<EOF | exec octave --silent --norc --no-history --no-window-system\n");
+  bootstr = strcat(bootstr, "warning on backtrace;\n");
   bootstr = strcat(bootstr, "condor_ID = str2double(getenv(\"MAKE_CONDOR_JOB_ID\"));\n");
   bootstr = strcat(bootstr, "condor_node = getenv(\"MAKE_CONDOR_JOB_NODE\");\n");
   bootstr = strcat(bootstr, "arguments = {$2};\n");
