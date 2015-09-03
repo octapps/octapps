@@ -40,7 +40,7 @@
 ## Other options:
 ##   "det_motion":           type of detector motion [default: "spin+orbit", i.e. full ephemeris]
 ##   "lattice":              template-bank lattice ("Zn", "Ans",..) [default: "Ans"]
-##   "grid_interpolation":   whether to use interpolating or non-interpolating StackSlide, i.e. coarse grids equal fine grid [default: false]
+##   "grid_interpolation":   whether to use interpolating or non-interpolating StackSlide, i.e. coarse grids equal fine grid [default: true]
 ##   "verbose":              computing-cost functions print info messages when called [default: false]
 ##
 function [cost_funs, params, guess] = CostFunctionsEaHSupersky(setup, varargin)
