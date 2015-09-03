@@ -42,16 +42,19 @@ function prog = printProgress(prog, varargin)
   assert(isvector(ii) && all(ii > 0));
   assert(isvector(NN) && all(NN > 0));
   assert(length(ii) == length(NN));
-  NN = double(NN);
-  ii = double(ii);
-  assert(prod(NN) > 0);
 
-  ## store initial CPU and wall times, and last time progress was printed
+  ## store initial CPU and wall times, last time progress was printed, and fraction of tasks completed
   if !isstruct(prog)
     prog = struct();
     prog.cpu0 = cputime();
     prog.wall0 = tic();
     prog.last0 = prog.wall0;
+    prog.f_tasks = 0;
+  endif
+
+  ## do not print again once 'f_tasks' reaches 100%
+  if prog.f_tasks == 1
+    return
   endif
 
   ## compute elapsed CPU and wall times, and time since progress was printed
@@ -64,8 +67,19 @@ function prog = printProgress(prog, varargin)
   ## - increases to ~5m after 1h has elapsed
   ## - converges to 1h after >1d has elapsed
   interval = 10*ceil(360*(1 - exp(-wall/42000)));
-  printed = (last > interval);
-  if printed
+
+  ## convert 'ii' and 'NN' to floating-point type, and ensure 1 <= ii <= NN
+  NN = double(NN);
+  ii = max(1, min(double(ii), NN));
+
+  ## work out fraction of tasks completed
+  if all(ii == NN)
+    prog.f_tasks = 1;
+  else
+    prog.f_tasks = sum((ii - 1) ./ cumprod(NN)) + (1 ./ prod(NN));
+  endif
+
+  if last > interval || prog.f_tasks == 1
 
     ## uses dbstack() to get the name of the calling function - see funcName()
     stack = dbstack();
@@ -76,21 +90,19 @@ function prog = printProgress(prog, varargin)
       name = program_name();
     endif
 
-    ## make sure 1 <= ii <= NN
-    ii = max(1, min(ii, NN));
-
-    ## work out fraction of tasks completed
-    f_tasks = sum((ii - 1) ./ cumprod(NN));
-
     ## work out CPU usage
     cpu_use = cpu / (wall + eps);
 
     ## work out remaining wall time, assuming all tasks take the same amount of time
-    wall_rem = wall * ( (1 / (f_tasks + eps)) - 1 );
+    wall_rem = wall * ( (1 / (prog.f_tasks + eps)) - 1 );
 
     # print progress
     pso = page_screen_output(0);
-    printf("%s: %s %0.1f%%, CPU %0.1f%%, %0.0fs elapsed, %0.0fs remain\n", name, taskstr, 100*f_tasks, 100*cpu_use, wall, wall_rem);
+    printf("%s: %s %0.1f%%, CPU %0.1f%%, %0.0fs elapsed", name, taskstr, 100*prog.f_tasks, 100*cpu_use, wall);
+    if prog.f_tasks < 1
+      printf(", %0.0fs remain", wall_rem);
+    endif
+    printf("\n");
     page_screen_output(pso);
 
     ## update time since progress was printed
