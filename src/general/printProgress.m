@@ -28,6 +28,9 @@
 
 function prog = printProgress(prog, varargin)
 
+  ## always print output
+  page_screen_output(0, "local");
+
   # check input
   narginchk(3, 4);
   if ischar(varargin{1})
@@ -97,13 +100,11 @@ function prog = printProgress(prog, varargin)
     wall_rem = wall * ( (1 / (prog.f_tasks + eps)) - 1 );
 
     # print progress
-    pso = page_screen_output(0);
     printf("%s: %s %0.1f%%, CPU %0.1f%%, %0.0fs elapsed", name, taskstr, 100*prog.f_tasks, 100*cpu_use, wall);
     if prog.f_tasks < 1
       printf(", %0.0fs remain", wall_rem);
     endif
     printf("\n");
-    page_screen_output(pso);
 
     ## update time since progress was printed
     prog.last0 = tic();
