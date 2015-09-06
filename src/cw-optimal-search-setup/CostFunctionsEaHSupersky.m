@@ -185,7 +185,7 @@ function [cost_funs, params, guess] = CostFunctionsEaHSupersky(setup, varargin)
 
 endfunction
 
-function Nt = rssky_num_templates(Nseg, Tseg, mis, params)
+function Nt = rssky_num_templates(Nseg, Tseg, mis, params, padding)
 
   ## do not page output
   pso = page_screen_output(0, "local");
@@ -293,7 +293,7 @@ function Nt = rssky_num_templates(Nseg, Tseg, mis, params)
                                                      "metric", rssky_metric,
                                                      "max_mismatch", mis,
                                                      "param_space", {"rssky", fkdot_param_space},
-                                                     "padding", false
+                                                     "padding", padding
                                                      );
 
     endfor
@@ -340,9 +340,9 @@ function [cost, Ntc, lattice] = cost_coh_wparams(Nseg, Tseg, mc, params)
 
     ## number of templates per segment
     if ( params.grid_interpolation )
-      Ntc(i) = rssky_num_templates(1, Tseg(i), mc(i), params);
+      Ntc(i) = rssky_num_templates(1, Tseg(i), mc(i), params, false);
     else
-      Ntc(i) = rssky_num_templates(Nseg(i), Tseg(i), mc(i), params);
+      Ntc(i) = rssky_num_templates(Nseg(i), Tseg(i), mc(i), params, true);
     endif
 
     ## total coherent cost
@@ -383,7 +383,7 @@ function [cost, Ntf, lattice] = cost_inc_wparams(Nseg, Tseg, mf, params)
     c0T = params.inc_c0 * Nseg(i);
 
     ## number of templates
-    Ntf(i) = rssky_num_templates(Nseg(i), Tseg(i), mf(i), params);
+    Ntf(i) = rssky_num_templates(Nseg(i), Tseg(i), mf(i), params, false);
 
     ## total incoherent cost
     cost(i) = Ntf(i) * c0T;
