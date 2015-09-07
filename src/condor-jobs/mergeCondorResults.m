@@ -36,6 +36,7 @@
 ##                     where 'n' is the number of merged Condor jobs
 ##                     One function per element of job 'results' must be given.
 ##   "save_period":    How often merged results should be saved (default: 90 sec).
+##   "extra_data":     Extra data to save to merged results file.
 
 function mergeCondorResults(varargin)
 
@@ -46,6 +47,7 @@ function mergeCondorResults(varargin)
                {"merge_function", "function,vector"},
                {"norm_function", "function,vector", []},
                {"save_period", "real,strictpos,scalar", 90},
+               {"extra_data", "struct", []},
                []);
   if length(merge_function) == 1
     merge_function = {merge_function};
@@ -212,6 +214,11 @@ function mergeCondorResults(varargin)
       endfor
       merged.results = sortStructFields(results);
     end_try_catch
+
+    ## add extra data
+    if !isempty(extra_data)
+      merged.extra_data = extra_data;
+    endif
 
   endif
 
