@@ -25,6 +25,7 @@
 ##   "tblwidth":   TeX command specifying table width [optional]
 ##   "fillcols":   space-filling columns: "first", "all", "byrow" or "none" [default]
 ##   "fillcolrow": which row to use when setting space-filling columns with "byrow"
+##   "defcolsep":  default non-space-filling column separation [default: 1]
 ##
 ## The table specification 'spec' is a 1-D cell array of rows, the elements of
 ## which are 1-D cell arrays of columns. Further nesting of cell arrays may be
@@ -42,6 +43,7 @@ function tex = buildTeXTable(spec, varargin)
                {"tblwidth", "char", []},
                {"fillcols", "char", "none"},
                {"fillcolrow", "strictpos,integer", []},
+               {"defcolsep", "integer,strictpos,scalar", 1},
                []);
 
   ## parse table specification
@@ -127,7 +129,7 @@ function tex = buildTeXTable(spec, varargin)
   texcolsep{end} = [];
   for j = 1:1:length(texcolsep)
     if isempty(texcolsep{j})
-      texcolsep{j} = "2\\tabcolsep";
+      texcolsep{j} = sprintf("%i\\tabcolsep", defcolsep + 1);
     endif
   endfor
 
