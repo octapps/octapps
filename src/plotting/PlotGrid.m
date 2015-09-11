@@ -15,40 +15,81 @@
 
 ## A more flexible replacement for subplot().
 ## Usage:
-##   hax = PlotGrid(rowrange, colrange, rowspace, colspace, rowfigs, colfigs, rowidx, colidx)
+##   PlotGrid(rowrange, colrange, rowspace, colspace, rowfigs, colfigs)
+##   hax = PlotGrid(rowidx, colidx)
 ## where:
 ##   {row|col}range: range of figure coordinates in [0,1] to be covered by grid in this dimension
 ##   {row|col}space: spacing between figures in this dimension
 ##   {row|col}figs: number of figures in this dimension
 ##   {row|col}idx: figure index in this dimension
 
-function hax = PlotGrid(rowrange, colrange, rowspace, colspace, rowfigs, colfigs, rowidx, colidx)
+function hax = PlotGrid(varargin)
 
-  ## check input
-  assert(isvector(rowrange) && length(rowrange) == 2);
-  assert(isscalar(rowspace) && rowspace >= 0);
-  assert(isscalar(rowfigs) && 1 <= rowfigs && mod(rowfigs, 1) == 0);
-  assert(isscalar(rowidx) && 1 <= rowidx && mod(rowfigs, 1) == 0 && rowidx <= rowfigs);
-  assert(isvector(colrange) && length(colrange) == 2);
-  assert(isscalar(colspace) && colspace >= 0);
-  assert(isscalar(colfigs) && 1 <= colfigs && mod(colfigs, 1) == 0);
-  assert(isscalar(colidx) && 1 <= colidx && mod(colfigs, 1) == 0 && colidx <= colfigs);
+  switch length(varargin)
 
-  ## compute row position
-  top0 = min(rowrange);
-  dtop = (range(rowrange) + rowspace) / rowfigs;
-  top = top0 + dtop * (rowfigs - rowidx);
-  height = (range(rowrange) - rowspace * (rowfigs - 1)) / rowfigs;
+    case 6   ## initial setup
 
-  ## compute column position
-  left0 = min(colrange);
-  dleft = (range(colrange) + colspace) / colfigs;
-  left = left0 + dleft * (colidx - 1);
-  width = (range(colrange) - colspace * (colfigs - 1)) / colfigs;
+      ## parse input
+      [rowrange, colrange, rowspace, colspace, rowfigs, colfigs] = deal(varargin{:});
+      assert(isvector(rowrange) && length(rowrange) == 2);
+      assert(isscalar(rowspace) && rowspace >= 0);
+      assert(isscalar(rowfigs) && 1 <= rowfigs && mod(rowfigs, 1) == 0);
+      assert(isvector(colrange) && length(colrange) == 2);
+      assert(isscalar(colspace) && colspace >= 0);
+      assert(isscalar(colfigs) && 1 <= colfigs && mod(colfigs, 1) == 0);
 
-  ## create subfigure
-  set(gcf, "currentaxes", hax = axes());
-  set(hax, "position", [left, top, width, height]);
+      ## create struct to store grid
+      grid = struct;
+      grid.rowfigs = rowfigs;
+      grid.colfigs = colfigs;
+
+      ## compute row position
+      for rowidx = 1:rowfigs
+        top0 = min(rowrange);
+        dtop = (range(rowrange) + rowspace) / rowfigs;
+        grid.top(rowidx) = top0 + dtop * (rowfigs - rowidx);
+        grid.height(rowidx) = (range(rowrange) - rowspace * (rowfigs - 1)) / rowfigs;
+      endfor
+
+      ## compute column position
+      for colidx = 1:colfigs
+        left0 = min(colrange);
+        dleft = (range(colrange) + colspace) / colfigs;
+        grid.left(colidx) = left0 + dleft * (colidx - 1);
+        grid.width(colidx) = (range(colrange) - colspace * (colfigs - 1)) / colfigs;
+      endfor
+
+      ## setup figure and store grid in property
+      clf reset;
+      try
+        set(gcf, "plotgrid", grid);
+      catch
+        addproperty("plotgrid", gcf, "any", grid);
+      end_try_catch
+
+    case 2   ## create subfigure
+
+      ## retrieve grid from figure property
+      try
+        grid = get(gcf, "plotgrid");
+      catch
+        error("figure has not been set up with %s()", funcName);
+      end_try_catch
+
+      ## parse input
+      [rowidx, colidx] = deal(varargin{:});
+      assert(isscalar(rowidx) && 1 <= rowidx && mod(rowidx, 1) == 0 && rowidx <= grid.rowfigs);
+      assert(isscalar(colidx) && 1 <= colidx && mod(colidx, 1) == 0 && colidx <= grid.colfigs);
+
+      ## create subfigure
+      set(gcf, "currentaxes", hax = axes());
+      set(hax, "position", [grid.left(colidx), grid.top(rowidx), grid.width(colidx), grid.height(rowidx)]);
+
+    otherwise
+      error("%s() takes either 6 or 2 arguments", funcName);
+      print_usage();
+
+  endswitch
 
 endfunction
 
