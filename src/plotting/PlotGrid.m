@@ -42,6 +42,7 @@ function hax = PlotGrid(varargin)
       grid = struct;
       grid.rowfigs = rowfigs;
       grid.colfigs = colfigs;
+      grid.haxes = nan(rowfigs, colfigs);
 
       ## compute row position
       for rowidx = 1:rowfigs
@@ -81,9 +82,18 @@ function hax = PlotGrid(varargin)
       assert(isscalar(rowidx) && 1 <= rowidx && mod(rowidx, 1) == 0 && rowidx <= grid.rowfigs);
       assert(isscalar(colidx) && 1 <= colidx && mod(colidx, 1) == 0 && colidx <= grid.colfigs);
 
-      ## create subfigure
-      set(gcf, "currentaxes", hax = axes());
+      ## create axes if needed
+      hax = grid.haxes(rowidx, colidx);
+      if isnan(hax)
+        hax = grid.haxes(rowidx, colidx) = axes();
+        set(gcf, "plotgrid", grid);
+      endif
+
+      ## (re)set axes position
       set(hax, "position", [grid.left(colidx), grid.top(rowidx), grid.width(colidx), grid.height(rowidx)]);
+
+      ## select axes
+      set(gcf, "currentaxes", hax);
 
     otherwise
       error("%s() takes either 6 or 2 arguments", funcName);
