@@ -30,6 +30,11 @@ function hgrm = addDataToHist(hgrm, data)
   dim = length(hgrm.bins);
   assert(ismatrix(data) && size(data, 2) == dim);
 
+  ## return immediately if data is empty
+  if isempty(data)
+    return
+  endif
+
   ## check for non-numeric data
   if any(isnan(data(:)))
     error("%s: Input data contains NaNs", funcName);
