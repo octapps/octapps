@@ -43,7 +43,7 @@ function tex = buildTeXTable(spec, varargin)
                {"tblwidth", "char", []},
                {"fillcols", "char", "none"},
                {"fillcolrow", "strictpos,integer", []},
-               {"defcolsep", "integer,strictpos,scalar", 1},
+               {"defcolsep", "real,strictpos,scalar", 1},
                []);
 
   ## parse table specification
@@ -129,7 +129,7 @@ function tex = buildTeXTable(spec, varargin)
   texcolsep{end} = [];
   for j = 1:1:length(texcolsep)
     if isempty(texcolsep{j})
-      texcolsep{j} = sprintf("%i\\tabcolsep", defcolsep + 1);
+      texcolsep{j} = sprintf("%g\\tabcolsep", defcolsep + 1);
     endif
   endfor
 
