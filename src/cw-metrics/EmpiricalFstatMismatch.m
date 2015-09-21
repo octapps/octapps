@@ -53,7 +53,8 @@ function [mtwoF, stwoF] = EmpiricalFstatMismatch(mcoh, msemi, scoh=0, ssemi=0)
   mtwoF(mcoh == 0 & msemi == inf) = 1;
   mtwoF(mcoh == inf & msemi == 0) = 1;
   mtwoF(mcoh == inf & msemi == inf) = 1;
-  assert(all(0 <= mtwoF(:) & mtwoF(:) <= 1));
+  mtwoF(mtwoF < 0) = 0;
+  mtwoF(mtwoF > 1) = 1;
 
   ## data for standard deviation mismatch fit
   u = [0.133781, 0.124426, 0.888016];
@@ -70,6 +71,6 @@ function [mtwoF, stwoF] = EmpiricalFstatMismatch(mcoh, msemi, scoh=0, ssemi=0)
   stwoF(scoh == 0 & ssemi == inf) = 0;
   stwoF(scoh == inf & ssemi == 0) = 0;
   stwoF(scoh == inf & ssemi == inf) = 0;
-  assert(all(0 <= stwoF(:)));
+  stwoF(stwoF < 0) = 0;
 
 endfunction
