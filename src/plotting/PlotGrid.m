@@ -17,31 +17,48 @@
 ## Usage:
 ##   PlotGrid(rowrange, colrange, rowspace, colspace, rowfigs, colfigs)
 ##   hax = PlotGrid(rowidx, colidx)
+## or:
+##   PlotGrid(range, space, figs)
+##   hax = PlotGrid(idx)
 ## where:
-##   {row|col}range: range of figure coordinates in [0,1] to be covered by grid in this dimension
-##   {row|col}space: spacing between figures in this dimension
-##   {row|col}figs: number of figures in this dimension
-##   {row|col}idx: figure index in this dimension
+##   [row|col]range: range of figure coordinates in [0,1] to be covered by grid [in this dimension]
+##   [row|col]space: spacing between figures [in this dimension]
+##   [row|col]figs: number of figures [in this dimension]
+##   [row|col]idx: figure index [in this dimension]
 
 function hax = PlotGrid(varargin)
 
   switch length(varargin)
 
-    case 6   ## initial setup
+    case {6, 3}   ## initial setup
 
       ## parse input
-      [rowrange, colrange, rowspace, colspace, rowfigs, colfigs] = deal(varargin{:});
-      assert(isvector(rowrange) && length(rowrange) == 2);
-      assert(isscalar(rowspace) && rowspace >= 0);
-      assert(isscalar(rowfigs) && 1 <= rowfigs && mod(rowfigs, 1) == 0);
-      assert(isvector(colrange) && length(colrange) == 2);
-      assert(isscalar(colspace) && colspace >= 0);
-      assert(isscalar(colfigs) && 1 <= colfigs && mod(colfigs, 1) == 0);
+      if length(varargin) == 3
+        [range, space, figs] = deal(varargin{1:3});
+        assert(isvector(range) && length(range) == 2);
+        assert(isscalar(space) && space >= 0);
+        assert(isscalar(figs) && 1 <= figs && mod(figs, 1) == 0);
+        rowrange = colrange = range;
+        rowspace = colspace = space;
+        rowfigs = round(sqrt(figs));
+        colfigs = ceil(figs / rowfigs);
+        clear range space;
+      else
+        [rowrange, colrange, rowspace, colspace, rowfigs, colfigs] = deal(varargin{1:6});
+        assert(isvector(rowrange) && length(rowrange) == 2);
+        assert(isscalar(rowspace) && rowspace >= 0);
+        assert(isvector(colrange) && length(colrange) == 2);
+        assert(isscalar(colspace) && colspace >= 0);
+        assert(isscalar(rowfigs) && 1 <= rowfigs && mod(rowfigs, 1) == 0);
+        assert(isscalar(colfigs) && 1 <= colfigs && mod(colfigs, 1) == 0);
+        figs = rowfigs * colfigs;
+      endif
 
       ## create struct to store grid
       grid = struct;
       grid.rowfigs = rowfigs;
       grid.colfigs = colfigs;
+      grid.figs = figs;
       grid.haxes = nan(rowfigs, colfigs);
 
       ## compute row position
@@ -68,7 +85,7 @@ function hax = PlotGrid(varargin)
         addproperty("plotgrid", gcf, "any", grid);
       end_try_catch
 
-    case 2   ## create subfigure
+    case {2, 1}   ## create subfigure
 
       ## retrieve grid from figure property
       try
@@ -78,9 +95,17 @@ function hax = PlotGrid(varargin)
       end_try_catch
 
       ## parse input
-      [rowidx, colidx] = deal(varargin{:});
-      assert(isscalar(rowidx) && 1 <= rowidx && mod(rowidx, 1) == 0 && rowidx <= grid.rowfigs);
-      assert(isscalar(colidx) && 1 <= colidx && mod(colidx, 1) == 0 && colidx <= grid.colfigs);
+      if length(varargin) == 1
+        idx = varargin{1};
+        assert(isscalar(idx) && 1 <= idx && mod(idx, 1) == 0 && idx <= grid.figs);
+        rowidx = floor((idx - 1) / grid.colfigs) + 1;
+        colidx = mod((idx - 1), grid.colfigs) + 1;
+        clear idx;
+      else
+        [rowidx, colidx] = deal(varargin{1:2});
+        assert(isscalar(rowidx) && 1 <= rowidx && mod(rowidx, 1) == 0 && rowidx <= grid.rowfigs);
+        assert(isscalar(colidx) && 1 <= colidx && mod(colidx, 1) == 0 && colidx <= grid.colfigs);
+      endif
 
       ## create axes if needed
       hax = grid.haxes(rowidx, colidx);
@@ -96,7 +121,7 @@ function hax = PlotGrid(varargin)
       set(gcf, "currentaxes", hax);
 
     otherwise
-      error("%s() takes either 6 or 2 arguments", funcName);
+      error("%s: incorrect number of input arguments", funcName);
       print_usage();
 
   endswitch
@@ -107,9 +132,10 @@ endfunction
 %!  clf reset;
 %!  N = 5;
 %!  M = 3;
+%!  PlotGrid([0.1,0.9], [0.1,0.8], 0.05, 0.03, N, M);
 %!  for i = 1:N
 %!    for j = 1:M
-%!      PlotGrid([0.1,0.9], [0.1,0.8], 0.05, 0.03, N, M, i, j);
+%!      PlotGrid(i, j);
 %!      text(0.5,0.5,sprintf("%g,%g",i,j));
 %!    endfor
-%! endfor
+%!  endfor
