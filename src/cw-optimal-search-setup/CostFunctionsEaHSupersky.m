@@ -271,18 +271,18 @@ function Nt = rssky_num_templates(Nseg, Tseg, mis, params, padding)
         segment_list = CreateSegmentList(params.ref_time, Nseg_interp(i), Tseg_interp(j), [], params.inc_duty);
 
         ## compute metric
-        rssky_metric = CreateSuperskyMetrics(
-                                             "spindowns", length(params.fkdot_bands) - 1,
-                                             "segment_list", segment_list,
-                                             "ref_time", params.ref_time,
-                                             "fiducial_freq", params.freq + params.fkdot_bands(1),
-                                             "detectors", params.detectors,
-                                             "detector_motion", params.det_motion,
-                                             "ephemerides", ephemerides
-                                             );
+        metrics = CreateSuperskyMetrics(
+                      "spindowns", length(params.fkdot_bands) - 1,
+                      "segment_list", segment_list,
+                      "ref_time", params.ref_time,
+                      "fiducial_freq", params.freq + params.fkdot_bands(1),
+                      "detectors", params.detectors,
+                      "detector_motion", params.det_motion,
+                      "ephemerides", ephemerides
+                    );
 
         ## add metric to cache
-        cache.(cache_key).metrics{Nseg_ii(i), Tseg_jj(j)} = rssky_metric;
+        rssky_metric = cache.(cache_key).metrics{Nseg_ii(i), Tseg_jj(j)} = metrics.rssky_metric_avg;
 
       endif
 
