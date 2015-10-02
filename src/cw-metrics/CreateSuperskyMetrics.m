@@ -17,11 +17,14 @@
 
 ## Create the supersky parameter-space metrics.
 ## Usage:
-##   [rssky_metric, rssky_transf, ussky_metric] = CreateSuperskyMetrics("opt", val, ...)
-## where:
-##   rssky_metric       = reduced supersky metric, appropriately averaged over segments
-##   rssky_transf       = reduced supersky metric transform data
-##   ussky_metric       = unconstrained supersky metric, appropriately averaged over segments
+##   metrics = CreateSuperskyMetrics("opt", val, ...)
+## where 'metrics' is a struct containing the following fields:
+##   ussky_metric_seg   = unconstrained supersky metric, for each segment
+##   rssky_metric_seg   = reduced supersky metric, for each segment
+##   rssky_transf_seg   = coordinate transform data for reduced supersky metric, for each segment
+##   ussky_metric_avg   = unconstrained supersky metric, averaged over segments
+##   rssky_metric_avg   = reduced supersky metric, averaged over segments
+##   rssky_transf_avg   = coordinate transform data for reduced supersky metric, averaged over segments
 ## Options:
 ##   "spindowns"        : number of spindown coordinates: 0=none, 1=1st spindown, 2=1st+2nd spindown, etc.
 ##   "segment_list"     : list of segments [start_time, end_time; start_time, end_time; ...] in GPS seconds
@@ -33,7 +36,7 @@
 ##   "detector_motion"  : which detector motion to use [default: spin+orbit]
 ##   "ephemerides"      : Earth/Sun ephemerides [default: load from loadEphemerides()]
 
-function [rssky_metric, rssky_transf, ussky_metric] = CreateSuperskyMetrics(varargin)
+function metrics = CreateSuperskyMetrics(varargin)
 
   ## load LAL libraries
   lal;
@@ -82,34 +85,45 @@ function [rssky_metric, rssky_transf, ussky_metric] = CreateSuperskyMetrics(vara
 
   ## compute supersky metrics at fiducial frequency of 1.0 Hz
   try
-    [rssky_metric_1Hz, rssky_transf_1Hz, ussky_metric_1Hz] = ...
-    XLALComputeSuperskyMetrics(0, 0, 0,  ...
-                               spindowns, ref_time, SegmentList, 1.0, ...
-                               MultiLALDet, MultiNoise, DetMotion, ephemerides ...
-                              );
+    metrics_1Hz = XLALComputeSuperskyMetrics( ...
+                                              spindowns, ref_time, SegmentList, 1.0, ...
+                                              MultiLALDet, MultiNoise, DetMotion, ephemerides ...
+                                            );
   catch
     error("%s: Could not compute supersky metrics", funcName);
   end_try_catch
 
   ## create metric functions parameterized by fiducial frequency
-  rssky_metric = inline(sprintf("[%s * fiducial_freq^2, %s * fiducial_freq; %s * fiducial_freq, %s]", ...
-                                stringify(rssky_metric_1Hz.data(1:2,1:2)),   stringify(rssky_metric_1Hz.data(1:2,3:end)), ...
-                                stringify(rssky_metric_1Hz.data(3:end,1:2)), stringify(rssky_metric_1Hz.data(3:end,3:end)) ...
-                               ), "fiducial_freq");
-  rssky_transf = inline(sprintf("[%s; %s * fiducial_freq]", ...
-                                stringify(rssky_transf_1Hz.data(1:3, :)), ...
-                                stringify(rssky_transf_1Hz.data(4:end, :)) ...
-                               ), "fiducial_freq");
-  ussky_metric = inline(sprintf("[%s * fiducial_freq^2, %s * fiducial_freq; %s * fiducial_freq, %s]", ...
-                                stringify(ussky_metric_1Hz.data(1:3,1:3)),   stringify(ussky_metric_1Hz.data(1:3,4:end)), ...
-                                stringify(ussky_metric_1Hz.data(4:end,1:3)), stringify(ussky_metric_1Hz.data(4:end,4:end)) ...
-                               ), "fiducial_freq");
+  ussky_metric_func = @(ussky_metric_1Hz) inline(sprintf("[%s * fiducial_freq^2, %s * fiducial_freq; %s * fiducial_freq, %s]", ...
+                                                         stringify(ussky_metric_1Hz.data(1:3,1:3)),   stringify(ussky_metric_1Hz.data(1:3,4:end)), ...
+                                                         stringify(ussky_metric_1Hz.data(4:end,1:3)), stringify(ussky_metric_1Hz.data(4:end,4:end)) ...
+                                                        ), "fiducial_freq");
+  rssky_metric_func = @(rssky_metric_1Hz) inline(sprintf("[%s * fiducial_freq^2, %s * fiducial_freq; %s * fiducial_freq, %s]", ...
+                                                         stringify(rssky_metric_1Hz.data(1:2,1:2)),   stringify(rssky_metric_1Hz.data(1:2,3:end)), ...
+                                                         stringify(rssky_metric_1Hz.data(3:end,1:2)), stringify(rssky_metric_1Hz.data(3:end,3:end)) ...
+                                                        ), "fiducial_freq");
+  rssky_transf_func = @(rssky_transf_1Hz) inline(sprintf("[%s; %s * fiducial_freq]", ...
+                                                         stringify(rssky_transf_1Hz.data(1:3, :)), ...
+                                                         stringify(rssky_transf_1Hz.data(4:end, :)) ...
+                                                        ), "fiducial_freq");
+
+  ## fill metrics struct
+  metrics = struct;
+  metrics.ussky_metric_seg = cellfun(ussky_metric_func, metrics_1Hz.ussky_metric_seg, "uniformoutput", false);
+  metrics.rssky_metric_seg = cellfun(rssky_metric_func, metrics_1Hz.rssky_metric_seg, "uniformoutput", false);
+  metrics.rssky_transf_seg = cellfun(rssky_transf_func, metrics_1Hz.rssky_transf_seg, "uniformoutput", false);
+  metrics.ussky_metric_avg = ussky_metric_func(metrics_1Hz.ussky_metric_avg);
+  metrics.rssky_metric_avg = rssky_metric_func(metrics_1Hz.rssky_metric_avg);
+  metrics.rssky_transf_avg = rssky_transf_func(metrics_1Hz.rssky_transf_avg);
 
   ## if fiducial frequency was supplied, evaluate metric functions at that frequency
   if !isempty(fiducial_freq)
-    rssky_metric = rssky_metric(fiducial_freq);
-    rssky_transf = rssky_transf(fiducial_freq);
-    ussky_metric = ussky_metric(fiducial_freq);
+    metrics.ussky_metric_seg = cellfun(@(x) x(fiducial_freq), metrics.ussky_metric_seg, "uniformoutput", false);
+    metrics.rssky_metric_seg = cellfun(@(x) x(fiducial_freq), metrics.rssky_metric_seg, "uniformoutput", false);
+    metrics.rssky_transf_seg = cellfun(@(x) x(fiducial_freq), metrics.rssky_transf_seg, "uniformoutput", false);
+    metrics.ussky_metric_avg = metrics.ussky_metric_avg(fiducial_freq);
+    metrics.rssky_metric_avg = metrics.rssky_metric_avg(fiducial_freq);
+    metrics.rssky_transf_avg = metrics.rssky_transf_avg(fiducial_freq);
   endif
 
 endfunction
@@ -121,13 +135,19 @@ endfunction
 %!  catch
 %!    disp("skipping test: LALSuite bindings not available"); return;
 %!  end_try_catch
+%!  segment_list = CreateSegmentList(1e9, 5, 86400, [], 0.75);
 %!  args = { ...
 %!           "spindowns", 1, ...
-%!           "segment_list", CreateSegmentList(1e9, 5, 86400, [], 0.75), ...
+%!           "segment_list", segment_list, ...
 %!           "detectors", "H1,L1" ...
 %!         };
-%!  [rssky_metric, rssky_transf, ussky_metric] = CreateSuperskyMetrics(args{:});
-%!  [rssky_metric_100, rssky_transf_100, ussky_metric_100] = CreateSuperskyMetrics(args{:}, "fiducial_freq", 100);
-%!  assert(XLALCompareMetrics(rssky_metric(100), rssky_metric_100) < 1e-8);
-%!  assert(abs(rssky_transf(100) - rssky_transf_100) < 1e-6 * abs(rssky_transf_100));
-%!  assert(XLALCompareMetrics(ussky_metric(100), ussky_metric_100) < 1e-8);
+%!  metrics = CreateSuperskyMetrics(args{:});
+%!  metrics_100 = CreateSuperskyMetrics(args{:}, "fiducial_freq", 100);
+%!  for n = 1:size(segment_list, 1)
+%!    assert(XLALCompareMetrics(metrics.ussky_metric_seg{n}(100), metrics_100.ussky_metric_seg{n}) < 1e-8);
+%!    assert(XLALCompareMetrics(metrics.rssky_metric_seg{n}(100), metrics_100.rssky_metric_seg{n}) < 1e-8);
+%!    assert(abs(metrics.rssky_transf_seg{n}(100) - metrics_100.rssky_transf_seg{n}) < 1e-6 * abs(metrics_100.rssky_transf_seg{n}));
+%!  endfor
+%!  assert(XLALCompareMetrics(metrics.ussky_metric_avg(100), metrics_100.ussky_metric_avg) < 1e-8);
+%!  assert(XLALCompareMetrics(metrics.rssky_metric_avg(100), metrics_100.rssky_metric_avg) < 1e-8);
+%!  assert(abs(metrics.rssky_transf_avg(100) - metrics_100.rssky_transf_avg) < 1e-6 * abs(metrics_100.rssky_transf_avg));
