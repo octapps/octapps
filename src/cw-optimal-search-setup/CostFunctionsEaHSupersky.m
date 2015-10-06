@@ -145,10 +145,10 @@ function [cost_funs, params, guess] = CostFunctionsEaHSupersky(setup, varargin)
 
       guess.Nseg = 225;
       guess.Tseg = 86400;
-      guess.mc = 0.080188889728355;
-      guess.mf = 1.9186634671942;
-      guess.cost_c = 4.419339894206638e+04;
-      guess.cost_f = 1.057406584984129e+06;
+      guess.mc = 0.0801888897004475;
+      guess.mf = 1.91866346519774;
+      guess.cost_c = 4.419339894056540e+04;
+      guess.cost_f = 1.057406584954869e+06;
 
     otherwise
       error("%s: unknown default setup '%s'", funcName, name);
