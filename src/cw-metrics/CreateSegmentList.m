@@ -69,7 +69,7 @@ function varargout = CreateSegmentList(mean_time, Nseg, Tseg, Tspan, duty, alway
   endfor
 
   ## return segment lists
-  if !always_cell && nargout == numel(segment_lists)
+  if !always_cell && nargout <= numel(segment_lists)
     varargout = segment_lists;
   else
     varargout = {segment_lists};
