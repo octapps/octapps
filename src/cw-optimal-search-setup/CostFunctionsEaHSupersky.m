@@ -282,7 +282,7 @@ function Nt = rssky_num_templates(Nseg, Tseg, mis, params, padding)
                     );
 
         ## add metric to cache
-        rssky_metric = cache.(cache_key).metrics{Nseg_ii(i), Tseg_jj(j)} = metrics.rssky_metric_avg;
+        rssky_metric = cache.(cache_key).metrics{Nseg_ii(i), Tseg_jj(j)} = metrics.semi_rssky_metric;
 
       endif
 
