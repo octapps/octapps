@@ -69,14 +69,19 @@ function varargout = CreateSegmentList(mean_time, Nseg, Tseg, Tspan, duty, alway
   endfor
 
   ## return segment lists
-  if !always_cell && nargout <= numel(segment_lists)
-    varargout = segment_lists;
-  else
+  if always_cell || numel(segment_lists) > 1
     varargout = {segment_lists};
+  else
+    varargout = segment_lists;
   endif
 
 endfunction
 
+
+%!assert( iscell(CreateSegmentList(123, 10, [3, 4], [], 1.0)) )
+%!assert( numel(CreateSegmentList(123, 10, [3, 4], [], 1.0)) == 2 )
+%!assert( !iscell(CreateSegmentList(123, 10, 3, [], 1.0)) )
+%!assert( iscell(CreateSegmentList(123, 10, 3, [], 1.0, true)) )
 
 %!assert( AnalyseSegmentList(CreateSegmentList(456, [], 7.3, 140.9, 0.87)).mean_time, 456, 1e-5 )
 %!assert( AnalyseSegmentList(CreateSegmentList(456, [], 7.3, 140.9, 0.87)).num_segments, 16, 1e-5 )
