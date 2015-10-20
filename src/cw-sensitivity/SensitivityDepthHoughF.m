@@ -15,12 +15,22 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## Estimate Hough-on-Fstat sensitivity depth sensDepth = sqrt(Sh)/h0
+## Estimate Hough-on-Fstat sensitivity depth, defined as
+##
+## sensDepth = sqrt(Sdata)/h0,
+##
+## where 'Sdata' is an estimate of the noise PSD over all the data used
+## (which should be computed as the harmonic mean over all the SFTs from
+## all detectors), and 'h0' is the smallest detectable GW amplitude at the
+## given false-alarm (pFA) and false-dismissal probability (pFD)
+##
 ## Usage:
 ##   sensDepth = SensitivityDepthHoughF("opt", val, ...)
 ## Options are:
-##   "Nseg":            number of StackSlide segments
+##   "Nseg":            number of Hough segments
 ##   "Tdata":           total amount of data used, in seconds
+##                      (Note: Tdata = Nsft * Tsft, where 'Nsft' is the total number of
+##                      SFTs of length 'Tsft' used in the search, from all detectors)
 ##   "misHist":         mismatch histogram, produced using Hist()
 ##   "pFD":             false-dismissal probability = 1 - pDet
 ##   "pFA":             false-alarm probability (-ies) *per template* (can be a vector)
