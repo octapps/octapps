@@ -40,7 +40,7 @@
 ## Other options:
 ##   "det_motion":           type of detector motion [default: "spin+orbit", i.e. full ephemeris]
 ##   "lattice":              template-bank lattice ("Zn", "Ans",..) [default: "Ans"]
-##   "grid_interpolation":   whether to use interpolating or non-interpolating StackSlide, i.e. coarse grids equal fine grid [default: true]
+##   "grid_interpolation":   whether to use interpolating or non-interpolating StackSlide, i.e. coherent grids equal incoherent grid [default: true]
 ##   "verbose":              computing-cost functions print info messages when called [default: false]
 ##
 function [cost_funs, params, guess] = CostFunctionsEaHSupersky(setup, varargin)
@@ -81,8 +81,8 @@ function [cost_funs, params, guess] = CostFunctionsEaHSupersky(setup, varargin)
 
       guess.Nseg = 126.041666666667;
       guess.Tseg = 86400;
-      guess.mc = 0.225075907869835;
-      guess.mf = 3.80777662870061;
+      guess.mCoh = 0.225075907869835;
+      guess.mInc = 3.80777662870061;
       guess.costCoh = 3.616526662088050e+03;
       guess.costInc = 6.118347286167773e+04;
 
@@ -113,8 +113,8 @@ function [cost_funs, params, guess] = CostFunctionsEaHSupersky(setup, varargin)
 
       guess.Nseg = 213.541666666667;
       guess.Tseg = 86400;
-      guess.mc = 0.553416808369889;
-      guess.mf = 27.3159208108329;
+      guess.mCoh = 0.553416808369889;
+      guess.mInc = 27.3159208108329;
       guess.costCoh = 1.286769338961998e+03;
       guess.costInc = 6.351323059461516e+04;
 
@@ -145,8 +145,8 @@ function [cost_funs, params, guess] = CostFunctionsEaHSupersky(setup, varargin)
 
       guess.Nseg = 225;
       guess.Tseg = 86400;
-      guess.mc = 0.0801888897004475;
-      guess.mf = 1.91866346519774;
+      guess.mCoh = 0.0801888897004475;
+      guess.mInc = 1.91866346519774;
       guess.costCoh = 4.419339894056540e+04;
       guess.costInc = 1.057406584954869e+06;
 
@@ -179,8 +179,8 @@ function [cost_funs, params, guess] = CostFunctionsEaHSupersky(setup, varargin)
 
   ## make closures of functions with 'params'
   cost_funs = struct( "grid_interpolation", params.grid_interpolation, ...
-                      "costFunCoh", @(Nseg, Tseg, mc=0.5) cost_coh_wparams(Nseg, Tseg, mc, params), ...
-                      "costFunInc", @(Nseg, Tseg, mf=0.5) cost_inc_wparams(Nseg, Tseg, mf, params) ...
+                      "costFunCoh", @(Nseg, Tseg, mCoh=0.5) cost_coh_wparams(Nseg, Tseg, mCoh, params), ...
+                      "costFunInc", @(Nseg, Tseg, mInc=0.5) cost_inc_wparams(Nseg, Tseg, mInc, params) ...
                     );
 
 endfunction
@@ -308,7 +308,7 @@ function Nt = rssky_num_templates(Nseg, Tseg, mis, params, padding)
 
 endfunction
 
-function [cost, Ntc, lattice] = cost_coh_wparams(Nseg, Tseg, mc, params)
+function [cost, Ntc, lattice] = cost_coh_wparams(Nseg, Tseg, mCoh, params)
 
   ## do not page output
   pso = page_screen_output(0, "local");
@@ -317,7 +317,7 @@ function [cost, Ntc, lattice] = cost_coh_wparams(Nseg, Tseg, mc, params)
   UnitsConstants;
 
   ## check input parameters
-  [err, Nseg, Tseg, mc] = common_size(Nseg, Tseg, mc);
+  [err, Nseg, Tseg, mCoh] = common_size(Nseg, Tseg, mCoh);
   assert(err == 0);
 
   ## number of detectors
@@ -327,7 +327,7 @@ function [cost, Ntc, lattice] = cost_coh_wparams(Nseg, Tseg, mc, params)
 
     ## print progress message
     if params.verbose
-      printf("cost_coh( Nseg=%g, Tseg=%g days, mc=%g ) = ", Nseg(i), Tseg(i)/DAYS, mc(i));
+      printf("cost_coh( Nseg=%g, Tseg=%g days, mCoh=%g ) = ", Nseg(i), Tseg(i)/DAYS, mCoh(i));
     endif
 
     if params.resampling
@@ -340,9 +340,9 @@ function [cost, Ntc, lattice] = cost_coh_wparams(Nseg, Tseg, mc, params)
 
     ## number of templates per segment
     if ( params.grid_interpolation )
-      Ntc(i) = rssky_num_templates(1, Tseg(i), mc(i), params, false);
+      Ntc(i) = rssky_num_templates(1, Tseg(i), mCoh(i), params, false);
     else
-      Ntc(i) = rssky_num_templates(Nseg(i), Tseg(i), mc(i), params, true);
+      Ntc(i) = rssky_num_templates(Nseg(i), Tseg(i), mCoh(i), params, true);
     endif
 
     ## total coherent cost
@@ -408,8 +408,8 @@ endfunction
 %!    disp("skipping test: LALSuite bindings not available"); return;
 %!  end_try_catch
 %!  [cost_funs, params, guess] = CostFunctionsEaHSupersky("S5R5", "verbose", true);
-%!  assert(abs(cost_funs.costFunCoh(guess.Nseg, guess.Tseg, guess.mc) - guess.costCoh) < 1e-4);
-%!  assert(abs(cost_funs.costFunInc(guess.Nseg, guess.Tseg, guess.mf) - guess.costInc) < 1e-4);
+%!  assert(abs(cost_funs.costFunCoh(guess.Nseg, guess.Tseg, guess.mCoh) - guess.costCoh) < 1e-4);
+%!  assert(abs(cost_funs.costFunInc(guess.Nseg, guess.Tseg, guess.mInc) - guess.costInc) < 1e-4);
 %!  sp = OptimalSolution4StackSlide("costFuns", cost_funs, ...
 %!                                  "cost0", params.cost0, ...
 %!                                  "TobsMax", params.TobsMax, ...
@@ -425,8 +425,8 @@ endfunction
 %!    disp("skipping test: LALSuite bindings not available"); return;
 %!  end_try_catch
 %!  [cost_funs, params, guess] = CostFunctionsEaHSupersky("S5GC1", "verbose", true);
-%!  assert(abs(cost_funs.costFunCoh(guess.Nseg, guess.Tseg, guess.mc) - guess.costCoh) < 1e-4);
-%!  assert(abs(cost_funs.costFunInc(guess.Nseg, guess.Tseg, guess.mf) - guess.costInc) < 1e-4);
+%!  assert(abs(cost_funs.costFunCoh(guess.Nseg, guess.Tseg, guess.mCoh) - guess.costCoh) < 1e-4);
+%!  assert(abs(cost_funs.costFunInc(guess.Nseg, guess.Tseg, guess.mInc) - guess.costInc) < 1e-4);
 %!  sp = OptimalSolution4StackSlide("costFuns", cost_funs, ...
 %!                                  "cost0", params.cost0, ...
 %!                                  "TobsMax", params.TobsMax, ...
@@ -442,8 +442,8 @@ endfunction
 %!    disp("skipping test: LALSuite bindings not available"); return;
 %!  end_try_catch
 %!  [cost_funs, params, guess] = CostFunctionsEaHSupersky("S6Bucket", "verbose", true);
-%!  assert(abs(cost_funs.costFunCoh(guess.Nseg, guess.Tseg, guess.mc) - guess.costCoh) < 1e-4);
-%!  assert(abs(cost_funs.costFunInc(guess.Nseg, guess.Tseg, guess.mf) - guess.costInc) < 1e-4);
+%!  assert(abs(cost_funs.costFunCoh(guess.Nseg, guess.Tseg, guess.mCoh) - guess.costCoh) < 1e-4);
+%!  assert(abs(cost_funs.costFunInc(guess.Nseg, guess.Tseg, guess.mInc) - guess.costInc) < 1e-4);
 %!  sp = OptimalSolution4StackSlide("costFuns", cost_funs, ...
 %!                                  "cost0", params.cost0, ...
 %!                                  "TobsMax", params.TobsMax, ...

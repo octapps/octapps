@@ -46,9 +46,9 @@
 ## NOTE: this solution is *not* guaranteed to be self-consistent, in the sense that the power-law coefficients
 ## at the point of this local solution may be different from the input 'coefCoh', 'coefInc'
 ##
-## Return structure 'stackparams' has fields {Nseg, Tseg, mc, mf, cr }
+## Return structure 'stackparams' has fields {Nseg, Tseg, mCoh, mInc, cr }
 ## where Nseg is the optimal (fractional!) number of segments, Tseg is the optimal segment length (in seconds),
-## mc is the optimal coarse-grid maximal mismatch, mf the optimal fine-grid maximal mismatch, and cr the resulting optimal
+## mCoh is the optimal coherent-grid maximal mismatch, mInc the optimal incoherent-grid maximal mismatch, and cr the resulting optimal
 ## computing-cost ratio, i.e. cr = CostCoh / CostIncoh.
 ##
 ## [Equation numbers refer to Prix&Shaltev, PRD85, 084010 (2012)]
@@ -141,9 +141,9 @@ function stackparams = LocalSolution4StackSlide ( coefCoh, coefInc, constraints,
     mcOpt = mfOpt^((n_f + 2)/(n_c+2)) * Tau0^(2/(n_c+2));
     crOpt = (mcOpt/n_c)/(mfOpt/n_f);
 
-    stackparams.mf = mfOpt;
-    stackparams.mc = mcOpt;
-    stackparams.cr = crOpt;
+    stackparams.mInc = mfOpt;
+    stackparams.mCoh = mcOpt;
+    stackparams.cr   = crOpt;
     stackparams.Tseg = Tseg0;
     stackparams.Nseg = Nseg0;
     return;
@@ -224,8 +224,8 @@ function stackparams = LocalSolution4StackSlide ( coefCoh, coefInc, constraints,
   NsegOpt  = NsegOpt_fcr ( crOpt );
 
   %% package this into return-struct 'stackparams'
-  stackparams.mc 	= mcOpt;
-  stackparams.mf 	= mfOpt;
+  stackparams.mCoh 	= mcOpt;
+  stackparams.mInc 	= mfOpt;
   stackparams.Nseg 	= NsegOpt;
   stackparams.Tseg 	= TobsOpt / NsegOpt;
   stackparams.cr   	= crOpt;
@@ -252,8 +252,8 @@ endfunction
 %!  constraints.cost0 = 471.981444 * 86400;
 %!  stackparams = LocalSolution4StackSlide ( coefCoh, coefInc, constraints, w = 1 );
 %!  assert ( stackparams.cr, 1, 1e-6 );			## Eq.(117)
-%!  assert ( stackparams.mc, 0.180879057028436, 1e-6 );		## Eq.(118), corrected for xi_c from "Ans(2)" instead of 0.5
-%!  assert ( stackparams.mf, 0.271318585542655, 1e-6 );		## Eq.(118), corrected for xi_f  from "Ans(3)" instead of 0.5
+%!  assert ( stackparams.mCoh, 0.180879057028436, 1e-6 );		## Eq.(118), corrected for xi_c from "Ans(2)" instead of 0.5
+%!  assert ( stackparams.mInc, 0.271318585542655, 1e-6 );		## Eq.(118), corrected for xi_f  from "Ans(3)" instead of 0.5
 %!  assert ( stackparams.Tseg / 86400, 2.4178, 1e-3 );	## corrected result, found in Shaltev thesis, Eq.(4.119), corrected for accurate xi_c, xi_f
 %!  assert ( stackparams.Nseg, 61.7557, 1e-4 );		## corrected result, found in Shaltev thesis, Eq.(4.119), corrected for accurate xi_c, xi_f
 
@@ -280,7 +280,7 @@ endfunction
 %!  assert ( w, 1.09110248396901, 1e-6 );
 %!  stackparams = LocalSolution4StackSlide ( coefCoh, coefInc, constraints, w );
 %!  assert ( stackparams.cr, 0.869163870996078, 1e-4 );
-%!  assert ( stackparams.mc, 0.144345898957936, 1e-4 );
-%!  assert ( stackparams.mf, 0.1660744351839173, 1e-4 );
+%!  assert ( stackparams.mCoh, 0.144345898957936, 1e-4 );
+%!  assert ( stackparams.mInc, 0.1660744351839173, 1e-4 );
 %!  assert ( stackparams.Tseg, 59764.8513746905, -1e-4 );
 %!  assert ( stackparams.Nseg, NsegRef, -1e-4 );

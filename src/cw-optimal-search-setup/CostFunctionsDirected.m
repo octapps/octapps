@@ -41,7 +41,7 @@
 ##   "coh_c0_demod":  computational cost of F-statistic 'demod' per template per second [optional]
 ##   "coh_c0_resamp": computational cost of F-statistic 'resampling' per template [optional]
 ##   "inc_c0":        computational cost of incoherent step per template per segment [optional]
-##   "grid_interpolation": use interpolating StackSlide or non-interpolating (ie coarse-grids == fine-grid)
+##   "grid_interpolation": use interpolating StackSlide or non-interpolating (ie coherent-grids == incoherent-grid)
 ##
 function cost_funs = CostFunctionsDirected ( varargin )
 
@@ -64,8 +64,8 @@ function cost_funs = CostFunctionsDirected ( varargin )
 
   ## make closures of functions with 'params'
   cost_funs = struct( "grid_interpolation", params.grid_interpolation, ...
-                      "costFunCoh", @(Nseg, Tseg, mc=0.5) cost_coh_wparams ( Nseg, Tseg, mc, params ), ...
-                      "costFunInc", @(Nseg, Tseg, mf=0.5) cost_inc_wparams ( Nseg, Tseg, mf, params ) ...
+                      "costFunCoh", @(Nseg, Tseg, mCoh=0.5) cost_coh_wparams ( Nseg, Tseg, mCoh, params ), ...
+                      "costFunInc", @(Nseg, Tseg, mInc=0.5) cost_inc_wparams ( Nseg, Tseg, mInc, params ) ...
                     );
 
 endfunction ## CostFunctionsDirected()
@@ -74,8 +74,8 @@ endfunction ## CostFunctionsDirected()
 %!  UnitsConstants;
 %!  refParams.Nseg = 32;
 %!  refParams.Tseg = 8.0 * 86400;
-%!  refParams.mc   = 0.12;
-%!  refParams.mf   = 0.41;
+%!  refParams.mCoh   = 0.12;
+%!  refParams.mInc   = 0.41;
 %!
 %!  costFuns = CostFunctionsDirected( ...
 %!                                  "fmin", 120, ...
@@ -95,8 +95,8 @@ endfunction ## CostFunctionsDirected()
 %!  sol = OptimalSolution4StackSlide ( "costFuns", costFuns, "cost0", cost0, "TobsMax", TobsMax, "stackparamsGuess", refParams );
 %!
 %!  tol = -1e-2;
-%!  assert ( sol.mc, 0.11892, tol );
-%!  assert ( sol.mf, 0.40691, tol );
+%!  assert ( sol.mCoh, 0.11892, tol );
+%!  assert ( sol.mInc, 0.40691, tol );
 %!  assert ( sol.Nseg, 32.075, tol );
 %!  assert ( sol.Tseg, 6.9091e+05, tol );
 %!  assert ( sol.cr, 0.43838, tol );
@@ -106,8 +106,8 @@ endfunction ## CostFunctionsDirected()
 %!  UnitsConstants;
 %!  refParams.Nseg = 100;
 %!  refParams.Tseg = 86400;
-%!  refParams.mc   = 0.5;
-%!  refParams.mf   = 0.5;
+%!  refParams.mCoh   = 0.5;
+%!  refParams.mInc   = 0.5;
 %!
 %!  costFuns = CostFunctionsDirected( ...
 %!                                  "fmin", 100, ...
@@ -128,18 +128,18 @@ endfunction ## CostFunctionsDirected()
 %!
 %!  tol = -1e-2;
 %! ##compare to reference values given in Shaltev thesis, Eq.(4.119) (adjusted for more accurate xi=mean(Ans) instead of xi~0.5)
-%!  assert ( sol.mc, 0.18103, tol );
-%!  assert ( sol.mf, 0.27120, tol );
+%!  assert ( sol.mCoh, 0.18103, tol );
+%!  assert ( sol.mInc, 0.27120, tol );
 %!  assert ( sol.Nseg, 61.711, tol );
 %!  assert ( sol.Tseg, 2.0905e+05, tol );
 %!  assert ( sol.cr, 1.0013, tol );
 
 
-function [cost, Nt, lattice] = cost_coh_wparams ( Nseg, Tseg, mc, params )
+function [cost, Nt, lattice] = cost_coh_wparams ( Nseg, Tseg, mCoh, params )
   ## coherent cost function
 
   ## check input parameters
-  [err, Nseg, Tseg, mc] = common_size(Nseg, Tseg, mc);
+  [err, Nseg, Tseg, mCoh] = common_size(Nseg, Tseg, mCoh);
   assert(err == 0);
 
   cost = Nt = zeros ( size ( Nseg )  );
@@ -151,7 +151,7 @@ function [cost, Nt, lattice] = cost_coh_wparams ( Nseg, Tseg, mc, params )
       NsegCoh = Nseg(i);
     endif
 
-    Nt(i) = templateCountReal ( NsegCoh, Tseg(i), mc(i), params );
+    Nt(i) = templateCountReal ( NsegCoh, Tseg(i), mCoh(i), params );
 
     Ndet = length(strsplit(params.detectors, ","));
     if ( params.resampling )
@@ -169,16 +169,16 @@ function [cost, Nt, lattice] = cost_coh_wparams ( Nseg, Tseg, mc, params )
 endfunction ## cost_coh_wparams()
 
 
-function [cost, Nt, lattice] = cost_inc_wparams ( Nseg, Tseg, mf, params )
+function [cost, Nt, lattice] = cost_inc_wparams ( Nseg, Tseg, mInc, params )
   ## incoherent cost function
 
   ## check input parameters
-  [err, Nseg, Tseg, mf] = common_size(Nseg, Tseg, mf);
+  [err, Nseg, Tseg, mInc] = common_size(Nseg, Tseg, mInc);
   assert(err == 0);
 
   cost = Nt = zeros ( size ( Nseg )  );
   for i = 1:length(Nseg(:))
-    Nt(i)   = templateCountReal ( Nseg(i), Tseg(i), mf(i), params );
+    Nt(i)   = templateCountReal ( Nseg(i), Tseg(i), mInc(i), params );
     cost(i) = Nseg(i) * Nt(i) * params.inc_c0;
   endfor
 
@@ -345,7 +345,7 @@ function ret = frequencyMetricNat ( sMax, Nseg, Tseg )
   D6 = D2 * ( 3*Nseg^4 - 18*Nseg^2 + 31 ) / 7;
   D = [ 0, D2, 0, D4, 0, D6 ];
 
-  %% HACK required to correctly describe GCT-code behaviour: need finer coarse-grid in f2dot by factor of "finef2"
+  %% HACK required to correctly describe GCT-code behaviour: need finer coherent-grid in f2dot by factor of "finef2"
   global finef2 = 1;	## default=1 but won't change if set in global context already
   %% ----- use this only for coherent metrics ----------
   ff2 = 1;

@@ -33,7 +33,7 @@
 ## "TsegMin":           minimal segment length
 ## "TsegMax":           maximal segment length
 ##
-## "stackparamsGuess"   initial "guess" for solution, must contain fields {Nseg, Tseg, mc, mf}
+## "stackparamsGuess"   initial "guess" for solution, must contain fields {Nseg, Tseg, mCoh, mInc}
 ##
 ## "pFA"                false-alarm probability at which to optimize sensitivity [1e-10]
 ## "pFD"                false-dismissal probability (=1-detection-probability) [0.1]
@@ -45,9 +45,9 @@
 ##
 ## "verbose"            [optional] print useful information about solution at each iteration [default: false]
 ##
-## The return structure 'stackparams' has fields {Nseg, Tseg, mc, mf, cr }
+## The return structure 'stackparams' has fields {Nseg, Tseg, mCoh, mInc, cr }
 ## where Nseg is the optimal (fractional!) number of segments, Tseg is the optimal segment length (in seconds)
-## mc is the optimal coarse-grid mismatch, mf the optimal fine-grid mismatch, and cr the resulting optimal
+## mCoh is the optimal coherent-grid mismatch, mInc the optimal incoherent-grid mismatch, and cr the resulting optimal
 ## computing-cost ratio, i.e. cr = CostCoh / CostIncoh.
 ##
 ## [Equation numbers refer to Prix&Shaltev, PRD85, 084010 (2012)]
@@ -83,14 +83,14 @@ function stackparams = OptimalSolution4StackSlide ( varargin )
   if ( isempty ( uvar.stackparamsGuess ) )
     stackparams.Nseg = 10;
     stackparams.Tseg = 86400;
-    stackparams.mc   = 0.3;
-    stackparams.mf   = 0.3;
+    stackparams.mCoh = 0.3;
+    stackparams.mInc = 0.3;
   else
     stackparams = uvar.stackparamsGuess;
     assert (isfield ( stackparams, "Nseg" ) &&
             isfield ( stackparams, "Tseg" ) &&
-            isfield ( stackparams, "mc" ) &&
-            isfield ( stackparams, "mf" )
+            isfield ( stackparams, "mCoh" ) &&
+            isfield ( stackparams, "mInc" )
             );
   endif
 
@@ -132,8 +132,8 @@ function stackparams = OptimalSolution4StackSlide ( varargin )
 
     ## determine local power-law coefficients at the current guess 'solution'
     w = SensitivityScalingDeviationN ( uvar.pFA, uvar.pFD, stackparams.Nseg, uvar.sensApprox );
-    coefCoh = LocalCostCoefficients ( uvar.costFuns.costFunCoh, stackparams.Nseg, stackparams.Tseg, stackparams.mc );
-    coefInc = LocalCostCoefficients ( uvar.costFuns.costFunInc, stackparams.Nseg, stackparams.Tseg, stackparams.mf );
+    coefCoh = LocalCostCoefficients ( uvar.costFuns.costFunCoh, stackparams.Nseg, stackparams.Tseg, stackparams.mCoh );
+    coefInc = LocalCostCoefficients ( uvar.costFuns.costFunInc, stackparams.Nseg, stackparams.Tseg, stackparams.mInc );
 
     ## store some meta-info about the solution
     stackparams.converged = is_converged;
@@ -151,9 +151,9 @@ function stackparams = OptimalSolution4StackSlide ( varargin )
       else
         printf(":\n");
       endif
-      printf("  Nseg = %g, Tseg = %g days, mc = %g, mf = %g\n", stackparams.Nseg, stackparams.Tseg/DAYS, stackparams.mc, stackparams.mf);
-      printf("  cost_coh ~ Nseg^%g * Tseg^%g * mc^(-%g/2)\n", stackparams.coefCoh.eta, stackparams.coefCoh.delta, stackparams.coefCoh.nDim);
-      printf("  cost_inc ~ Nseg^%g * Tseg^%g * mf^(-%g/2)\n", stackparams.coefInc.eta, stackparams.coefInc.delta, stackparams.coefInc.nDim);
+      printf("  Nseg = %g, Tseg = %g days, mCoh = %g, mInc = %g\n", stackparams.Nseg, stackparams.Tseg/DAYS, stackparams.mCoh, stackparams.mInc);
+      printf("  cost_coh ~ Nseg^%g * Tseg^%g * mCoh^(-%g/2)\n", stackparams.coefCoh.eta, stackparams.coefCoh.delta, stackparams.coefCoh.nDim);
+      printf("  cost_inc ~ Nseg^%g * Tseg^%g * mInc^(-%g/2)\n", stackparams.coefInc.eta, stackparams.coefInc.delta, stackparams.coefInc.nDim);
       printf("  cost / cost0 = %0.2e sec / %0.2e sec = %g\n", stackparams.cost, uvar.cost0, stackparams.cost / uvar.cost0);
       if ( have_TobsMax )
         Tobs = stackparams.Nseg * stackparams.Tseg;
@@ -210,10 +210,10 @@ function is_converged = checkConvergence ( new_stackparams, stackparams, tol )
 
   rel_Nseg = relError ( new_stackparams.Nseg, stackparams.Nseg );
   rel_Tseg = relError ( new_stackparams.Tseg, stackparams.Tseg );
-  rel_mc   = relError ( new_stackparams.mc,   stackparams.mc );
-  rel_mf   = relError ( new_stackparams.mf,   stackparams.mf );
+  rel_mCoh = relError ( new_stackparams.mCoh, stackparams.mCoh );
+  rel_mInc = relError ( new_stackparams.mInc, stackparams.mInc );
 
-  if ( (rel_Nseg < tol) && (rel_Tseg < tol) && (rel_mc < tol) && (rel_mf < tol) )
+  if ( (rel_Nseg < tol) && (rel_Tseg < tol) && (rel_mCoh < tol) && (rel_mInc < tol) )
     is_converged = true;
   else
     is_converged = false;

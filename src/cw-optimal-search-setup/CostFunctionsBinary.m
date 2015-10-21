@@ -39,7 +39,7 @@
 ##   "coh_c0_demod":  computational cost of F-statistic 'demod' per template per second [optional]
 ##   "coh_c0_resamp": computational cost of F-statistic 'resampling' per template [optional]
 ##   "inc_c0":        computational cost of incoherent step per template per segment [optional]
-##   "grid_interpolation": use interpolating StackSlide or non-interpolating (ie coarse-grids == fine-grid)
+##   "grid_interpolation": use interpolating StackSlide or non-interpolating (ie coherent-grids == incoherent-grid)
 ##
 function cost_funs = CostFunctionsBinary ( varargin )
 
@@ -63,8 +63,8 @@ function cost_funs = CostFunctionsBinary ( varargin )
 
   ## make closures of functions with 'params'
   cost_funs = struct( "grid_interpolation", params.grid_interpolation, ...
-                      "costFunCoh", @(Nseg, Tseg, mc=0.5) cost_coh_wparams ( Nseg, Tseg, mc, params ), ...
-                      "costFunInc", @(Nseg, Tseg, mf=0.5) cost_inc_wparams ( Nseg, Tseg, mf, params ) ...
+                      "costFunCoh", @(Nseg, Tseg, mCoh=0.5) cost_coh_wparams ( Nseg, Tseg, mCoh, params ), ...
+                      "costFunInc", @(Nseg, Tseg, mInc=0.5) cost_inc_wparams ( Nseg, Tseg, mInc, params ) ...
                     );
 
 endfunction ## CostFunctionsBinary()
@@ -74,8 +74,8 @@ endfunction ## CostFunctionsBinary()
 %!  UnitsConstants;
 %!  refParams.Nseg = 40;
 %!  refParams.Tseg = 8.0 * DAYS;
-%!  refParams.mc   = 0.5;
-%!  refParams.mf   = 0.5;
+%!  refParams.mCoh   = 0.5;
+%!  refParams.mInc   = 0.5;
 %!  Tsft = 240;
 %!
 %!  costFuns = CostFunctionsBinary ( ...
@@ -93,8 +93,8 @@ endfunction ## CostFunctionsBinary()
 %!  sol = OptimalSolution4StackSlide ( "costFuns", costFuns, "cost0", cost0, "TobsMax", TobsMax, "TsegMax", TsegMax, "stackparamsGuess", refParams );
 %!
 %!  tol = -1e-2;
-%!  assert ( sol.mc, 0.740353478526876, tol );	%% values corrected for xi=MeanHist(An*) instead of 0.5
-%!  assert ( sol.mf, 0.0441091639769692, tol );
+%!  assert ( sol.mCoh, 0.740353478526876, tol );	%% values corrected for xi=MeanHist(An*) instead of 0.5
+%!  assert ( sol.mInc, 0.0441091639769692, tol );
 %!  assert ( sol.Nseg, 40.4819540406797, tol );
 %!  assert ( sol.Tseg, 768342.357405575, tol );
 %!  assert ( sol.cr, 22.3794305395332, tol );
@@ -104,8 +104,8 @@ endfunction ## CostFunctionsBinary()
 %!  UnitsConstants;
 %!  refParams.Nseg = 40;
 %!  refParams.Tseg = 8.0 * DAYS;
-%!  refParams.mc   = 0.5;
-%!  refParams.mf   = 0.5;
+%!  refParams.mCoh   = 0.5;
+%!  refParams.mInc   = 0.5;
 %!
 %!  costFuns = CostFunctionsBinary ( ...
 %!                                  "freqRange", [20, 630],
@@ -122,8 +122,8 @@ endfunction ## CostFunctionsBinary()
 %!  sol = OptimalSolution4StackSlide ( "costFuns", costFuns, "cost0", cost0, "TobsMax", TobsMax, "TsegMax", TsegMax, "stackparamsGuess", refParams );
 %!
 %!  tol = -1e-2;
-%!  assert ( sol.mc, 0.037677, tol );
-%!  assert ( sol.mf, 0.031533, tol );
+%!  assert ( sol.mCoh, 0.037677, tol );
+%!  assert ( sol.mInc, 0.031533, tol );
 %!  assert ( sol.Nseg, 36, tol );
 %!  assert ( sol.Tseg, 864000, tol );
 %!  assert ( sol.cr, 1.5931, tol );
@@ -133,8 +133,8 @@ endfunction ## CostFunctionsBinary()
 %!  UnitsConstants;
 %!  refParams.Nseg = 40;
 %!  refParams.Tseg = 8.0 * DAYS;
-%!  refParams.mc   = 0.5;
-%!  refParams.mf   = 0.5;
+%!  refParams.mCoh   = 0.5;
+%!  refParams.mInc   = 0.5;
 %!
 %!  costFuns = CostFunctionsBinary ( ...
 %!                                  "freqRange", [20, 200],
@@ -152,18 +152,18 @@ endfunction ## CostFunctionsBinary()
 %!  sol = OptimalSolution4StackSlide ( "costFuns", costFuns, "cost0", cost0, "TobsMax", TobsMax, "TsegMax", TsegMax, "stackparamsGuess", refParams );
 %!
 %!  tol = -1e-2;
-%!  assert ( sol.mc, 1.1838, tol );
-%!  assert ( sol.mf, 0.53792, tol );
+%!  assert ( sol.mCoh, 1.1838, tol );
+%!  assert ( sol.mInc, 0.53792, tol );
 %!  assert ( sol.Nseg, 36, tol );
 %!  assert ( sol.Tseg, 864000, tol );
 %!  assert ( sol.cr, 2.6405, tol );
 
 
-function [cost, Nt, lattice] = cost_coh_wparams ( Nseg, Tseg, mc, params )
+function [cost, Nt, lattice] = cost_coh_wparams ( Nseg, Tseg, mCoh, params )
   ## coherent cost function
 
   ## check input parameters
-  [err, Nseg, Tseg, mc] = common_size(Nseg, Tseg, mc);
+  [err, Nseg, Tseg, mCoh] = common_size(Nseg, Tseg, mCoh);
   assert(err == 0);
 
   cost = Nt = zeros ( size ( Nseg )  );
@@ -175,7 +175,7 @@ function [cost, Nt, lattice] = cost_coh_wparams ( Nseg, Tseg, mc, params )
       NsegCoh = Nseg(i);
     endif
 
-    Nt(i) = numTemplates ( NsegCoh, Tseg(i), mc(i), params );
+    Nt(i) = numTemplates ( NsegCoh, Tseg(i), mCoh(i), params );
 
     Ndet = length(strsplit(params.detectors, ","));
     if ( params.resampling )
@@ -193,16 +193,16 @@ function [cost, Nt, lattice] = cost_coh_wparams ( Nseg, Tseg, mc, params )
 endfunction ## cost_coh_wparams()
 
 
-function [cost, Nt, lattice] = cost_inc_wparams ( Nseg, Tseg, mf, params )
+function [cost, Nt, lattice] = cost_inc_wparams ( Nseg, Tseg, mInc, params )
   ## incoherent cost function
 
   ## check input parameters
-  [err, Nseg, Tseg, mf] = common_size(Nseg, Tseg, mf);
+  [err, Nseg, Tseg, mInc] = common_size(Nseg, Tseg, mInc);
   assert(err == 0);
 
   cost = Nt = zeros ( size ( Nseg )  );
   for i = 1:length(Nseg(:))
-    Nt(i)   = numTemplates ( Nseg(i), Tseg(i), mf(i), params );
+    Nt(i)   = numTemplates ( Nseg(i), Tseg(i), mInc(i), params );
     cost(i) = Nseg(i) * Nt(i) * params.inc_c0;
   endfor
 

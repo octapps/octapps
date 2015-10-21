@@ -35,7 +35,7 @@
 ##   "coh_c0_demod":  computational cost of F-statistic 'demod' per template per second [optional]
 ##   "coh_c0_resamp": computational cost of F-statistic 'resampling' per template [optional]
 ##   "inc_c0":        computational cost of incoherent step per template per segment [optional]
-##   "grid_interpolation": whether to use interpolating or non-interpolating StackSlide (ie coarse-grids == fine-grid)
+##   "grid_interpolation": whether to use interpolating or non-interpolating StackSlide (ie coherent-grids == incoherent-grid)
 ##
 function cost_funs = CostFunctionsEaHGCT(varargin)
 
@@ -57,8 +57,8 @@ function cost_funs = CostFunctionsEaHGCT(varargin)
 
   ## make closures of functions with 'params'
   cost_funs = struct( "grid_interpolation", params.grid_interpolation, ...
-                      "costFunCoh", @(Nseg, Tseg, mc=0.5) cost_coh_wparams(Nseg, Tseg, mc, params), ...
-                      "costFunInc", @(Nseg, Tseg, mf=0.5) cost_inc_wparams(Nseg, Tseg, mf, params) ...
+                      "costFunCoh", @(Nseg, Tseg, mCoh=0.5) cost_coh_wparams(Nseg, Tseg, mCoh, params), ...
+                      "costFunInc", @(Nseg, Tseg, mInc=0.5) cost_inc_wparams(Nseg, Tseg, mInc, params) ...
                     );
 
 endfunction
@@ -157,18 +157,18 @@ function [Nt, s] = func_Nt ( Nseg, Tseg, mis, params )
 
 endfunction # func_Nt()
 
-function [cost, Ntc, lattice] = cost_coh_wparams ( Nseg, Tseg, mc, params )
+function [cost, Ntc, lattice] = cost_coh_wparams ( Nseg, Tseg, mCoh, params )
 
-  [err, Nseg, Tseg, mc] = common_size( Nseg, Tseg, mc);
+  [err, Nseg, Tseg, mCoh] = common_size( Nseg, Tseg, mCoh);
   assert ( err == 0 );
   Ntc = cost = zeros ( size ( Nseg ) );
 
   for i = 1:length(Nseg(:))
 
     if ( params.grid_interpolation )
-      [Ntc(i), s] = func_Nt ( 1, Tseg(i), mc(i), params );
+      [Ntc(i), s] = func_Nt ( 1, Tseg(i), mCoh(i), params );
     else
-      [Ntc(i), s] = func_Nt ( Nseg(i), Tseg(i), mc(i), params );
+      [Ntc(i), s] = func_Nt ( Nseg(i), Tseg(i), mCoh(i), params );
     endif
 
     Ndet = length(strsplit(params.detectors, ","));
@@ -186,14 +186,14 @@ function [cost, Ntc, lattice] = cost_coh_wparams ( Nseg, Tseg, mc, params )
 
 endfunction ## cost_coh_wparams()
 
-function [cost, Ntf, lattice] = cost_inc_wparams ( Nseg, Tseg, mf, params )
+function [cost, Ntf, lattice] = cost_inc_wparams ( Nseg, Tseg, mInc, params )
 
-  [err, Nseg, Tseg, mf] = common_size( Nseg, Tseg, mf);
+  [err, Nseg, Tseg, mInc] = common_size( Nseg, Tseg, mInc);
   assert ( err == 0 );
   Ntf = cost = zeros ( size ( Nseg ) );
 
   for i = 1:length(Nseg(:))
-    [Ntf(i), s] = func_Nt ( Nseg(i), Tseg(i), mf(i), params );
+    [Ntf(i), s] = func_Nt ( Nseg(i), Tseg(i), mInc(i), params );
 
     cost(i) = Nseg(i) * Ntf(i) * params.inc_c0;
   endfor
@@ -211,8 +211,8 @@ endfunction ## cost_inc_wparams()
 %!
 %!  refParams.Nseg = 205;
 %!  refParams.Tseg = 25 * 3600;	## 25(!) hours
-%!  refParams.mc   = 0.5;
-%!  refParams.mf   = 0.5;
+%!  refParams.mCoh   = 0.5;
+%!  refParams.mInc   = 0.5;
 %!
 %!  costFuns = CostFunctionsEaHGCT( ...
 %!                                  "fracSky", 1/3, ...
@@ -225,16 +225,16 @@ endfunction ## cost_inc_wparams()
 %!                                  "inc_c0", 6e-9 ...
 %!                                );
 %!
-%!  cost_co = costFuns.costFunCoh(refParams.Nseg, refParams.Tseg, refParams.mc );
-%!  cost_ic = costFuns.costFunInc(refParams.Nseg, refParams.Tseg, refParams.mf );
+%!  cost_co = costFuns.costFunCoh(refParams.Nseg, refParams.Tseg, refParams.mCoh );
+%!  cost_ic = costFuns.costFunInc(refParams.Nseg, refParams.Tseg, refParams.mInc );
 %!  cost0 = cost_co + cost_ic;
 %!  TobsMax = 365 * 86400;
 %!
 %!  sol = OptimalSolution4StackSlide ( "costFuns", costFuns, "cost0", cost0, "TobsMax", TobsMax, "stackparamsGuess", refParams );
 %!
 %!  tol = -1e-3;
-%!  assert ( sol.mc, 0.1443, tol );
-%!  assert ( sol.mf, 0.1660, tol );
+%!  assert ( sol.mCoh, 0.1443, tol );
+%!  assert ( sol.mInc, 0.1660, tol );
 %!  assert ( sol.Nseg, 527.7, tol );
 %!  assert ( sol.Tseg, 59762, tol );
 %!  assert ( sol.cr, 0.8691, tol );

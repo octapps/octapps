@@ -28,9 +28,9 @@
 ## NOTE: this solution is *not* guaranteed to be self-consistent, in the sense that the power-law coefficients
 ## at the point of this local solution may be different from the input 'coefCoh'
 ##
-## Return structure 'stackparams' has fields {Nseg = 1, Tseg, mc, mf=0, cr = inf }
+## Return structure 'stackparams' has fields {Nseg = 1, Tseg, mCoh, mInc=0, cr = inf }
 ## where Nseg is the number of segments (here =1 by definition), optimal coherent observation time Tseg,
-## optimal coarse-grid mismatch mc, fine-grid mismatch mf=0,
+## optimal coherent-grid mismatch mCoh, incoherent-grid mismatch mInc=0,
 ## and computing-cost ratio cr = CostCoh / CostIncoh (here = inf by definition).
 ##
 ## [Equation numbers refer to Prix&Shaltev, PRD85, 084010 (2012)]
@@ -56,8 +56,8 @@ function stackparams = LocalSolution4Fstat ( coefCoh, cost0 )
 
   stackparams.Tseg = TobsOpt;
   stackparams.Nseg = 1;
-  stackparams.mc   = mcOpt;
-  stackparams.mf   = 0;
+  stackparams.mCoh = mcOpt;
+  stackparams.mInc = 0;
   stackparams.cr   = inf;
 
   return;
@@ -71,4 +71,4 @@ endfunction
 %!  cost0 = 471.981444 * 86400;
 %!  stackparamsCoh = LocalSolution4Fstat ( coefCoh, cost0 );
 %!  assert ( stackparamsCoh.Tseg / 86400, 13.7030102012432, 1e-6 );
-%!  assert ( stackparamsCoh.mc, 0.371528463689787, 1e-6 );
+%!  assert ( stackparamsCoh.mCoh, 0.371528463689787, 1e-6 );
