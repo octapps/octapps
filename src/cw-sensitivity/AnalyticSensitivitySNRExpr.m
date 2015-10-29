@@ -41,7 +41,7 @@ function [rho,tms] = AnalyticSensitivitySNRExpr(za, pd, Ns, nu)
   endif
 
   ## quantile of false dismissal probability
-  q = sqrt(2).*erfcinv(2.*pd);
+  q = sqrt(2).*erfcinv_asym(2.*pd);
 
   ## terms of the second factor of the expression
   tms = cell(1,3);

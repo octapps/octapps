@@ -36,7 +36,7 @@ function sa = invFalseAlarm_chi2_asym(pa, k)
   assert(all(pa(:) > 0) && all(k(:) > 0));
 
   ## calculate threshold
-  eta0 = 2 ./ sqrt(k) .* erfcinv(2*pa);
+  eta0 = 2 ./ sqrt(k) .* erfcinv_asym(2*pa);
   eta = eta0 + 2 ./ (k .* eta0) .* log(eta0 ./ (lambdaFunction(eta0) - 1));
   sa = k .* lambdaFunction(eta);
 

@@ -81,7 +81,7 @@ function pd_rhosqr = HoughFstatFDP(pd, Ns, rhosqr, fdp_vars, fdp_opts)
     ## valid in the limit of N>>1 and rho<<1
     ## this is based on Eq.(6.39) in KrishnanEtAl2004 Hough paper
     alpha = falseAlarm_chi2 ( 2*Fth, 4 );
-    sa = erfcinv(2*paNt);
+    sa = erfcinv_asym(2*paNt);
     ## Theta from Eq.(5.28) in Hough paper, dropping second term in "large N limit" (s Eq.(6.40))
     Theta = sqrt ( Ns ./ ( 2*alpha.*(1-alpha)) );  ## + (1 - 2*alpha)./(1-alpha) .* (sa ./(2*alpha))
     pd_rhosqr = 0.5 * erfc ( - sa + 0.25 * Theta .* exp(-Fth) .* Fth.^2 .* rhosqr );

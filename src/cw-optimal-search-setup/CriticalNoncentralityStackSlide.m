@@ -41,8 +41,8 @@ function noncent = CriticalNoncentralityStackSlide ( pFA, pFD, Nseg, approx = []
   assert ( all ( isfinite(Nseg) ), "Nseg = %g must be finite\n", Nseg );
   assert ( all ( Nseg >= 1 ), "Nseg = %g must be >= 1\n", Nseg );
 
-  alpha = erfcinv ( 2*pFA );
-  beta  = erfcinv ( 2*pFD );
+  alpha = erfcinv_asym ( 2*pFA );
+  beta  = erfcinv_asym ( 2*pFD );
 
   if ( isempty ( approx ) )
     ## ----- no approximations, fully numerical solution

@@ -17,15 +17,37 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn {Function File} {} erfcinv(@var{X})
+## @deftypefn {Function File} {} erfcinv_asym(@var{X})
 ## Compute the inverse complementary error function, i.e., @var{Y} such that
 ##
 ## @example
 ##  erfc(@var{y}) == @var{x}
 ## @end example
 ##
+## An asymptotic expression is used for small @var{X}.
 ## @end deftypefn
 
-function y = erfcinv(x)
-  y = erfinv( 1 - x );
+function y = erfcinv_asym(x)
+
+  ## initialise output
+  y = zeros(size(x));
+
+  ## for large x, use erfinv
+  ii = (x < 1e-14);
+  if any(!ii(:))
+    y(!ii) = erfinv( 1 - x(!ii) );
+  endif
+
+  ## use asymptotic expression for small x:
+  ## from http://dlmf.nist.gov/7.17#iii
+  if any(ii(:))
+    x = x(ii(:));
+    u = -2 ./ log(pi .* x.^2 .* log(1./x));
+    v = log(log(1./x)) - 2 + log(pi);
+    a2 = (1/8) .* v;
+    a3 = (-1/32) .* (v.^2 + 6.*v - 6);
+    a4 = (1/384) .* (4.*v.^3 + 27.*v.^2 + 108.*v - 300);
+    y(ii) = u.^(-1/2) + a2.*u.^(3/2) + a3.*u.^(5/2) + a4.*u.^(7/2);
+  endif
+
 endfunction
