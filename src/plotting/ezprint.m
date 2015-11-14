@@ -40,11 +40,6 @@ function ezprint(filepath, varargin)
                {"texregex", "char", ""},
                []);
 
-  ## only works with gnuplot
-  if !strcmp(get(gcf, "__graphics_toolkit__"), "gnuplot")
-    error("%s: only works with gnuplot", funcName);
-  endif
-
   ## set width and height, converting from points to inches
   width = width / 72;
   if isempty(height)
@@ -52,12 +47,6 @@ function ezprint(filepath, varargin)
   else
     height = height / 72;
   endif
-
-  ## scale figure line widths
-  H = findall(gcf, "-property", "linewidth");
-  for i = 1:length(H);
-    set(H(i), "linewidth", get(H(i), "linewidth") * linescale);
-  endfor
 
   ## set figure width and height
   paperpos = get(gcf, "paperposition");
@@ -83,16 +72,32 @@ function ezprint(filepath, varargin)
     endswitch
   endif
 
-  ## print figure
-  print(sprintf("-d%s", device), ...
-        sprintf("-r%d", dpi), ...
-        sprintf("-FHelvetica:%i", fontsize), ...
-        filepath);
+  ## set graphics toolkit to gnuplot
+  toolkit = graphics_toolkit(gcf);
+  unwind_protect
+    graphics_toolkit(gcf, "gnuplot");
 
-  ## undo scale figure line widths
-  for i = 1:length(H);
-    set(H(i), "linewidth", get(H(i), "linewidth") / linescale);
-  endfor
+    ## scale figure line widths
+    H = findall(gcf, "-property", "linewidth");
+    linewidths = get(H, "linewidth");
+    unwind_protect
+      set(H, {"linewidth"}, cellfun(@(x) x*linescale, linewidths, "uniformoutput", false));
+
+      ## print figure
+      print(sprintf("-d%s", device), ...
+            sprintf("-r%d", dpi), ...
+            sprintf("-FHelvetica:%i", fontsize), ...
+            filepath);
+
+    ## reset scale figure line widths
+    unwind_protect_cleanup
+      set(H, {"linewidth"}, linewidths);
+    end_unwind_protect
+
+  ## reset graphics toolkit to gnuplot
+  unwind_protect_cleanup
+    graphics_toolkit(gcf, toolkit);
+  end_unwind_protect
 
   if strcmp(fileext, ".tex")
 
