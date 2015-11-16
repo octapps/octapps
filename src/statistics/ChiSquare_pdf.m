@@ -25,31 +25,51 @@
 ##   k      = number of degrees of freedom
 ##   lambda = non-centrality parameter
 
-function p = ChiSquare_pdf(x, k, lambda)
+function p = ChiSquare_pdf(x, k, lambda=0)
 
   ## check for common size input
-  if !exist("lambda")
-    lambda = 0;
-  endif
   [cserr, x, k, lambda] = common_size(x, k, lambda);
   if cserr > 0
     error("All input arguments must be either of common size or scalars");
   endif
-  p = zeros(size(x));
+  p = NaN(size(x));
 
-  ## for zero lambda, compute the central chi^2 PDF
-  ii = (lambda > 0);
-  if any(!ii(:))
-    p(!ii) = chi2pdf(x(!ii), k(!ii));
+  ## compute the central chi^2 PDF for special case lambda==0
+  ii = !isfinite(p) & (lambda == 0);
+  if any(ii(:))
+    p(ii) = chi2pdf(x(ii), k(ii));
   endif
 
-  ## otherwise compute the non-central chi^2 PDF
+  ## compute the non-central chi^2 PDF for special case x==0
+  ii = !isfinite(p) & (x == 0);
   if any(ii(:))
-    p(ii) = e.^(-0.5 .* (x(ii) + lambda(ii)) ) .* x(ii).^((k(ii)-1)/2) .* \
-        sqrt(lambda(ii)) .* besseli(k(ii)/2 - 1, sqrt( x(ii) .* lambda(ii) ) ) ./ ( 2 .* (x(ii) .* lambda(ii)).^(k(ii)/4) );
-    if ( isnan (p(ii)) )
-      error ("ChiSquare_pdf(): Got NaN for x=%g, k=%d, lambda=%g\n", x(ii), k(ii), lambda(ii) );
-    endif
+    p(ii) = 0.5 .* exp( -0.5.*lambda(ii) ) ./ gamma(k(ii)./2);
+  endif
+
+  ## compute the non-central chi^2 PDF in the general case
+  ii = !isfinite(p);
+  if any(ii(:))
+
+     ## compute terms in logarithm of PDF
+     logp_t1 = logp_t2 = nu = z = logp_t3 = zeros(size(p));
+     logp_t1(ii) = -log(2) - 0.5.*( x(ii) + lambda(ii) );
+     logp_t2(ii) = (k(ii)./4 - 0.5).*log( x(ii) ./ lambda(ii) );
+     nu(ii) = k(ii)./2 - 1;
+     z(ii) = sqrt(x(ii) .* lambda(ii));
+     logp_t3(ii) = log( besseli( nu(ii), z(ii) ) );
+
+     ## compute PDF
+     p(ii) = exp( logp_t1(ii) + logp_t2(ii) + logp_t3(ii) );
+
+  endif
+
+  ## check for valid probabilities
+  ii = !isfinite(p) | (p < 0) | (p > 1);
+  for i = find(ii(:)')
+    warning( "%s: got p=%g for x=%g, k=%g, lambda=%g", funcName, p(i), x(i), k(i), lambda(i) );
+  endfor
+  if any(ii(:))
+    error( "%s: got invalid probabilities for some inputs", funcName );
   endif
 
 endfunction
