@@ -73,7 +73,7 @@ function ezprint(filepath, varargin)
   endif
 
   ## set graphics toolkit to gnuplot
-  toolkit = graphics_toolkit(gcf);
+  toolkit = get(gcf, "__graphics_toolkit__");
   unwind_protect
     graphics_toolkit(gcf, "gnuplot");
 
