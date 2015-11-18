@@ -19,7 +19,13 @@ MKOCTFILE := $(call CheckProg, mkoctfile)
 OCTAVE := $(call CheckProg, octave) --silent --norc --no-history --no-window-system
 SED := $(call CheckProg, gsed sed)
 SORT := LC_ALL=C $(call CheckProg, sort) -f
-SWIG := $(call CheckProg, swig3.0 swig2.0 swig)
+SWIG := $(shell \
+	for name in swig swig2.0 swig3.0; do \
+		if $${name} -version >/dev/null 2>&1; then \
+			echo `$${name} -version | sed -n 's/\./ /g;s/^SWIG Version //p'` $${name}; \
+		fi; \
+	done | sort -r -n | head -1 | cut -d' ' -f4 \
+	)
 
 # Octave version string, and hex number define for use in C code
 version := $(shell $(OCTAVE) --eval "disp(OCTAVE_VERSION)")
