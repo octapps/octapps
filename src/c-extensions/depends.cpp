@@ -296,6 +296,12 @@ public:
     walk_function(t.name());
   }
 
+#if OCT_VERS_NUM >= 0x040000
+  void visit_funcall(tree_funcall& t) {
+    walk_function(t.name());
+  }
+#endif
+
   void visit_parameter_list(tree_parameter_list& t) {
     for (tree_parameter_list::iterator i = t.begin(); i != t.end(); ++i) {
       if (*i) {
