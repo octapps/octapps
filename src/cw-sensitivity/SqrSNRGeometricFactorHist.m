@@ -23,6 +23,7 @@
 ## and where options are:
 ##   "T"         = observation time in sidereal days (default: inf)
 ##   "detectors" = detectors to use; either e.g. "H1,L1" or "HL" (default: L1)
+##   "detweights"= detector weights on S_h to use (default: uniform weights)
 ##   "mism_hgrm" = mismatch histogram (default: no mismatch)
 ##   "alpha"     = source right ascension in radians (default: all-sky)
 ##   "sdelta"    = sine of source declination (default: all-sky)
@@ -40,6 +41,7 @@ function Rsqr_H = SqrSNRGeometricFactorHist(varargin)
   parseOptions(varargin,
                {"T", "numeric,scalar", inf},
                {"detectors", "char", "L1"},
+               {"detweights", "real,strictpos,vector", []},
                {"mism_hgrm", "Hist", []},
                {"alpha", "numeric,vector", [0, 2*pi]},
                {"sdelta", "numeric,vector", [-1, 1]},
@@ -68,6 +70,14 @@ function Rsqr_H = SqrSNRGeometricFactorHist(varargin)
 
   ## remove non-letters from 'detectors', so that e.g. "H1,L1" becomes "HL"
   detectors = detectors(isalpha(detectors));
+
+  ## check detector weights; use uniform weights if not specified,
+  ## then normalise weights by their mean
+  assert(isempty(detweights) || length(detweights) == length(detectors));
+  if isempty(detweights)
+     detweights = ones(1, length(detectors));
+  endif
+  detweights /= mean(detweights);
 
   ## calculate detector null vectors at t=0 for each detector
   det = struct;
@@ -106,9 +116,9 @@ function Rsqr_H = SqrSNRGeometricFactorHist(varargin)
       Fpsqr_t = TimeAvgSqrAntennaPattern(det(n).a0, det(n).b0, xp, yp, det(n).zeta, OmegaT);
       Fxsqr_t = TimeAvgSqrAntennaPattern(det(n).a0, det(n).b0, xx, yx, det(n).zeta, OmegaT);
 
-      ## add new values to histograms
-      Fpsqr_t_H = addDataToHist(Fpsqr_t_H, Fpsqr_t(:));
-      Fxsqr_t_H = addDataToHist(Fxsqr_t_H, Fxsqr_t(:));
+      ## add new values to histograms, weighted by detector weights
+      Fpsqr_t_H = addDataToHist(Fpsqr_t_H, detweights(n) * Fpsqr_t(:));
+      Fxsqr_t_H = addDataToHist(Fxsqr_t_H, detweights(n) * Fxsqr_t(:));
 
     endfor
 

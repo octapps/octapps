@@ -25,6 +25,7 @@
 ##   "pFD":             false-dismissal probability = 1 - pDet
 ##   "pFA":             false-alarm probability (-ies) *per template* (can be a vector)
 ##   "detectors":       CSV list of detectors to use ("H1"=Hanford, "L1"=Livingston, "V1"=Virgo, ...)
+##   "detweights":      detector weights on S_h to use (default: uniform weights)
 ##   "alpha":           source right ascension in radians (default: all-sky)
 ##   "delta":           source declination (default: all-sky)
 
@@ -38,12 +39,13 @@ function sensDepth = SensitivityDepthStackSlide ( varargin )
                        {"pFD", "real,strictpos,scalar", 0.1},
                        {"pFA", "real,strictpos,vector"},
                        {"detectors", "char", "H1,L1" },
+                       {"detweights", "real,strictpos,vector", []},
                        {"alpha", "real,vector", [0, 2*pi]},
                        {"delta", "real,vector", [-pi/2, pi/2]},
                        []);
 
   ## compute sensitivity SNR
-  Rsqr = SqrSNRGeometricFactorHist("detectors", uvar.detectors, "mism_hgrm", uvar.misHist, "alpha", uvar.alpha, "sdelta", sin(uvar.delta) );
+  Rsqr = SqrSNRGeometricFactorHist("detectors", uvar.detectors, "detweights", uvar.detweights, "mism_hgrm", uvar.misHist, "alpha", uvar.alpha, "sdelta", sin(uvar.delta) );
   rho = SensitivitySNR ( uvar.pFD, uvar.Nseg, Rsqr, "ChiSqr", "paNt", uvar.pFA );
 
   ## convert to sensitivity depth
