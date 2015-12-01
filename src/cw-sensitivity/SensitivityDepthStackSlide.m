@@ -34,6 +34,7 @@
 ##   "misHist":         mismatch histogram, produced using Hist()
 ##   "pFD":             false-dismissal probability = 1 - pDet = 1 - 'confidence'
 ##   "pFA":             false-alarm probability (-ies) *per template* (can be a vector)
+##   "avg2Fth"		ALTERNATIVE to pFA: specify average-2F threshold directly
 ##   "detectors":       CSV list of detectors to use ("H1"=Hanford, "L1"=Livingston, "V1"=Virgo, ...)
 ##   "detweights":      detector weights on S_h to use (default: uniform weights)
 ##   "alpha":           source right ascension in radians (default: all-sky)
@@ -47,16 +48,28 @@ function sensDepth = SensitivityDepthStackSlide ( varargin )
                        {"Tdata", "real,strictpos,scalar" },
                        {"misHist", "Hist" },
                        {"pFD", "real,strictpos,scalar", 0.1},
-                       {"pFA", "real,strictpos,vector"},
+                       {"pFA", "real,strictpos,vector", []},
+                       {"avg2Fth", "real,strictpos,vector", []},
                        {"detectors", "char", "H1,L1" },
                        {"detweights", "real,strictpos,vector", []},
                        {"alpha", "real,vector", [0, 2*pi]},
                        {"delta", "real,vector", [-pi/2, pi/2]},
                        []);
 
+  if ( isempty ( uvar.pFA ) && isempty ( uvar.avg2Fth ) )
+    error ("Need at least one of 'pFA' or 'avg2Fth' to determine false-alarm probability!\n");
+  endif
+  if ( !isempty ( uvar.pFA ) && !isempty ( uvar.avg2Fth ) )
+    error ("Must specify exactly one of 'pFA' or 'avg2Fth' to determine false-alarm probability!\n");
+  endif
+
   ## compute sensitivity SNR
   Rsqr = SqrSNRGeometricFactorHist("detectors", uvar.detectors, "detweights", uvar.detweights, "mism_hgrm", uvar.misHist, "alpha", uvar.alpha, "sdelta", sin(uvar.delta) );
-  rho = SensitivitySNR ( uvar.pFD, uvar.Nseg, Rsqr, "ChiSqr", "paNt", uvar.pFA );
+  if ( !isempty ( uvar.pFA ) )
+    [rho, pd_rho] = SensitivitySNR ( uvar.pFD, uvar.Nseg, Rsqr, "ChiSqr", "paNt", uvar.pFA );
+  else
+    [rho, pd_rho] = SensitivitySNR ( uvar.pFD, uvar.Nseg, Rsqr, "ChiSqr", "sa", uvar.Nseg * uvar.avg2Fth );
+  endif
 
   ## convert to sensitivity depth
   TdataSeg = uvar.Tdata / uvar.Nseg;
@@ -67,6 +80,17 @@ endfunction
 
 
 ## a basic example to test functionality
+%!test
+%!  Nseg = 20;
+%!  Tdata = 60*3600*Nseg;
+%!  misHist = createDeltaHist(0.1);
+%!  pFD = 0.1;
+%!  pFA = [1e-14, 1e-12, 1e-10];
+%!  sum2Fth = invFalseAlarm_chi2 ( pFA, 4 * Nseg );
+%!  avg2Fth = sum2Fth / Nseg;
+%!  dets = "H1,L1";
+%!  sigma = SensitivityDepthStackSlide("Nseg", Nseg, "Tdata", Tdata, "misHist", misHist, "pFD", pFD, "avg2Fth", avg2Fth, "detectors", dets);
+%!  assert(max(abs(sigma - [ 38.671   40.780   43.379 ])) < 0.05);
 %!test
 %!  Nseg = 20;
 %!  Tdata = 60*3600*Nseg;
