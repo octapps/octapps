@@ -25,15 +25,12 @@
 %% The optional argument 'oversampleby' specifies an INTEGER
 %% factor to oversample the FFT by
 
-function timeSeries = FourierTransformInv ( fk, xk, oversampleby )
+function timeSeries = FourierTransformInv ( fk, xk, oversampleby = 1 )
 
-  df = fk(2) - fk(1);
+  df = mean ( diff ( fk ) );
 
   N = length(fk);
 
-  if ( !exist("oversampleby") )
-    oversampleby = 1;
-  endif
   if ( ( round(oversampleby) != oversampleby ) || (oversampleby <= 0) )
     error ("Input argument 'oversampleby' must be a positive integer! (%f)", oversampleby);
   endif
@@ -41,15 +38,15 @@ function timeSeries = FourierTransformInv ( fk, xk, oversampleby )
   N1 = oversampleby * N;
   Band1 = N1 * df;
 
-  negFreqs = length ( find ( fk < 0 ) );
-  xk1 = [ xk( negFreqs + 1 : end ), xk( 1: negFreqs ) ];
+  xk1 = ifftshift ( xk );
 
   xi = N1 * df * ifft ( xk1, N1 );
 
   dt = 1 / Band1;
   Tobs = N1 * dt;
   ti = 0:dt:Tobs - dt;
-
+  assert ( length(ti) == length(xi) );
+  
   timeSeries.ti = ti;
   timeSeries.xi = xi;
 

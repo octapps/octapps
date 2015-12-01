@@ -36,23 +36,20 @@
 %% where 'Nseries' is the number of parallel time-series.
 %% The FFT is therefore performed along rows of xi, and the resulting x_k has the same arrangement.
 
-function freqSeries = FourierTransform ( ti, xi, oversampleby )
+function freqSeries = FourierTransform ( ti, xi, oversampleby = 1 )
 
   %% ----- input sanity checks ----------
   if ( ! isvector ( ti ) )
     error ("Time-steps input 'ti' must be a 1D vector\n");
   endif
   N = length(ti);
-  dt = ti(2) - ti(1);
+  dt = mean ( diff ( ti ) );
 
   [Nseries, Nsamp] = size ( xi );
   if ( Nsamp != N )
     error ("Number of time-steps 'ti' (%d) does not agree with samples in 'xi' (%d)!\n", N, Nsamp );
   endif
 
-  if ( !exist("oversampleby") )
-    oversampleby = 1;
-  endif
   if ( ( round(oversampleby) != oversampleby ) || (oversampleby <= 0) )
     error ("Input argument 'oversampleby' must be a positive integer! (%f)", oversampleby);
   endif
@@ -63,9 +60,10 @@ function freqSeries = FourierTransform ( ti, xi, oversampleby )
 
   xFFT = dt * fft ( xi, N1, 2 );	%% FFT over columns, ie "along rows"
 
-  xk = [ xFFT(:, floor(N1/2)+2 : N1), xFFT(:, 1:floor(N1/2)+1) ];
-  fk = df1 * [ - floor(N1/2)+1 : floor(N1/2) ];
+  xk = fftshift ( xFFT );
+  fk = [ -(ceil((N1-1)/2):-1:1)*df1, 0, (1:floor((N1-1)/2))*df1 ];	%% taken from fftshift()
 
+  assert ( length(fk) == length(xk) );
   freqSeries.fk = fk;
   freqSeries.xk = xk;
 
