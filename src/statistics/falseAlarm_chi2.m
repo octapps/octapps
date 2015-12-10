@@ -23,7 +23,7 @@
 
 function fA = falseAlarm_chi2 ( thresh, dof )
 
-  eta = chi2cdf ( thresh, dof );
+  eta = ChiSquare_cdf( thresh, dof, 0 );
   fA = 1 - eta;
 
 endfunction
