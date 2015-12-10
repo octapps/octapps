@@ -21,15 +21,15 @@ function outvalue = ConvertLRStransitionScaleParams ( outname, inname, invalue, 
  %% reference: Keitel, Prix, Papa, Leaci, Siddiq, PRD 89(6):064023 (2014)
  %%
  %% outname/inname can be any of:
- %% Fstar0 as defined in Eq. (38), not to be confused with the semicoherent Fstar0hat
- %% Fstar0hat as defined in Eq. (57)
- %% pFA as defined in Eq. (67)
- %% cstar as defined in Eq. (11)
- %% LVrho (deprecated) as defined in footnote 1 (p4)
+ %% "Fstar0" as defined in Eq. (38), not to be confused with the semicoherent Fstar0hat
+ %% "Fstar0hat" as defined in Eq. (57)
+ %% "pFAstar0" as defined in Eq. (67)
+ %% "cstar" as defined in Eq. (11)
+ %% "LVrho" (deprecated) as defined in footnote 1 (p4)
  %%
  %% Nseg is optional and will be assumed 1 by default
 
- supported_params = {"Fstar0","Fstar0hat","pFA","cstar","LVrho"};
+ supported_params = {"Fstar0","Fstar0hat","pFAstar0","cstar","LVrho"};
 
  if ( !exist("outname","var") || !exist("inname","var") || !exist("invalue","var") )
   error("Need at least three input arguments: outname, inname, invalue. (optional fourth argument: Nseg)");
@@ -66,7 +66,7 @@ function outvalue = ConvertLRStransitionScaleParams ( outname, inname, invalue, 
     Fstar0 = invalue;
    case "Fstar0hat"
     Fstar0 = invalue/Nseg;
-   case "pFA"
+   case "pFAstar0"
     Fstar0 = invFalseAlarm_chi2(invalue,4*Nseg)/(2*Nseg);
    case "cstar"
     Fstar0 = log(invalue);
@@ -80,8 +80,8 @@ function outvalue = ConvertLRStransitionScaleParams ( outname, inname, invalue, 
     outvalue = Fstar0;
    case "Fstar0hat"
     outvalue = Nseg*Fstar0;
-   case "pFA"
-    outvalue = 1-ChiSquare_cdf(2*Nseg*Fstar0,4*Nseg);
+   case "pFAstar0"
+    outvalue = falseAlarm_chi2 ( 2*Nseg*Fstar0, 4*Nseg );
    case "cstar"
     if ( exist("cstar","var") )
      outvalue = cstar;
