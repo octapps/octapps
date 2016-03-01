@@ -55,26 +55,25 @@ function sensDepth = SensitivityDepthStackSlide ( varargin )
                        {"alpha", "real,vector", [0, 2*pi]},
                        {"delta", "real,vector", [-pi/2, pi/2]},
                        []);
-
-  if ( isempty ( uvar.pFA ) && isempty ( uvar.avg2Fth ) )
-    error ("Need at least one of 'pFA' or 'avg2Fth' to determine false-alarm probability!\n");
-  endif
-  if ( !isempty ( uvar.pFA ) && !isempty ( uvar.avg2Fth ) )
-    error ("Must specify exactly one of 'pFA' or 'avg2Fth' to determine false-alarm probability!\n");
-  endif
+  ## check input
+  assert ( ! ( isempty ( uvar.pFA ) && isempty ( uvar.avg2Fth ) ), "Need at least one of 'pFA' or 'avg2Fth' to determine false-alarm probability!\n" );
+  assert ( isempty ( uvar.pFA ) || isempty ( uvar.avg2Fth ), "Must specify exactly one of 'pFA' or 'avg2Fth' to determine false-alarm probability!\n" );
 
   ## compute sensitivity SNR
   Rsqr = SqrSNRGeometricFactorHist("detectors", uvar.detectors, "detweights", uvar.detweights, "mism_hgrm", uvar.misHist, "alpha", uvar.alpha, "sdelta", sin(uvar.delta) );
+
+  ## two different ways to specify false-alarm / threshold
   if ( !isempty ( uvar.pFA ) )
-    [rho, pd_rho] = SensitivitySNR ( uvar.pFD, uvar.Nseg, Rsqr, "ChiSqr", "paNt", uvar.pFA );
+    FAarg = { "paNt", uvar.pFA };
   else
-    [rho, pd_rho] = SensitivitySNR ( uvar.pFD, uvar.Nseg, Rsqr, "ChiSqr", "sa", uvar.Nseg * uvar.avg2Fth );
+    FAarg = { "sa", uvar.Nseg * uvar.avg2Fth };
   endif
 
+  [rho, pd_rho] = SensitivitySNR ( uvar.pFD, uvar.Nseg, Rsqr, "ChiSqr", FAarg{:} );
+
   ## convert to sensitivity depth
-  TdataSeg = uvar.Tdata / uvar.Nseg;
-  sensDepthInv = 5/2 .* rho .* TdataSeg.^(-1/2);
-  sensDepth = 1 ./ sensDepthInv;
+  rhoSC = sqrt ( uvar.Nseg )  .* rho;
+  sensDepth = 2 / 5 * sqrt ( uvar.Tdata ) ./ rhoSC;
 
 endfunction
 
@@ -89,8 +88,8 @@ endfunction
 %!  sum2Fth = invFalseAlarm_chi2 ( pFA, 4 * Nseg );
 %!  avg2Fth = sum2Fth / Nseg;
 %!  dets = "H1,L1";
-%!  sigma = SensitivityDepthStackSlide("Nseg", Nseg, "Tdata", Tdata, "misHist", misHist, "pFD", pFD, "avg2Fth", avg2Fth, "detectors", dets);
-%!  assert(max(abs(sigma - [ 38.671   40.780   43.379 ])) < 0.05);
+%!  depth = SensitivityDepthStackSlide("Nseg", Nseg, "Tdata", Tdata, "misHist", misHist, "pFD", pFD, "avg2Fth", avg2Fth, "detectors", dets);
+%!  assert(max(abs(depth - [ 38.671   40.780   43.379 ])) < 0.05);
 %!test
 %!  Nseg = 20;
 %!  Tdata = 60*3600*Nseg;
@@ -98,5 +97,5 @@ endfunction
 %!  pFD = 0.1;
 %!  pFA = [1e-14, 1e-12, 1e-10];
 %!  dets = "H1,L1";
-%!  sigma = SensitivityDepthStackSlide("Nseg", Nseg, "Tdata", Tdata, "misHist", misHist, "pFD", pFD, "pFA", pFA, "detectors", dets);
-%!  assert(max(abs(sigma - [ 38.671   40.780   43.379 ])) < 0.05);
+%!  depth = SensitivityDepthStackSlide("Nseg", Nseg, "Tdata", Tdata, "misHist", misHist, "pFD", pFD, "pFA", pFA, "detectors", dets);
+%!  assert(max(abs(depth - [ 38.671   40.780   43.379 ])) < 0.05);
