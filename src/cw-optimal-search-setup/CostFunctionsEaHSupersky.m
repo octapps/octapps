@@ -408,15 +408,16 @@ endfunction
 %!    disp("skipping test: LALSuite bindings not available"); return;
 %!  end_try_catch
 %!  [cost_funs, params, guess] = CostFunctionsEaHSupersky("S5R5", "verbose", true);
-%!  assert(abs(cost_funs.costFunCoh(guess.Nseg, guess.Tseg, guess.mCoh) - guess.costCoh) < 1e-4);
-%!  assert(abs(cost_funs.costFunInc(guess.Nseg, guess.Tseg, guess.mInc) - guess.costInc) < 1e-4);
+%!  tol = -1e-4;	%% relative error
+%!  assert ( cost_funs.costFunCoh(guess.Nseg, guess.Tseg, guess.mCoh), guess.costCoh, tol );
+%!  assert ( cost_funs.costFunInc(guess.Nseg, guess.Tseg, guess.mInc), guess.costInc, tol );
 %!  sp = OptimalSolution4StackSlide("costFuns", cost_funs, ...
 %!                                  "cost0", params.cost0, ...
 %!                                  "TobsMax", params.TobsMax, ...
 %!                                  "TsegMin", 86400, ...
 %!                                  "stackparamsGuess", guess, "verbose", true);
-%!  assert(abs(sp.coefCoh.cost - guess.costCoh) < 1e-4);
-%!  assert(abs(sp.coefInc.cost - guess.costInc) < 1e-4);
+%!  assert ( sp.coefCoh.cost, guess.costCoh, tol );
+%!  assert ( sp.coefInc.cost, guess.costInc, tol );
 
 %!test
 %!  try
@@ -425,15 +426,16 @@ endfunction
 %!    disp("skipping test: LALSuite bindings not available"); return;
 %!  end_try_catch
 %!  [cost_funs, params, guess] = CostFunctionsEaHSupersky("S5GC1", "verbose", true);
-%!  assert(abs(cost_funs.costFunCoh(guess.Nseg, guess.Tseg, guess.mCoh) - guess.costCoh) < 1e-4);
-%!  assert(abs(cost_funs.costFunInc(guess.Nseg, guess.Tseg, guess.mInc) - guess.costInc) < 1e-4);
+%!  tol = -1e-4;
+%!  assert ( cost_funs.costFunCoh(guess.Nseg, guess.Tseg, guess.mCoh), guess.costCoh, tol );
+%!  assert ( cost_funs.costFunInc(guess.Nseg, guess.Tseg, guess.mInc), guess.costInc, tol );
 %!  sp = OptimalSolution4StackSlide("costFuns", cost_funs, ...
 %!                                  "cost0", params.cost0, ...
 %!                                  "TobsMax", params.TobsMax, ...
 %!                                  "TsegMin", 86400, ...
 %!                                  "stackparamsGuess", guess, "verbose", true);
-%!  assert(abs(sp.coefCoh.cost - guess.costCoh) < 1e-4);
-%!  assert(abs(sp.coefInc.cost - guess.costInc) < 1e-4);
+%!  assert ( sp.coefCoh.cost, guess.costCoh, tol );
+%!  assert ( sp.coefInc.cost, guess.costInc, tol );
 
 %!test
 %!  try
@@ -442,12 +444,13 @@ endfunction
 %!    disp("skipping test: LALSuite bindings not available"); return;
 %!  end_try_catch
 %!  [cost_funs, params, guess] = CostFunctionsEaHSupersky("S6Bucket", "verbose", true);
-%!  assert(abs(cost_funs.costFunCoh(guess.Nseg, guess.Tseg, guess.mCoh) - guess.costCoh) < 1e-4);
-%!  assert(abs(cost_funs.costFunInc(guess.Nseg, guess.Tseg, guess.mInc) - guess.costInc) < 1e-4);
+%!  tol = -1e-4;
+%!  assert ( cost_funs.costFunCoh(guess.Nseg, guess.Tseg, guess.mCoh), guess.costCoh, tol );
+%!  assert ( cost_funs.costFunInc(guess.Nseg, guess.Tseg, guess.mInc), guess.costInc, tol );
 %!  sp = OptimalSolution4StackSlide("costFuns", cost_funs, ...
 %!                                  "cost0", params.cost0, ...
 %!                                  "TobsMax", params.TobsMax, ...
 %!                                  "TsegMin", 86400, ...
 %!                                  "stackparamsGuess", guess, "verbose", true);
-%!  assert(abs(sp.coefCoh.cost - guess.costCoh) < 1e-4);
-%!  assert(abs(sp.coefInc.cost - guess.costInc) < 1e-4);
+%!  assert ( sp.coefCoh.cost, guess.costCoh, tol );
+%!  assert ( sp.coefInc.cost, guess.costInc, tol );
