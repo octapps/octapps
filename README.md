@@ -1,4 +1,5 @@
-### OctApps
+OctApps
+=======
 
 Welcome to OctApps, the unofficial LSC Octave script repository!
 
@@ -6,7 +7,8 @@ Homepage: https://gitlab.aei.uni-hannover.de/octapps/octapps
 
 Bugs should be reported to: https://bugs.ligo.org/redmine/projects/octapps
 
-#### Checking out
+Checking out
+------------
 
 OctApps is available via git with the following commands:
 
@@ -16,7 +18,8 @@ OctApps is available via git with the following commands:
 * Authorisation via command-line prompt:
   > git clone https://gitlab.aei.uni-hannover.de/octapps/octapps.git
 
-#### Building
+Building
+--------
 
 To use any OctApps functions with Octave, first run
 
@@ -33,15 +36,13 @@ to your ~/.profile file for Bourne shells (e.g. bash), or
 to your ~/.login file for C shells (e.g. tcsh). You will also need to re-run "make" after adding any
 new directories to OctApps.
 
-If you have SWIG (http://www.swig.org/) installed, running
+If you have SWIG (http://www.swig.org/) installed, running `make` will also build .oct modules which
+are required by some scripts. You will need to install the development features of Octave,
+i.e. whichever package provides the script 'mkoctfile', in order to compile .oct modules. Some
+scripts also require the LALSuite bindings for Octave.
 
-> make
-
-will also build .oct modules which are required by some scripts. You will need to install the
-development features of Octave, i.e. whichever package provides the script 'mkoctfile', in order to
-compile .oct modules. Some scripts also require the LALSuite bindings for Octave.
-
-#### Testing
+Testing
+-------
 
 To execute the OctApps test suite, consisting of tests embedded in Octave script files, run
 
