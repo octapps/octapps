@@ -1,12 +1,12 @@
 Welcome to OctApps, the unofficial LSC Octave script repository.
-Homepage: https://gitmaster.atlas.aei.uni-hannover.de/octapps
+Homepage: https://gitlab.aei.uni-hannover.de/octapps/octapps
 
 Bugs should be reported to:
 https://bugs.ligo.org/redmine/projects/octapps
 
 OctApps is available via git with the following command:
 
-$ git clone git://gitmaster.atlas.aei.uni-hannover.de/octapps/octapps.git
+$ git clone git@gitlab.aei.uni-hannover.de:octapps/octapps.git
 
 To use any OctApps functions with Octave, first run
 
