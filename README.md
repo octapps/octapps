@@ -33,17 +33,19 @@ to your ~/.profile file for Bourne shells (e.g. bash), or
 
 > source /path/to/octapps/octapps-user-env.csh
 
-to your ~/.login file for C shells (e.g. tcsh). You will also need to re-run `make` after adding any
-new directories to OctApps.
+to your ~/.login file for C shells (e.g. tcsh). You will also need to re-run
+`make` after adding any new directories to OctApps.
 
-If you have SWIG (http://www.swig.org/) installed, running `make` will also build .oct modules which
-are required by some scripts. You will need to install the development features of Octave,
-i.e. whichever package provides the script 'mkoctfile', in order to compile .oct modules. Some
-scripts also require the LALSuite bindings for Octave.
+If you have SWIG (http://www.swig.org/) installed, running `make` will also
+build `.oct` modules which are required by some scripts. You will need to
+install the development features of Octave, i.e. whichever package provides the
+script `mkoctfile`, in order to compile `.oct` modules. Some scripts also
+require the LALSuite (https://wiki.ligo.org/DASWG/LALSuite) bindings for Octave.
 
 Testing
 -------
 
-To execute the OctApps test suite, consisting of tests embedded in Octave script files, run
+To execute the OctApps test suite, consisting of tests embedded in Octave
+script files, run
 
 > make check
