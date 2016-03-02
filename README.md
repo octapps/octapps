@@ -12,10 +12,10 @@ Checking out
 
 OctApps is available via git with the following commands:
 
-* Authorisation via SSH keys:
+* Commit authorisation via SSH keys:
   > git clone git@gitlab.aei.uni-hannover.de:octapps/octapps.git
 
-* Authorisation via command-line prompt:
+* Commit authorisation via command-line prompt:
   > git clone https://gitlab.aei.uni-hannover.de/octapps/octapps.git
 
 Building
@@ -33,7 +33,7 @@ to your ~/.profile file for Bourne shells (e.g. bash), or
 
 > source /path/to/octapps/octapps-user-env.csh
 
-to your ~/.login file for C shells (e.g. tcsh). You will also need to re-run "make" after adding any
+to your ~/.login file for C shells (e.g. tcsh). You will also need to re-run `make` after adding any
 new directories to OctApps.
 
 If you have SWIG (http://www.swig.org/) installed, running `make` will also build .oct modules which
