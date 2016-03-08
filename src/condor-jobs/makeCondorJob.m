@@ -23,7 +23,7 @@
 ## Options:
 ##   "job_name":        name of Condor job, used to name submit file
 ##                      and input/output directories
-##   "log_dir":         where to write Condor log files (default: $TMP")
+##   "log_dir":         where to write Condor log files (default: $TMP)
 ##   "func_name":       name of Octave function to run
 ##   "arguments":       cell array of arguments to pass to function.
 ##                      use condorVar() to insert reference to a Condor variable.
