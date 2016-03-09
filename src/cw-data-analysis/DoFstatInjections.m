@@ -244,9 +244,6 @@ function [results, multiSFTs, multiTser] = DoFstatInjections(varargin)
   results.SFT_min_freq = min_freq;
   results.SFT_max_freq = max_freq;
 
-  Tspan = ( endTime - startTime ).__float__();
-  dFreq0 = 1.0/Tspan;
-
   ## setup F-statistic input struct
   optionalArgs = new_FstatOptionalArgs(lalpulsar.FstatOptionalArgsDefaults);
   optionalArgs.randSeed = randSeed;
@@ -255,7 +252,7 @@ function [results, multiSFTs, multiTser] = DoFstatInjections(varargin)
   optionalArgs.injectSqrtSX = injectSqrtSX;
   optionalArgs.assumeSqrtSX = assumeSqrtSX;
   optionalArgs.runningMedianWindow = sft_noise_window;
-  Fstatin = XLALCreateFstatInput ( fakeSFTcat, min_freq, max_freq, dFreq0, ephemerides, optionalArgs );
+  Fstatin = XLALCreateFstatInput ( fakeSFTcat, min_freq, max_freq, 0, ephemerides, optionalArgs );
 
   ## run ComputeFstat() for each injection point
   Fstatres = 0;
