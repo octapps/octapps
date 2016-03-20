@@ -46,10 +46,21 @@ function timeSeries = FourierTransformInv ( fk, xk, oversampleby = 1 )
   Tobs = N1 * dt;
   ti = 0:dt:Tobs - dt;
   assert ( length(ti) == length(xi) );
-  
+
   timeSeries.ti = ti;
   timeSeries.xi = xi;
 
   return;
 
 endfunction
+
+%!test
+%! dt = 0.1;
+%! ti = dt * [ 0:999 ];
+%! xi = zeros ( size ( ti ) );
+%! xi ( 555 ) = 1;
+%! ft = FourierTransform ( ti, xi );
+%! ts = FourierTransformInv ( ft.fk, ft.xk );
+%! err = max ( abs ( ts.xi - xi ) );
+%! assert ( err < 1e-9 );
+
