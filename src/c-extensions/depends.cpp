@@ -20,9 +20,8 @@
 #include <list>
 #include <set>
 
-#include <octave/config.h>
-#include <octave/toplev.h>
 #include <octave/oct.h>
+#include <octave/toplev.h>
 #include <octave/dynamic-ld.h>
 #include <octave/ov-usr-fcn.h>
 #include <octave/pt-all.h>

@@ -20,15 +20,16 @@
 #include <string>
 #include <algorithm>
 
-#include <octave/config.h>
-#include <octave/toplev.h>
 #include <octave/oct.h>
+#include <octave/toplev.h>
 
 #if OCTAVE_VERSION_HEX <= 0x030204
 #define octave_map Octave_map
 #endif
 
 #include <fitsio.h>
+
+extern "C" int fffree(char*, int *);
 
 static const char *const fitsread_usage = "-*- texinfo -*- \n\
 @deftypefn {Loadable Function} fitsread(@var{filename})\n\
