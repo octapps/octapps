@@ -19,13 +19,16 @@
 
 #include <list>
 #include <set>
+
+#include <octave/config.h>
+#include <octave/toplev.h>
 #include <octave/oct.h>
 #include <octave/dynamic-ld.h>
 #include <octave/ov-usr-fcn.h>
 #include <octave/pt-all.h>
 #include <octave/Cell.h>
 
-#if OCT_VERS_NUM <= 0x030204
+#if OCTAVE_VERSION_HEX <= 0x030204
 #define octave_map Octave_map
 #endif
 
@@ -130,7 +133,7 @@ public:
     }
   }
 
-#if OCT_VERS_NUM < 0x030800
+#if OCTAVE_VERSION_HEX < 0x030800
   void visit_static_command(tree_static_command& t) {
     if (t.initializer_list()) {
       t.initializer_list()->accept(*this);
@@ -296,7 +299,7 @@ public:
     walk_function(t.name());
   }
 
-#if OCT_VERS_NUM >= 0x040000
+#if OCTAVE_VERSION_HEX >= 0x040000
   void visit_funcall(tree_funcall& t) {
     walk_function(t.name());
   }

@@ -17,19 +17,14 @@ GIT := $(call CheckProg, git)
 GREP := $(call CheckProg, grep)
 MKOCTFILE := $(call CheckProg, mkoctfile)
 OCTAVE := $(call CheckProg, octave) --silent --norc --no-history --no-window-system
+PKGCONFIG := $(call CheckProg, pkg-config)
 SED := $(call CheckProg, gsed sed)
 SORT := LC_ALL=C $(call CheckProg, sort) -f
-SWIG := $(shell \
-	for name in swig swig2.0 swig3.0; do \
-		if $${name} -version >/dev/null 2>&1; then \
-			echo `$${name} -version | sed -n 's/\./ /g;s/^SWIG Version //p'` $${name}; \
-		fi; \
-	done | sort -r -n | head -1 | cut -d' ' -f4 \
-	)
+SWIG := $(call CheckProg, swig3.0 swig2.0 swig)
 
 # Octave version string, and hex number define for use in C code
 version := $(shell $(OCTAVE) --eval "disp(OCTAVE_VERSION)")
-vers_num := -DOCT_VERS_NUM=$(shell $(OCTAVE) --eval "disp(strcat(\"0x\", sprintf(\"%02i\", str2double(strsplit(OCTAVE_VERSION, \".\")))))")
+vershex := -DOCTAVE_VERSION_HEX=$(shell $(OCTAVE) --eval "disp(strcat(\"0x\", sprintf(\"%02i\", str2double(strsplit(OCTAVE_VERSION, \".\")))))")
 
 # OctApps source path and file list
 curdir := $(shell pwd -L)
@@ -73,17 +68,14 @@ octapps-user-env.sh octapps-user-env.csh : Makefile
 	echo "test \$${$${empty}PATH} -eq 0 && $${setenv} PATH" >>$@; \
 	echo "$${setenv} PATH$${equals}\`echo $${path} | $${cleanpath}\`" >>$@
 
-# build extension modules
-ifneq ($(MKOCTFILE),false)
+ifneq ($(MKOCTFILE),false)		# build extension modules
 
 VPATH = $(srcfilepath)
 
-COMPILE = $(MKOCTFILE) $(vers_num) -g -c -o $@ $<
-LINK = $(MKOCTFILE) -g -o $@ $(filter %.o,$^) $(LIBS)
+Compile = rm -f $@ && $(MKOCTFILE) $(vershex) -g -c -o $@ $< $(CFLAGS) $1 && test -f $@
+Link = rm -f $@ && $(MKOCTFILE) -g -o $@ $(filter %.o,$^) $(LIBS) $1 && test -f $@
 
-octs = \
-	depends \
-	$(END_OF_LIST)
+octs += depends
 
 all : $(octdir) $(octs:%=$(octdir)/%.oct)
 
@@ -91,46 +83,43 @@ $(octdir) :
 	@mkdir -p $@
 
 $(octdir)/%.o : %.cpp Makefile
-	$(verbose)$(COMPILE) -Wall
+	$(verbose)$(call Compile, -Wall)
 
 $(octdir)/%.oct : $(octdir)/%.o Makefile
-	$(verbose)$(LINK)
+	$(verbose)$(call Link)
 
-# generate SWIG extension modules
-ifneq ($(SWIG),false)
+ifneq ($(SWIG),false)				# generate SWIG extension modules
 
-swig_octs = \
-	gsl \
-	$(END_OF_LIST)
-
-$(octdir)/gsl.oct : LIBS = -lgsl
+swig_octs += gsl
+$(octdir)/gsl.oct : CFLAGS = $(shell $(PKGCONFIG) --cflags gsl)
+$(octdir)/gsl.oct : LIBS = $(shell $(PKGCONFIG) --libs gsl)
 
 all : $(swig_octs:%=$(octdir)/%.oct)
 
 $(swig_octs:%=$(octdir)/%.o) : $(octdir)/%.o : oct/%_wrap.cpp Makefile
-	$(verbose)$(COMPILE)
+	$(verbose)$(call Compile)
 
 $(swig_octs:%=oct/%_wrap.cpp) : oct/%_wrap.cpp : %.i Makefile
-	$(verbose)$(SWIG) $(vers_num) -octave -c++ -globals "." -o $@ $<
+	$(verbose)$(SWIG) $(vershex) -octave -c++ -globals "." -o $@ $<
 
 $(swig_octs:%=$(octdir)/%.oct) : $(octdir)/%.oct : $(octdir)/%.o Makefile
-	$(verbose)$(LINK)
+	$(verbose)$(call Link)
 
-else # eq ($(SWIG),false)
+else						# generate SWIG extension modules
 
 all .PHONY : no_swig
 no_swig :
 	@echo "No SWIG binary found; SWIG C++ extensions were NOT built"
 
-endif # neq ($(SWIG),false)
+endif						# generate SWIG extension modules
 
-else # eq ($(MKOCTFILE),false)
+else					# build extension modules
 
 all .PHONY : no_mkoctfile
 no_mkoctfile :
 	@echo "No MKOCTFILE binary found; C++ extensions were NOT built"
 
-endif # neq ($(MKOCTFILE),false)
+endif					# build extension modules
 
 # run test scripts
 check : all

@@ -23,7 +23,7 @@
 %module gsl;
 %include "exception.i"
 %feature("autodoc");
-#if OCT_VERS_NUM >= 0x030800 && SWIG_VERSION < 0x020012
+#if OCTAVE_VERSION_HEX >= 0x030800 && SWIG_VERSION < 0x020012
 #error Requires SWIG version 2.0.12 or greater
 #elif SWIG_VERSION < 0x020011
 #error Requires SWIG version 2.0.11 or greater
