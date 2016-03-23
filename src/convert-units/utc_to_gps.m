@@ -1,4 +1,4 @@
-## Copyright (C) 2014 Karl Wette
+## Copyright (C) 2014, 2016 Karl Wette
 ##
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -16,13 +16,14 @@
 
 ## Convert UTC date strings to GPS times (using LAL functions)
 ## Usage:
-##   gps = utc_to_gps(utc)
+##   [gps, gpsns] = utc_to_gps(utc)
 ##   utc_to_gps utc
 ## where
-##   gps = matrix of GPS times
-##   utc = cell array of UTC date strings
+##   gps   = matrix of GPS times (integer seconds)
+##   gpsns = matrix of GPS times (nanoseconds)
+##   utc   = cell array of UTC date strings
 
-function gps = utc_to_gps(utc)
+function [gps, gpsns] = utc_to_gps(utc)
 
   ## check input
   if ischar(utc)
@@ -34,7 +35,27 @@ function gps = utc_to_gps(utc)
   lal;
 
   ## perform conversion
-  gps = cellfun(@(x) XLALUTCToGPS(datevec(x)), utc, "UniformOutput", true);
+  gps = gpsns = zeros(1, length(utc));
+  for i = 1:length(utc)
+    utci = utc{i};
+
+    # parse any fractional part separately and store as nanoseconds
+    j = find(utci == ".");
+    if !isempty(j)
+      gpsns(i) = str2double(strcat("0", utci(j:end))) * 1e9;
+      utci = utci(1:j-1);
+    endif
+
+    # replace any literal "T" character with a space for datevec() parsing
+    utci(utci == "T") = " ";
+
+    # parse UTC string to a date vector
+    utcv = datevec(utci);
+
+    # convert UTC date vector to a GPS time (integer seconds)
+    gps(i) = double(XLALUTCToGPS(utcv));
+
+  endfor
 
 endfunction
 
@@ -46,3 +67,5 @@ endfunction
 %!    disp("skipping test: LALSuite bindings not available"); return;
 %!  end_try_catch
 %!  assert(utc_to_gps("13-May-2005 06:13:07") == 800000000);
+%!  [s, ns] = utc_to_gps("2011-04-24T04:25:06.123456789");
+%!  assert(s == 987654321 && ns == 123456789);

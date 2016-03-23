@@ -1,4 +1,4 @@
-## Copyright (C) 2014 Karl Wette
+## Copyright (C) 2014, 2016 Karl Wette
 ##
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -34,7 +34,16 @@ function utc = gps_to_utc(gps)
   lal;
 
   ## perform conversion
-  utc = arrayfun(@(x) datestr(datenum(XLALGPSToUTC(x)(1:6))), gps, "UniformOutput", false);
+  utc = cell(1, length(gps));
+  for i = 1:length(gps)
+
+    # convert GPS time to a UTC date vector
+    utcv = XLALGPSToUTC(gps(i));
+
+    # convert UTC date vector to a string
+    utc{i} = datestr(datenum(utcv(1:6)));
+
+  endfor
 
   ## check output
   if length(utc) == 1
