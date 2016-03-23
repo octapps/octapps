@@ -22,6 +22,9 @@ SED := $(call CheckProg, gsed sed)
 SORT := LC_ALL=C $(call CheckProg, sort) -f
 SWIG := $(call CheckProg, swig3.0 swig2.0 swig)
 
+# check for existence of package using pkg-config
+CheckPkg = $(shell $(PKGCONFIG) --exists $1 && echo true)
+
 # Octave version string, and hex number define for use in C code
 version := $(shell $(OCTAVE) --eval "disp(OCTAVE_VERSION)")
 vershex := -DOCTAVE_VERSION_HEX=$(shell $(OCTAVE) --eval "disp(strcat(\"0x\", sprintf(\"%02i\", str2double(strsplit(OCTAVE_VERSION, \".\")))))")
@@ -76,6 +79,14 @@ Compile = rm -f $@ && $(MKOCTFILE) $(vershex) -g -c -o $@ $< $(CFLAGS) $1 && tes
 Link = rm -f $@ && $(MKOCTFILE) -g -o $@ $(filter %.o,$^) $(LIBS) $1 && test -f $@
 
 octs += depends
+
+ifeq ($(call CheckPkg, cfitsio),true)		# compile FITS reading module
+
+octs += fitsread
+$(octdir)/fitsread.oct : CFLAGS = $(shell $(PKGCONFIG) --cflags cfitsio)
+$(octdir)/fitsread.oct : LIBS = $(shell $(PKGCONFIG) --libs cfitsio)
+
+endif						# compile FITS reading module
 
 all : $(octdir) $(octs:%=$(octdir)/%.oct)
 
