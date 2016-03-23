@@ -29,10 +29,18 @@
 
 #include <fitsio.h>
 
-extern "C" int fffree(char*, int *);
+extern "C" int fffree(void*, int *);
 
 static const char *const fitsread_usage = "-*- texinfo -*- \n\
-@deftypefn {Loadable Function} fitsread(@var{filename})\n\
+@deftypefn {Loadable Function} @var{data} = fitsread(@var{filename})\n\
+\n\
+Load data from a FITS (Flexible Image Transport System) file.\n\
+\n\
+@example\n\
+data = fitsread(\"results.fits\");             # Load all data in \"results.fits\"\n\
+data = fitsread(\"results.fits[table1]\");     # Load only the table \"table1\" in \"results.fits\"\n\
+@end example\n\
+\n\
 @end deftypefn";
 
 DEFUN_DLD( fitsread, args, nargout, fitsread_usage ) {
