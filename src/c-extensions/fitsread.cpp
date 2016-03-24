@@ -254,3 +254,10 @@ DEFUN_DLD( fitsread, args, nargout, fitsread_usage ) {
   return octave_value(hdus);
 
 }
+
+/*
+
+%!test
+%!  fitsread(fullfile(fileparts(file_in_loadpath("fitsread.cpp")), "fitsread_test.fits"));
+
+*/
