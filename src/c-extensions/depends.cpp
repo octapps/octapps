@@ -494,3 +494,11 @@ DEFUN_DLD( depends, args, nargout, depends_usage ) {
   return argout;
 
 }
+
+/*
+
+%!test
+%!  octprefixes = cellfun("octave_config_info", {"fcnfiledir", "octfiledir"}, "UniformOutput", false);
+%!  [deps,extras] = depends(octprefixes, "parseOptions");
+
+*/
