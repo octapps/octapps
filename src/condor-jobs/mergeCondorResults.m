@@ -119,29 +119,30 @@ function mergeCondorResults(varargin)
     tries = 0;
     do
       node_result_file = glob(fullfile(job_nodes(n).dir, "stdres.*"));
-      if size(node_result_file, 1) == 1
-        break
-      endif
       if size(node_result_file, 1) > 1
         error("%s: job node directory '%s' contains multiple result files", funcName, job_nodes(n).dir);
       endif
+      if size(node_result_file, 1) == 1
+        try
+          node_results = load(node_result_file{1});
+          break
+        end_try_catch
+      endif
       if tries < load_retries
-        printf("%s: retrying job node '%s'; no result file yet ...\n", funcName, job_nodes(n).name);
+        printf("%s: retrying job node '%s' ...\n", funcName, job_nodes(n).name);
         sleep(retry_period);
       endif
       ++tries;
     until tries > load_retries
     if tries > load_retries
-      printf("%s: skipping job node '%s'; no result file\n", funcName, job_nodes(n).name);
+      if size(node_result_file, 1) == 1
+        printf("%s: skipping job node '%s'; could not open result file\n", funcName, job_nodes(n).name);
+      else
+        printf("%s: skipping job node '%s'; no result file\n", funcName, job_nodes(n).name);
+      endif
       --job_merged_total;
       continue
     endif
-    try
-      node_results = load(node_result_file{1});
-    catch
-      printf("%s: skipping job node '%s'; could not open result file\n", funcName, job_nodes(n).name);
-      continue
-    end_try_catch
 
     ## check job node results
     assert(isfield(node_results, "arguments"), "%s: job node '%s' does not have field 'arguments'", funcName, job_nodes(n).name);
