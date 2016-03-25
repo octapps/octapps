@@ -23,6 +23,10 @@
 ##   "merged_suffix":  Suffix to append to merged results file name
 ##                        'dag_name'_'merged_suffix'.bin.gz
 ##                     Default is "merged".
+##   "exclude_args":   Job results which share the same job arguments are merged
+##                     together. If some job arguments should not be used to
+##                     determine which job results to merge together, they can
+##                     be passed in here as a cell vector of strings.
 ##   "merge_function": Function(s) used to merge results from two Condor
 ##                     jobs with the same arguments, as determined by
 ##                     the DAG job name 'vars' field. Syntax is:
@@ -46,6 +50,7 @@ function mergeCondorResults(varargin)
   parseOptions(varargin,
                {"dag_name", "char"},
                {"merged_suffix", "char", "merged"},
+               {"exclude_args", "cell,vector", {}},
                {"merge_function", "function,vector"},
                {"norm_function", "function,vector", []},
                {"save_period", "real,strictpos,scalar", 90},
@@ -53,6 +58,7 @@ function mergeCondorResults(varargin)
                {"load_retries", "integer,positive,scalar", 3},
                {"retry_period", "integer,strictpos,scalar", 30},
                []);
+  assert(all(cellfun("ischar", exclude_args)));
   if length(merge_function) == 1
     merge_function = {merge_function};
   else
@@ -160,6 +166,22 @@ function mergeCondorResults(varargin)
     merged.cpu_time(end+1) = node_results.cpu_time;
     merged.wall_time(end+1) = node_results.wall_time;
 
+    ## convert arguments to struct, if possible
+    try
+      arguments = struct(node_results.arguments{:});
+    catch
+      arguments = node_results.arguments;
+    end_try_catch
+
+    ## filter out arguments to exclude from job result classification
+    for i = 1:length(exclude_args)
+      j = find(cellfun(@(x) ischar(x) && strcmp(x, exclude_args{i}), node_results.arguments));
+      if isempty(j)
+        error("%s: excluded argument '%s' not in argument list", funcName, exclude_args{i});
+      endif
+      node_results.arguments(j:j+1) = [];
+    endfor
+
     ## determine index into merged results cell array, and create new entry if needed
     argument_str = stringify(node_results.arguments);
     idx = find(strcmp(argument_str, argument_strs));
@@ -171,13 +193,6 @@ function mergeCondorResults(varargin)
       merged.jobs_per_result(idx, 1) = 0;
     endif
     ++merged.jobs_per_result(idx);
-
-    ## convert arguments to struct, if possible
-    try
-      arguments = struct(node_results.arguments{:});
-    catch
-      arguments = node_results.arguments;
-    end_try_catch
 
     ## merge job node results using merge function
     for i = 1:numel(node_results.results)
