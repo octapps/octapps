@@ -37,6 +37,8 @@
 ##                     One function per element of job 'results' must be given.
 ##   "save_period":    How often merged results should be saved (default: 90 sec).
 ##   "extra_data":     Extra data to save to merged results file.
+##   "load_retries":   How many times to try loading result files (default: 3).
+##   "retry_period":   How long to wait between trying to load results (default 30 sec).
 
 function mergeCondorResults(varargin)
 
@@ -48,6 +50,8 @@ function mergeCondorResults(varargin)
                {"norm_function", "function,vector", []},
                {"save_period", "real,strictpos,scalar", 90},
                {"extra_data", "struct", []},
+               {"load_retries", "integer,positive,scalar", 3},
+               {"retry_period", "integer,strictpos,scalar", 30},
                []);
   if length(merge_function) == 1
     merge_function = {merge_function};
@@ -111,14 +115,26 @@ function mergeCondorResults(varargin)
   t = cputime();
   for n = jobs_to_merge
 
-    ## load job node results, skipping missing files
-    node_result_file = glob(fullfile(job_nodes(n).dir, "stdres.*"));
-    if size(node_result_file, 1) < 1
+    ## load job node results
+    tries = 0;
+    do
+      node_result_file = glob(fullfile(job_nodes(n).dir, "stdres.*"));
+      if size(node_result_file, 1) == 1
+        break
+      endif
+      if size(node_result_file, 1) > 1
+        error("%s: job node directory '%s' contains multiple result files", funcName, job_nodes(n).dir);
+      endif
+      if tries < load_retries
+        printf("%s: retrying job node '%s'; no result file yet ...\n", funcName, job_nodes(n).name);
+        sleep(retry_period);
+      endif
+      ++tries;
+    until tries > load_retries
+    if tries > load_retries
       printf("%s: skipping job node '%s'; no result file\n", funcName, job_nodes(n).name);
       --job_merged_total;
       continue
-    elseif size(node_result_file, 1) > 1
-      error("%s: job node directory '%s' contains multiple result files", funcName, job_nodes(n).dir);
     endif
     try
       node_results = load(node_result_file{1});
@@ -126,6 +142,8 @@ function mergeCondorResults(varargin)
       printf("%s: skipping job node '%s'; could not open result file\n", funcName, job_nodes(n).name);
       continue
     end_try_catch
+
+    ## check job node results
     assert(isfield(node_results, "arguments"), "%s: job node '%s' does not have field 'arguments'", funcName, job_nodes(n).name);
     assert(isfield(node_results, "results"), "%s: job node '%s' does not have field 'results'", funcName, job_nodes(n).name);
     assert(isfield(node_results, "cpu_time"), "%s: job node '%s' does not have field 'cpu_time'", funcName, job_nodes(n).name);
