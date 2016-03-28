@@ -17,6 +17,7 @@
 // MA  02111-1307  USA
 //
 
+#include <cstdlib>
 #include <string>
 #include <algorithm>
 
@@ -101,6 +102,21 @@ DEFUN_DLD( fitsread, args, nargout, fitsread_usage ) {
           continue;
         }
 
+        // String trailing number from keyword, indicating keyword sequence
+        int keyn = 1;
+        {
+          std::string::reverse_iterator jj = std::find_if(key.rbegin(), key.rend(), std::not1(std::ptr_fun(::isdigit)));
+          size_t j = std::distance(key.rbegin(), jj);
+          if (j > 0) {
+            int n = atoi(key.substr(key.length() - j).c_str());
+            std::string key_base = key.substr(0, key.length() - j);
+            if (n == 1 || header.contains(key_base)) {
+              key = key_base;
+              keyn = n;
+            }
+          }
+        }
+
         // Parse card value to get datatype
         char dtype = 0;
         if (fits_get_keytype(value, &dtype, &status) != 0) break;
@@ -109,23 +125,38 @@ DEFUN_DLD( fitsread, args, nargout, fitsread_usage ) {
         if (fits_read_record(ff, i - 1, card, &status) != 0) break;
 
         // Reread this header card using datatype information
+        octave_value val;
         if (dtype == 'C') {
           char *longstr = 0;
           if (fits_read_key_longstr(ff, keyname, &longstr, comment, &status) != 0) break;
-          header.contents(key) = Cell(octave_value(longstr));
+          val = octave_value(longstr);
           fffree(longstr, &status);
         } else if (dtype == 'L') {
           int logval = 0;
           if (fits_read_key_log(ff, keyname, &logval, comment, &status) != 0) break;
-          header.contents(key) = Cell(octave_value(logval ? true : false));
+          val = octave_value(logval ? true : false);
         } else if (dtype == 'X') {
           double dblcmpval[2] = {0, 0};
           if (fits_read_key_dblcmp(ff, keyname, dblcmpval, comment, &status) != 0) break;
-          header.contents(key) = Cell(octave_value(Complex(dblcmpval[0], dblcmpval[1])));
+          val = octave_value(Complex(dblcmpval[0], dblcmpval[1]));
         } else {
           double dblval = 0;
           if (fits_read_key_dbl(ff, keyname, &dblval, comment, &status) != 0) break;
-          header.contents(key) = Cell(octave_value(dblval));
+          val = octave_value(dblval);
+        }
+
+        // Add value to header; keyword sequences are added to cell arrays
+        if (!header.contains(key)) {
+          header.contents(key) = Cell(val);
+        } else {
+          Cell vals;
+          if (header.contents(key).elem(0, 0).is_cell()) {
+            vals = header.contents(key).elem(0, 0).cell_value();
+          } else {
+            vals = Cell(header.contents(key).elem(0, 0));
+          }
+          vals.insert(val, keyn - 1, 0);
+          header.contents(key).insert(Cell(octave_value(vals)), 0, 0);
         }
 
       }
