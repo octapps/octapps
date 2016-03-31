@@ -88,3 +88,22 @@ endfunction
 %!test greyScaleReady("blue-magenta");
 %!test greyScaleReady("green-cyan");
 %!test greyScaleReady("blue-cyan");
+
+
+%!demo
+%!  [x, y] = ndgrid(-49:49, -49:49);
+%!  img = round(100*exp(-(x.^2 + y.^2)/1250));
+%!  img(:, 50:99) = repmat((100:-1:2)', 1, 50);
+%!  names = {"red-yellow", "red-magenta", "green-yellow", "blue-magenta", "green-cyan", "blue-cyan"};
+%!  map = [];
+%!  for n = 1:6
+%!    map = [map; greyScaleReady(names{n}, 100)];
+%!  endfor
+%!  figure(1);
+%!  colormap(map);
+%!  for n = 1:6
+%!    subplot(2, 3, n);
+%!    image((n-1)*100 + img);
+%!    axis off;
+%!    title(sprintf("greyScaleReady(\"%s\")", names{n}));
+%!  endfor
