@@ -16,13 +16,23 @@
 
 ## Generate colour maps where the "luma" (brightness) decreases
 ## linearly as a function of colour map index; these maps should
-## therefore be printable in grey-scale. Colours range from white
-## to the first colour of "name", via the second colour of "name".
+## therefore be printable in grey-scale. Light-to-dark colour maps
+## range from white to the first colour of "name", via the second
+## colour of "name"; dark-to-light colour maps reverse this order.
 ##   map  = greyScaleReady("name", [n=64])
 ## where
 ##   map  = colour map
-##   name = one of: "red-yellow", "red-magenta", "green-yellow",
-##                  "blue-magenta", "green-cyan", "blue-cyan"
+##   name = one of:
+##            light-to-dark colour maps:
+##              blue-cyan      blue-magenta
+##              green-cyan     green-yellow
+##              red-magenta    red-yellow
+##            dark-to-light colour maps:
+##              cyan-blue      cyan-green
+##              magenta-blue   magenta-red
+##              yellow-green   yellow-red
+
+
 ##   n    = number of colour map entries
 
 function map = greyScaleReady(name, n=64)
@@ -42,34 +52,42 @@ function map = greyScaleReady(name, n=64)
 
   ## choose interpolation constants
   rx = gx = bx = ry = gy = by = iM;
-  switch name
-    case "red-yellow"
-      x = lb;
-      y = lb + lg;
-      bx = by = gy = im;
-    case "red-magenta"
-      x = lg;
-      y = lg + lb;
-      gx = gy = by = im;
-    case "green-yellow"
-      x = lb;
-      y = lb + lr;
-      bx = by = ry = im;
-    case "blue-magenta"
-      x = lg;
-      y = lg + lr;
-      gx = gy = ry = im;
-    case "green-cyan"
-      x = lr;
-      y = lr + lb;
-      rx = ry = by = im;
-    case "blue-cyan"
-      x = lr;
-      y = lr + lg;
-      rx = ry = gy = im;
-    otherwise
-      error("%s: unknown colour map name '%s'", funcName, name);
-  endswitch
+  s = name;
+  for reverse = [false, true]
+    switch s
+      case "red-yellow"
+        x = lb;
+        y = lb + lg;
+        bx = by = gy = im;
+      case "red-magenta"
+        x = lg;
+        y = lg + lb;
+        gx = gy = by = im;
+      case "green-yellow"
+        x = lb;
+        y = lb + lr;
+        bx = by = ry = im;
+      case "blue-magenta"
+        x = lg;
+        y = lg + lr;
+        gx = gy = ry = im;
+      case "green-cyan"
+        x = lr;
+        y = lr + lb;
+        rx = ry = by = im;
+      case "blue-cyan"
+        x = lr;
+        y = lr + lg;
+        rx = ry = gy = im;
+      otherwise
+        k = find(name == "-");
+        if reverse || isempty(k)
+          error("%s: unknown colour map name '%s'", funcName, name);
+        else
+          s = name([k+1:end, k, 1:k-1]);
+        endif
+    endswitch
+  endfor
 
   ## create interpolation matrices
   r = [0, iM; x, rx; y, ry; 1, im];
@@ -78,23 +96,33 @@ function map = greyScaleReady(name, n=64)
 
   ## generate colour map
   map = makeColourMap(r, g, b, n);
+  if reverse
+     map = map(end:-1:1, :);
+  endif
 
 endfunction
 
 
-%!test greyScaleReady("red-yellow");
-%!test greyScaleReady("red-magenta");
-%!test greyScaleReady("green-yellow");
+%!test greyScaleReady("blue-cyan");
 %!test greyScaleReady("blue-magenta");
 %!test greyScaleReady("green-cyan");
-%!test greyScaleReady("blue-cyan");
+%!test greyScaleReady("green-yellow");
+%!test greyScaleReady("red-magenta");
+%!test greyScaleReady("red-yellow");
+
+%!test greyScaleReady("cyan-blue");
+%!test greyScaleReady("cyan-green");
+%!test greyScaleReady("magenta-blue");
+%!test greyScaleReady("magenta-red");
+%!test greyScaleReady("yellow-green");
+%!test greyScaleReady("yellow-red");
 
 
 %!demo
 %!  [x, y] = ndgrid(-49:49, -49:49);
 %!  img = round(100*exp(-(x.^2 + y.^2)/1250));
 %!  img(:, 50:99) = repmat((100:-1:2)', 1, 50);
-%!  names = {"red-yellow", "red-magenta", "green-yellow", "blue-magenta", "green-cyan", "blue-cyan"};
+%!  names = {"blue-cyan", "blue-magenta", "green-cyan", "green-yellow", "red-magenta", "red-yellow"};
 %!  map = [];
 %!  for n = 1:6
 %!    map = [map; greyScaleReady(names{n}, 100)];
