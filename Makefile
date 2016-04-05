@@ -144,7 +144,7 @@ check : all
 			esac; \
 		elif test -n "$${TESTDIR}"; then \
 			case "src/$${testfiledir}/" in \
-				$${TESTDIR}|$${TESTDIR}/) testfiles="$${testfiles} $${testfilename}"; \
+				$${TESTDIR}*|$${TESTDIR}/*) testfiles="$${testfiles} $${testfilename}"; \
 			esac; \
 		else \
 			testfiles="$${testfiles} $${testfilename}"; \
@@ -161,7 +161,7 @@ check : all
 	else \
 		echo "Running all tests"; \
 	fi; \
-	$(MAKE) `printf " %s.test" $${testfiles}` || exit 1; \
+	$(MAKE) `printf "%s.test\n" $${testfiles} | $(SORT)` || exit 1; \
 	echo "=================================================="; \
 	echo "OctApps test suite has passed successfully!"; \
 	echo "=================================================="
