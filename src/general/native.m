@@ -46,6 +46,12 @@ function varargout = native(varargin)
       continue
     end_try_catch
 
+    ## try converting to double
+    try
+       varargout{i} = double(varargin{i});
+      continue
+    end_try_catch
+
     ## give up
     error("%s: could not convert argument #%i", funcName, i)
 
