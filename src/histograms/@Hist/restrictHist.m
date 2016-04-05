@@ -14,12 +14,14 @@
 ## along with Octave; see the file COPYING.  If not, see
 ## <http://www.gnu.org/licenses/>.
 
-## Extract histogram restricted to subrange of bins, as determined
-## by the ranges [xl_k, xh_k]. Samples outside of these ranges are moved
-## to the histogram boundary bins [-\inf,xl_k] and [xh_k,\inf].
+## Extract histogram restricted to subrange of bins, as determined by
+## the ranges [xl_k, xh_k]. Samples outside of these ranges are moved
+## to the histogram boundary bins [-\inf,xl_k] and [xh_k,\inf]. If no
+## ranges are given, histRange() is used to find the minimum ranges.
 ## Usage
 ##   rhgrm = restrictHist(hgrm, k, [xl_k, xh_k])
 ##   rhgrm = restrictHist(hgrm, [xl_1, xh_1], ..., [xl_dim, xh_dim])
+##   rhgrm = restrictHist(hgrm)
 ## where:
 ##   rhgrm        = restricted histogram class
 ##   hgrm         = original histogram class
@@ -32,25 +34,28 @@ function hgrm = restrictHist(hgrm, varargin)
   assert(isHist(hgrm));
   dim = length(hgrm.bins);
 
-  ## if all arguments are not scalars, and
-  ## number of arguments equal to number of dimensions,
-  ## take each arguments as new bins in k dimensions
-  if all(cellfun(@(x) !isscalar(x), varargin))
+  if length(varargin) == 0
+
+    ## if no range arguments are given, use histRange()
+    for k = 1:dim
+      range_k = histRange(hgrm, k);
+      hgrm = restrictHist(hgrm, range_k);
+    endfor
+
+  elseif length(varargin) == dim && all(cellfun(@(x) !isscalar(x), varargin))
+
+    ## if all arguments are not scalars, and number of arguments equals
+    ## number of dimensions, take each arguments as new bins in k dimensions
     if length(varargin) != dim
       error("Number of new bin vectors must match number of dimensions");
     endif
-
-    ## loop over dimensions
     for k = 1:dim
       hgrm = restrictHist(hgrm, k, varargin{k});
     endfor
 
-  else
+  elseif length(varargin) == 2
 
     ## otherwise intepret arguments as {k, [xl_k, xh_k]}
-    if length(varargin) != 2
-      error("Invalid input arguments!");
-    endif
     [k, xlh] = deal(varargin{:});
     assert(isscalar(k));
     assert(length(xlh) == 2);
@@ -99,6 +104,8 @@ function hgrm = restrictHist(hgrm, varargin)
     hgrm.counts = counts;
     hgrm.bins{k} = bins;
 
+  else
+    error("Invalid input arguments!");
   endif
 
 endfunction
