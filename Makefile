@@ -168,15 +168,21 @@ check : all
 
 %.test :
 	@source octapps-user-env.sh; \
-	status=""; while read line; do \
+	$(OCTAVE) --eval "test $* verbose" 2>&1 | { \
+		read line; \
 		case "$${line}" in \
-			"skip"*) status="skip";; \
-			"PASSES"*) status="pass";; \
-			"!!!!!"*) status="FAIL";; \
+			"?????"*) exit 0;; \
+			">>>>>"*) printf "%-48s: " "$*";; \
+			*) echo $${line}; exit 1;; \
 		esac; \
-	done < <( $(OCTAVE) --eval "test $*" 2>&1 ); \
-	test -n "$${status}" && echo "$${status}: $*"; \
-	test "$${status}" != FAIL
+		while read line; do \
+			case "$${line}" in \
+				"skip"*) echo="skip"; exit 0;; \
+				"PASSES"*) echo "pass"; exit 0;; \
+				"!!!!!"*) echo "FAIL"; exit 1;; \
+			esac; \
+		done; \
+	}
 
 # generate tags
 ifneq ($(CTAGSEX),false)
