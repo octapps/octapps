@@ -168,18 +168,14 @@ check : all
 
 %.test :
 	@source octapps-user-env.sh; \
-	$(OCTAVE) --eval "test $* verbose" 2>&1 | { \
-		read line; \
-		case "$${line}" in \
-			"?????"*) exit 0;; \
-			">>>>>"*) printf "%-48s: " "$*";; \
-			*) echo $${line}; exit 1;; \
-		esac; \
+	printf "%-48s: " "$*"; \
+	$(OCTAVE) --eval "test $*" 2>&1 | { \
 		while read line; do \
 			case "$${line}" in \
-				"skip"*) echo="skip"; exit 0;; \
-				"PASSES"*) echo "pass"; exit 0;; \
-				"!!!!!"*) echo "FAIL"; exit 1;; \
+				"?????"*) printf "\r"; exit 0;; \
+				"skip"*) printf "skip\n"; exit 0;; \
+				"PASSES"*) printf "pass\n"; exit 0;; \
+				"!!!!!"*) printf "FAIL\n"; exit 1;; \
 			esac; \
 		done; \
 	}
