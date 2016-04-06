@@ -46,11 +46,12 @@ function [gps, gpsns] = utc_to_gps(utc)
       utci = utci(1:j-1);
     endif
 
-    # replace any literal "T" character with a space for datevec() parsing
-    utci(utci == "T") = " ";
-
     # parse UTC string to a date vector
-    utcv = datevec(utci);
+    if any(utci == "T")
+      utcv = datevec(utci, "yyyy-mm-ddTHH:MM:SS");
+    else
+      utcv = datevec(utci);
+    endif
 
     # convert UTC date vector to a GPS time (integer seconds)
     gps(i) = double(XLALUTCToGPS(utcv));
