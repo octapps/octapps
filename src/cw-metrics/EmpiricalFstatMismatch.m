@@ -15,11 +15,13 @@
 
 ## Compute an empirical fit, derived from numerical simulations,
 ## to the F-statistic mismatch as a function of the coherent and
-## semicoherent metric mismatches.
+## semicoherent time-spans and metric mismatches.
 ## Usage:
-##   mtwoF          = EmpiricalFstatMismatch(mcoh, msemi)
-##   [mtwoF, stwoF] = EmpiricalFstatMismatch(mcoh, msemi, scoh, ssemi)
+##   mtwoF          = EmpiricalFstatMismatch(Tcoh, Tsemi, mcoh, msemi)
+##   [mtwoF, stwoF] = EmpiricalFstatMismatch(Tcoh, Tsemi, mcoh, msemi, scoh, ssemi)
 ## where
+##   Tcoh           = coherent segment time-span, in seconds
+##   Tsemi          = semicoherent search time-span, in seconds
 ##   mtwoF          = mean F-statistic mismatch
 ##   mcoh           = mean coherent metric mismatch
 ##   msemi          = mean semicoherent metric mismatch
@@ -29,26 +31,41 @@
 ## Input variables may also be vectors.
 ## Note that a non-interpolating search implies 'mcoh = 0'.
 
-function [mtwoF, stwoF] = EmpiricalFstatMismatch(mcoh, msemi, scoh=0, ssemi=0)
+function [mtwoF, stwoF] = EmpiricalFstatMismatch(Tcoh, Tsemi, mcoh, msemi, scoh=0, ssemi=0)
+
+  ## load constants
+  UnitsConstants;
 
   ## check input
+  narginchk(4, 6);
+  assert(all(0 <= Tcoh(:)));
+  assert(all(0 <= Tsemi(:)));
   assert(all(0 <= mcoh(:)));
   assert(all(0 <= msemi(:)));
   assert(all(0 <= scoh(:)));
   assert(all(0 <= ssemi(:)));
-  [err, mcoh, msemi, scoh, ssemi] = common_size(mcoh, msemi, scoh, ssemi);
+  [err, Tcoh, Tsemi, mcoh, msemi, scoh, ssemi] = common_size(Tcoh, Tsemi, mcoh, msemi, scoh, ssemi);
   assert(err == 0, "Input variables are not of common size");
 
+  ## normalise time-spans
+  Tcoh = Tcoh / DAYS;
+  Tsemi = Tsemi / YEARS;
+
   ## data for mean mismatch fit
-  n = 1.479;
-  a = [0.0763369, -0.613027, 1.52882, -0.234391];
-  m = 0.850449;
-  b = 0.859776;
+  am = [  1.48126e+00  1.27742e+00  7.99402e-01  7.01600e-01  1.03182e+00 ];
+  bm = [  6.50997e-01  1.03557e+00  9.77561e-01  1.11537e+00  9.96942e-01 ];
+  cm = [ -1.72811e+00 -3.43110e-01 -5.41792e-01 -4.19821e-01 -6.22845e-01 ];
+  dm = [ -1.35307e+00 -9.83193e-01 -1.09032e+00 -9.89340e-01 -1.03754e+00 ];
+  em = [  2.88332e-03  1.38692e+00  9.32447e-02  4.77692e-01  7.48594e-01 ];
+  fm = [  1.50450e-02  6.64467e-01  3.17907e-01  4.87757e-01  7.46120e-01 ];
 
   ## compute mean mismatch fit
-  X = a(1).*msemi.^n + a(2).*msemi.^(0.75*n) + a(3).*msemi.^(0.5*n) + a(4).*msemi.^(0.25*n);
-  Y = b.*mcoh.^m;
-  mtwoF = 2./pi .* atan(X + Y);
+  X = Y = 0;
+  for i = 1:length(am)
+    X += 1/i .* exp( -( am(i) + exp( bm(i) + cm(i).*Tsemi + dm(i).*Tcoh ) + em(i).*msemi + fm(i).*mcoh ).^2 );
+    Y += 1/i .* exp( -( am(i) + exp( bm(i) + cm(i).*Tsemi + dm(i).*Tcoh ) ).^2 );
+  endfor
+  mtwoF = 1 - ( X ./ Y );
   mtwoF(mcoh == 0 & msemi == 0) = 0;
   mtwoF(mcoh == 0 & msemi == inf) = 1;
   mtwoF(mcoh == inf & msemi == 0) = 1;
@@ -57,20 +74,23 @@ function [mtwoF, stwoF] = EmpiricalFstatMismatch(mcoh, msemi, scoh=0, ssemi=0)
   mtwoF(mtwoF > 1) = 1;
 
   ## data for standard deviation mismatch fit
-  u = [0.133781, 0.124426, 0.888016];
-  q = 0.918109;
-  v = [3.08587, 2.21999, 0.896751];
-  w = [0.0495105, 0.206969, 1.10315];
+  Ns = [  2.91007e+00 ];
+  as = [  8.85679e-01  2.40222e+00  2.03770e+00 ];
+  bs = [ -3.57936e-01 -3.82609e-01  9.10348e-02 ];
+  cs = [ -1.10326e-01 -1.70497e-02  5.93494e-02 ];
+  ds = [  2.09243e+00  2.24303e+00  2.17538e+00 ];
+  es = [ -2.47166e-03  2.99524e-01  1.95833e-02 ];
+  fs = [  1.49599e-02  9.18875e-02  9.02407e-01 ];
+  gs = [ -1.19849e+00 -2.18446e+00 -7.33651e+00 ];
+  hs = [ -9.40613e-02 -2.64348e+00  1.00000e-05 ];
 
   ## compute standard deviation mismatch fit
-  X = u(1) .* exp(-u(2) .* log(u(3).*ssemi).^2);
-  Y = v(1).*scoh.^q + v(2).*scoh.^(2*q) + v(3).*scoh.^(4*q);
-  Z = w(1) .* exp(-w(2) .* log(w(3).*scoh).^2);
-  stwoF = X .* exp(-Y) + Z;
+  X = 0;
+  for i = 1:length(as)
+    X += 1/i .* exp( as(i) + bs(i).*Tsemi + cs(i).*Tcoh ) .* exp( -( ds(i) + es(i).*ssemi + fs(i).*scoh ).^2 ) .* ( 1 - exp( gs(i).*ssemi + hs(i).*scoh ) );
+  endfor
+  stwoF = Ns .* X;
   stwoF(scoh == 0 & ssemi == 0) = 0;
-  stwoF(scoh == 0 & ssemi == inf) = 0;
-  stwoF(scoh == inf & ssemi == 0) = 0;
-  stwoF(scoh == inf & ssemi == inf) = 0;
   stwoF(stwoF < 0) = 0;
 
 endfunction
