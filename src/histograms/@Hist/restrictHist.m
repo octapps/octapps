@@ -39,7 +39,7 @@ function hgrm = restrictHist(hgrm, varargin)
     ## if no range arguments are given, use histRange()
     for k = 1:dim
       range_k = histRange(hgrm, k);
-      hgrm = restrictHist(hgrm, range_k);
+      hgrm = restrictHist(hgrm, k, range_k);
     endfor
 
   elseif length(varargin) == dim && all(cellfun(@(x) !isscalar(x), varargin))
