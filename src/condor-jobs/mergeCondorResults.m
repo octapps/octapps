@@ -23,10 +23,10 @@
 ##   "merged_suffix":  Suffix to append to merged results file name
 ##                        'dag_name'_'merged_suffix'.bin.gz
 ##                     Default is "merged".
-##   "exclude_args":   Job results which share the same job arguments are merged
-##                     together. If some job arguments should not be used to
-##                     determine which job results to merge together, they can
-##                     be passed in here as a cell vector of strings.
+##   "args_filter":    Job results which share the same job arguments are merged
+##                     together. If specified, this is a function which may modify
+##                     the job arguments before they are compared, i.e. to change
+##                     which arguments are merged together.
 ##   "merge_function": Function(s) used to merge results from two Condor
 ##                     jobs with the same arguments, as determined by
 ##                     the DAG job name 'vars' field. Syntax is:
@@ -50,7 +50,7 @@ function mergeCondorResults(varargin)
   parseOptions(varargin,
                {"dag_name", "char"},
                {"merged_suffix", "char", "merged"},
-               {"exclude_args", "cell,vector", {}},
+               {"args_filter", "function,scalar", []},
                {"merge_function", "function,vector"},
                {"norm_function", "function,vector", []},
                {"save_period", "real,strictpos,scalar", 90},
@@ -58,7 +58,6 @@ function mergeCondorResults(varargin)
                {"load_retries", "integer,positive,scalar", 3},
                {"retry_period", "integer,strictpos,scalar", 30},
                []);
-  assert(all(cellfun("ischar", exclude_args)));
   if length(merge_function) == 1
     merge_function = {merge_function};
   else
@@ -173,22 +172,20 @@ function mergeCondorResults(varargin)
       arguments = node_results.arguments;
     end_try_catch
 
-    ## filter out arguments to exclude from job result classification
-    for i = 1:length(exclude_args)
-      j = find(cellfun(@(x) ischar(x) && strcmp(x, exclude_args{i}), node_results.arguments));
-      if isempty(j)
-        error("%s: excluded argument '%s' not in argument list", funcName, exclude_args{i});
-      endif
-      node_results.arguments(j:j+1) = [];
-    endfor
+    ## get arguments used to determine index into merged results
+    if !isempty(args_filter)
+      filtered_arguments = feval(args_filter, arguments);
+    else
+      filtered_arguments = arguments;
+    endif
 
     ## determine index into merged results cell array, and create new entry if needed
-    argument_str = stringify(node_results.arguments);
+    argument_str = stringify(filtered_arguments);
     idx = find(strcmp(argument_str, argument_strs));
     if isempty(idx)
       idx = length(argument_strs) + 1;
       argument_strs{idx, 1} = argument_str;
-      merged.arguments{idx, 1} = node_results.arguments;
+      merged.arguments{idx, 1} = filtered_arguments;
       merged.results{idx, 1:length(node_results.results)} = [];
       merged.jobs_per_result(idx, 1) = 0;
     endif
