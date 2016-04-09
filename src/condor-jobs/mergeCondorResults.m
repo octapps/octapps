@@ -230,7 +230,11 @@ function mergeCondorResults(varargin)
     try
       arguments = struct;
       for idx = 1:length(merged.arguments)
-        arguments(idx, 1) = struct(merged.arguments{idx}{:});
+        if isstruct(merged.arguments{idx})
+          arguments(idx, 1) = merged.arguments{idx};
+        else
+          arguments(idx, 1) = struct(merged.arguments{idx}{:});
+        endif
       endfor
       merged.arguments = sortStructFields(arguments);
     end_try_catch
