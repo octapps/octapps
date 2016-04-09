@@ -35,14 +35,14 @@ function [rng, nbins] = histRange(hgrm, varargin)
   narginchk(1, 3)
   assert(isHist(hgrm));
   dim = length(hgrm.bins);
-  if ischar(varargin{end})
+  if length(varargin) > 0 && ischar(varargin{end})
     assert(strcmp(varargin{end}, "finite"));
     fretn = true;
     varargin = varargin(1:end-1);
   else
     fretn = false;
   endif
-  if length(varargin) > 1
+  if length(varargin) > 0
     kk = varargin{end};
     assert(all(1 <= kk && kk <= length(hgrm.bins)));
   else
