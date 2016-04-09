@@ -259,7 +259,7 @@ function mergeCondorResults(varargin)
 
   ## save merged job results for later use
   printf("%s: saving '%s' ...", funcName, dag_merged_file);
-  save("-binary", "-zip", dag_merged_file, "merged");
+  save("-binary", "-zip", dag_merged_file, "-struct", "merged", fieldnames(merged){:});
   printf(" done\n");
 
 endfunction
