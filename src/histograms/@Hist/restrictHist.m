@@ -16,12 +16,14 @@
 
 ## Extract histogram restricted to subrange of bins, as determined by
 ## the ranges [xl_k, xh_k]. Samples outside of these ranges are moved
-## to the histogram boundary bins [-\inf,xl_k] and [xh_k,\inf]. If no
-## ranges are given, histRange() is used to find the minimum ranges.
+## to the histogram boundary bins [-\inf,xl_k] and [xh_k,\inf], unless
+## the string "discard" is given as the last argument. If no ranges are
+## given, histRange() is used to find the minimum ranges.
 ## Usage
 ##   rhgrm = restrictHist(hgrm, k, [xl_k, xh_k])
 ##   rhgrm = restrictHist(hgrm, [xl_1, xh_1], ..., [xl_dim, xh_dim])
 ##   rhgrm = restrictHist(hgrm)
+##   rhgrm = restrictHist(..., "discard")
 ## where:
 ##   rhgrm        = restricted histogram class
 ##   hgrm         = original histogram class
@@ -33,6 +35,12 @@ function hgrm = restrictHist(hgrm, varargin)
   ## check input
   assert(isHist(hgrm));
   dim = length(hgrm.bins);
+  if length(varargin) > 0 && strcmp(varargin{end}, "discard")
+    discard = true;
+    varargin = varargin(1:end-1);
+  else
+    discard = false;
+  endif
 
   if length(varargin) == 0
 
@@ -94,6 +102,12 @@ function hgrm = restrictHist(hgrm, varargin)
     counts = [sum(counts(iil, :), 1); counts(iim, :); sum(counts(iih, :), 1)];
     bins = [-inf, bins(xl <= bins & bins <= xh), inf];
     assert(size(counts, 1) + 1 == length(bins));
+
+    ## discard counts in infinite bins, if desired
+    if discard
+      counts(1, :) = 0;
+      counts(end, :) = 0;
+    endif
 
     ## unflatten other dimensions, then restore original dimension order
     siz(1) = size(counts, 1);
