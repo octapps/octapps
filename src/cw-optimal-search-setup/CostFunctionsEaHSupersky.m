@@ -151,7 +151,7 @@ function [cost_funs, params, guess] = CostFunctionsEaHSupersky(setup, varargin)
       guess.costInc = 1.057406584954869e+06;
 
     otherwise
-      error("%s: unknown default setup '%s'", funcName, name);
+      error("%s: unknown default setup '%s'", funcName, setup);
 
   endswitch
 
@@ -360,7 +360,7 @@ function [cost, Ntc, lattice] = cost_coh_wparams(Nseg, Tseg, mCoh, params)
 
 endfunction
 
-function [cost, Ntf, lattice] = cost_inc_wparams(Nseg, Tseg, mf, params)
+function [cost, Ntf, lattice] = cost_inc_wparams(Nseg, Tseg, mInc, params)
 
   ## do not page output
   pso = page_screen_output(0, "local");
@@ -369,21 +369,21 @@ function [cost, Ntf, lattice] = cost_inc_wparams(Nseg, Tseg, mf, params)
   UnitsConstants;
 
   ## check input parameters
-  [err, Nseg, Tseg, mf] = common_size(Nseg, Tseg, mf);
+  [err, Nseg, Tseg, mInc] = common_size(Nseg, Tseg, mInc);
   assert(err == 0);
 
   for i = 1:length(Nseg(:))
 
     ## print progress message
     if params.verbose
-      printf("cost_inc( Nseg=%g, Tseg=%g days, mf=%g ) = ", Nseg(i), Tseg(i)/DAYS, mf(i));
+      printf("cost_inc( Nseg=%g, Tseg=%g days, mInc=%g ) = ", Nseg(i), Tseg(i)/DAYS, mInc(i));
     endif
 
     ## incoherent cost per template
     c0T = params.inc_c0 * Nseg(i);
 
     ## number of templates
-    Ntf(i) = rssky_num_templates(Nseg(i), Tseg(i), mf(i), params, false);
+    Ntf(i) = rssky_num_templates(Nseg(i), Tseg(i), mInc(i), params, false);
 
     ## total incoherent cost
     cost(i) = Ntf(i) * c0T;
