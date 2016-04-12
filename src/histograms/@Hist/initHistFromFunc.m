@@ -43,8 +43,8 @@ function hgrm = initHistFromFunc(hgrm, F, varargin)
   ## set histogram counts to function evaluated at histogram bin centres
   hgrm.counts = feval(F, xc{:});
 
-  ## restrict histogram using "discard" to set infinite bins to zero
-  hgrm = restrictHist(hgrm, "discard");
+  ## restrict histogram again, using "discard" to set infinite bins to zero
+  hgrm = restrictHist(hgrm, varargin{:}, "discard");
 
 endfunction
 
