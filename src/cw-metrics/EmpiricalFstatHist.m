@@ -17,35 +17,39 @@
 ## Assumes a Gaussian distribution with mean and standard deviation
 ## given by EmpiricalFstatMismatch().
 ## Usage:
-##   hgrm = EmpiricalFstatHist(dim, lattice, mu_max_coh, mu_max_semi)
+##   hgrm = EmpiricalFstatHist(dim, lattice, Tcoh, Tsemi, mcohmax, msemimax)
 ## where:
 ##   hgrm        = returned mismatch histogram
 ##   dim         = number of lattice dimensions
 ##   lattice     = lattice type; see e.g. LatticeFindClosestPoint()
-##   mu_max_coh  = maximum coherent mismatch
-##   mu_max_semi = maximum semicoherent mismatch
+##   Tcoh        = coherent segment time-span, in seconds
+##   Tsemi       = semicoherent search time-span, in seconds
+##   mcohmax     = maximum coherent metric mismatch
+##   msemimax    = maximum semicoherent metric mismatch
 
-function hgrm = EmpiricalFstatHist(dim, lattice, mu_max_coh, mu_max_semi)
+function hgrm = EmpiricalFstatHist(dim, lattice, Tcoh, Tsemi, mcohmax, msemimax)
 
   ## check input
   assert(isscalar(dim) && dim > 0);
   assert(ischar(lattice));
-  assert(isscalar(mu_max_coh) && mu_max_coh >= 0);
-  assert(isscalar(mu_max_semi) && mu_max_semi >= 0);
+  assert(isscalar(Tcoh) && Tcoh >= 0);
+  assert(isscalar(Tsemi) && Tsemi >= 0);
+  assert(isscalar(mcohmax) && mcohmax >= 0);
+  assert(isscalar(msemimax) && msemimax >= 0);
 
   ## get the lattice histogram for the given dimensionality and type
   latt_hgrm = LatticeMismatchHist(dim, lattice);
 
   ## compute the mean and standard deviation of the coherent mismatch distribution
-  mean_mu_coh = mu_max_coh * meanOfHist(latt_hgrm);
-  stdv_mu_coh = mu_max_coh * stdvOfHist(latt_hgrm);
+  mcoh = mcohmax * meanOfHist(latt_hgrm);
+  scoh = mcohmax * stdvOfHist(latt_hgrm);
 
   ## compute the mean and standard deviation of the semicoherent mismatch distribution
-  mean_mu_semi = mu_max_semi * meanOfHist(latt_hgrm);
-  stdv_mu_semi = mu_max_semi * stdvOfHist(latt_hgrm);
+  msemi = msemimax * meanOfHist(latt_hgrm);
+  ssemi = msemimax * stdvOfHist(latt_hgrm);
 
   ## compute the mean and standard deviation of the F-statistic mismatch distribution
-  [mean_twoF, stdv_twoF] = EmpiricalFstatMismatch(mean_mu_coh, mean_mu_semi, stdv_mu_coh, stdv_mu_semi);
+  [mean_twoF, stdv_twoF] = EmpiricalFstatMismatch(Tcoh, Tsemi, mcoh, msemi, scoh, ssemi);
 
   ## create a Gaussian histogram with the required mean and standard deviation
   hgrm = createGaussianHist(mean_twoF, stdv_twoF, "binsize", 0.01, "domain", [0, 1]);
