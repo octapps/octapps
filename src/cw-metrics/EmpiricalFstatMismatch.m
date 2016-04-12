@@ -61,9 +61,9 @@ function [mtwoF, stwoF] = EmpiricalFstatMismatch(Tcoh, Tsemi, mcoh, msemi, scoh=
 
   ## compute mean mismatch fit
   X = Y = 0;
-  for i = 1:length(am)
-    X += 1/i .* exp( -( am(i) + exp( bm(i) + cm(i).*Tsemi + dm(i).*Tcoh ) + em(i).*msemi + fm(i).*mcoh ).^2 );
-    Y += 1/i .* exp( -( am(i) + exp( bm(i) + cm(i).*Tsemi + dm(i).*Tcoh ) ).^2 );
+  for n = 1:length(am)
+    X += 1/n .* exp( -( am(n) + exp( bm(n) + cm(n).*Tsemi + dm(n).*Tcoh ) + em(n).*msemi + fm(n).*mcoh ).^2 );
+    Y += 1/n .* exp( -( am(n) + exp( bm(n) + cm(n).*Tsemi + dm(n).*Tcoh ) ).^2 );
   endfor
   mtwoF = 1 - ( X ./ Y );
   mtwoF(mcoh == 0 & msemi == 0) = 0;
@@ -86,8 +86,8 @@ function [mtwoF, stwoF] = EmpiricalFstatMismatch(Tcoh, Tsemi, mcoh, msemi, scoh=
 
   ## compute standard deviation mismatch fit
   X = 0;
-  for i = 1:length(as)
-    X += 1/i .* exp( as(i) + bs(i).*Tsemi + cs(i).*Tcoh ) .* exp( -( ds(i) + es(i).*ssemi + fs(i).*scoh ).^2 ) .* ( 1 - exp( gs(i).*ssemi + hs(i).*scoh ) );
+  for n = 1:length(as)
+    X += 1/n .* exp( as(n) + bs(n).*Tsemi + cs(n).*Tcoh ) .* exp( -( ds(n) + es(n).*ssemi + fs(n).*scoh ).^2 ) .* ( 1 - exp( gs(n).*ssemi + hs(n).*scoh ) );
   endfor
   stwoF = Ns .* X;
   stwoF(scoh == 0 & ssemi == 0) = 0;
