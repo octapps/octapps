@@ -156,7 +156,7 @@ endfunction
 ## can compare floating-point precision bin boundaries robustly.
 function varargout = roundHistBinBounds(varargin)
   assert(nargin == nargout);
-  dbins = min(cell2mat(cellfun(@(b) min(diff(b)), varargin, "UniformOutput", false)));
+  dbins = min(cell2mat(cellfun(@(b) min(diff(unique(b))), varargin, "UniformOutput", false)));
   dbins = 10^(floor(log10(dbins)) - 3);
   varargout = cellfun(@(b) round(b / dbins) * dbins, varargin, "UniformOutput", false);
 endfunction
