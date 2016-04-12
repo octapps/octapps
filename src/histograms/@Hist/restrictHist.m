@@ -36,10 +36,10 @@ function hgrm = restrictHist(hgrm, varargin)
   assert(isHist(hgrm));
   dim = length(hgrm.bins);
   if length(varargin) > 0 && strcmp(varargin{end}, "discard")
-    discard = true;
+    discard = varargin(end);
     varargin = varargin(1:end-1);
   else
-    discard = false;
+    discard = {};
   endif
 
   if length(varargin) == 0
@@ -47,7 +47,7 @@ function hgrm = restrictHist(hgrm, varargin)
     ## if no range arguments are given, use histRange()
     for k = 1:dim
       range_k = histRange(hgrm, k);
-      hgrm = restrictHist(hgrm, k, range_k);
+      hgrm = restrictHist(hgrm, k, range_k, discard{:});
     endfor
 
   elseif length(varargin) == dim && all(cellfun(@(x) !isscalar(x), varargin))
@@ -58,7 +58,7 @@ function hgrm = restrictHist(hgrm, varargin)
       error("Number of new bin vectors must match number of dimensions");
     endif
     for k = 1:dim
-      hgrm = restrictHist(hgrm, k, varargin{k});
+      hgrm = restrictHist(hgrm, k, varargin{k}, discard{:});
     endfor
 
   elseif length(varargin) == 2
@@ -104,7 +104,7 @@ function hgrm = restrictHist(hgrm, varargin)
     assert(size(counts, 1) + 1 == length(bins));
 
     ## discard counts in infinite bins, if desired
-    if discard
+    if !isempty(discard)
       counts(1, :) = 0;
       counts(end, :) = 0;
     endif
