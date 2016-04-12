@@ -20,12 +20,12 @@
 ##   mtwoF          = EmpiricalFstatMismatch(Tcoh, Tsemi, mcoh, msemi)
 ##   [mtwoF, stwoF] = EmpiricalFstatMismatch(Tcoh, Tsemi, mcoh, msemi, scoh, ssemi)
 ## where
+##   mtwoF          = mean F-statistic mismatch
+##   stwoF          = standard deviation of F-statistic mismatch
 ##   Tcoh           = coherent segment time-span, in seconds
 ##   Tsemi          = semicoherent search time-span, in seconds
-##   mtwoF          = mean F-statistic mismatch
 ##   mcoh           = mean coherent metric mismatch
 ##   msemi          = mean semicoherent metric mismatch
-##   stwoF          = standard deviation of F-statistic mismatch
 ##   scoh           = standard deviation of coherent metric mismatch
 ##   ssemi          = standard deviation of semicoherent metric mismatch
 ## Input variables may also be vectors.
