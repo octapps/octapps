@@ -85,8 +85,10 @@ function map = greyScaleReady(name, n=64)
           error("%s: unknown colour map name '%s'", funcName, name);
         else
           s = name([k+1:end, k, 1:k-1]);
+          continue
         endif
     endswitch
+    break
   endfor
 
   ## create interpolation matrices
