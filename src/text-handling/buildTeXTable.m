@@ -152,7 +152,7 @@ function tex = buildTeXTable(spec, varargin)
   for i = 1:size(tbl, 1)
 
     ## get indices of non-empty row elements
-    jj = find(cellfun(@(x) !isempty(x), tbl(i, :)));
+    jj = find(cellfun(@(x) !isfield(x, "fill"), tbl(i, :)));
     jj = [jj, size(tbl, 2) + 1];
 
     ## if row is just a single TeX command, e.g. \hline, print it and continue
@@ -189,7 +189,13 @@ function tex = buildTeXTable(spec, varargin)
         continue
       endif
 
-      ## otherwise use \multicolumn:
+      ## if table element is empty, print empty columns
+      if isempty(tbl{i, jj(k)})
+        [tex{end+(1:cols-1)}] = deal(" & ");
+        continue
+      endif
+
+      ## otherwise use \multicolumn
       if col == 1 && row > 1 && length(jj) > 2
         ## text in column 1, row >1, not spanning an entire row are aligned left
         multicolalign = "l";
@@ -285,8 +291,9 @@ function spec = parse_spec(spec, numfmt)
   endfor
 
   ## pad out all cell array elements of 'spec' to the same length
+  ## with special 'fill' struct, which determine column spanning
   for i = 1:length(spec)
-    [spec{i}{length(spec{i})+1:cellmaxlen}] = deal([]);
+    [spec{i}{length(spec{i})+1:cellmaxlen}] = deal(struct("fill", true));
   endfor
 
   ## if any elements of (original) 'spec' are cell arrays
