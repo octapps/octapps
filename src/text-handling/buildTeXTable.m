@@ -252,12 +252,7 @@ function spec = parse_spec(spec, numfmt)
   ## check scalar elements of 'spec'
   for i = 1:length(spec)
 
-    if !iscell(spec{i}) && !isstruct(spec{i})
-
-      ## empty elements are converted to blank strings
-      if isempty(spec{i})
-         spec{i} = " ";
-      endif
+    if !iscell(spec{i}) && !isstruct(spec{i}) && !isempty(spec{i})
 
       ## if element is numeric, convert to a TeX number
       if isnumeric(spec{i})
