@@ -183,7 +183,10 @@ function tex = buildTeXTable(spec, varargin)
       if cols == 1
         if isstruct(tbl{i, jj(k)})   ## if element is a split TeX number, print value
           tex{end+1} = tbl{i, jj(k)}.value;
+        elseif isempty(tbl{i, jj(k)})
+          tex{end+1} = "";
         else
+          assert(ischar(tbl{i, jj(k)}), "%s: encountered non-string TeX fragment", funcName);
           tex{end+1} = tbl{i, jj(k)};
         endif
         continue
