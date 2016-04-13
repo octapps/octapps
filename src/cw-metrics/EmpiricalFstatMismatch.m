@@ -82,7 +82,7 @@ function [mtwoF, stwoF] = EmpiricalFstatMismatch(Tcoh, Tsemi, mcoh, msemi, scoh=
   es = [ -2.47166e-03  2.99524e-01  1.95833e-02 ];
   fs = [  1.49599e-02  9.18875e-02  9.02407e-01 ];
   gs = [ -1.19849e+00 -2.18446e+00 -7.33651e+00 ];
-  hs = [ -9.40613e-02 -2.64348e+00  1.00000e-05 ];
+  hs = [ -9.40613e-02 -2.64348e+00  0.00000e+00 ];
 
   ## compute standard deviation mismatch fit
   X = 0;
