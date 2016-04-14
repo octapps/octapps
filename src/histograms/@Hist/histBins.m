@@ -23,6 +23,7 @@
 ##   hgrm  = histogram class
 ##   k     = dimension along which to return bin quantities
 ##   type  = one of:
+##             "bins":   bin boundaries
 ##             "lower":  lower bin boundary
 ##             "upper":  upper bin boundary
 ##             "centre": bin centre
@@ -50,6 +51,8 @@ function varargout = histBins(hgrm, k, varargin)
     ## what do you want?
     fbins = hgrm.bins{k}(2:end-1);
     switch varargin{i}
+      case "bins"
+        binq = hgrm.bins{k};
       case "lower"
         binq = [-inf, fbins(1:end-1), inf];
       case "centre"
