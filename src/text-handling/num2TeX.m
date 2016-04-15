@@ -28,6 +28,7 @@
 ##   "times": TeX symbol to use for times (default: "{\times}")
 ##   "infstr": TeX string to use for infinity (default: "\infty")
 ##   "nanstr": TeX string to use for not-a-number (default: "\mathrm{NaN}")
+##   "dbslash": double backslash characters, i.e. replace "\" with "\\"
 
 function tex = num2TeX(num, fmt, varargin)
 
@@ -46,6 +47,7 @@ function tex = num2TeX(num, fmt, varargin)
                {"times", "char", "{\\times}"},
                {"infstr", "char", "\\infty"},
                {"nanstr", "char", "\\mathrm{NaN}"},
+               {"dbslash", "logical,scalar", false},
                []);
 
   ## generate TeX-formatted numbers
@@ -69,6 +71,11 @@ function tex = num2TeX(num, fmt, varargin)
 
     ## wrap TeX string with prefix/suffix in dollar symbols
     texstr = strcat(dollar, prefix, texstr, suffix, dollar);
+
+    ## double backslash characters
+    if dbslash
+      texstr = strrep(texstr, "\\", "\\\\");
+    endif
 
     tex{n} = texstr;
   endfor
