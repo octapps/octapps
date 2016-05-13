@@ -239,7 +239,7 @@ function Nt = rssky_num_templates(Nseg, Tseg, mis, params, padding)
     cache.(cache_key).param_str = param_str;
     cache.(cache_key).metrics = {};
     if verbose
-      printf("(new cache) ");
+      printf("%s: new metrics cache\n", funcName);
     endif
   endif
 
@@ -254,7 +254,6 @@ function Nt = rssky_num_templates(Nseg, Tseg, mis, params, padding)
 
   ## compute interpolation grid for number of templates
   Nt_interp = zeros(length(Nseg_interp), length(Tseg_interp));
-  cache_hits = 0;
   for i = 1:length(Nseg_interp)
     for j = 1:length(Tseg_interp)
 
@@ -263,7 +262,9 @@ function Nt = rssky_num_templates(Nseg, Tseg, mis, params, padding)
 
         ## retrieve metric from cache
         rssky_metric = cache.(cache_key).metrics{Nseg_ii(i), Tseg_jj(j)};
-        ++cache_hits;
+        if verbose
+          printf("%s: retrieved metrics for Nseg=%g, Tseg=%g\n", funcName, Nseg_interp(i), Tseg_interp(j));
+        endif
 
       else
 
@@ -271,6 +272,9 @@ function Nt = rssky_num_templates(Nseg, Tseg, mis, params, padding)
         segment_list = CreateSegmentList(params.ref_time, Nseg_interp(i), Tseg_interp(j), [], params.inc_duty);
 
         ## compute metric
+        if verbose
+          printf("%s: computing metrics for Nseg=%g, Tseg=%g ... ", funcName, Nseg_interp(i), Tseg_interp(j));
+        endif
         metrics = CreateSuperskyMetrics(
                       "spindowns", length(params.fkdot_bands) - 1,
                       "segment_list", segment_list,
@@ -280,6 +284,9 @@ function Nt = rssky_num_templates(Nseg, Tseg, mis, params, padding)
                       "detector_motion", params.det_motion,
                       "ephemerides", ephemerides
                     );
+        if verbose
+          printf("done\n");
+        endif
 
         ## add metric to cache
         rssky_metric = cache.(cache_key).metrics{Nseg_ii(i), Tseg_jj(j)} = metrics.semi_rssky_metric;
@@ -298,9 +305,6 @@ function Nt = rssky_num_templates(Nseg, Tseg, mis, params, padding)
 
     endfor
   endfor
-  if verbose && cache_hits > 0
-    printf("(%i/%i cache hits) ", cache_hits, numel(Nt_interp));
-  endif
 
   ## compute interpolated number of templates at requested Nseg and Tseg
   Nt = interp2(Tseg_interp, Nseg_interp, Nt_interp, Tseg, max(1, Nseg), "spline");
@@ -325,11 +329,6 @@ function [cost, Ntc, lattice] = cost_coh_wparams(Nseg, Tseg, mCoh, params)
 
   for i = 1:length(Nseg(:))
 
-    ## print progress message
-    if params.verbose
-      printf("cost_coh( Nseg=%g, Tseg=%g days, mCoh=%g ) = ", Nseg(i), Tseg(i)/DAYS, mCoh(i));
-    endif
-
     if params.resampling
       ## resampling cost per template, assuming "enough" frequency bins
       c0T = params.coh_c0_resamp * Ndet;
@@ -347,11 +346,6 @@ function [cost, Ntc, lattice] = cost_coh_wparams(Nseg, Tseg, mCoh, params)
 
     ## total coherent cost
     cost(i) = Nseg(i) * Ntc(i) * c0T;
-
-    ## print progress message
-    if params.verbose
-      printf("%0.4e\n", cost(i));
-    endif
 
   endfor
 
@@ -374,11 +368,6 @@ function [cost, Ntf, lattice] = cost_inc_wparams(Nseg, Tseg, mInc, params)
 
   for i = 1:length(Nseg(:))
 
-    ## print progress message
-    if params.verbose
-      printf("cost_inc( Nseg=%g, Tseg=%g days, mInc=%g ) = ", Nseg(i), Tseg(i)/DAYS, mInc(i));
-    endif
-
     ## incoherent cost per template
     c0T = params.inc_c0 * Nseg(i);
 
@@ -387,11 +376,6 @@ function [cost, Ntf, lattice] = cost_inc_wparams(Nseg, Tseg, mInc, params)
 
     ## total incoherent cost
     cost(i) = Ntf(i) * c0T;
-
-    ## print progress message
-    if params.verbose
-      printf("%0.4e\n", cost(i));
-    endif
 
   endfor
 
