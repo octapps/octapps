@@ -60,12 +60,12 @@ function [mtwoF, stwoF] = EmpiricalFstatMismatch(Tcoh, Tsemi, mcoh, msemi, scoh=
   ffit = [  1.50450e-02  6.64467e-01  3.17907e-01  4.87757e-01  7.46120e-01 ];
 
   ## compute mean mismatch fit
-  x = y = 0;
+  mtwoF_numer = mtwoF_denom = 0;
   for n = 1:length(afit)
-    x += 1/n .* exp( -( afit(n) + exp( bfit(n) + cfit(n).*Tsemi + dfit(n).*Tcoh ) + efit(n).*msemi + ffit(n).*mcoh ).^2 );
-    y += 1/n .* exp( -( afit(n) + exp( bfit(n) + cfit(n).*Tsemi + dfit(n).*Tcoh ) ).^2 );
+    mtwoF_numer += 1/n .* exp( -( afit(n) + exp( bfit(n) + cfit(n).*Tsemi + dfit(n).*Tcoh ) + efit(n).*msemi + ffit(n).*mcoh ).^2 );
+    mtwoF_denom += 1/n .* exp( -( afit(n) + exp( bfit(n) + cfit(n).*Tsemi + dfit(n).*Tcoh ) ).^2 );
   endfor
-  mtwoF = 1 - ( x ./ y );
+  mtwoF = 1 - ( mtwoF_numer ./ mtwoF_denom );
   mtwoF(mcoh == 0 & msemi == 0) = 0;
   mtwoF(mcoh == 0 & msemi == inf) = 1;
   mtwoF(mcoh == inf & msemi == 0) = 1;
