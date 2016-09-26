@@ -168,14 +168,18 @@ check : all
 
 %.test :
 	@source octapps-user-env.sh; \
-	printf "%-48s: " "$*"; \
+	case "X$(MAKEFLAGS)" in \
+		*j*) cn='\n'; cr='';; \
+		*) cn=''; cr='\r';; \
+	esac; \
+	printf "%-48s: $${cn}" "$*"; \
 	$(OCTAVE) --eval "test $*" 2>&1 | { \
 		while read line; do \
 			case "$${line}" in \
-				"?????"*) printf "\r"; exit 0;; \
-				"skip"*) printf "skip\n"; exit 0;; \
-				"PASSES"*) printf "pass\n"; exit 0;; \
-				"!!!!!"*) printf "FAIL\n"; exit 1;; \
+				"?????"*) printf "$${cr}"; exit 0;; \
+				"skip"*) printf "$${cr}%-48s: skip\n" "$*"; exit 0;; \
+				"PASSES"*) printf "$${cr}%-48s: pass\n" "$*"; exit 0;; \
+				"!!!!!"*) printf "$${cr}%-48s: FAIL\n" "$*"; exit 1;; \
 			esac; \
 		done; \
 	}
