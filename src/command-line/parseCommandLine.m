@@ -20,39 +20,19 @@
 ##   --name <value>   or   --name=<value>
 ## are converted into option-value pairs; other options are unchanged.
 ## Syntax:
-##   opts = parseCommandLine(delim, args)
+##   opts = parseCommandLine(args...)
 ## where
-##   delim = remove all command-line arguments that appear before this
-##           argument, if it is given on the command line (optional)
-##   args  = command-line arguments to parse; if not supplied,
-##           get arguments from command-line passed to Octave
+##   opts = option-value pairs as expected by parseOptions()
+##   args = command-line arguments to parse
 
-function opts = parseCommandLine(delim=[], args={})
-
-  ## check input
-  assert(isempty(delim) || ischar(delim));
-  assert(iscell(args));
-
-  ## is args is empty, get arguments from command-line passed to Octave
-  if isempty(args)
-   args = evalin("base", "argv()(1:nargin)");
-  endif
-
-  ## remove all command-line arguments that appear before 'delim'
-  ## (if non-empty), if it is given on the command line
-  if !isempty(delim)
-    i = strmatch(delim, args);
-    if !isempty(i)
-      args = args(min(i)+1:end);
-    endif
-  endif
+function opts = parseCommandLine(varargin)
 
   ## parse command-line arguments
   opts = struct;
   optname = [];
   optval = [];
-  for n = 1:length(args)
-    arg = args{n++};
+  for n = 1:length(varargin)
+    arg = varargin{n};
 
     ## if argument begins with '--'
     if strncmp(arg, "--", 2)

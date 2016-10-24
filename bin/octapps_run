@@ -38,9 +38,14 @@ if [ "x$1" = "x--help" ]; then
     exec octave -qfH --eval "help ${function}"
 fi
 
-## Execute Octave, using --eval to invoke the Octave function, and
-## using parseCommandLine() to parse the command-line arguments.
-## The "/dev/null" marks the start of the arguments passed to the
-## Octave function, and prevents Octave from trying to read a file
-## after evaluating the --eval code.
-exec octave -qfH --eval "${function}(parseCommandLine(\"/dev/null\"){:});" /dev/null "$@"
+## Concatenate command-line arguments into a quoted string
+args="'$1'"
+shift
+while [ "x$1" != x ]; do
+    args="${args}, '$1'"
+    shift
+done
+
+## Execute Octave, using --eval to invoke the Octave function,
+## and parseCommandLine() to parse the command-line arguments.
+exec octave -qfH --eval "${function}(parseCommandLine(${args}){:});"
