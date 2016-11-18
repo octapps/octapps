@@ -223,7 +223,6 @@ DEFUN_DLD( fitsread, args, nargout, fitsread_usage ) {
           if (fits_make_keyn("TTYPE", j, keyword, &status) != 0) break;
           if (fits_read_key(ff, TSTRING, keyword, fieldname, 0, &status) != 0) break;
           std::string field(fieldname);
-          std::transform(field.begin(), field.end(), field.begin(), ::tolower);
 
           // Get field datatype
           int typecode = 0;
