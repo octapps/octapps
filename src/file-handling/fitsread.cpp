@@ -238,17 +238,35 @@ DEFUN_DLD( fitsread, args, nargout, fitsread_usage ) {
               val = octave_value(std::string(strval));
               delete [] strval;
             } else if (typecode == TLOGICAL) {
-              char logval = 0;
-              if (fits_read_col_log(ff, j, i, 1, 1, 0, &logval, 0, &status) != 0) break;
-              val = octave_value(logval ? true : false);
+              boolNDArray array(dim_vector(repeat, 1));
+              Array<octave_idx_type> idx(dim_vector(1, 1), 0);
+              for (long r = 1; r <= repeat; ++r) {
+                idx(0) = r - 1;
+                char logval = 0;
+                if (fits_read_col_log(ff, j, i, r, 1, 0, &logval, 0, &status) != 0) break;
+                array.elem(idx) = logval ? true : false;
+              }
+              val = octave_value(array.squeeze());
             } else if (typecode == TCOMPLEX) {
-              double dblcmpval[2] = {0, 0};
-              if (fits_read_col_dblcmp(ff, j, i, 1, 1, 0, dblcmpval, 0, &status) != 0) break;
-              val = octave_value(Complex(dblcmpval[0], dblcmpval[1]));
+              ComplexNDArray array(dim_vector(repeat, 1));
+              Array<octave_idx_type> idx(dim_vector(1, 1), 0);
+              for (long r = 1; r <= repeat; ++r) {
+                idx(0) = r - 1;
+                double dblcmpval[2] = {0, 0};
+                if (fits_read_col_dblcmp(ff, j, i, r, 1, 0, dblcmpval, 0, &status) != 0) break;
+                array.elem(idx) = Complex(dblcmpval[0], dblcmpval[1]);
+              }
+              val = octave_value(array.squeeze());
             } else {
-              double dblval = 0;
-              if (fits_read_col_dbl(ff, j, i, 1, 1, 0, &dblval, 0, &status) != 0) break;
-              val = octave_value(dblval);
+              NDArray array(dim_vector(repeat, 1));
+              Array<octave_idx_type> idx(dim_vector(1, 1), 0);
+              for (long r = 1; r <= repeat; ++r) {
+                idx(0) = r - 1;
+                double dblval = 0;
+                if (fits_read_col_dbl(ff, j, i, r, 1, 0, &dblval, 0, &status) != 0) break;
+                array.elem(idx) = dblval;
+              }
+              val = octave_value(array.squeeze());
             }
             tbl.contents(field).insert(val, i - 1, 0);
           }
