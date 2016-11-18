@@ -247,7 +247,7 @@ DEFUN_DLD( fitsread, args, nargout, fitsread_usage ) {
                 array.elem(idx) = logval ? true : false;
               }
               val = octave_value(array.squeeze());
-            } else if (typecode == TCOMPLEX) {
+            } else if (typecode == TCOMPLEX || typecode == TDBLCOMPLEX) {
               ComplexNDArray array(dim_vector(repeat, 1));
               Array<octave_idx_type> idx(dim_vector(1, 1), 0);
               for (long r = 1; r <= repeat; ++r) {
