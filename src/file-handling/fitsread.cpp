@@ -64,19 +64,14 @@ DEFUN_DLD( fitsread, args, nargout, fitsread_usage ) {
   // Open FITS file
   int status = 0;
   fitsfile *ff = 0;
-  octave_map hdus;
+  octave_map all_hdus(dim_vector(1,1));
   do {
     std::string filename = args(0).string_value();
     if (fits_open_file(&ff, filename.c_str(), READONLY, &status) != 0) break;
 
-    // Read all HDUs, unless only one was asked for
-    int hdunum = 0;
-    if (fits_get_num_hdus(ff, &hdunum, &status) != 0) break;
-    if (filename.find('[') != std::string::npos) {
-      hdunum = 1;
-    }
-    hdus = octave_map(dim_vector(hdunum, 1));
-    for (int h = 0; h < hdunum; ++h) {
+    // Read all HDUs
+    do {
+      octave_map hdu(dim_vector(1,1));
 
       // Read HDU header
       octave_map header(dim_vector(1,1));
@@ -160,7 +155,7 @@ DEFUN_DLD( fitsread, args, nargout, fitsread_usage ) {
         }
 
       }
-      hdus.contents("header").insert(Cell(octave_value(header)), h, 0);
+      hdu.contents("header").insert(Cell(octave_value(header)), 0, 0);
 
       // Read HDU data
       int hdutype = 0;
@@ -275,13 +270,28 @@ DEFUN_DLD( fitsread, args, nargout, fitsread_usage ) {
         data = Cell(octave_value(tbl));
 
       }
-      hdus.contents("data").insert(data, h, 0);
+      hdu.contents("data").insert(data, 0, 0);
+
+      // Determine name of HDU
+      std::string hduname;
+      if (header.isfield("hduname")) {
+        hduname = header.contents("hduname").elem(0).string_value();
+      } else {
+        std::ostringstream convert;
+        int hdunum;
+        fits_get_hdu_num(ff, &hdunum);
+        convert << "hdu_" << hdunum;
+        hduname = convert.str();
+      }
+
+      // Insert HDU into map
+      all_hdus.contents(hduname).insert(Cell(octave_value(hdu)), 0, 0);
 
       // Move to next HDU
       fits_movrel_hdu(ff, 1, 0, &status);
-      if (status == END_OF_FILE) status = 0;
 
-    }
+    } while(status != END_OF_FILE);
+    if (status == END_OF_FILE) status = 0;
 
   } while(0);
 
@@ -299,7 +309,7 @@ DEFUN_DLD( fitsread, args, nargout, fitsread_usage ) {
   }
 
   // Return read FITS header-data-units
-  return octave_value(hdus);
+  return octave_value(all_hdus);
 
 }
 
