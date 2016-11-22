@@ -28,7 +28,8 @@
 ##   lattice:
 ##     Type of lattice used by search (default: Ans)
 ##   coh_max_mismatch,semi_max_mismatch:
-##     Maximum coherent and semicoherent mismatches
+##     Maximum coherent and semicoherent mismatches; for a single-
+##     segment or non-interpolating search, set coh_max_mismatch=0
 ##   output:
 ##     if given, print various information to screen:
 ##       output=mean: mean F-statistic mismatch
