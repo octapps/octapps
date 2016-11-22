@@ -56,9 +56,8 @@ function varargout = WeaveFstatMismatch(varargin)
   ## if given, load setup file and extract coherent and semicoherent time spans
   if !isempty(setup_file)
     setup = fitsread(setup_file);
-    i = find(cellfun(@(h) strcmpi(getoptfield("", h, "hduname"), "segments"), {setup.header}));
-    assert(!isempty(i), "Could not extract segment list from setup file '%s'", setup_file);
-    segs = setup(i).data;
+    assert(isfield(setup, "segments"));
+    segs = setup.segments.data;
     segment_list = [ [segs.start_s] + 1e-9*[segs.start_ns]; [segs.end_s] + 1e-9*[segs.end_ns] ]';
     segment_props = AnalyseSegmentList(segment_list);
     coh_Tspan = segment_props.coh_mean_Tspan;
