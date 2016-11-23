@@ -64,17 +64,17 @@ DEFUN_DLD( fitsread, args, nargout, fitsread_usage ) {
   // Open FITS file
   int status = 0;
   fitsfile *ff = 0;
-  octave_map all_hdus(dim_vector(1,1));
+  octave_map all_hdus(dim_vector(1, 1));
+  int ext_index = 0;
   do {
     std::string filename = args(0).string_value();
     if (fits_open_file(&ff, filename.c_str(), READONLY, &status) != 0) break;
 
     // Read all HDUs
     do {
-      octave_map hdu(dim_vector(1,1));
 
       // Read HDU header
-      octave_map header(dim_vector(1,1));
+      octave_map header(dim_vector(1, 1));
       int nkeys = 0;
       fits_get_hdrspace(ff, &nkeys, 0, &status);
       for (int i = 1; i <= nkeys; ++i) {
@@ -145,21 +145,24 @@ DEFUN_DLD( fitsread, args, nargout, fitsread_usage ) {
           header.contents(key) = Cell(val);
         } else {
           Cell vals;
-          if (header.contents(key).elem(0, 0).is_cell()) {
-            vals = header.contents(key).elem(0, 0).cell_value();
+          if (header.contents(key).elem(0).is_cell()) {
+            vals = header.contents(key).elem(0).cell_value();
           } else {
-            vals = Cell(header.contents(key).elem(0, 0));
+            vals = Cell(header.contents(key).elem(0));
           }
           vals.insert(val, keyn - 1, 0);
-          header.contents(key).insert(Cell(octave_value(vals)), 0, 0);
+          header.contents(key) = Cell(vals);
         }
 
       }
-      hdu.contents("header").insert(Cell(octave_value(header)), 0, 0);
 
       // Read HDU data
       int hdutype = 0;
-      Cell data;
+      octave_value data;
+      {
+        NDArray empty(dim_vector(0, 0));
+        data = octave_value(empty.squeeze());
+      }
       if (fits_get_hdu_type(ff, &hdutype, &status) != 0) break;
       if (hdutype == IMAGE_HDU) {
 
@@ -195,7 +198,7 @@ DEFUN_DLD( fitsread, args, nargout, fitsread_usage ) {
             if (status != 0) break;
           }
           if (status != 0) break;
-          data = Cell(octave_value(array.squeeze()));
+          data = octave_value(array.squeeze());
 
         }
 
@@ -267,33 +270,54 @@ DEFUN_DLD( fitsread, args, nargout, fitsread_usage ) {
           }
 
         }
-        data = Cell(octave_value(tbl));
+        data = octave_value(tbl);
 
       }
-      hdu.contents("data").insert(data, 0, 0);
+
 
       // Determine name of HDU
       std::string hduname;
       if (header.isfield("hduname")) {
         hduname = header.contents("hduname").elem(0).string_value();
+      } else if (header.isfield("extname")) {
+        hduname = header.contents("extname").elem(0).string_value();
       } else {
-        std::ostringstream convert;
-        int hdunum;
+        int hdunum = 0;
         fits_get_hdu_num(ff, &hdunum);
-        convert << "hdu_" << hdunum;
-        hduname = convert.str();
+        if ( hdunum < 1 ) {
+          status = BAD_HDU_NUM;
+          break;
+        }
+        hduname = ( hdunum == 1 ) ? "primary" : "extension";
       }
 
       // Insert HDU into map
-      all_hdus.contents(hduname).insert(Cell(octave_value(hdu)), 0, 0);
+      if ( hduname == "extension" ) {
+        octave_map ext_hdus(dim_vector(1, 1));
+        if (all_hdus.contents(hduname).elem(0).is_map()) {
+          ext_hdus = all_hdus.contents(hduname).elem(0).map_value();
+        }
+        ext_hdus.resize(dim_vector(1 + ext_index, 1));
+        ext_hdus.contents("header").insert(Cell(octave_value(header)), ext_index, 0);
+        ext_hdus.contents("data").insert(Cell(octave_value(data)), ext_index, 0);
+        all_hdus.contents(hduname) = Cell(octave_value(ext_hdus));
+        ++ext_index;
+      } else {
+        octave_map hdu(dim_vector(1, 1));
+        hdu.contents("header") = Cell(octave_value(header));
+        hdu.contents("data") = Cell(octave_value(data));
+        all_hdus.contents(hduname) = Cell(octave_value(hdu));
+      }
 
       // Move to next HDU
       fits_movrel_hdu(ff, 1, 0, &status);
 
-    } while(status != END_OF_FILE);
-    if (status == END_OF_FILE) status = 0;
+    } while (status != END_OF_FILE);
+    if (status == END_OF_FILE) {
+      status = 0;
+    }
 
-  } while(0);
+  } while (0);
 
   // Close FITS file
   if (ff != 0) {
