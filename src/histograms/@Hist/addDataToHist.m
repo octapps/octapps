@@ -54,7 +54,7 @@ function hgrm = addDataToHist(hgrm, data)
     datamax = max(data(finii,k));
 
     ## if more bins are required
-    if any(finii) && (datamin < binmin || datamax > binmax)
+    if any(finii) && (datamin < binmin || datamax >= binmax)
       newbinslo = [];
       newbinshi = [];
 
@@ -63,7 +63,7 @@ function hgrm = addDataToHist(hgrm, data)
 
         case "fixed"   ## fixed bins, cannot be extended, so set data to +/- infinity
           data(data(:,k) < binmin, k) = -inf;
-          data(data(:,k) > binmax, k) = +inf;
+          data(data(:,k) >= binmax, k) = +inf;
 
         case "lin"   ## linear bin generator
           dbin = hgrm.bintype{k}.dbin;
@@ -74,8 +74,8 @@ function hgrm = addDataToHist(hgrm, data)
           endif
 
           ## create new upper bins, if needed
-          if datamax > binmax
-            newbinshi = binmax + (1:ceil((datamax - binmax) / dbin)) * dbin;
+          if datamax >= binmax
+            newbinshi = binmax + (1:(1+floor((datamax - binmax) / dbin))) * dbin;
           endif
 
         case "log"   ## logarithmic bin generator
@@ -110,7 +110,7 @@ function hgrm = addDataToHist(hgrm, data)
               binshi = linspace(newbinmax, range, binsper10);
               newbinshi = [newbinshi, binshi(2:end)];
               newbinmax = newbinshi(end);
-            until !(datamax > newbinmax)
+            until !(datamax >= newbinmax)
 
           endif
 
@@ -151,3 +151,16 @@ function hgrm = addDataToHist(hgrm, data)
   hgrm.counts(sub2ind(size(hgrm.counts), jj{:})) += nn;
 
 endfunction
+
+
+%!assert(histBins(addDataToHist(Hist(1, {"lin", "dbin", 1}), -2), 1, "finite", "bins")', -2:0)
+%!assert(histBins(addDataToHist(Hist(1, {"lin", "dbin", 1}), -1), 1, "finite", "bins")', -1:0)
+%!assert(histBins(addDataToHist(Hist(1, {"lin", "dbin", 1}),  0), 1, "finite", "bins")',  0:1)
+%!assert(histBins(addDataToHist(Hist(1, {"lin", "dbin", 1}),  1), 1, "finite", "bins")',  0:2)
+%!assert(histBins(addDataToHist(Hist(1, {"lin", "dbin", 1}),  2), 1, "finite", "bins")',  0:3)
+
+%!assert(histProbs(addDataToHist(Hist(1, {"lin", "dbin", 1}), -2), "finite")', [1 0])
+%!assert(histProbs(addDataToHist(Hist(1, {"lin", "dbin", 1}), -1), "finite")', [1])
+%!assert(histProbs(addDataToHist(Hist(1, {"lin", "dbin", 1}),  0), "finite")', [1])
+%!assert(histProbs(addDataToHist(Hist(1, {"lin", "dbin", 1}),  1), "finite")', [0 1])
+%!assert(histProbs(addDataToHist(Hist(1, {"lin", "dbin", 1}),  2), "finite")', [0 0 1])
