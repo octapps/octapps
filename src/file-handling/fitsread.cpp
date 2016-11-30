@@ -157,7 +157,7 @@ DEFUN_DLD( fitsread, args, nargout, fitsread_usage ) {
             vals = Cell(header.contents(key).elem(0));
           }
           vals.insert(val, keyn - 1, 0);
-          header.contents(key) = Cell(vals);
+          header.contents(key) = Cell(octave_value(vals));
         }
 
       }
