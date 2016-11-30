@@ -76,9 +76,8 @@ function hgrm = Hist(dim, varargin)
           ## parse options
           parseOptions(bintypek(2:end),
                        {"minrange", "real,strictpos,scalar", []},
-                       {"binsper10", "integer,scalar"},
+                       {"binsper10", "integer,strictpos,scalar"},
                        []);
-          assert(binsper10 > 1);
 
           ## set bin type and create bins
           hgrm.bintype{k}.binsper10 = binsper10;

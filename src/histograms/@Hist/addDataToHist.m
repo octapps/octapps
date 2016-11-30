@@ -55,10 +55,9 @@ function hgrm = addDataToHist(hgrm, data)
 
     ## if more bins are required
     if any(finii) && (datamin < binmin || datamax >= binmax)
-      newbinslo = [];
-      newbinshi = [];
 
       ## select bin type
+      newbinslo = newbinshi = [];
       switch hgrm.bintype{k}.name
 
         case "fixed"   ## fixed bins, cannot be extended, so set data to +/- infinity
@@ -84,33 +83,35 @@ function hgrm = addDataToHist(hgrm, data)
           ## if no minimum bin range has been created
           if length(bins) == 1
 
-            ## use range of data + 5% to prevent data being added to Inf bins
-            range = max(abs(datamin), abs(datamax)) * 1.01;
+            ## work out minimum range based on data, rounded up to nearest power of 10
+            minrange = 10^ceil(log10(max(abs(datamin), abs(datamax))));
 
             ## create minimum bins
-            newbins = linspace(0, range, binsper10);
-            newbinslo = -newbins(end:-1:2);
-            newbinshi = +newbins(2:end);
+            newbins = linspace(-minrange, minrange, 2*binsper10 + 1);
+            newbinslo = newbins(newbins < binmin);
+            newbinshi = newbins(newbins > binmax);
 
           else
 
             ## extend lower bins, if needed
-            range = newbinmin = binmin;
-            do
-              range *= 10;
-              binslo = linspace(range, newbinmin, binsper10);
-              newbinslo = [binslo(1:end-1), newbinslo];
-              newbinmin = newbinslo(1);
-            until !(datamin < newbinmin)
+            r = binmin;
+            while datamin < r
+              r *= 10;
+              binslo = linspace(r, 0, binsper10 + 1);
+              binslo = binslo(binslo < binmin);
+              newbinslo = [binslo, newbinslo];
+              binmin = newbinslo(1);
+            endwhile
 
             ## extend upper bins, if needed
-            range = newbinmax = binmax;
-            do
-              range *= 10;
-              binshi = linspace(newbinmax, range, binsper10);
-              newbinshi = [newbinshi, binshi(2:end)];
-              newbinmax = newbinshi(end);
-            until !(datamax >= newbinmax)
+            r = binmax;
+            while datamax >= r
+              r *= 10;
+              binshi = linspace(0, r, binsper10 + 1);
+              binshi = binshi(binshi > binmax);
+              newbinshi = [newbinshi, binshi];
+              binmax = newbinshi(end);
+            endwhile
 
           endif
 
@@ -118,6 +119,7 @@ function hgrm = addDataToHist(hgrm, data)
           error("%s: unknown bin type '%s'", funcName, hgrm.bintype{k}.name)
 
       endswitch
+      assert(!isempty(newbinslo) || !isempty(newbinshi));
 
       ## resize histogram
       hgrm = resampleHist(hgrm, k, [newbinslo, bins, newbinshi]);
@@ -164,3 +166,9 @@ endfunction
 %!assert(histProbs(addDataToHist(Hist(1, {"lin", "dbin", 1}),  0), "finite")', [1])
 %!assert(histProbs(addDataToHist(Hist(1, {"lin", "dbin", 1}),  1), "finite")', [0 1])
 %!assert(histProbs(addDataToHist(Hist(1, {"lin", "dbin", 1}),  2), "finite")', [0 0 1])
+
+%!assert(histBins(addDataToHist(Hist(1, {"log", "binsper10", 1}), 0.9), 1, "finite", "bins")', -1:1, 1e-6)
+%!assert(histBins(addDataToHist(Hist(1, {"log", "binsper10", 10}), 0.9), 1, "finite", "bins")', -1:0.1:1, 1e-6)
+%!assert(histBins(addDataToHist(Hist(1, {"log", "minrange", 1, "binsper10", 10}), 0.9), 1, "finite", "bins")', -1:0.1:1, 1e-6)
+%!assert(histBins(addDataToHist(Hist(1, {"log", "minrange", 1, "binsper10", 10}), 1.1), 1, "finite", "bins")', [-1:0.1:1, 2:10], 1e-6)
+%!assert(histBins(addDataToHist(Hist(1, {"log", "minrange", 1, "binsper10", 10}), -10.1), 1, "finite", "bins")', [-100:10:-10, -9:-2, -1:0.1:1], 1e-6)
