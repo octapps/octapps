@@ -23,6 +23,8 @@
 ##   coh_Tspan,semi_Tspan:
 ##     Alternatives to 'setup_file'; give time span of coherent
 ##     segments, and total time span of semicoherent search
+##   sky:
+##     Whether to include search over sky parameters (default: true)
 ##   spindowns:
 ##     Number of spindown parameters being searched
 ##   lattice:
@@ -43,6 +45,7 @@ function varargout = WeaveFstatMismatch(varargin)
                {"setup_file", "char", []},
                {"coh_Tspan", "real,strictpos,scalar", []},
                {"semi_Tspan", "real,strictpos,scalar", []},
+               {"sky", "logical,scalar", true},
                {"spindowns", "integer,positive,scalar"},
                {"lattice", "char", "Ans"},
                {"coh_max_mismatch", "real,positive,scalar"},
@@ -65,7 +68,7 @@ function varargout = WeaveFstatMismatch(varargin)
   endif
 
   ## dimensionality of search parameter space: 2 sky + 1 frequency + spindowns
-  dim = 3 + spindowns;
+  dim = ifelse(sky, 2, 0) + 1 + spindowns;
 
   ## get the lattice histogram for the given dimensionality and type
   lattice_hgrm = LatticeMismatchHist(dim, lattice);
