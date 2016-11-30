@@ -44,6 +44,12 @@ data = fitsread(\"results.fits[table1]\");     # Load only the table \"table1\" 
 \n\
 @end deftypefn";
 
+// Transform FITS header keyword into either (lowercase) alphanumeric
+// characters or '_', in order to be easily accessible from Octave
+int transform_keyword(int c) {
+  return isalnum(c) ? tolower(c) : '_';
+}
+
 DEFUN_DLD( fitsread, args, nargout, fitsread_usage ) {
 
   // Prevent octave from crashing ...
@@ -89,7 +95,7 @@ DEFUN_DLD( fitsread, args, nargout, fitsread_usage ) {
           continue;
         }
         std::string key(keyname);
-        std::transform(key.begin(), key.end(), key.begin(), ::tolower);
+        std::transform(key.begin(), key.end(), key.begin(), transform_keyword);
         if (fits_parse_value(card, value, comment, &status) != 0) {
           break;
         }
