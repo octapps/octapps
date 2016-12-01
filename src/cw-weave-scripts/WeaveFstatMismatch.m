@@ -100,6 +100,9 @@ function varargout = WeaveFstatMismatch(varargin)
       [ml, mh] = histBins(hgrm, 1, "finite", "lower", "upper");
       p = histProbs(hgrm, "finite");
       assert(length(ml) == length(mh) && length(mh) == length(p));
+      printf("# column 1: lower bin boundary\n");
+      printf("# column 2: upper bin boundary\n");
+      printf("# column 3: probability density\n");
       printf("%0.4g %0.4g %0.4g\n", [ml(:)'; mh(:)'; p(:)']);
     otherwise
       error("unknown option 'output=%s'", output);
