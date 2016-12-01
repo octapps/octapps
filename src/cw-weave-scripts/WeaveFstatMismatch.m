@@ -97,10 +97,10 @@ function varargout = WeaveFstatMismatch(varargin)
       printf("%0.4e\n", stdvOfHist(hgrm));
     case "hist"
       hgrm = restrictHist(thresholdHist(hgrm, 1e-3));
-      mu = histBins(hgrm, 1, "finite", "centre");
+      [ml, mh] = histBins(hgrm, 1, "finite", "lower", "upper");
       p = histProbs(hgrm, "finite");
-      assert(length(mu) == length(p));
-      printf("%0.4g %0.4g\n", [mu(:)'; p(:)']);
+      assert(length(ml) == length(mh) && length(mh) == length(p));
+      printf("%0.4g %0.4g %0.4g\n", [ml(:)'; mh(:)'; p(:)']);
     otherwise
       error("unknown option 'output=%s'", output);
   endswitch
