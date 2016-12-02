@@ -32,11 +32,11 @@
 ##   coh_max_mismatch,semi_max_mismatch:
 ##     Maximum coherent and semicoherent mismatches; for a single-
 ##     segment or non-interpolating search, set coh_max_mismatch=0
-##   output:
+##   stdout:
 ##     if given, print various information to screen:
-##       output=mean: mean F-statistic mismatch
-##       output=stdv: standard deviation of F-statistic mismatch
-##       output=hist: ASCII table of F-statistic mismatch histogram
+##       stdout=mean: mean F-statistic mismatch
+##       stdout=stdv: standard deviation of F-statistic mismatch
+##       stdout=hist: ASCII table of F-statistic mismatch histogram
 
 function varargout = WeaveFstatMismatch(varargin)
 
@@ -50,7 +50,7 @@ function varargout = WeaveFstatMismatch(varargin)
                {"lattice", "char", "Ans"},
                {"coh_max_mismatch", "real,positive,scalar"},
                {"semi_max_mismatch", "real,positive,scalar"},
-               {"output", "char", []},
+               {"stdout", "char", []},
                []);
   assert(xor(!isempty(setup_file), !isempty(coh_Tspan)), "'setup_file' and 'coh_Tspan' are mutually exclusive");
   assert(xor(!isempty(setup_file), !isempty(semi_Tspan)), "'setup_file' and 'semi_Tspan' are mutually exclusive");
@@ -88,7 +88,7 @@ function varargout = WeaveFstatMismatch(varargin)
   hgrm = createGaussianHist(mean_twoF, stdv_twoF, "binsize", 0.01, "domain", [0, 1]);
 
   ## either return histogram (Octave usage) or print histogram properties (command line usage)
-  switch output
+  switch stdout
     case ""
       varargout = {hgrm};
     case "mean"
@@ -105,7 +105,7 @@ function varargout = WeaveFstatMismatch(varargin)
       printf("# column 3: probability density\n");
       printf("%0.4g %0.4g %0.4g\n", [ml(:)'; mh(:)'; p(:)']);
     otherwise
-      error("unknown option 'output=%s'", output);
+      error("unknown option 'stdout=%s'", stdout);
   endswitch
 
 endfunction
