@@ -1,4 +1,4 @@
-## Copyright (C) 2010 Karl Wette
+## Copyright (C) 2010, 2016 Karl Wette
 ##
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -15,15 +15,18 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## Shows the contents of a histogram class.
+## Display the contents of a histogram object.
 ## Syntax:
-##   showHist(hgrm)
+##   display(hgrm)
 ## where:
-##   hgrm = histogram class
+##   hgrm = histogram object
 
-function showHist(hgrm)
+function s = display(hgrm)
 
   ## check input
+  if (nargin != 1)
+    print_usage ();
+  endif
   assert(isHist(hgrm));
   dim = histDim(hgrm);
 
@@ -34,11 +37,8 @@ function showHist(hgrm)
   endfor
   prob = histProbs(hgrm);
 
-  ## get size of terminal, and set empty buffer string
-  tsize = terminal_size();
-  buffer = "";
-
   ## loop over all non-zero bins
+  strs = {};
   dims = size(prob);
   nn = find(prob(:) > 0);
   for n = 1:length(nn)
@@ -48,26 +48,19 @@ function showHist(hgrm)
     p = prob(subs{:});
 
     ## form string containing bin ranges in each dimension, and probability density
-    str = "";
+    strs{n} = "";
     for k = 1:dim
-      str = strcat(str, sprintf(" [% 6g,% 6g]", binlo{k}(subs{k}), binhi{k}(subs{k})));
+      strs{n} = strcat(strs{n}, sprintf("[%g,%g]", binlo{k}(subs{k}), binhi{k}(subs{k})));
     endfor
-    str = strcat(str, sprintf(" = %0.4e", p));
-
-    ## if buffer would already fill terminal screen, print it and start
-    ## next line with string, otherwise add string to buffer
-    if length(buffer) + length(str) > tsize(2)
-      printf("%s\n", buffer);
-      buffer = str;
-    else
-      buffer = strcat(buffer, str);
-    endif
+    strs{n} = strcat(strs{n}, sprintf(" = %0.4e", p));
 
   endfor
 
-  ## if there's anything left in the buffer, print it
-  if length(buffer) > 0
-    printf("%s\n", buffer);
+  ## print strings describing each non-zero bin, in columns
+  in = inputname(1);
+  if length(in) > 0
+    printf("%s =\n", in);
   endif
+  printf("{\n%s}\n", list_in_columns(strs, [], "  "));
 
 endfunction
