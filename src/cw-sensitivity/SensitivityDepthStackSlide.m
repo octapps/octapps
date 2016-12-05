@@ -46,7 +46,7 @@ function sensDepth = SensitivityDepthStackSlide ( varargin )
   uvar = parseOptions ( varargin,
                        {"Nseg", "integer,strictpos,scalar", 1 },
                        {"Tdata", "real,strictpos,scalar" },
-                       {"misHist", "Hist" },
+                       {"misHist", "a:Hist" },
                        {"pFD", "real,strictpos,vector", 0.1},
                        {"pFA", "real,strictpos,vector", []},
                        {"avg2Fth", "real,strictpos,vector", []},

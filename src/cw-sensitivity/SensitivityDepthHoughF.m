@@ -46,7 +46,7 @@ function sensDepth = SensitivityDepthHoughF ( varargin )
   uvar = parseOptions ( varargin,
                        {"Nseg", "integer,strictpos,scalar", 1 },
                        {"Tdata", "real,strictpos,scalar" },
-                       {"misHist", "Hist" },
+                       {"misHist", "a:Hist" },
                        {"pFD", "real,strictpos,scalar", 0.1},
                        {"pFA", "real,strictpos,vector"},
                        {"Fth", "real,strictpos,scalar", 5.2/2 },

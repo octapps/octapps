@@ -39,7 +39,7 @@ function pDET = DetectionProbabilityStackSlide ( varargin )
   uvar = parseOptions ( varargin,
                        {"Nseg", "integer,strictpos,scalar", 1 },
                        {"Tdata", "real,strictpos,scalar" },
-                       {"misHist", "Hist" },
+                       {"misHist", "a:Hist" },
                        {"pFA", "real,strictpos,vector", []},
                        {"avg2Fth", "real,strictpos,vector", []},
                        {"detectors", "char", "H1,L1" },

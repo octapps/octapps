@@ -26,7 +26,7 @@
 function qf = quantileFuncOfHist(hgrm, p, k = 1)
 
   ## check input
-  assert(isHist(hgrm));
+  assert(isa(hgrm, "Hist"));
   dim = histDim(hgrm);
   assert(isscalar(p) && 0 <= p && p <= 1);
   assert(isscalar(k) && 1 <= k && k <= dim);

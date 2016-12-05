@@ -25,7 +25,7 @@
 function stdv = stdvOfHist(hgrm, k = 1)
 
   ## check input
-  assert(isHist(hgrm));
+  assert(isa(hgrm, "Hist"));
   dim = histDim(hgrm);
   assert(isscalar(k) && 1 <= k && k <= dim);
 

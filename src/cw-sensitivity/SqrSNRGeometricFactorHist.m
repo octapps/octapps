@@ -42,7 +42,7 @@ function Rsqr_H = SqrSNRGeometricFactorHist(varargin)
                {"T", "numeric,scalar", inf},
                {"detectors", "char", "L1"},
                {"detweights", "real,strictpos,vector", []},
-               {"mism_hgrm", "Hist", []},
+               {"mism_hgrm", "a:Hist", []},
                {"alpha", "numeric,vector", [0, 2*pi]},
                {"sdelta", "numeric,vector", [-1, 1]},
                {"psi", "numeric,vector", [0, 2*pi]},

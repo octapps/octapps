@@ -31,7 +31,7 @@ vershex := -DOCTAVE_VERSION_HEX=$(shell $(OCTAVE) --eval "disp(strcat(\"0x\", sp
 
 # OctApps source path and file list
 curdir := $(shell pwd -L)
-srcpath := $(shell $(FIND) $(curdir)/src -type d ! \( -name private \) | $(SORT))
+srcpath := $(shell $(OCTAVE) --eval "disp(strrep(genpath('$(curdir)/src'), ':', ' '))")
 srcfilepath := $(filter-out %/deprecated, $(srcpath))
 srcmfiles := $(wildcard $(srcfilepath:%=%/*.m))
 srccfiles := $(wildcard $(srcfilepath:%=%/*.hpp) $(srcfilepath:%=%/*.cpp))

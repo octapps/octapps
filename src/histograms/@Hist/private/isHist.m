@@ -15,21 +15,10 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## Checks whether the input argument is a valid histogram class.
-## Syntax:
-##   ishgrm = isHist(hgrm)
-## where:
-##   hgrm   = maybe a histogram class
-##   ishgrm = true if hgrm is a valid histogram class,
-##            false otherwise
-
 function ishgrm = isHist(hgrm)
 
-  ## check if hgrm is a Hist class object
-  ishgrm = strcmp(class(hgrm), "Hist");
-
-  ## perform various consistency checks on class variables
-  ishgrm = ishgrm && iscell(hgrm.bins) && isvector(hgrm.bins) && length(hgrm.bins) > 0 && ismatrix(hgrm.counts);
+  ## Check whether the input argument is an internally consistent histogram object
+  ishgrm = isa(hgrm, "Hist") && iscell(hgrm.bins) && isvector(hgrm.bins) && length(hgrm.bins) > 0 && ismatrix(hgrm.counts);
   if ishgrm
     for k = 1:length(hgrm.bins)
       ishgrm = ishgrm && isvector(hgrm.bins{k}) && length(hgrm.bins{k}) >= 2 && ...

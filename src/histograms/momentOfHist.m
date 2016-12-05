@@ -32,7 +32,7 @@
 function mu = momentOfHist(hgrm, sumdims, n, x0 = 0)
 
   ## check input
-  assert(isHist(hgrm));
+  assert(isa(hgrm, "Hist"));
   dim = histDim(hgrm);
   assert(all(1 <= sumdims && sumdims <= dim));
   assert(all(unique(sumdims) == sort(sumdims)), "Elements of 'sumdims' must be unique");

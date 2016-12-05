@@ -40,7 +40,7 @@ function [rho, pd_rho] = SensitivitySNR(pd, Ns, Rsqr_H, detstat, varargin)
   ## check input
   assert(all(pd > 0));
   assert(all(Ns > 0));
-  assert(isHist(Rsqr_H) || isscalar(Rsqr_H));
+  assert(isa(Rsqr_H, "Hist") || isscalar(Rsqr_H));
 
   ## show progress updates?
   show_progress = false;
@@ -71,7 +71,7 @@ function [rho, pd_rho] = SensitivitySNR(pd, Ns, Rsqr_H, detstat, varargin)
   fdp_vars = cellfun(@(x) x(:), fdp_vars, "UniformOutput", false);
 
   ## get values and weights of R^2 as row vectors
-  if isHist(Rsqr_H)   ## R^2 = histogram
+  if isa(Rsqr_H, "Hist")   ## R^2 = histogram
 
     ## check histogram is 1-D
     if (histDim(Rsqr_H) > 1)
