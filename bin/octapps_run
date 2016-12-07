@@ -1,6 +1,6 @@
 #!/bin/bash
 
-## Copyright (C) 2012 Karl Wette
+## Copyright (C) 2012, 2016 Karl Wette
 ##
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -18,34 +18,26 @@
 ## MA  02111-1307  USA
 
 ## Run Octave function from the command line.
-## Command-line options of the form:
-##   --name <value>   or   --name=<value>
-## are converted into option-value pairs; other options are unchanged.
+OCTAVE="octave --silent --norc --no-history --no-window-system"
 
-## Get function name, or print usage
-function="$1"
-if [ "x${function}" = "x" ]; then
-    echo "usage: $0 <octave-function> <arguments...>" >&2
-    exit 1
+## Print help information for 'octapps_run' itself, if requested
+if [ "x$2" = x ]; then
+    if [ "x$1" = x ] || [ "x$1" = "x-h" ] || [ "x$1" = "x--help" ]; then
+        ${OCTAVE} --eval "disp(help('octapps_run_driver'))"
+        exit 1
+    fi
 fi
+
+## Get function name, without any extension
+function=`expr "x$1" : "x\([^.]*\).*"`
 shift
-
-## Strip any extension from the function name
-function=`expr "X${function}" : "X\([^.]*\).*"`
-
-## If first command-line argment is --help, print function help
-if [ "x$1" = "x--help" ]; then
-    exec octave -qfH --eval "help ${function}"
-fi
 
 ## Concatenate command-line arguments into a quoted string
-args="'$1'"
-shift
+args="'${function}'"
 while [ "x$1" != x ]; do
     args="${args}, '$1'"
     shift
 done
 
-## Execute Octave, using --eval to invoke the Octave function,
-## and parseCommandLine() to parse the command-line arguments.
-exec octave -qfH --eval "${function}(parseCommandLine(${args}){:});"
+## Call function through driver script octapps_run_driver()
+exec ${OCTAVE} --eval "octapps_run_driver(${args})"
