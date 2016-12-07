@@ -208,6 +208,9 @@ function varargout = parseOptions(opts, varargin)
 
   endfor
 
+  ## list of allowed options
+  allowed_names = fieldnames(allowed);
+
   ## split function arguments into regular options and keyword-value pairs
   [regopts, kvopts] = parseparams(opts);
 
@@ -242,9 +245,14 @@ function varargout = parseOptions(opts, varargin)
     optval = kvopts{n+1};
 
     ## check that this option is an allowed option
-    if !isfield(allowed, optkey)
+    ii = find(strncmp(optkey, allowed_names, length(optkey)));
+    if length(ii) < 1
       error("%s: unknown option '%s'", funcName, optkey);
     endif
+    if length(ii) > 1
+      error("%s: ambiguous option '%s' (matches '%s')", funcName, optkey, strjoin(allowed_names(ii), "' or '"));
+    endif
+    optkey = allowed_names{ii};
 
     ## if option does not accept a 'char' value, but option value is a 'char',
     ## try evaluating it (this is used when parsing arguments from the command line)
