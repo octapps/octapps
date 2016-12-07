@@ -69,7 +69,7 @@ endfunction
 
 
 ## tests
-%!assert(addToIntegerSet([], []) == [])
+%!assert(isempty(addToIntegerSet([], [])))
 %!assert(addToIntegerSet([], 1:4) == [1,4])
 %!assert(addToIntegerSet([], [1:3, 5:9]) == [1,3; 5,9])
 %!assert(addToIntegerSet([], [1, 1:5, 5, 4:8, 11]) == [1,8; 11,11])
