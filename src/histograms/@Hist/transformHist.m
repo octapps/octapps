@@ -19,7 +19,7 @@
 ## Syntax:
 ##   hgrm = transformHist(hgrm, F, [err])
 ## where:
-##   hgrm = histogram class
+##   hgrm = histogram object
 ##   F    = function to apply to histogram samples:
 ##          - should accept column vectors as inputs and return
 ##            an array whose columns are vectorised outputs

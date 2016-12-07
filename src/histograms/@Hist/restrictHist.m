@@ -25,8 +25,8 @@
 ##   rhgrm = restrictHist(hgrm)
 ##   rhgrm = restrictHist(..., "discard")
 ## where:
-##   rhgrm        = restricted histogram class
-##   hgrm         = original histogram class
+##   rhgrm        = restricted histogram object
+##   hgrm         = original histogram object
 ##   k            = dimension along which to restrict histogram range
 ##   [xl_k, xh_k] = range in dimension 'k' to restrict range to
 

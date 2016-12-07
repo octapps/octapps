@@ -20,7 +20,7 @@
 ##   plotHist(hgrm, options, ..., hgrm, options, ...)
 ##   hh = plotHist(...)
 ## where:
-##   hgrm    = histogram class
+##   hgrm    = histogram object
 ##   options = options to pass to graphics function
 ##   hh      = return graphics handles
 ## plotHist-specific options:

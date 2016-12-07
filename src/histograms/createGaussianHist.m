@@ -43,7 +43,7 @@ function hgrm = createGaussianHist ( varargin )
     uvar.domain = uvar.mean + [-10, 10] * uvar.std;
   endif
 
-  ## create 1D histogram class
+  ## create 1D histogram object
   hgrm = Hist( 1, {"lin", "dbin", uvar.binsize} );
 
   ## initialise histogram to a Gaussian PDF

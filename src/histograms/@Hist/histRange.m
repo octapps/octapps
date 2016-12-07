@@ -15,14 +15,14 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## Returns the ranges of a histogram class, which are finite
+## Returns the ranges of a histogram object, which are finite
 ## if the histogram is non-empty and NaNs otherwise, and the
 ## number of bins in each range.
 ## Syntax:
 ##   [rng,  nbins ] = histRange(hgrm, [kk = 1:dim])
 ##   [frng, fnbins] = histRange(hgrm, [kk = 1:dim], "finite")
 ## where:
-##   hgrm   = histogram class
+##   hgrm   = histogram object
 ##   kk     = dimensions for which to return ranges; defaults to all
 ##   rng    = ranges of the histogram
 ##   nbins  = number of bins in each range

@@ -19,7 +19,7 @@
 ## Syntax:
 ##   cdf = cumulativeDistOfHist(hgrm, x, [k = 1])
 ## where:
-##   hgrm = histogram class
+##   hgrm = histogram object
 ##   x    = argument to the c.d.f.
 ##   k    = dimension over which to evaluate the c.d.f.
 

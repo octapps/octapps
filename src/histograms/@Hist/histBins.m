@@ -20,7 +20,7 @@
 ##   [binq,  ...] = histBins(hgrm, k, "type", ...)
 ##   [fbinq, ...] = histBins(hgrm, k, "finite", "type", ...)
 ## where:
-##   hgrm  = histogram class
+##   hgrm  = histogram object
 ##   k     = dimension along which to return bin quantities
 ##   type  = one of:
 ##             "bins":   bin boundaries

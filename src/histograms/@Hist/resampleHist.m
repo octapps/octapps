@@ -20,7 +20,7 @@
 ##   hgrm = resampleHist(hgrm, k, newbins_k)
 ##   hgrm = resampleHist(hgrm, newbins_1, ..., newbins_dim)
 ## where:
-##   hgrm      = histogram class
+##   hgrm      = histogram object
 ##   k         = dimension along which to resample
 ##   newbins_k = new bins in dimension k (dim = number of dimensions)
 

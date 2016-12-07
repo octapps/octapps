@@ -18,8 +18,8 @@
 ## Usage:
 ##   thgrm = thresholdHist(hgrm, pth)
 ## where:
-##   thgrm = thresholded histogram class
-##   hgrm  = original histogram class
+##   thgrm = thresholded histogram object
+##   hgrm  = original histogram object
 ##   pth   = probability threshold
 
 function hgrm = thresholdHist(hgrm, pth)

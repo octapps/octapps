@@ -15,11 +15,11 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## Returns the total number of counts in a histogram class.
+## Returns the total number of counts in a histogram object.
 ## Syntax:
 ##   total = histTotalCount(hgrm)
 ## where:
-##   hgrm  = histogram class
+##   hgrm  = histogram object
 ##   total = total number of counts
 
 function total = histTotalCount(hgrm)

@@ -15,11 +15,11 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## Creates a new class representing a multi-dimensional histogram.
+## Create a new object representing a multi-dimensional histogram.
 ## Syntax:
 ##   hgrm = Hist(dim, type...)
 ## where:
-##   hgrm = histogram class
+##   hgrm = histogram object
 ##   dim  = dimensionality of the histogram
 ##   type = bin types, one per dimension; possible types:
 ##          - {"lin", "dbin", <bin width>, ...

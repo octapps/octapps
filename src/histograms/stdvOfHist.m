@@ -19,7 +19,7 @@
 ## Syntax:
 ##   stdv = stdvOfHist(hgrm, [k = 1])
 ## where:
-##   hgrm = histogram class
+##   hgrm = histogram object
 ##   k    = dimension to calculate standard deviation(s) over
 
 function stdv = stdvOfHist(hgrm, k = 1)

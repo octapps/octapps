@@ -20,7 +20,7 @@
 ## Syntax:
 ##   [binq, ...] = histBinsGrids(hgrm, k, "type", ...)
 ## where:
-##   hgrm = histogram class
+##   hgrm = histogram object
 ##   k    = dimension along which to return bin quantities
 ##   type = see histBins()
 ##   binq = bin quantities

@@ -15,11 +15,11 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## Returns the dimensionality of a histogram class.
+## Returns the dimensionality of a histogram object.
 ## Syntax:
 ##   dim = histDim(hgrm)
 ## where:
-##   hgrm = histogram class
+##   hgrm = histogram object
 ##   dim  = dimensionality of the histogram
 
 function dim = histDim(hgrm)

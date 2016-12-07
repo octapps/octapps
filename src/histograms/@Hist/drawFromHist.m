@@ -20,7 +20,7 @@
 ## Syntax:
 ##   x    = drawFromHist(hgrm, N)
 ## where:
-##   hgrm = histogram class
+##   hgrm = histogram object
 ##   N    = number of random values to generate
 ##   x    = generated random values
 

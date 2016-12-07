@@ -21,7 +21,7 @@
 ## Syntax:
 ##   d = histDistance(hgrm1, hgrm2)
 ## where:
-##   hgrm{1,2} = histogram classes
+##   hgrm{1,2} = histogram objects
 
 function d = histDistance(hgrm1, hgrm2)
 

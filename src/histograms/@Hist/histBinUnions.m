@@ -29,7 +29,7 @@ function ubins = histBinUnions(varargin)
   dim = [];
   for i = 1:length(varargin)
     hgrm = varargin{i};
-    assert(isHist(hgrm), "Argument #i must be a valid histogram class", i);
+    assert(isHist(hgrm), "Argument #i must be a valid histogram object", i);
     if isempty(dim)
       dim = length(hgrm.bins);
     else

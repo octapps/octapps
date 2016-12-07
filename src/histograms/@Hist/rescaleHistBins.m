@@ -19,7 +19,7 @@
 ## Syntax:
 ##   hgrm = rescaleHistBins(hgrm, s)
 ## where:
-##   hgrm = histogram class
+##   hgrm = histogram object
 ##   s    = strictly positive scale to apply to bin in each dimension
 
 function hgrm = rescaleHistBins(hgrm, s)

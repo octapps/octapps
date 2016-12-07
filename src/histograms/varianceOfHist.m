@@ -19,7 +19,7 @@
 ## Syntax:
 ##   variance = varianceOfHist(hgrm, [k = 1])
 ## where:
-##   hgrm = histogram class
+##   hgrm = histogram object
 ##   k    = dimension to calculate variance(s) over
 
 function variance = varianceOfHist(hgrm, k = 1)

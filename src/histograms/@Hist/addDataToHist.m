@@ -20,7 +20,7 @@
 ## Syntax:
 ##   hgrm = addDataToHist(hgrm, data)
 ## where:
-##   hgrm = histogram class
+##   hgrm = histogram object
 ##   data = input histogram data
 
 function hgrm = addDataToHist(hgrm, data)

@@ -18,7 +18,7 @@
 ## Syntax:
 ##   hgrm = contractHist(hgrm, newdims)
 ## where:
-##   hgrm    = histogram class
+##   hgrm    = histogram object
 ##   newdims = dimensions that will remain after contraction;
 ##             counts in other dimensions will be summed.
 

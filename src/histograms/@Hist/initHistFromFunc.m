@@ -17,7 +17,7 @@
 ## Usage:
 ##   hgrm = initHistFromFunc(hgrm, F, [xl_1, xh_1], ..., [xl_dim, xh_dim])
 ## where:
-##   hgrm         = histogram class
+##   hgrm         = histogram object
 ##   F            = function used to initialise histogram
 ##   [xl_k, xh_k] = range in dimension 'k' to evaluate 'F' over
 

@@ -23,7 +23,7 @@
 ## Syntax:
 ##   mu = momentOfHist(hgrm, sumdims, n, [x0 = 0])
 ## where:
-##   hgrm    = histogram class
+##   hgrm    = histogram object
 ##   sumdims = dimensions to be summed over
 ##   n       = moment orders in each summed dimension
 ##   x0      = bin offsets, must either be a scalar or match the sizes

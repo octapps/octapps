@@ -19,7 +19,7 @@
 ## Syntax:
 ##   mean = meanOfHist(hgrm, [k = 1])
 ## where:
-##   hgrm = histogram class
+##   hgrm = histogram object
 ##   k    = dimension to calculate mean(s) over
 
 function mean = meanOfHist(hgrm, k = 1)

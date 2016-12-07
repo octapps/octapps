@@ -19,7 +19,7 @@
 ## Syntax:
 ##   q.f. = quantileFuncOfHist(hgrm, p, [k = 1])
 ## where:
-##   hgrm = histogram class
+##   hgrm = histogram object
 ##   p    = quantile probability, in the range [0, 1]
 ##   k    = dimension over which to evaluate the q.f.
 

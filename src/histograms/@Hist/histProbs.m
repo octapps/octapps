@@ -20,7 +20,7 @@
 ##   prob  = histProbs(hgrm)
 ##   fprob = histProbs(hgrm, "finite")
 ## where:
-##   hgrm  = histogram class
+##   hgrm  = histogram object
 ##   prob  = probability densities of all bins
 ##   fprob = probability densities of finite bins
 
