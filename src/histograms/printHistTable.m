@@ -1,0 +1,66 @@
+## Copyright (C) 2010, 2016 Karl Wette
+##
+## This program is free software; you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation; either version 2 of the License, or
+## (at your option) any later version.
+##
+## This program is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License
+## along with with program; see the file COPYING. If not, write to the
+## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+## MA  02111-1307  USA
+
+## Print the contents of a histogram object as an ASCII table.
+## Syntax:
+##   printHistTable(hgrm, [pth=1e-3])
+## where:
+##   hgrm = histogram object
+##   pth  = threshold to apply before printing
+
+function printHistTable(hgrm, pth=1e-3)
+
+  ## check input
+  assert(isa(hgrm, "Hist"));
+  dim = histDim(hgrm);
+
+  ## threshold histogram
+  hgrm = thresholdHist(hgrm, pth);
+
+  ## get histogram bins and probability densities
+  binlo = binhi = cell(1, dim);
+  for k = 1:dim
+    [binlo{k}, binhi{k}] = histBins(hgrm, k, "lower", "upper");
+  endfor
+  prob = histProbs(hgrm);
+
+  ## print ASCII table header
+  for k = 1:dim
+    printf("# columns %i, %i: bin boundaries for dimension %i\n", 2*k - 1, 2*k, k);
+  endfor
+  printf("# column %i: probability density\n", 2*k + 1);
+
+  ## loop over all non-zero bins
+  dims = size(prob);
+  nn = find(prob(:) > 0);
+  for n = 1:length(nn)
+
+    ## get count in this bin
+    [subs{1:dim}] = ind2sub(dims, nn(n));
+    p = prob(subs{:});
+
+    ## print bin ranges in each dimension
+    for k = 1:dim
+      printf(" % -8.4g % -8.4g", binlo{k}(subs{k}), binhi{k}(subs{k}));
+    endfor
+
+    ## print probability density
+    printf(" %8.4e\n", p);
+
+  endfor
+
+endfunction
