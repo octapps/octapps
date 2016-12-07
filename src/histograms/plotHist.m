@@ -31,7 +31,7 @@
 function varargout = plotHist(varargin)
 
   ## get positions of histograms
-  jj = find(cellfun(@isHist, varargin));
+  jj = find(cellfun(@(H) isa(H, "Hist"), varargin));
   if isempty(jj)
     error("%s: at least one argument must be a histogram", funcName);
   endif
