@@ -15,7 +15,7 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## Display the contents of a histogram object.
+## Display a histogram object.
 ## Syntax:
 ##   display(hgrm)
 ## where:
@@ -24,43 +24,16 @@
 function s = display(hgrm)
 
   ## check input
-  if (nargin != 1)
-    print_usage ();
-  endif
   assert(isHist(hgrm));
   dim = histDim(hgrm);
 
-  ## get histogram bins and probability densities
-  binlo = binhi = cell(1, dim);
-  for k = 1:dim
-    [binlo{k}, binhi{k}] = histBins(hgrm, k, "lower", "upper");
-  endfor
-  prob = histProbs(hgrm);
-
-  ## loop over all non-zero bins
-  strs = {};
-  dims = size(prob);
-  nn = find(prob(:) > 0);
-  for n = 1:length(nn)
-
-    ## get count in this bin
-    [subs{1:dim}] = ind2sub(dims, nn(n));
-    p = prob(subs{:});
-
-    ## form string containing bin ranges in each dimension, and probability density
-    strs{n} = "";
-    for k = 1:dim
-      strs{n} = strcat(strs{n}, sprintf("[%g,%g]", binlo{k}(subs{k}), binhi{k}(subs{k})));
-    endfor
-    strs{n} = strcat(strs{n}, sprintf(" = %0.4e", p));
-
-  endfor
-
-  ## print strings describing each non-zero bin, in columns
+  ## display histogram
   in = inputname(1);
   if length(in) > 0
-    printf("%s =\n", in);
+    printf("%s = ", in);
   endif
-  printf("{\n%s}\n", list_in_columns(strs, [], "  "));
+  printf("{histogram: count=%i, range=", histTotalCount(hgrm));
+  printf("[%g,%g]", histRange(hgrm)');
+  printf("}\n");
 
 endfunction
