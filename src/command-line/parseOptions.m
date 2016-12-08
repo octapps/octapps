@@ -160,6 +160,10 @@ function varargout = parseOptions(opts, varargin)
             typefuncstr = cstrcat(typefuncstr, "isnumeric(x) && all(x>0)");
           case "strictneg"
             typefuncstr = cstrcat(typefuncstr, "isnumeric(x) && all(x<0)");
+          case "unit"
+            typefuncstr = cstrcat(typefuncstr, "isnumeric(x) && all(0<=x) && all(x<=1)");
+          case "strictunit"
+            typefuncstr = cstrcat(typefuncstr, "isnumeric(x) && all(0<x) && all(x<1)");
           otherwise
             typefuncfunc = cstrcat("is", typefuncarg);
             try
