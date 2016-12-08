@@ -44,12 +44,12 @@ function sensDepth = SensitivityDepthStackSlide ( varargin )
 
   ## parse options
   uvar = parseOptions ( varargin,
-                       {"Nseg", "integer,strictpos,scalar", 1 },
-                       {"Tdata", "real,strictpos,scalar" },
+                       {"Nseg", "integer,strictpos,column", 1 },
+                       {"Tdata", "real,strictpos,column" },
                        {"misHist", "a:Hist" },
-                       {"pFD", "real,strictpos,vector", 0.1},
-                       {"pFA", "real,strictpos,vector", []},
-                       {"avg2Fth", "real,strictpos,vector", []},
+                       {"pFD", "real,strictpos,column", 0.1},
+                       {"pFA", "real,strictpos,column", []},
+                       {"avg2Fth", "real,strictpos,column", []},
                        {"detectors", "char", "H1,L1" },
                        {"detweights", "real,strictpos,vector", []},
                        {"alpha", "real,vector", [0, 2*pi]},
@@ -69,7 +69,7 @@ function sensDepth = SensitivityDepthStackSlide ( varargin )
     FAarg = { "sa", uvar.Nseg * uvar.avg2Fth };
   endif
 
-  [rho, pd_rho] = SensitivitySNR ( uvar.pFD, uvar.Nseg, Rsqr, "ChiSqr", FAarg{:} );
+  [rho, pd_rho] = SensitivitySNR ( "pd", uvar.pFD, "Ns", uvar.Nseg, "Rsqr", Rsqr, "stat", {"ChiSqr", FAarg{:}} );
 
   ## convert to sensitivity depth
   rhoSC = sqrt ( uvar.Nseg )  .* rho;
@@ -84,18 +84,18 @@ endfunction
 %!  Tdata = 60*3600*Nseg;
 %!  misHist = createDeltaHist(0.1);
 %!  pFD = 0.1;
-%!  pFA = [1e-14, 1e-12, 1e-10];
+%!  pFA = [1e-14; 1e-12; 1e-10];
 %!  sum2Fth = invFalseAlarm_chi2 ( pFA, 4 * Nseg );
 %!  avg2Fth = sum2Fth / Nseg;
 %!  dets = "H1,L1";
 %!  depth = SensitivityDepthStackSlide("Nseg", Nseg, "Tdata", Tdata, "misHist", misHist, "pFD", pFD, "avg2Fth", avg2Fth, "detectors", dets);
-%!  assert(max(abs(depth - [ 38.671   40.780   43.379 ])) < 0.05);
+%!  assert(max(abs(depth - [38.671; 40.780; 43.379])) < 0.05);
 %!test
 %!  Nseg = 20;
 %!  Tdata = 60*3600*Nseg;
 %!  misHist = createDeltaHist(0.1);
 %!  pFD = 0.1;
-%!  pFA = [1e-14, 1e-12, 1e-10];
+%!  pFA = [1e-14; 1e-12; 1e-10];
 %!  dets = "H1,L1";
 %!  depth = SensitivityDepthStackSlide("Nseg", Nseg, "Tdata", Tdata, "misHist", misHist, "pFD", pFD, "pFA", pFA, "detectors", dets);
-%!  assert(max(abs(depth - [ 38.671   40.780   43.379 ])) < 0.05);
+%!  assert(max(abs(depth - [38.671; 40.780; 43.379])) < 0.05);

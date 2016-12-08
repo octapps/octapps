@@ -30,9 +30,9 @@ function [pd, Ns, FDP, fdp_vars, fdp_opts] = SensitivityChiSqrFDP(pd, Ns, args)
 
   ## options
   parseOptions(args,
-               {"paNt", "numeric,matrix", []},
-               {"sa", "numeric,matrix", []},
-               {"dof", "numeric,scalar", 4},
+               {"paNt", "real,strictunit,matrix", []},
+               {"sa", "real,strictpos,matrix", []},
+               {"dof", "real,strictpos,scalar", 4},
                {"norm", "logical,scalar", false}
                );
   fdp_opts.dof = dof;
@@ -47,7 +47,7 @@ function [pd, Ns, FDP, fdp_vars, fdp_opts] = SensitivityChiSqrFDP(pd, Ns, args)
     if cserr > 0
       error("%s: paNt, pd, and Ns are not of common size", funcName);
     endif
-    sa = invFalseAlarm_chi2(paNt, Ns*dof);
+    sa = invFalseAlarm_chi2(paNt, Ns.*dof);
   else
     [cserr, sa, pd, Ns] = common_size(sa, pd, Ns);
     if cserr > 0
@@ -89,49 +89,49 @@ endfunction
 ## Test sensitivity calculated for chi^2 statistic
 ## against values calculated by Mathematica implementation
 
-## calculate Rsqr_H for isotropic signal population
-%!shared Rsqr_H
-%!  Rsqr_H = SqrSNRGeometricFactorHist;
+## calculate Rsqr for isotropic signal population
+%!shared Rsqr
+%!  Rsqr = SqrSNRGeometricFactorHist;
 
 ## test SNR rho against reference value rho0
-%!function __test_sens(Rsqr_H,paNt,pd,nu,Ns,rho0)
-%!  rho = SensitivitySNR(pd,Ns,Rsqr_H,"ChiSqr","paNt",paNt,"dof",nu);
+%!function __test_sens(Rsqr,paNt,pd,nu,Ns,rho0)
+%!  rho = SensitivitySNR("pd",pd,"Ns",Ns,"Rsqr",Rsqr,"stat",{"ChiSqr","paNt",paNt,"dof",nu});
 %!  assert(abs(rho - rho0) < 1e-2 * abs(rho0));
 
 ## tests
-%!test __test_sens(Rsqr_H,0.01,0.05,2.,1.,6.500229404020667)
-%!test __test_sens(Rsqr_H,0.01,0.05,2.,100.,1.4501786370660101)
-%!test __test_sens(Rsqr_H,0.01,0.05,2.,10000.,0.43248371074365743)
-%!test __test_sens(Rsqr_H,0.01,0.05,4.,1.,7.110312384844615)
-%!test __test_sens(Rsqr_H,0.01,0.05,4.,100.,1.6934283709005387)
-%!test __test_sens(Rsqr_H,0.01,0.05,4.,10000.,0.5132616652425249)
-%!test __test_sens(Rsqr_H,0.01,0.1,2.,1.,5.6931349212023195)
-%!test __test_sens(Rsqr_H,0.01,0.1,2.,100.,1.3098992538836696)
-%!test __test_sens(Rsqr_H,0.01,0.1,2.,10000.,0.393946148321775)
-%!test __test_sens(Rsqr_H,0.01,0.1,4.,1.,6.263389087118094)
-%!test __test_sens(Rsqr_H,0.01,0.1,4.,100.,1.5333568014438428)
-%!test __test_sens(Rsqr_H,0.01,0.1,4.,10000.,0.46767812813800835)
-%!test __test_sens(Rsqr_H,1.e-7,0.05,2.,1.,11.002696682608635)
-%!test __test_sens(Rsqr_H,1.e-7,0.05,2.,100.,2.0800155014413324)
-%!test __test_sens(Rsqr_H,1.e-7,0.05,2.,10000.,0.6003920453051875)
-%!test __test_sens(Rsqr_H,1.e-7,0.05,4.,1.,11.606255607179685)
-%!test __test_sens(Rsqr_H,1.e-7,0.05,4.,100.,2.404848976803566)
-%!test __test_sens(Rsqr_H,1.e-7,0.05,4.,10000.,0.7116957707722287)
-%!test __test_sens(Rsqr_H,1.e-7,0.1,2.,1.,10.068520447374155)
-%!test __test_sens(Rsqr_H,1.e-7,0.1,2.,100.,1.9433375742547598)
-%!test __test_sens(Rsqr_H,1.e-7,0.1,2.,10000.,0.56589253300647)
-%!test __test_sens(Rsqr_H,1.e-7,0.1,4.,1.,10.649372763801795)
-%!test __test_sens(Rsqr_H,1.e-7,0.1,4.,100.,2.2522147733652567)
-%!test __test_sens(Rsqr_H,1.e-7,0.1,4.,10000.,0.6710478737082527)
-%!test __test_sens(Rsqr_H,1.e-12,0.05,2.,1.,14.012717225137239)
-%!test __test_sens(Rsqr_H,1.e-12,0.05,2.,100.,2.441085854041298)
-%!test __test_sens(Rsqr_H,1.e-12,0.05,2.,10000.,0.6898386226584616)
-%!test __test_sens(Rsqr_H,1.e-12,0.05,4.,1.,14.58187475236257)
-%!test __test_sens(Rsqr_H,1.e-12,0.05,4.,100.,2.8043381028604606)
-%!test __test_sens(Rsqr_H,1.e-12,0.05,4.,10000.,0.8170953766321501)
-%!test __test_sens(Rsqr_H,1.e-12,0.1,2.,1.,13.01088604642134)
-%!test __test_sens(Rsqr_H,1.e-12,0.1,2.,100.,2.3033376553134164)
-%!test __test_sens(Rsqr_H,1.e-12,0.1,2.,10000.,0.6564656248431371)
-%!test __test_sens(Rsqr_H,1.e-12,0.1,4.,1.,13.562811344954063)
-%!test __test_sens(Rsqr_H,1.e-12,0.1,4.,100.,2.651777751079593)
-%!test __test_sens(Rsqr_H,1.e-12,0.1,4.,10000.,0.7778610228077436)
+%!test __test_sens(Rsqr,0.01,0.05,2.,1.,6.500229404020667)
+%!test __test_sens(Rsqr,0.01,0.05,2.,100.,1.4501786370660101)
+%!test __test_sens(Rsqr,0.01,0.05,2.,10000.,0.43248371074365743)
+%!test __test_sens(Rsqr,0.01,0.05,4.,1.,7.110312384844615)
+%!test __test_sens(Rsqr,0.01,0.05,4.,100.,1.6934283709005387)
+%!test __test_sens(Rsqr,0.01,0.05,4.,10000.,0.5132616652425249)
+%!test __test_sens(Rsqr,0.01,0.1,2.,1.,5.6931349212023195)
+%!test __test_sens(Rsqr,0.01,0.1,2.,100.,1.3098992538836696)
+%!test __test_sens(Rsqr,0.01,0.1,2.,10000.,0.393946148321775)
+%!test __test_sens(Rsqr,0.01,0.1,4.,1.,6.263389087118094)
+%!test __test_sens(Rsqr,0.01,0.1,4.,100.,1.5333568014438428)
+%!test __test_sens(Rsqr,0.01,0.1,4.,10000.,0.46767812813800835)
+%!test __test_sens(Rsqr,1.e-7,0.05,2.,1.,11.002696682608635)
+%!test __test_sens(Rsqr,1.e-7,0.05,2.,100.,2.0800155014413324)
+%!test __test_sens(Rsqr,1.e-7,0.05,2.,10000.,0.6003920453051875)
+%!test __test_sens(Rsqr,1.e-7,0.05,4.,1.,11.606255607179685)
+%!test __test_sens(Rsqr,1.e-7,0.05,4.,100.,2.404848976803566)
+%!test __test_sens(Rsqr,1.e-7,0.05,4.,10000.,0.7116957707722287)
+%!test __test_sens(Rsqr,1.e-7,0.1,2.,1.,10.068520447374155)
+%!test __test_sens(Rsqr,1.e-7,0.1,2.,100.,1.9433375742547598)
+%!test __test_sens(Rsqr,1.e-7,0.1,2.,10000.,0.56589253300647)
+%!test __test_sens(Rsqr,1.e-7,0.1,4.,1.,10.649372763801795)
+%!test __test_sens(Rsqr,1.e-7,0.1,4.,100.,2.2522147733652567)
+%!test __test_sens(Rsqr,1.e-7,0.1,4.,10000.,0.6710478737082527)
+%!test __test_sens(Rsqr,1.e-12,0.05,2.,1.,14.012717225137239)
+%!test __test_sens(Rsqr,1.e-12,0.05,2.,100.,2.441085854041298)
+%!test __test_sens(Rsqr,1.e-12,0.05,2.,10000.,0.6898386226584616)
+%!test __test_sens(Rsqr,1.e-12,0.05,4.,1.,14.58187475236257)
+%!test __test_sens(Rsqr,1.e-12,0.05,4.,100.,2.8043381028604606)
+%!test __test_sens(Rsqr,1.e-12,0.05,4.,10000.,0.8170953766321501)
+%!test __test_sens(Rsqr,1.e-12,0.1,2.,1.,13.01088604642134)
+%!test __test_sens(Rsqr,1.e-12,0.1,2.,100.,2.3033376553134164)
+%!test __test_sens(Rsqr,1.e-12,0.1,2.,10000.,0.6564656248431371)
+%!test __test_sens(Rsqr,1.e-12,0.1,4.,1.,13.562811344954063)
+%!test __test_sens(Rsqr,1.e-12,0.1,4.,100.,2.651777751079593)
+%!test __test_sens(Rsqr,1.e-12,0.1,4.,10000.,0.7778610228077436)

@@ -23,15 +23,16 @@
 ##   "nth"  = number count false alarm threshold
 ##   "Fth"  = F-statistic threshold per segment
 ##   "zero" = use zeroth-order approximation (default: false)
+
 function [pd, Ns, FDP, fdp_vars, fdp_opts] = SensitivityHoughFstatFDP(pd, Ns, args)
 
   FDP = @HoughFstatFDP;
 
   ## options
   parseOptions(args,
-               {"paNt", "numeric,matrix", []},
-               {"nth", "numeric,matrix", []},
-               {"Fth", "numeric,scalar"},
+               {"paNt", "real,strictpos,matrix", []},
+               {"nth", "real,strictpos,matrix", []},
+               {"Fth", "real,strictpos,scalar"},
                {"zero", "logical,scalar", false}
                );
   fdp_opts.Fth = Fth;

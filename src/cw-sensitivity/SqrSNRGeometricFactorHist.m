@@ -1,4 +1,4 @@
-## Copyright (C) 2011 Karl Wette
+## Copyright (C) 2011, 2016 Karl Wette
 ##
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -17,9 +17,9 @@
 
 ## Calculate a histogram of the squared SNR "geometric factor", R^2
 ## Syntax:
-##   Rsqr_H      = SqrSNRGeometricFactorHist("opt", val, ...)
+##   Rsqr        = SqrSNRGeometricFactorHist("opt", val, ...)
 ## where:
-##   Rsqr_H      = histogram of R^2
+##   Rsqr        = histogram of R^2
 ## and where options are:
 ##   "T"         = observation time in sidereal days (default: inf)
 ##   "detectors" = detectors to use; either e.g. "H1,L1" or "HL" (default: L1)
@@ -35,23 +35,23 @@
 ##   "hist_N"    = number of histogram points to calculate at a time
 ##   "hist_err"  = histogram error target
 
-function Rsqr_H = SqrSNRGeometricFactorHist(varargin)
+function Rsqr = SqrSNRGeometricFactorHist(varargin)
 
   ## parse options
   parseOptions(varargin,
-               {"T", "numeric,scalar", inf},
+               {"T", "real,scalar", inf},
                {"detectors", "char", "L1"},
                {"detweights", "real,strictpos,vector", []},
                {"mism_hgrm", "a:Hist", []},
-               {"alpha", "numeric,vector", [0, 2*pi]},
-               {"sdelta", "numeric,vector", [-1, 1]},
-               {"psi", "numeric,vector", [0, 2*pi]},
-               {"cosi", "numeric,vector", [-1, 1]},
+               {"alpha", "real,vector", [0, 2*pi]},
+               {"sdelta", "real,vector", [-1, 1]},
+               {"psi", "real,vector", [0, 2*pi]},
+               {"cosi", "real,vector", [-1, 1]},
                {"emission", "char", "nonax"},
-               {"zmstime", "numeric,scalar", 0},
-               {"hist_dx", "numeric,scalar", 5e-3},
-               {"hist_N", "numeric,scalar", 20000},
-               {"hist_err", "numeric,scalar", 1e-4}
+               {"zmstime", "real,scalar", 0},
+               {"hist_dx", "real,scalar", 5e-3},
+               {"hist_N", "real,scalar", 20000},
+               {"hist_err", "real,scalar", 1e-4}
                );
   assert(all(isalnum(detectors) | detectors == ","), ...
          "%s: invalid detectors '%s'", funcName, detectors);
@@ -142,7 +142,7 @@ function Rsqr_H = SqrSNRGeometricFactorHist(varargin)
   N = !!rng.allconst + !rng.allconst*hist_N;
 
   ## calculate histogram of squared SNR geometric factor
-  Rsqr_H = Hist(1, {"lin", "dbin", hist_dx});
+  Rsqr = Hist(1, {"lin", "dbin", hist_dx});
   do
 
     ## new random source amplitude parameters
@@ -152,26 +152,26 @@ function Rsqr_H = SqrSNRGeometricFactorHist(varargin)
     [ap, ax] = SignalAmplitudes(emission, cosi);
 
     ## calculate squared SNR geometric factor
-    Rsqr = (ap.^2 .* avg_Fpsqr_t) + (ax.^2 .* avg_Fxsqr_t);
+    R2 = (ap.^2 .* avg_Fpsqr_t) + (ax.^2 .* avg_Fxsqr_t);
 
     ## if using mismatch histogram, reduce R^2 by randomly-chosen mismatch
     if ~isempty(mism_hgrm)
       mismatch = drawFromHist(mism_hgrm, N);
-      Rsqr .*= ( 1 - mismatch' );
+      R2 .*= ( 1 - mismatch' );
     endif
 
     ## add new values to histogram
-    Rsqr_H_old = Rsqr_H;
-    Rsqr_H = addDataToHist(Rsqr_H, Rsqr(:));
+    Rsqr_old = Rsqr;
+    Rsqr = addDataToHist(Rsqr, R2(:));
 
     ## calculate difference between old and new histograms
-    err = histDistance(Rsqr_H, Rsqr_H_old);
+    err = histDistance(Rsqr, Rsqr_old);
 
     ## continue until error is small enough
     ## (exit after 1 iteration if all parameters are constant)
   until (rng.allconst || err < hist_err)
 
   ## reduce scale of R^2 histogram so that <R^2> = 1
-  Rsqr_H = rescaleHistBins(Rsqr_H, 1.0 / apxnorm);
+  Rsqr = rescaleHistBins(Rsqr, 1.0 / apxnorm);
 
 endfunction

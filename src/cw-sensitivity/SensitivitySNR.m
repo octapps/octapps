@@ -1,4 +1,4 @@
-## Copyright (C) 2011 Karl Wette
+## Copyright (C) 2011, 2016 Karl Wette
 ##
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -17,93 +17,73 @@
 
 ## Calculate sensitivity in terms of the root-mean-square SNR
 ## Syntax:
-##   [rho, pd_rho] = SensitivitySNR(pd, Ns, Rsqr_H, detstat, ...)
-##   ...           = SensitivitySNR(..., "progress")
+##   [rho, pd_rho] = SensitivitySNR("opt", val, ...)
 ## where:
-##   rho     = detectable r.m.s. SNR (per segment)
-##   pd_rho  = calculated false dismissal probability
-##   pd      = false dismissal probability
-##   Ns      = number of segments
-##   Rsqr_H  = histogram of SNR "geometric factor" R^2,
-##             computed using SqrSNRGeometricFactorHist(),
-##             or scalar giving mean value of R^2
-##   detstat = detection statistic, one of:
-##      "ChiSqr": chi^2 statistic, e.g. the F-statistic
-##         see SensitivityChiSqrFDP for possible options
-##      "HoughFstat": Hough on the F-statistic
-##         see SensitivityHoughFstatFDP for possible options
-## options:
-##   "progress": show progress updates
+##   rho      = detectable r.m.s. SNR (per segment)
+##   pd_rho   = calculated false dismissal probability
+## and where options are:
+##   "pd"     = false dismissal probability
+##   "Ns"     = number of segments
+##   "Rsqr"   = histogram of SNR "geometric factor" R^2,
+##              computed using SqrSNRGeometricFactorHist(),
+##              or scalar giving mean value of R^2
+##   "stat"   = detection statistic, one of:
+##              * {"ChiSqr", "opt", val, ...}
+##                  chi^2 statistic, e.g. the F-statistic, see
+##                  SensitivityChiSqrFDP() for options
+##              * {"HoughFstat", "opt", val, ...}
+##                  Hough on the F-statistic, see
+##                  SensitivityHoughFstatFDP() for options
+##   "prog"   = show progress updates
 
-function [rho, pd_rho] = SensitivitySNR(pd, Ns, Rsqr_H, detstat, varargin)
+function [rho, pd_rho] = SensitivitySNR(varargin)
 
-  ## check input
-  assert(all(pd > 0));
-  assert(all(Ns > 0));
-  assert(isa(Rsqr_H, "Hist") || isscalar(Rsqr_H));
+  ## parse options
+  parseOptions(varargin,
+               {"pd", "real,strictunit,column"},
+               {"Ns", "integer,strictpos,column"},
+               {"Rsqr", "a:Hist", []},
+               {"stat", "cell,vector"},
+               {"prog", "logical,scalar", false},
+               []);
+  assert(histDim(Rsqr) == 1, "%s: R^2 must be a 1D histogram", funcName);
+  assert(length(stat) > 1 && ischar(stat{1}), "%s: first element of 'stat' must be a string", funcName);
+
+  ## select a detection statistic
+  switch stat{1}
+    case "ChiSqr"   ## chi^2 statistic
+      [pd, Ns, FDP, fdp_vars, fdp_opts] = SensitivityChiSqrFDP(pd, Ns, stat(2:end));
+    case "HoughFstat"   ## Hough on F-statistic
+      [pd, Ns, FDP, fdp_vars, fdp_opts] = SensitivityHoughFstatFDP(pd, Ns, stat(2:end));
+    otherwise
+      error("%s: invalid detection statistic '%s'", funcName, stat{1});
+  endswitch
+
+  ## get probability densities and bin quantities
+  Rsqr_px = histProbs(Rsqr);
+  [Rsqr_x, Rsqr_dx] = histBins(Rsqr, 1, "centre", "width");
+
+  ## check histogram bins are positive and contain no infinities
+  if min(histRange(Rsqr)) < 0
+    error("%s: R^2 histogram bins must be positive", funcName);
+  endif
+  if Rsqr_px(1) > 0 || Rsqr_px(end) > 0
+    error("%s: R^2 histogram contains non-zero probability in infinite bins", funcName);
+  endif
+
+  ## chop off infinite bins and resize to row vectors
+  Rsqr_px = reshape(Rsqr_px(2:end-1), 1, []);
+  Rsqr_x = reshape(Rsqr_x(2:end-1), 1, []);
+  Rsqr_dx = reshape(Rsqr_dx(2:end-1), 1, []);
+
+  ## compute weights
+  Rsqr_w = Rsqr_px .* Rsqr_dx;
 
   ## show progress updates?
-  show_progress = false;
-  i = find(strcmp(varargin, "progress"));
-  if !isempty(i)
-    varargin(i) = [];
-    show_progress = true;
-  endif
-  if show_progress
+  if prog
     old_pso = page_screen_output(0);
     printf("%s: starting\n", funcName);
   endif
-
-  ## select a detection statistic
-  switch detstat
-    case "ChiSqr"   ## chi^2 statistic
-      [pd, Ns, FDP, fdp_vars, fdp_opts] = SensitivityChiSqrFDP(pd, Ns, varargin);
-    case "HoughFstat"   ## Hough on F-statistic
-      [pd, Ns, FDP, fdp_vars, fdp_opts] = SensitivityHoughFstatFDP(pd, Ns, varargin);
-    otherwise
-      error("%s: invalid detection statistic '%s'", funcName, detstat);
-  endswitch
-
-  ## make inputs column vectors
-  siz = size(pd);
-  pd = pd(:);
-  Ns = Ns(:);
-  fdp_vars = cellfun(@(x) x(:), fdp_vars, "UniformOutput", false);
-
-  ## get values and weights of R^2 as row vectors
-  if isa(Rsqr_H, "Hist")   ## R^2 = histogram
-
-    ## check histogram is 1-D
-    if (histDim(Rsqr_H) > 1)
-      error("%s: R^2 must be a 1D histogram", funcName);
-    endif
-
-    ## get probability densities and bin quantities
-    Rsqr_px = histProbs(Rsqr_H);
-    [Rsqr_x, Rsqr_dx] = histBins(Rsqr_H, 1, "centre", "width");
-
-    ## check histogram bins are positive and contain no infinities
-    if min(histRange(Rsqr_H)) < 0
-      error("%s: R^2 histogram bins must be positive", funcName);
-    endif
-    if Rsqr_px(1) > 0 || Rsqr_px(end) > 0
-      error("%s: R^2 histogram contains non-zero probability in infinite bins", funcName);
-    endif
-
-    ## chop off infinite bins
-    Rsqr_px = Rsqr_px(2:end-1);
-    Rsqr_x = Rsqr_x(2:end-1);
-    Rsqr_dx = Rsqr_dx(2:end-1);
-
-    ## compute weights
-    Rsqr_w = Rsqr_px .* Rsqr_dx;
-
-  elseif isscalar(Rsqr_H) && isnumeric(Rsqr_H)   ## R^2 = singular value
-    Rsqr_x = Rsqr_H;
-    Rsqr_w = 1.0;
-  endif
-  Rsqr_x = Rsqr_x(:)';
-  Rsqr_w = Rsqr_w(:)';
 
   ## make row indexes logical, to select rows
   ii = true(length(pd), 1);
@@ -139,7 +119,7 @@ function [rho, pd_rho] = SensitivitySNR(pd, Ns, Rsqr_H, detstat, varargin)
   do
 
     ## display progress updates?
-    if show_progress && sum(ii) != sumii
+    if prog && sum(ii) != sumii
       sumii = sum(ii);
       printf("%s: finding rhosqr_max (%i left)\n", funcName, sumii);
     endif
@@ -165,7 +145,7 @@ function [rho, pd_rho] = SensitivitySNR(pd, Ns, Rsqr_H, detstat, varargin)
   do
 
     ## display progress updates?
-    if show_progress && sum(ii) != sumii
+    if prog && sum(ii) != sumii
       sumii = sum(ii);
       printf("%s: bifurcation search (%i left)\n", funcName, sumii);
     endif
@@ -200,11 +180,9 @@ function [rho, pd_rho] = SensitivitySNR(pd, Ns, Rsqr_H, detstat, varargin)
 
   ## return detectable SNR
   rho = sqrt(rhosqr);
-  rho = reshape(rho, siz);
-  pd_rho = reshape(pd_rho, siz);
 
   ## display progress updates?
-  if show_progress
+  if prog
     printf("%s: done\n", funcName);
     page_screen_output(old_pso);
   endif
