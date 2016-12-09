@@ -12,6 +12,7 @@ CheckProg = $(strip $(shell $(1:%=type -P % || ) echo false))
 
 # required programs
 CTAGSEX := $(call CheckProg, ctags-exuberant)
+DIFF := $(call CheckProg, diff)
 FIND := $(call CheckProg, gfind find)
 GIT := $(call CheckProg, git)
 GREP := $(call CheckProg, grep)
@@ -45,7 +46,10 @@ octdir := oct/$(version)
 
 # print list of deprecated functions at finish
 all :
-	@$(FIND) $(curdir)/src -path '*/deprecated/*' | $(SED) 's|^.*/|Warning: deprecated function |'
+	@test -f .deprecated || echo > .deprecated; \
+	$(FIND) $(curdir)/src -path '*/deprecated/*.m' -printf '%f\n' > .deprecated-new; \
+	$(DIFF) --normal .deprecated .deprecated-new | $(SED) -n 's|^>|Warning: deprecated function|p'; \
+	mv -f .deprecated-new .deprecated
 	@echo "=================================================="; \
 	echo "OctApps has been successfully built!"; \
 	echo "To set up your environment, please add the line"; \
