@@ -60,7 +60,7 @@ function octapps_run_driver(func, varargin)
 
   ## print help on function if requested
   if any(strcmp(varargin, "-h")) || any(strcmp(varargin, "--help"))
-    help(func);
+    disp(help(func));
     return
   endif
 
