@@ -17,19 +17,36 @@
 
 ## Print the contents of a histogram object as an ASCII table.
 ## Syntax:
-##   printHistTable(hgrm, [pth=1e-3])
+##   printHistTable(hgrm, "opt", val, ...)
 ## where:
-##   hgrm = histogram object
-##   pth  = threshold to apply before printing
+##   hgrm  = histogram object
+## and options are:
+##   "dbins": width of bins to use in each dimension
+##   "pth":   threshold to apply before printing
 
-function printHistTable(hgrm, pth=1e-3)
+function printHistTable(hgrm, varargin)
 
   ## check input
+  parseOptions(varargin,
+               {"dbins", "real,strictpos,vector", []},
+               {"pth", "real,strictunit,scalar", 1e-3},
+               []);
   assert(isa(hgrm, "Hist"));
   dim = histDim(hgrm);
 
-  ## threshold histogram
-  hgrm = thresholdHist(hgrm, pth);
+  ## threshold and restrict histogram
+  hgrm = restrictHist(thresholdHist(hgrm, pth));
+
+  ## resample histogram to given bin widths
+  if !isempty(dbins)
+    assert(length(dbins) == dim, "%s: length of 'dbins' must match histogram dimension", funcName);
+    newbins = {};
+    frng = histRange(hgrm, "finite");
+    for k = 1:dim
+      newbins{k} = frng(k, 1) + (0:ceil(range(frng(k, :)) / dbins(k))) * dbins(k);
+    endfor
+    hgrm = resampleHist(hgrm, newbins{:});
+  endif
 
   ## get histogram bins and probability densities
   binlo = binhi = cell(1, dim);
