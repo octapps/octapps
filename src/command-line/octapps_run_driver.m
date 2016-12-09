@@ -22,31 +22,39 @@
 ##   octapps_run --help
 ##     Print this help message.
 ##
-##   octapps_run <function-name> ... --help
-##     Print help message for Octapps function <function-name>
+##   octapps_run <function> ... --help
+##     Print help message for Octapps function <function>
 ##
-##   octapps_run <function-name> [--argument <value>] [--argument=<value>]...
-##     Run the Octapps function <function-name> with the given arguments.
+##   octapps_run <function> [--argument <value>] [--argument=<value>]...
+##     Run the Octapps function <function> with the given arguments.
 ##     (The function itself must use parseOptions() to parse its arguments.)
 ##
-##   octapps_run <function-name> ... --printout
-##     Print the values of the first <n> output values of <function-name>.
+##   octapps_run <function> ... --printnargs=<n>
+##     Print the values of the first <n> output values of <function>.
 ##
-##   octapps_run <function-name> ... --printout=<n>
-##     Print the values of the first <n> output values of <function-name>.
+##   octapps_run <function> ... --printarg<n>
+##     Print the value of the <n>th output value of <function>.
+##     <n> default to 1 if not given.
 ##
-##   octapps_run <function-name> ... --printout=<print-functions>
-##     Print output values of <function-name> using <print-functions>.
-##     See the following examples, which assume the functions
+##   octapps_run <function> ... --printarg<n>=<print-function>
+##   octapps_run <function> ... --printarg<n>=<print-function(<args>, ...)
+##     Print the value of the function <print-function> applied to the <n>th output
+##     value of <function>.
+##
+##   See the following examples, which assume the functions
 ##       a = f(), [a, b] = g()
 ##
-##     Command                                  Outputs printed
-##     -------                                  -------------------
-##     octapps_run f --printout=I               a
-##     octapps_run f --printout=mean            mean(a)
-##     octapps_run f --printout=mean,stdv       mean(a), stdv(a)
-##     octapps_run g --printout=I,sin:cos       a, mean(a), cos(b)
-##     octapps_run g --printout=~:exp           exp(b)
+##     Command                                                      Outputs printed
+##     -------                                                      ---------------
+##     octapps_run f --printnarg=1                                  a
+##     octapps_run f --printarg                                     a
+##     octapps_run f --printarg1                                    a
+##     octapps_run f --printarg=mean                                mean(a)
+##     octapps_run f --printarg=mean --printarg=stdv                mean(a), stdv(a)
+##
+##     octapps_run g --printnargs=2                                 a, b
+##     octapps_run g --printarg --printarg1=sin --printarg2=cos     a, mean(a), cos(b)
+##     octapps_run g --printarg2=mod(?,3)                           mod(b,3)
 
 function octapps_run_driver(func, varargin)
 
@@ -105,66 +113,80 @@ function octapps_run_driver(func, varargin)
 
     if !isempty(argname)
 
-      ## handle special argument --printout
-      if strcmp(argname, "printout")
+      if strcmp(argname, "printnargs")   ## handle special argument --printnargs=<n>
 
         if !isempty(argval)
 
-          ## try --printout=<number of output arguments>
-          val = str2double(argval);
-          if !isnan(val)
-            assert(mod(val, 1) == 0, "octapps_run: value to --printout must be an integer");
-            assert(val > 0, "octapps_run: value to --printout must be strictly positive");
-            [hprintfuncs{1:val}] = deal(@print_identity);
-          else
+          ## parse number of arguments
+          narg = str2double(argval);
+          assert(!isnan(narg) && narg > 0 && mod(narg, 1) == 0, "octapps_run: number of arguments '%s' passed to --%s must be a positive integer", argval, argname);
 
-            ## try --printout=<list of print functions>
-            printfuncs = strsplit(argval, ":");
-            for i = 1:length(printfuncs)
-              printfuncs{i} = strsplit(printfuncs{i}, ",");
-              for j = 1:length(printfuncs{i})
-
-                ## interpret print function
-                switch printfuncs{i}{j}
-
-                  case "I"   ## identity function
-                    hprintfuncs{i}{j} = @print_identity;
-
-                  case "~"   ## skip argument
-                    hprintfuncs{i}{j} = @print_skip;
-
-                  otherwise   ## regular function
-                    try
-                      hprintfuncs{i}{j} = str2func(printfuncs{i}{j});
-                    catch
-                      error("octapps_run: %s() is not a known function", printfuncs{i}{j});
-                    end_try_catch
-
-                endswitch
-
-              endfor
-            endfor
-            
-          endif
-
-          ## reset parser for new argument
-          argname = argval = [];
-
-        elseif n == length(varargin) || strncmp(varargin{n+1}, "--", 2)
-
-          ## if --printout has no argument, default to printing all outputs
-          try
-            nout = nargout(h);
-          catch
-            nout = 1;
-          end_try_catch
-          [printfuncs{1:nout}] = deal({"I"});
+          ## print this number of arguments
+          [hprintfuncs{1:narg}] = deal({struct("func", @print_identity, "nout", 1)});
 
           ## reset parser for new argument
           argname = argval = [];
 
         endif
 
+      elseif strncmp(argname, "printarg", length("printarg"))   ## handle special argument --printarg[<n>]=<print function>
+
+        ## extract and parse argument number
+        argnum = argname(length("printarg")+1:end);
+        if isempty(argnum)
+          narg = 1;
+        else
+          narg = str2double(argnum);
+          assert(!isnan(narg) && narg > 0 && mod(narg, 1) == 0, "octapps_run: argument number '%s' in --%s must be a positive integer", argnum, argname);
+        endif
+
+        ## resize 'hprintfuncs' if needed
+        if narg > length(hprintfuncs)
+          hprintfuncs{narg} = {};
+        endif
+
+        if !isempty(argval)
+
+          ## handle function with argument list
+          i = min(strfind(argval, "("));
+          if !isempty(i)
+            printfuncname = argval(1:i-1);
+            printfuncargs = strrep(argval(i:end), "?", "__x__");
+          else
+            printfuncname = argval;
+            printfuncargs = "(__x__)";
+          endif
+
+          ## test if function exists
+          try
+            str2func(printfuncname);
+          catch
+            error("octapps_run: %s() is not a known function", argval);
+          end_try_catch
+
+          ## get number of function output arguments
+          try
+            nout = nargout(printfuncname);
+          catch
+            nout = 1;
+          end_try_catch
+
+          ## create print function
+          hprintfuncs{narg}{end+1} = struct("func", inline(strcat(printfuncname, printfuncargs), "__x__"), "nout", nout);
+
+          ## reset parser for new argument
+          argname = argval = [];
+
+        elseif n == length(varargin) || strncmp(varargin{n+1}, "--", 2)
+
+          ## print the given argument
+          hprintfuncs{narg} = {struct("func", @print_identity, "nout", 1)};
+
+          ## reset parser for new argument
+          argname = argval = [];
+
+        endif
+        
       elseif !isempty(argval)  ## handle ordinary arguments
 
         args.(argname) = argval;
@@ -201,31 +223,23 @@ function octapps_run_driver(func, varargin)
   ## print output
   for i = 1:length(hprintfuncs)
     for j = 1:length(hprintfuncs{i})
-      ans = out{i};
+      hp = hprintfuncs{i}{j};
 
-      ## Get number of output arguments of print function
-      try
-        nout = nargout(hprintfuncs{i}{j});
-      catch
-        nout = 1;
-      end_try_catch
-        
-      ## If print function returns no arguments, just run it
-      if nout == 0
-        feval(hprintfuncs{i}{j}, ans);
+      ## if print function returns no arguments, just run it
+      if hp.nout == 0
+        feval(hp.func, out{i});
         continue
       endif
 
-      ## Run print function and store its output
-      ans = feval(hprintfuncs{i}{j}, ans);
+      ## run print function and store its output
+      ans = feval(hp.func, out{i});
 
       ## display 'ans'
-      switch typeinfo(ans)
-        case "class"
-          display(ans);
-        otherwise
-          disp(ans);
-      endswitch
+      if strcmp(typeinfo(ans), "class")
+        display(ans);
+      else
+        disp(ans);
+      endif
       
     endfor
   endfor
