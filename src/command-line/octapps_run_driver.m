@@ -72,141 +72,122 @@ function octapps_run_driver(func, varargin)
     return
   endif
 
-  ## parse command-line arguments
+  ## pick out command-line arguments
+  nn = [find(strncmp(varargin, "--", 2)), length(varargin) + 1];
+
+  ## parse arguments and values
   hprintfuncs = {};
   args = struct;
-  argname = argval = [];
-  for n = 1:length(varargin)
+  for n = 1:length(nn) - 1
 
-    ## if argument begins with '--'
-    if strncmp(varargin{n}, "--", 2)
+    ## get argument name (possibly with value) and values
+    argnameval = varargin{nn(n)}(3:end);
+    argval = varargin((nn(n)+1):(nn(n+1)-1));
 
-      ## check there is no previous argument name
-      if !isempty(argname)
-        error("octapps_run: argument '%s' has no value", argname);
-      endif
+    ## if argument contains an '='
+    i = min(strfind(argnameval, "="));
+    if !isempty(i)
 
-      ## if argument contains an '=', split into name=value,
-      i = min(strfind(varargin{n}, "="));
-      if !isempty(i)
-        argname = varargin{n}(3:i-1);
-        argval = varargin{n}(i+1:end);
-      else
-        ## otherwise just store the name
-        argname = varargin{n}(3:end);
-      endif
+      ## extract name
+      argname = argnameval(1:i-1);
 
-      ## replace '-' with '_' to make a valid Octave variable name
-      argname = strrep(argname, "-", "_");
+      ## assert there are no other values
+      assert(isempty(argval), "octapps_run: extra arguments given to argument --%s", argname);
+
+      ## extract value
+      argval = {argnameval(i+1:end)};
 
     else
 
-      ## check there is no previous argument value
-      if !isempty(argval)
-        error("octapps_run: value '%s' has no argument name", argval);
-      endif
-
-      ## store value
-      argval = varargin{n};
+      ## just store the name
+      argname = argnameval;
 
     endif
 
-    if !isempty(argname)
+    ## replace '-' with '_' to make a valid Octave variable name
+    argname = strrep(argname, "-", "_");
 
-      if strcmp(argname, "printnargs")   ## handle special argument --printnargs=<n>
+    if strcmp(argname, "printnargs")   ## handle special argument --printnargs=<n>
 
-        if !isempty(argval)
+      ## check number of values
+      assert(length(argval) == 1, "octapps_run: multiple values passed to argument --%s", argname);
 
-          ## parse number of arguments
-          narg = str2double(argval);
-          assert(!isnan(narg) && narg > 0 && mod(narg, 1) == 0, "octapps_run: number of arguments '%s' passed to --%s must be a positive integer", argval, argname);
+      ## parse number of arguments
+      narg = str2double(argval);
+      assert(!isnan(narg) && narg > 0 && mod(narg, 1) == 0, "octapps_run: number of arguments '%s' passed to --%s must be a positive integer", argval, argname);
 
-          ## print this number of arguments
-          [hprintfuncs{1:narg}] = deal({struct("func", @print_identity, "nout", 1)});
+      ## print this number of arguments
+      [hprintfuncs{1:narg}] = deal({struct("func", @print_identity, "nout", 1)});
 
-          ## reset parser for new argument
-          argname = argval = [];
+    elseif strncmp(argname, "printarg", length("printarg"))   ## handle special argument --printarg[<n>]=<print function>
 
-        endif
+      ## check number of values
+      assert(length(argval) <= 1, "octapps_run: multiple values passed to argument --%s", argname);
 
-      elseif strncmp(argname, "printarg", length("printarg"))   ## handle special argument --printarg[<n>]=<print function>
+      ## extract and parse argument number
+      argnum = argname(length("printarg")+1:end);
+      if isempty(argnum)
+        narg = 1;
+      else
+        narg = str2double(argnum);
+        assert(!isnan(narg) && narg > 0 && mod(narg, 1) == 0, "octapps_run: argument number '%s' in --%s must be a positive integer", argnum, argname);
+      endif
 
-        ## extract and parse argument number
-        argnum = argname(length("printarg")+1:end);
-        if isempty(argnum)
-          narg = 1;
+      ## resize 'hprintfuncs' if needed
+      if narg > length(hprintfuncs)
+        hprintfuncs{narg} = {};
+      endif
+
+      if length(argval) == 1   ## handle --printarg[<n>]=<print function>
+        argval = argval{1};
+
+        ## handle function with argument list
+        i = min(strfind(argval, "("));
+        if !isempty(i)
+          printfuncname = argval(1:i-1);
+          printfuncargs = strrep(argval(i:end), "?", "__x__");
         else
-          narg = str2double(argnum);
-          assert(!isnan(narg) && narg > 0 && mod(narg, 1) == 0, "octapps_run: argument number '%s' in --%s must be a positive integer", argnum, argname);
+          printfuncname = argval;
+          printfuncargs = "(__x__)";
         endif
 
-        ## resize 'hprintfuncs' if needed
-        if narg > length(hprintfuncs)
-          hprintfuncs{narg} = {};
-        endif
+        ## test if function exists
+        try
+          str2func(printfuncname);
+        catch
+          error("octapps_run: %s() is not a known function", argval);
+        end_try_catch
 
-        if !isempty(argval)
+        ## get number of function output arguments
+        try
+          nout = nargout(printfuncname);
+        catch
+          nout = 1;
+        end_try_catch
 
-          ## handle function with argument list
-          i = min(strfind(argval, "("));
-          if !isempty(i)
-            printfuncname = argval(1:i-1);
-            printfuncargs = strrep(argval(i:end), "?", "__x__");
-          else
-            printfuncname = argval;
-            printfuncargs = "(__x__)";
-          endif
+        ## create print function
+        hprintfuncs{narg}{end+1} = struct("func", inline(strcat(printfuncname, printfuncargs), "__x__"), "nout", nout);
 
-          ## test if function exists
-          try
-            str2func(printfuncname);
-          catch
-            error("octapps_run: %s() is not a known function", argval);
-          end_try_catch
+      else   ## handle --printarg[<n>]
 
-          ## get number of function output arguments
-          try
-            nout = nargout(printfuncname);
-          catch
-            nout = 1;
-          end_try_catch
-
-          ## create print function
-          hprintfuncs{narg}{end+1} = struct("func", inline(strcat(printfuncname, printfuncargs), "__x__"), "nout", nout);
-
-          ## reset parser for new argument
-          argname = argval = [];
-
-        elseif n == length(varargin) || strncmp(varargin{n+1}, "--", 2)
-
-          ## print the given argument
-          hprintfuncs{narg} = {struct("func", @print_identity, "nout", 1)};
-
-          ## reset parser for new argument
-          argname = argval = [];
-
-        endif
-        
-      elseif !isempty(argval)  ## handle ordinary arguments
-
-        args.(argname) = argval;
-
-        ## reset parser for new argument
-        argname = argval = [];
+        ## print the given argument
+        hprintfuncs{narg} = {struct("func", @print_identity, "nout", 1)};
 
       endif
+
+    else  ## handle ordinary arguments
+
+      ## make value into scalar if it only has one element
+      if length(argval) == 1
+        argval = argval{1};
+      endif
+
+      ## store value
+      args.(argname) = argval;
 
     endif
 
   endfor
-
-  ## check for no remaining arguments
-  if !isempty(argname)
-    error("octapps_run: argument '%s' has no value", argname);
-  endif
-  if !isempty(argval)
-    error("octapps_run: value '%s' has no argument name", argval);
-  endif
 
   ## convert arguments to flat cell array of {"name", "value", ...} pairs
   args = {{fieldnames(args){:}; struct2cell(args){:}}{:}};
@@ -240,7 +221,7 @@ function octapps_run_driver(func, varargin)
       else
         disp(ans);
       endif
-      
+
     endfor
   endfor
 
