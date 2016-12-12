@@ -66,6 +66,7 @@ DEFUN_DLD( fitsread, args, nargout, fitsread_usage ) {
     print_usage();
     return octave_value();
   }
+  std::string filename = args(0).string_value();
 
   // Open FITS file
   int status = 0;
@@ -73,7 +74,6 @@ DEFUN_DLD( fitsread, args, nargout, fitsread_usage ) {
   octave_map all_hdus(dim_vector(1, 1));
   int ext_index = 0;
   do {
-    std::string filename = args(0).string_value();
     if (fits_open_file(&ff, filename.c_str(), READONLY, &status) != 0) break;
 
     // Read all HDUs
@@ -332,9 +332,9 @@ DEFUN_DLD( fitsread, args, nargout, fitsread_usage ) {
 
   // Report any FITS error messages
   if (status != 0) {
-    char err_text[FLEN_STATUS];
-    fits_get_errstatus(status, err_text);
-    error(err_text);
+    char errstatus[FLEN_STATUS];
+    fits_get_errstatus(status, errstatus);
+    error("in FITS file '%s': %s", filename.c_str(), errstatus);
     return octave_value();
   }
 
