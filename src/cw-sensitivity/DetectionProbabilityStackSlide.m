@@ -1,3 +1,4 @@
+## Copyright (C) 2016 Christoph Dreissigacker
 ## Copyright (C) 2016 Reinhard Prix
 ## Copyright (C) 2011 Karl Wette
 ##
@@ -55,13 +56,17 @@ function pDET = DetectionProbabilityStackSlide ( varargin )
   assert ( isempty ( uvar.pFA ) || isempty ( uvar.avg2Fth ), "Must specify exactly one of 'pFA' or 'avg2Fth' to determine false-alarm probability!\n");
 
   ## compute geometric factor 'R' histogram
-  Rsqr = SqrSNRGeometricFactorHist ( "detectors", uvar.detectors, "detweights", uvar.detweights, "mism_hgrm", uvar.misHist, "alpha", uvar.alpha, "sdelta", sin(uvar.delta) );
+  Rsqr = SqrSNRGeometricFactorHist ( "detectors", uvar.detectors, "detweights", uvar.detweights, "alpha", uvar.alpha, "sdelta", sin(uvar.delta) );
 
   ## get values and weights of R^2 as row vectors
 
   ## get probability densities and bin quantities
   Rsqr_px = histProbs ( Rsqr );
   [Rsqr_x, Rsqr_dx] = histBins ( Rsqr, 1, "centre", "width" );
+
+  ## get probabilitiy densities for mismatch
+  mism_px = histProbs(uvar.misHist);
+  [mism_x, mism_dx] = histBins(uvar.misHist, 1, "centre", "width");
 
   ## check histogram bins are positive and contain no infinities
   assert ( min ( histRange(Rsqr) ) >= 0, "%s: R^2 histogram bins must be positive", funcName );
@@ -78,6 +83,12 @@ function pDET = DetectionProbabilityStackSlide ( varargin )
   Rsqr_x = Rsqr_x(:)';
   Rsqr_w = Rsqr_w(:)';
 
+  ## chop off infinite bins and resize to column vectors
+  mism_px = reshape(mism_px(2:end-1),  [],1);
+  mism_x = reshape(mism_x(2:end-1),  [],1);
+  mism_dx = reshape(mism_dx(2:end-1), [],1);
+  mism_w = mism_px .* mism_dx;
+
   ## get detection threshold
   if ( !isempty ( uvar.pFA ) )
     sum2Fth = invFalseAlarm_chi2 ( uvar.pFA, uvar.Nseg * dof );
@@ -91,9 +102,21 @@ function pDET = DetectionProbabilityStackSlide ( varargin )
   ## translate sensitivity depth into per-segment rms SNR 'rhosqr' = sqrt( < rhoCoh^2> )
   rhoSCsqr = 4/25 * uvar.Tdata ./ Depth.^2;
 
+  ## indices for duplicating rows or columns
+  ii = ones(length(mism_x),1);
+  jj = ones(length(Rsqr_x),1);
+
+  ## rho is computed for each pd and Ns (dim. 1) by summing
+  ## false dismissal probability for fixed Rsqr_x, weighted
+  ## by Rsqr_w (dim. 2)
+  Rsqr_x = Rsqr_x( ii,:);
+  Rsqr_w = Rsqr_w( ii,:);
+  mism_x = mism_x( :,jj)
+  mism_w = mism_w( :,jj)
+
   pDET = zeros ( size ( Depth ) );
   for i = 1 : length ( pDET(:) )
-    pDET(i) = 1 - sum ( ChiSquare_cdf ( sum2Fth(i), uvar.Nseg * dof, rhoSCsqr(i) .* Rsqr_x ) .* Rsqr_w );
+    pDET(i) = 1 - sum(sum( ChiSquare_cdf ( sum2Fth(i), uvar.Nseg * dof, rhoSCsqr(i) .* Rsqr_x(ii,:) .* (1 - mism_x(:,jj))) .* Rsqr_w(ii,:) .*mism_w(:,jj) ,1),2);
   endfor
 
   return;

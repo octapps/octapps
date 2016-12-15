@@ -1,3 +1,4 @@
+## Copyright (C) 2016 Christoph Dreissigacker
 ## Copyright (C) 2011, 2016 Karl Wette
 ##
 ## This program is free software; you can redistribute it and/or modify
@@ -35,6 +36,7 @@
 ##                  Hough on the F-statistic, see
 ##                  SensitivityHoughFstatFDP() for options
 ##   "prog"   = show progress updates
+##  "misHist" = mismatch histogram
 
 function [rho, pd_rho] = SensitivitySNR(varargin)
 
@@ -43,10 +45,11 @@ function [rho, pd_rho] = SensitivitySNR(varargin)
                {"pd", "real,strictunit,column"},
                {"Ns", "integer,strictpos,column"},
                {"Rsqr", "a:Hist", []},
+               {"misHist","a:Hist"},
                {"stat", "cell,vector"},
                {"prog", "logical,scalar", false},
                []);
-  assert(histDim(Rsqr) == 1, "%s: R^2 must be a 1D histogram", funcName);
+  assert(histDim(Rsqr) == 1, "%s: R^2 must be a 1D histogram", funcName);                 #add for mismatch
   assert(length(stat) > 1 && ischar(stat{1}), "%s: first element of 'stat' must be a string", funcName);
 
   ## select a detection statistic
@@ -63,7 +66,11 @@ function [rho, pd_rho] = SensitivitySNR(varargin)
   Rsqr_px = histProbs(Rsqr);
   [Rsqr_x, Rsqr_dx] = histBins(Rsqr, 1, "centre", "width");
 
-  ## check histogram bins are positive and contain no infinities
+  ## get probabilitiy densities for mismatch
+  mism_px = histProbs(misHist);
+  [mism_x, mism_dx] = histBins(misHist, 1, "centre", "width");
+
+  ## check histogram bins are positive and contain no infinities                  # add for mismatch
   if min(histRange(Rsqr)) < 0
     error("%s: R^2 histogram bins must be positive", funcName);
   endif
@@ -76,8 +83,14 @@ function [rho, pd_rho] = SensitivitySNR(varargin)
   Rsqr_x = reshape(Rsqr_x(2:end-1), 1, []);
   Rsqr_dx = reshape(Rsqr_dx(2:end-1), 1, []);
 
+  ## chop off infinite bins and resize to layer vectors
+  mism_px = reshape(mism_px(2:end-1), 1,1, []);
+  mism_x = reshape(mism_x(2:end-1), 1,1, []);
+  mism_dx = reshape(mism_dx(2:end-1), 1,1, []);
+
   ## compute weights
   Rsqr_w = Rsqr_px .* Rsqr_dx;
+  mism_w = mism_px .* mism_dx;
 
   ## show progress updates?
   if prog
@@ -91,11 +104,16 @@ function [rho, pd_rho] = SensitivitySNR(varargin)
   ## make column indexes ones, to duplicate columns
   jj = ones(length(Rsqr_x), 1);
 
+  ## make layer indices ones, to duplicate layers
+  kk = ones(length(mism_x), 1);
+
   ## rho is computed for each pd and Ns (dim. 1) by summing
   ## false dismissal probability for fixed Rsqr_x, weighted
   ## by Rsqr_w (dim. 2)
-  Rsqr_x = Rsqr_x(ones(size(ii)), :);
-  Rsqr_w = Rsqr_w(ones(size(ii)), :);
+  Rsqr_x = Rsqr_x(ii + 0, :,kk);
+  Rsqr_w = Rsqr_w(ii + 0, :,kk);    # ii + 0 converts logical into double
+  mism_x = mism_x(ii + 0, jj,:);
+  mism_w = mism_w(ii + 0, jj,:);
 
   ## initialise variables
   pd_rho = rhosqr = nan(size(pd, 1), 1);
@@ -106,7 +124,7 @@ function [rho, pd_rho] = SensitivitySNR(varargin)
   ## probability
   rhosqr_min = zeros(size(rhosqr));
   pd_rho_min(ii) = callFDP(rhosqr_min,ii,
-                           jj,pd,Ns,Rsqr_x,Rsqr_w,
+                           jj,kk,pd,Ns,Rsqr_x,Rsqr_w,mism_x, mism_w,
                            FDP,fdp_vars,fdp_opts);
   ii0 = (pd_rho_min >= pd);
 
@@ -129,7 +147,7 @@ function [rho, pd_rho] = SensitivitySNR(varargin)
 
     ## calculate false dismissal probability
     pd_rho_max(ii) = callFDP(rhosqr_max,ii,
-                             jj,pd,Ns,Rsqr_x,Rsqr_w,
+                             jj,kk,pd,Ns,Rsqr_x,Rsqr_w, mism_x, mism_w,
                              FDP,fdp_vars,fdp_opts);
 
     ## determine which rhosqr to keep calculating for
@@ -156,7 +174,7 @@ function [rho, pd_rho] = SensitivitySNR(varargin)
 
     ## calculate new false dismissal probability
     pd_rho(ii) = callFDP(rhosqr,ii,
-                         jj,pd,Ns,Rsqr_x,Rsqr_w,
+                         jj,kk,pd,Ns,Rsqr_x,Rsqr_w, mism_x, mism_w,
                          FDP,fdp_vars,fdp_opts);
 
     ## replace bounds with mid-point as required
@@ -191,16 +209,16 @@ endfunction
 
 ## call a false dismissal probability calculation equation
 function pd_rho = callFDP(rhosqr,ii,
-                          jj,pd,Ns,Rsqr_x,Rsqr_w,
+                          jj,kk,pd,Ns,Rsqr_x,Rsqr_w,mism_x, mism_w,
                           FDP,fdp_vars,fdp_opts)
   if any(ii)
-    pd_rho = sum(feval(FDP,
-                       pd(ii,jj), Ns(ii,jj),
-                       rhosqr(ii,jj).*Rsqr_x(ii,:),
-                       cellfun(@(x) x(ii,jj), fdp_vars,
+    pd_rho = sum(sum(feval(FDP,
+                       pd(ii,jj,kk), Ns(ii,jj,kk),
+                       rhosqr(ii,jj,kk).*Rsqr_x(ii,:,kk).*(1 - mism_x(ii,jj,:)),
+                       cellfun(@(x) x(ii,jj,kk), fdp_vars,
                                "UniformOutput", false),
                        fdp_opts
-                       ) .* Rsqr_w(ii,:), 2);
+                       ) .* Rsqr_w(ii,:,kk) .*mism_w(ii,jj,:), 2),3);
   else
     pd_rho = [];
   endif

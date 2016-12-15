@@ -1,3 +1,4 @@
+## Copyright (C) 2016 Christoph Dreissigacker
 ## Copyright (C) 2012 Reinhard Prix
 ##
 ## This program is free software; you can redistribute it and/or modify
@@ -58,9 +59,10 @@ function sensDepth = SensitivityDepthStackSlide ( varargin )
   ## check input
   assert ( ! ( isempty ( uvar.pFA ) && isempty ( uvar.avg2Fth ) ), "Need at least one of 'pFA' or 'avg2Fth' to determine false-alarm probability!\n" );
   assert ( isempty ( uvar.pFA ) || isempty ( uvar.avg2Fth ), "Must specify exactly one of 'pFA' or 'avg2Fth' to determine false-alarm probability!\n" );
+  assert ( isscalar(uvar.Tdata), "Calculation for multiple Tdata not supported yet.\n");
 
   ## compute sensitivity SNR
-  Rsqr = SqrSNRGeometricFactorHist("detectors", uvar.detectors, "detweights", uvar.detweights, "mism_hgrm", uvar.misHist, "alpha", uvar.alpha, "sdelta", sin(uvar.delta) );
+  Rsqr = SqrSNRGeometricFactorHist("detectors", uvar.detectors, "detweights", uvar.detweights, "alpha", uvar.alpha, "sdelta", sin(uvar.delta) );
 
   ## two different ways to specify false-alarm / threshold
   if ( !isempty ( uvar.pFA ) )
@@ -69,7 +71,7 @@ function sensDepth = SensitivityDepthStackSlide ( varargin )
     FAarg = { "sa", uvar.Nseg * uvar.avg2Fth };
   endif
 
-  [rho, pd_rho] = SensitivitySNR ( "pd", uvar.pFD, "Ns", uvar.Nseg, "Rsqr", Rsqr, "stat", {"ChiSqr", FAarg{:}} );
+  [rho, pd_rho] = SensitivitySNR ( "pd", uvar.pFD, "Ns", uvar.Nseg, "Rsqr", Rsqr,"misHist",uvar.misHist, "stat", {"ChiSqr", FAarg{:}} );
 
   ## convert to sensitivity depth
   rhoSC = sqrt ( uvar.Nseg )  .* rho;
@@ -78,7 +80,7 @@ function sensDepth = SensitivityDepthStackSlide ( varargin )
 endfunction
 
 
-## a basic example to test functionality
+## a basic example to test functionality (all with mismatch average)
 %!test
 %!  Nseg = 20;
 %!  Tdata = 60*3600*Nseg;
