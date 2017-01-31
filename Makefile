@@ -32,7 +32,7 @@ vershex := -DOCTAVE_VERSION_HEX=$(shell $(OCTAVE) --eval "disp(strcat(\"0x\", sp
 
 # OctApps source path and file list
 curdir := $(shell pwd -L)
-srcpath := $(shell $(OCTAVE) --eval "disp(strrep(genpath('$(curdir)/src'), ':', ' '))")
+srcpath := $(shell $(OCTAVE) --eval "p = strsplit(genpath('$(curdir)/src'), ':'); f = cellfun(@(x) strsplit(x, filesep){end}, p, 'uniformoutput', false); b = strcat('builtin-', OCTAVE_VERSION); ii = ~cellfun(@(x) strncmp(x, 'builtin-', 8) && strcmp(sortrows(strvcat(x, b))(2,:), b), f); printf('%s ', p{ii})")
 srcfilepath := $(filter-out %/deprecated, $(srcpath))
 srcmfiles := $(wildcard $(srcfilepath:%=%/*.m))
 srccfiles := $(wildcard $(srcfilepath:%=%/*.hpp) $(srcfilepath:%=%/*.cpp))
