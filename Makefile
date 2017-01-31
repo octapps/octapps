@@ -28,7 +28,7 @@ CheckPkg = $(shell $(PKGCONFIG) --exists $1 && echo true)
 
 # Octave version string, and hex number define for use in C code
 version := $(shell $(OCTAVE) --eval "disp(OCTAVE_VERSION)")
-vershex := -DOCTAVE_VERSION_HEX=$(shell $(OCTAVE) --eval "disp(strcat(\"0x\", sprintf(\"%02i\", str2double(strsplit(OCTAVE_VERSION, \".\")))))")
+vershex := -DOCTAVE_VERSION_HEX=$(shell $(OCTAVE) --eval "disp(strcat('0x', sprintf('%02i', str2double(strrep(strsplit(OCTAVE_VERSION, '.'), '+', '')))))")
 
 # OctApps source path and file list
 curdir := $(shell pwd -L)
