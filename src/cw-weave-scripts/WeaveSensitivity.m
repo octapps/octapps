@@ -36,8 +36,8 @@
 ##   coh_max_mismatch,semi_max_mismatch:
 ##     Maximum coherent and semicoherent mismatches; for a single-
 ##     segment or non-interpolating search, set coh_max_mismatch=0
-##   Tdata:
-##     total amount of data used by search, in seconds
+##   NSFT:
+##     total number of SFTs used by search, in seconds
 ##   pFD:
 ##     false dismissal probability of search
 ##   pFA,semi_ntmpl:
@@ -45,6 +45,8 @@
 ##     templates used by search
 ##   mean2F_th:
 ##     Alternatives to 'pFA','semi_ntmpl': threshold on mean 2F
+##   TSFT:
+##     Time span of a single SFT (default: 1800 seconds)
 
 function depth = WeaveSensitivity(varargin)
 
@@ -61,11 +63,12 @@ function depth = WeaveSensitivity(varargin)
                {"lattice", "char", "Ans"},
                {"coh_max_mismatch", "real,positive,scalar"},
                {"semi_max_mismatch", "real,positive,scalar"},
-               {"Tdata", "real,strictpos,scalar"},
+               {"NSFT", "integer,strictpos,scalar"},
                {"pFD", "real,strictpos,column", 0.1},
                {"pFA", "real,strictpos,column,+exactlyone:mean2F_th", []},
                {"semi_ntmpl", "real,strictpos,column,+exactlyone:mean2F_th,+noneorall:pFA", []},
                {"mean2F_th", "real,strictpos,column", []},
+               {"TSFT", "integer,strictpos,scalar", 1800},
                []);
 
   ## if given, load setup file and extract number of segments and detectors
@@ -87,7 +90,7 @@ function depth = WeaveSensitivity(varargin)
   mismatch_hgrm = WeaveFstatMismatch(args{:});
 
   ## calculate sensitivity
-  args = {"Nseg", segments, "Tdata", Tdata, "misHist", mismatch_hgrm, "detectors", detectors};
+  args = {"Nseg", segments, "Tdata", NSFT * TSFT, "misHist", mismatch_hgrm, "detectors", detectors};
   if !isempty(pFA)
     args = {args{:}, "pFD", pFD, "pFA", pFA ./ semi_ntmpl};
   else
