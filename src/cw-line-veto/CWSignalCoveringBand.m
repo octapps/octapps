@@ -1,6 +1,22 @@
+## Copyright (C) 2014 David Keitel
+##
+## This program is free software; you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation; either version 2 of the License, or
+## (at your option) any later version.
+##
+## This program is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License
+## along with Octave; see the file COPYING.  If not, see
+## <http://www.gnu.org/licenses/>.
+
 function [minCoverFreq, maxCoverFreq] = CWSignalCoveringBand  ( fkdot_starttime, fkdotband_starttime, fkdot_endtime, fkdotband_endtime )
  %% [minCoverFreq, maxCoverFreq] = CWSignalCoveringBand  ( fkdot_starttime, fkdotband_starttime, fkdot_endtime, fkdotband_endtime )
- %% based on XLALCWSignalCoveringBand() by R. Prix
+ %% based on XLALCWSignalCoveringBand() by K. Wette, R. Prix
  %% Determines a frequency band which covers the frequency evolution of a band of CW signals between two GPS times.
  %% The calculation accounts for the spin evolution of the signals, and the maximum possible Dopper modulation due to detector motion.
  %% binary orbital motion, which is supported by XLALCWSignalCoveringBand(), is dropped here.
