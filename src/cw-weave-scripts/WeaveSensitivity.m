@@ -51,31 +51,22 @@ function depth = WeaveSensitivity(varargin)
   ## parse options
   parseOptions(varargin,
                {"setup_file", "char", []},
-               {"segments", "integer,strictpos,scalar", []},
-               {"detectors", "char", []},
-               {"coh_Tspan", "real,strictpos,scalar", []},
-               {"semi_Tspan", "real,strictpos,scalar", []},
+               {"segments", "integer,strictpos,scalar,+exactlyone:setup_file", []},
+               {"detectors", "char,+exactlyone:setup_file", []},
+               {"coh_Tspan", "real,strictpos,scalar,+exactlyone:setup_file", []},
+               {"semi_Tspan", "real,strictpos,scalar,+exactlyone:setup_file,+noneorall:coh_Tspan", []},
                {"alpha", "real,vector", []},
-               {"delta", "real,vector", []},
+               {"delta", "real,vector,+noneorall:alpha", []},
                {"spindowns", "integer,positive,scalar"},
                {"lattice", "char", "Ans"},
                {"coh_max_mismatch", "real,positive,scalar"},
                {"semi_max_mismatch", "real,positive,scalar"},
                {"Tdata", "real,strictpos,scalar"},
                {"pFD", "real,strictpos,column", 0.1},
-               {"pFA", "real,strictpos,column", []},
-               {"semi_ntmpl", "real,strictpos,column", []},
+               {"pFA", "real,strictpos,column,+exactlyone:mean2F_th", []},
+               {"semi_ntmpl", "real,strictpos,column,+exactlyone:mean2F_th,+noneorall:pFA", []},
                {"mean2F_th", "real,strictpos,column", []},
                []);
-  assert(xor(!isempty(setup_file), !isempty(segments)), "'setup_file' and 'segments' are mutually exclusive");
-  assert(xor(!isempty(setup_file), !isempty(detectors)), "'setup_file' and 'detectors' are mutually exclusive");
-  assert(xor(!isempty(setup_file), !isempty(coh_Tspan)), "'setup_file' and 'coh_Tspan' are mutually exclusive");
-  assert(xor(!isempty(setup_file), !isempty(semi_Tspan)), "'setup_file' and 'semi_Tspan' are mutually exclusive");
-  assert(!or(!isempty(coh_Tspan), !isempty(semi_Tspan)), "'coh_Tspan' and 'semi_Tspan' are mutually required");
-  assert(!or(!isempty(alpha), !isempty(delta)), "'alpha' and 'delta' are mutually required");
-  assert(xor(!isempty(pFA), !isempty(mean2F_th)), "'pFA' and 'mean2F_th' are mutually exclusive");
-  assert(xor(!isempty(semi_ntmpl), !isempty(mean2F_th)), "'semi_ntmpl' and 'mean2F_th' are mutually exclusive");
-  assert(!or(!isempty(pFA), !isempty(semi_ntmpl)), "'pFA' and 'semi_ntmpl' are mutually required");
 
   ## if given, load setup file and extract number of segments and detectors
   if !isempty(setup_file)
