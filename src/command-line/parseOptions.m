@@ -64,7 +64,6 @@ function varargout = parseOptions(opts, varargin)
   reqnames = {};
   typefunc = struct;
   convfunc = struct;
-  varname = struct;
 
   ## parse option specifications
   for n = 1:length(varargin)
@@ -84,11 +83,13 @@ function varargout = parseOptions(opts, varargin)
     optname = optspec{1};
     allowed.(optname) = 1;
 
-    ## store option type/conversion functions
+    ## store option specifications
     typefuncstr = "( ";
     convfuncptr = [];
     opttypes = strtrim(strsplit(optspec{2}, ",", true));
     for i = 1:length(opttypes)
+
+      ## type specification/conversion functions with an argument
       if !strcmp(typefuncstr, "( ")
         typefuncstr = cstrcat(typefuncstr, " ) && ( ");
       endif
@@ -126,63 +127,68 @@ function varargout = parseOptions(opts, varargin)
           otherwise
             error("%s: unknown type specification command '%s'", funcName, typefunccmd);
         endswitch
-      else
-        switch typefuncarg
-          case { "bool", "logical" }   ## also accept numeric values 0, 1 as logical values
-            typefuncstr = cstrcat(typefuncstr, "islogical(x) || ( isnumeric(x) && all((x==0)|(x==1)) )");
-            convfuncptr = @logical;
-          case "cell"   ## override here because 'cell' is not a type conversion function
-            typefuncstr = cstrcat(typefuncstr, "iscell(x)");
-          case "function"
-            typefuncstr = cstrcat(typefuncstr, "is_function_handle(x)");
-          case "complex"
-            typefuncstr = cstrcat(typefuncstr, "isnumeric(x)");
-            convfuncptr = @complex;
-          case "real"
-            typefuncstr = cstrcat(typefuncstr, "isnumeric(x) && isreal(x)");
-            convfuncptr = @double;
-          case "integer"
-            typefuncstr = cstrcat(typefuncstr, "isnumeric(x) && all(mod(x,1)==0)");
-            convfuncptr = @round;
-          case "evenint"
-            typefuncstr = cstrcat(typefuncstr, "isnumeric(x) && all(mod(x,2)==0)");
-            convfuncptr = @round;
-          case "oddint"
-            typefuncstr = cstrcat(typefuncstr, "isnumeric(x) && all(mod(x,2)==1)");
-            convfuncptr = @round;
-          case "nonzero"
-            typefuncstr = cstrcat(typefuncstr, "isnumeric(x) && all(x!=0)");
-          case "positive"
-            typefuncstr = cstrcat(typefuncstr, "isnumeric(x) && all(x>=0)");
-          case "negative"
-            typefuncstr = cstrcat(typefuncstr, "isnumeric(x) && all(x<=0)");
-          case "strictpos"
-            typefuncstr = cstrcat(typefuncstr, "isnumeric(x) && all(x>0)");
-          case "strictneg"
-            typefuncstr = cstrcat(typefuncstr, "isnumeric(x) && all(x<0)");
-          case "unit"
-            typefuncstr = cstrcat(typefuncstr, "isnumeric(x) && all(0<=x) && all(x<=1)");
-          case "strictunit"
-            typefuncstr = cstrcat(typefuncstr, "isnumeric(x) && all(0<x) && all(x<1)");
-          otherwise
-            typefuncfunc = cstrcat("is", typefuncarg);
-            try
-              str2func(typefuncfunc);
-              typefuncstr = cstrcat(typefuncstr, typefuncfunc, "(x)");
-            catch
-              error("%s: unknown type specification function '%s'", funcName, typefuncfunc);
-            end_try_catch
-            if isempty(convfuncptr)
-              try
-                convfuncptr = str2func(typefuncarg);
-                feval(convfunc.(optname), []);
-              catch
-                convfuncptr = [];
-              end_try_catch
-            endif
-        endswitch
+        continue
       endif
+
+      ## type specification/conversion functions without an argument
+      switch typefuncarg
+        case { "bool", "logical" }   ## also accept numeric values 0, 1 as logical values
+          typefuncstr = cstrcat(typefuncstr, "islogical(x) || ( isnumeric(x) && all((x==0)|(x==1)) )");
+          convfuncptr = @logical;
+        case "cell"   ## override here because 'cell' is not a type conversion function
+          typefuncstr = cstrcat(typefuncstr, "iscell(x)");
+        case "function"
+          typefuncstr = cstrcat(typefuncstr, "is_function_handle(x)");
+        case "complex"
+          typefuncstr = cstrcat(typefuncstr, "isnumeric(x)");
+          convfuncptr = @complex;
+        case "real"
+          typefuncstr = cstrcat(typefuncstr, "isnumeric(x) && isreal(x)");
+          convfuncptr = @double;
+        case "integer"
+          typefuncstr = cstrcat(typefuncstr, "isnumeric(x) && all(mod(x,1)==0)");
+          convfuncptr = @round;
+        case "evenint"
+          typefuncstr = cstrcat(typefuncstr, "isnumeric(x) && all(mod(x,2)==0)");
+          convfuncptr = @round;
+        case "oddint"
+          typefuncstr = cstrcat(typefuncstr, "isnumeric(x) && all(mod(x,2)==1)");
+          convfuncptr = @round;
+        case "nonzero"
+          typefuncstr = cstrcat(typefuncstr, "isnumeric(x) && all(x!=0)");
+        case "positive"
+          typefuncstr = cstrcat(typefuncstr, "isnumeric(x) && all(x>=0)");
+        case "negative"
+          typefuncstr = cstrcat(typefuncstr, "isnumeric(x) && all(x<=0)");
+        case "strictpos"
+          typefuncstr = cstrcat(typefuncstr, "isnumeric(x) && all(x>0)");
+        case "strictneg"
+          typefuncstr = cstrcat(typefuncstr, "isnumeric(x) && all(x<0)");
+        case "unit"
+          typefuncstr = cstrcat(typefuncstr, "isnumeric(x) && all(0<=x) && all(x<=1)");
+        case "strictunit"
+          typefuncstr = cstrcat(typefuncstr, "isnumeric(x) && all(0<x) && all(x<1)");
+        otherwise
+          typefuncfunc = cstrcat("is", typefuncarg);
+          try
+            str2func(typefuncfunc);
+            typefuncstr = cstrcat(typefuncstr, typefuncfunc, "(x)");
+          catch
+            error("%s: unknown type specification function '%s'", funcName, typefuncfunc);
+          end_try_catch
+          if isempty(convfuncptr)
+            try
+              convfuncptr = str2func(typefuncarg);
+              feval(convfunc.(optname), []);
+            catch
+              convfuncptr = [];
+            end_try_catch
+          endif
+      endswitch
+
     endfor
+
+    ## check type conversion string is valid
     typefuncstr = cstrcat(typefuncstr, " )");
     typefunc.(optname) = inline(typefuncstr, "x");
     convfunc.(optname) = convfuncptr;
