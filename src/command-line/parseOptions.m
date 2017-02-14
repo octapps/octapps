@@ -64,6 +64,10 @@ function varargout = parseOptions(opts, varargin)
   reqnames = {};
   typefunc = struct;
   convfunc = struct;
+  atleastone = {};
+  exactlyone = {};
+  atmostone = {};
+  noneorall = {};
 
   ## parse option specifications
   for n = 1:length(varargin)
@@ -88,6 +92,26 @@ function varargout = parseOptions(opts, varargin)
     convfuncptr = [];
     opttypes = strtrim(strsplit(optspec{2}, ",", true));
     for i = 1:length(opttypes)
+
+      ## prescription of which options are mutually exclusive/required
+      if opttypes{i}(1) == "+"
+        j = index(opttypes{i}, ":");
+        mutualtype = opttypes{i}(2:j-1);
+        mutualoptname = opttypes{i}(j+1:end);
+        switch mutualtype
+          case "atleastone"
+            atleastone{end+1} = {optname, mutualoptname};
+          case "exactlyone"
+            exactlyone{end+1} = {optname, mutualoptname};
+          case "atmostone"
+            atmostone{end+1} = {optname, mutualoptname};
+          case "noneorall"
+            noneorall{end+1} = {optname, mutualoptname};
+          otherwise
+            error("%s: unknown mutual prescription type '%s'", funcName, mutualtype);
+        endswitch
+        continue
+      endif
 
       ## type specification/conversion functions with an argument
       if !strcmp(typefuncstr, "( ")
@@ -319,6 +343,32 @@ function varargout = parseOptions(opts, varargin)
 
     endif
 
+  endfor
+
+  ## check for mutually exclusive/required options
+  for n = 1:length(atleastone)
+    optsset = cellfun(@(name) allowed.(name) == 0, atleastone{n});
+    if sum(optsset) < 1
+      error("%s: at least one of options '%s' are required", funcName, strjoin(atleastone{n}, "', '"));
+    endif
+  endfor
+  for n = 1:length(exactlyone)
+    optsset = cellfun(@(name) allowed.(name) == 0, exactlyone{n});
+    if sum(optsset) != 1
+      error("%s: exactly one of options '%s' are required", funcName, strjoin(exactlyone{n}, "', '"));
+    endif
+  endfor
+  for n = 1:length(atmostone)
+    optsset = cellfun(@(name) allowed.(name) == 0, atmostone{n});
+    if sum(optsset) > 1
+      error("%s: at most one of options '%s' are required", funcName, strjoin(atmostone{n}, "', '"));
+    endif
+  endfor
+  for n = 1:length(noneorall)
+    optsset = cellfun(@(name) allowed.(name) == 0, noneorall{n});
+    if any(optsset) && !all(optsset)
+      error("%s: either none or all of options '%s' are required", funcName, strjoin(noneorall{n}, "', '"));
+    endif
   endfor
 
   ## convert all option variables to the required type
