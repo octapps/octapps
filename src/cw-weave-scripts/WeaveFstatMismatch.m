@@ -40,17 +40,14 @@ function hgrm = WeaveFstatMismatch(varargin)
   ## parse options
   parseOptions(varargin,
                {"setup_file", "char", []},
-               {"coh_Tspan", "real,strictpos,scalar", []},
-               {"semi_Tspan", "real,strictpos,scalar", []},
+               {"coh_Tspan", "real,strictpos,scalar,+exactlyone:setup_file", []},
+               {"semi_Tspan", "real,strictpos,scalar,+exactlyone:setup_file,+noneorall:coh_Tspan", []},
                {"sky", "logical,scalar", true},
                {"spindowns", "integer,positive,scalar"},
                {"lattice", "char", "Ans"},
                {"coh_max_mismatch", "real,positive,scalar"},
                {"semi_max_mismatch", "real,positive,scalar"},
                []);
-  assert(xor(!isempty(setup_file), !isempty(coh_Tspan)), "'setup_file' and 'coh_Tspan' are mutually exclusive");
-  assert(xor(!isempty(setup_file), !isempty(semi_Tspan)), "'setup_file' and 'semi_Tspan' are mutually exclusive");
-  assert(!or(!isempty(coh_Tspan), !isempty(semi_Tspan)), "'coh_Tspan' and 'semi_Tspan' are mutually required");
 
   ## if given, load setup file and extract coherent and semicoherent time spans
   if !isempty(setup_file)
