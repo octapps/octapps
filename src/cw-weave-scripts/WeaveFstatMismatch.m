@@ -21,7 +21,7 @@
 ##     Histogram of F-statistic mismatch distribution
 ## Options:
 ##   setup_file:
-##     Weave setup file, from which to extract segment list
+##     Weave setup file, from which to extract various parameters
 ##   coh_Tspan,semi_Tspan:
 ##     Alternatives to 'setup_file'; give time span of coherent
 ##     segments, and total time span of semicoherent search

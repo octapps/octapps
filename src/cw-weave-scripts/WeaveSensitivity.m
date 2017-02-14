@@ -21,7 +21,7 @@
 ##     estimated sensitivity depth
 ## Options:
 ##   setup_file:
-##     Weave setup file, from which to extract segment list
+##     Weave setup file, from which to extract various parameters
 ##   segments,detectors,coh_Tspan,semi_Tspan:
 ##     Alternatives to 'setup_file'; give number of segments,
 ##     comma-separated list of detectors, time span of coherent
