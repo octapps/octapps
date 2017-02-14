@@ -62,7 +62,7 @@ all :
 # generate environment scripts
 all .PHONY : octapps-user-env.sh octapps-user-env.csh
 octapps-user-env.sh octapps-user-env.csh : Makefile
-	$(verbose_0)case $@ in \
+	$(verbose)case $@ in \
 		*.csh) empty='?'; setenv='setenv'; equals=' ';; \
 		*) empty='#'; setenv='export'; equals='=';; \
 	esac; \
@@ -193,7 +193,7 @@ ifneq ($(CTAGSEX),false)
 
 all .PHONY : TAGS
 TAGS :
-	$(verbose_0)$(CTAGSEX) -e $(srcmfiles) $(srccfiles)
+	$(verbose)$(CTAGSEX) -e $(srcmfiles) $(srccfiles)
 
 endif # neq ($(CTAGSEX),false)
 
