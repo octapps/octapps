@@ -68,12 +68,12 @@ function [results, multiSFTs, multiTser] = DoFstatInjections(varargin)
                {"start_time", "real,strictpos,scalar", []},
                {"time_span", "real,strictpos,scalar"},
                {"detectors", "char"},
-               {"det_sqrt_PSD", "real,positive,vector", []},
+               {"det_sqrt_PSD", "real,positive,vector,+atmostone:inj_sqrt_PSD", []},
                {"ephemerides", "a:swig_ref", []},
                {"sft_time_span", "real,strictpos,scalar", 1800},
                {"sft_overlap", "real,positive,scalar", 0},
                {"sft_noise_window", "integer,strictpos,scalar", 50},
-               {"inj_sqrt_PSD", "real,positive,vector", []},
+               {"inj_sqrt_PSD", "real,positive,vector,+atmostone:det_sqrt_PSD", []},
                {"inj_h0", "real,positive,scalar", 1.0},
                {"inj_cosi", "real,scalar", -1 + 2*rand()},
                {"inj_psi", "real,scalar", 2*pi*rand()},
@@ -98,8 +98,6 @@ function [results, multiSFTs, multiTser] = DoFstatInjections(varargin)
                {"Dterms", "integer,strictpos,scalar", 8},
                {"randSeed", "integer,strictpos,scalar", floor(unifrnd(1, 2^32 - 1))},
                []);
-  assert(xor(isempty(det_sqrt_PSD), isempty(inj_sqrt_PSD)),
-         "Either 'det_sqrt_PSD' or 'inj_sqrt_PSD' are required");
 
   ## use injection parameters as search parameters, if not given
   if isempty(sch_alpha)
