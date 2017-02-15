@@ -36,7 +36,7 @@
 ##   coh_max_mismatch,semi_max_mismatch:
 ##     Maximum coherent and semicoherent mismatches; for a single-
 ##     segment or non-interpolating search, set coh_max_mismatch=0
-##   NSFT:
+##   NSFTs:
 ##     total number of SFTs used by search
 ##   pFD:
 ##     false dismissal probability of search
@@ -63,7 +63,7 @@ function depth = WeaveSensitivity(varargin)
                {"lattice", "char", "Ans"},
                {"coh_max_mismatch", "real,positive,scalar"},
                {"semi_max_mismatch", "real,positive,scalar"},
-               {"NSFT", "integer,strictpos,scalar"},
+               {"NSFTs", "integer,strictpos,scalar"},
                {"pFD", "real,strictpos,column", 0.1},
                {"pFA", "real,strictpos,column,+exactlyone:mean2F_th", []},
                {"semi_ntmpl", "real,strictpos,column,+exactlyone:mean2F_th,+noneorall:pFA", []},
@@ -102,7 +102,7 @@ function depth = WeaveSensitivity(varargin)
   ## calculate sensitivity
   args = struct;
   args.Nseg = Nsegments;
-  args.Tdata = NSFT * TSFT;
+  args.Tdata = NSFTs * TSFT;
   args.misHist = mismatch_hgrm;
   args.detectors = detectors;
   args.pFD = pFD;
