@@ -37,7 +37,7 @@
 ##     Maximum coherent and semicoherent mismatches; for a single-
 ##     segment or non-interpolating search, set coh_max_mismatch=0
 ##   NSFT:
-##     total number of SFTs used by search, in seconds
+##     total number of SFTs used by search
 ##   pFD:
 ##     false dismissal probability of search
 ##   pFA,semi_ntmpl:
