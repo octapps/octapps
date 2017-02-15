@@ -49,7 +49,7 @@ function hgrm = WeaveFstatMismatch(varargin)
                {"semi_max_mismatch", "real,positive,scalar"},
                []);
 
-  ## if given, load setup file and extract coherent and semicoherent time spans
+  ## if given, load setup file and extract various parameters
   if !isempty(setup_file)
     setup = fitsread(setup_file);
     assert(isfield(setup, "segments"));
