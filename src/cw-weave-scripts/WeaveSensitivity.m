@@ -22,7 +22,7 @@
 ## Options:
 ##   setup_file:
 ##     Weave setup file, from which to extract various parameters
-##   segments,detectors,coh_Tspan,semi_Tspan:
+##   Nsegments,detectors,coh_Tspan,semi_Tspan:
 ##     Alternatives to 'setup_file'; give number of segments,
 ##     comma-separated list of detectors, time span of coherent
 ##     segments, and total time span of semicoherent search
@@ -53,8 +53,8 @@ function depth = WeaveSensitivity(varargin)
   ## parse options
   parseOptions(varargin,
                {"setup_file", "char", []},
-               {"segments", "integer,strictpos,scalar,+exactlyone:setup_file", []},
                {"detectors", "char,+exactlyone:setup_file", []},
+               {"Nsegments", "integer,strictpos,scalar,+exactlyone:setup_file", []},
                {"coh_Tspan", "real,strictpos,scalar,+exactlyone:setup_file", []},
                {"semi_Tspan", "real,strictpos,scalar,+exactlyone:setup_file,+noneorall:coh_Tspan", []},
                {"alpha", "real,vector", []},
@@ -71,34 +71,50 @@ function depth = WeaveSensitivity(varargin)
                {"TSFT", "integer,strictpos,scalar", 1800},
                []);
 
-  ## if given, load setup file and extract number of segments and detectors
+  ## if given, load setup file and extract various parameters
   if !isempty(setup_file)
     setup = fitsread(setup_file);
-    assert(isfield(setup, "segments"));
-    segments = length(setup.segments.data);
     detectors = strjoin(setup.primary.header.detect, ",");
+    assert(isfield(setup, "segments"));
+    segs = setup.segments.data;
+    segment_list = [ [segs.start_s] + 1e-9*[segs.start_ns]; [segs.end_s] + 1e-9*[segs.end_ns] ]';
+    segment_props = AnalyseSegmentList(segment_list);
+    Nsegments = segment_props.num_segments;
+    coh_Tspan = segment_props.coh_mean_Tspan;
+    semi_Tspan = segment_props.inc_Tspan;
   endif
 
   ## get mismatch histogram
+  args = struct;
   if !isempty(setup_file)
-    args = {"setup_file", setup_file};
+    args.setup_file = setup_file;
   else
-    args = {"coh_Tspan", coh_Tspan, "semi_Tspan", semi_Tspan};
+    args.coh_Tspan = coh_Tspan;
+    args.semi_Tspan = semi_Tspan;
   endif
-  args = {args{:}, "sky", isempty(alpha), "spindowns", spindowns, "lattice", lattice};
-  args = {args{:}, "coh_max_mismatch", coh_max_mismatch, "semi_max_mismatch", semi_max_mismatch};
-  mismatch_hgrm = WeaveFstatMismatch(args{:});
+  args.sky = isempty(alpha);
+  args.spindowns = spindowns;
+  args.lattice = lattice;
+  args.coh_max_mismatch = coh_max_mismatch;
+  args.semi_max_mismatch = semi_max_mismatch;
+  mismatch_hgrm = fevalstruct(@WeaveFstatMismatch, args);
 
   ## calculate sensitivity
-  args = {"Nseg", segments, "Tdata", NSFT * TSFT, "misHist", mismatch_hgrm, "detectors", detectors};
+  args = struct;
+  args.Nseg = Nsegments;
+  args.Tdata = NSFT * TSFT;
+  args.misHist = mismatch_hgrm;
+  args.detectors = detectors;
+  args.pFD = pFD;
   if !isempty(pFA)
-    args = {args{:}, "pFD", pFD, "pFA", pFA ./ semi_ntmpl};
+    args.pFA = pFA ./ semi_ntmpl;
   else
-    args = {args{:}, "pFD", pFD, "avg2Fth", mean2F_th};
+    args.avg2Fth = mean2F_th;
   endif
   if !isempty(alpha)
-    args = {args{:}, "alpha", alpha, "delta", delta};
+    args.alpha = alpha;
+    args.delta = delta;
   endif
-  depth = SensitivityDepthStackSlide(args{:});
+  depth = fevalstruct(@SensitivityDepthStackSlide, args);
 
 endfunction
