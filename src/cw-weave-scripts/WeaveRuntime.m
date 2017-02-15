@@ -30,8 +30,8 @@
 ##     Weave result file, from which to extract various parameters
 ##   freq_min,freq_max,dfreq,f1dot_max,f1dot_max,NSFTs,Fmethod:
 ##     Alternatives to 'result_file'; give minimum/maximum frequency,
-##     frequency spacing, maximum 1st/2nd spindown, total number
-##     of SFTs, and F-statistic method used by search
+##     frequency spacing, maximum (absolute) 1st/2nd spindown, total
+##     number of SFTs, and F-statistic method used by search
 ##   Ncohres,Nsemires:
 ##     Alternatives to 'result_file'; give number of coherent and
 ##     semicoherent results computed by search
@@ -86,15 +86,16 @@ function time_total = WeaveRuntime(varargin)
   ## if given, load result file and extract various parameters
   if !isempty(result_file)
     result = fitsread(result_file);
-    freq_min = result.primary.header.minrng_freq;
-    freq_max = result.primary.header.maxrng_freq;
-    dfreq = result.primary.header.dfreq;
-    f1dot_max = getoptfield(0, result.primary.header, "maxrng_f1dot");
-    f2dot_max = getoptfield(0, result.primary.header, "maxrng_f2dot");
-    NSFTs = result.primary.header.nsfts;
-    Fmethod = result.primary.header.fmethod;
-    Ncohres = result.primary.header.ncohres;
-    Nsemires = result.primary.header.nsemires;
+    result_hdr = result.primary.header;
+    freq_min = result_hdr.minrng_freq;
+    freq_max = result_hdr.maxrng_freq;
+    dfreq = result_hdr.dfreq;
+    f1dot_max = max(abs([getoptfield(0, result_hdr, "minrng_f1dot"), getoptfield(0, result_hdr, "maxrng_f1dot")]));
+    f2dot_max = max(abs([getoptfield(0, result_hdr, "minrng_f2dot"), getoptfield(0, result_hdr, "maxrng_f2dot")]));
+    NSFTs = result_hdr.nsfts;
+    Fmethod = result_hdr.fmethod;
+    Ncohres = result_hdr.ncohres;
+    Nsemires = result_hdr.nsemires;
   endif
 
   ## compute various parameters
