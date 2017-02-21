@@ -28,16 +28,21 @@ if [ "x$2" = x ]; then
     fi
 fi
 
-## Get function name, without any extension
-function=`expr "x$1" : "x\([^.]*\).*"`
+## Get directory containing function, and function name without any extension
+funcdir=`dirname $1`
+funcbase=`basename $1`
+funcname=`expr "x${funcbase}" : 'x\([^.]*\).*'`
 shift
 
+## Add directory to Octave path
+export OCTAVE_PATH="${funcdir}:${OCTAVE_PATH}"
+
 ## Concatenate command-line arguments into a quoted string
-args="'${function}'"
+args="'${funcname}'"
 while [ "x$1" != x ]; do
     args="${args}, '$1'"
     shift
 done
 
-## Call function through driver script octapps_run_driver()
+## Call funcname through driver script octapps_run_driver()
 exec ${OCTAVE} --eval "octapps_run_driver(${args})"
