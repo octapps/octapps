@@ -40,6 +40,11 @@ function ezprint(filepath, varargin)
                {"texregex", "char", ""},
                []);
 
+  ## can only reliably switch to gnuplot with Octave < 4.0.0
+  if !strncmp(version, "3.", 2) && !strcmp(get(gcf, "__graphics_toolkit__"), "gnuplot")
+    error("%s: only works with gnuplot", funcName);
+  endif
+
   ## set width and height, converting from points to inches
   width = width / 72;
   if isempty(height)
