@@ -73,8 +73,8 @@ function [time_total, time_cohres, time_semiparts, time_semires] = WeaveRuntime(
                {"tau_resamp_spin", "real,strictpos,scalar", []},
                {"tau_resamp_FFT", "real,strictpos,scalar", []},
                {"tau_resamp_Fbin", "real,strictpos,scalar", []},
-               {"tau_mean2F_add", "real,strictpos,scalar", 4.7e-9},   ## TODO: time these properly
-               {"tau_mean2F_div", "real,strictpos,scalar", 4.7e-9},   ## TODO: time these properly
+               {"tau_mean2F_add", "real,strictpos,scalar", 3.8e-10},
+               {"tau_mean2F_div", "real,strictpos,scalar", 4.8e-10},
                {"TSFT", "integer,strictpos,scalar", 1800},
                []);
 
