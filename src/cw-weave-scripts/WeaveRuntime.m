@@ -15,10 +15,7 @@
 
 ## Estimate the runtime of 'lalapps_Weave'.
 ## Usage:
-##   time_total = WeaveRuntime("opt", val, ...)
-## where:
-##   time_total:
-##     estimated total runtime (seconds)
+##   [time_total, ...] = WeaveRuntime("opt", val, ...)
 ## Options:
 ##   setup_file:
 ##     Weave setup file, from which to extract various parameters
@@ -43,8 +40,18 @@
 ##         F-statistic using resampling, per template per detector
 ##       tau_mean2F_{add,div}:
 ##         mean F-statistic, per template
+## Outputs:
+##   time_total:
+##     estimate of total CPU runtime (seconds)
+##   time_cohres:
+##     estimate of CPU time (seconds) to compute coherent F-statistics
+##   time_semiparts:
+##     estimate of CPU time (seconds) to add together F-statistics
+##   time_semires:
+##     estimate of CPU time (seconds) to compute:
+##     - mean semicoherent F-statistic
 
-function time_total = WeaveRuntime(varargin)
+function [time_total, time_cohres, time_semiparts, time_semires] = WeaveRuntime(varargin)
 
   ## parse options
   parseOptions(varargin,
@@ -119,17 +126,21 @@ function time_total = WeaveRuntime(varargin)
 
   ## estimate time to compute coherent F-statistics
   if any(strfind(Fmethod, "Resamp"))
-    time_2F = time_resamp_perres_perdet * Ncohres * Ndetectors;
+    time_cohres = time_resamp_perres_perdet * Ncohres * Ndetectors;
   elseif any(strfind(Fmethod, "Demod"))
-    time_2F = time_demod_perres * Ncohres;
+    time_cohres = time_demod_perres * Ncohres;
   else
     error("%s: unknown F-statistic method '%s'", funcName, Fmethod);
   endif
 
-  ## estimate time to compute mean semicoherent F-statistics
-  time_mean2F = tau_mean2F_add * Nsemires * (Nsegments - 1) + tau_mean2F_div * Nsemires;
+  ## estimate time to add together coherent F-statistics
+  time_semiparts = tau_mean2F_add * Nsemires * (Nsegments - 1);
+
+  ## estimate time to compute:
+  ## - mean semicoherent F-statistics
+  time_semires = tau_mean2F_div * Nsemires;
 
   ## estimate total run time
-  time_total = time_2F + time_mean2F;
+  time_total = time_cohres + time_semiparts + time_semires;
 
 endfunction
