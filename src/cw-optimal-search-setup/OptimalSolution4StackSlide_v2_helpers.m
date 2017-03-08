@@ -28,7 +28,7 @@ function funs = OptimalSolution4StackSlide_v2_helpers ( costFuns, constraints, p
   funs.costFuns  = costFuns;
   funs.w         = @(sp) ifelse ( isfield(sp,"w") || (sp.w = SensitivityScalingDeviationN ( funs.par.pFA, funs.par.pFD, max([1,sp.Nseg]), funs.par.sensApprox)), sp.w, "error" );
 
-  funs.misAvgNLM = @(mCoh,xiCoh,mInc,xiInc) EmpiricalFstatMismatch ( xiCoh * mCoh, xiInc * mInc );
+  funs.misAvgNLM = @(mCoh,xiCoh,mInc,xiInc) EmpiricalFstatMismatch ( 86400, 86400*365, xiCoh * mCoh, xiInc * mInc );
   funs.misAvgLIN = @(mCoh,xiCoh,mInc,xiInc) xiCoh * mCoh + xiInc * mInc;
   if ( nonlinearMismatch )
     funs.misAvg  = funs.misAvgNLM;
