@@ -1,4 +1,3 @@
-##
 ## Copyright (C) 2015 Reinhard Prix
 ## Copyright (C) 2015 Ronaldas Macas
 ##
