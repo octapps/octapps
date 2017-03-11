@@ -192,7 +192,7 @@ function octapps_run_driver(func, varargin)
   ## print first argument by default
   if isempty(hprintfuncs)
     try
-      funcnout = nargout(printfuncname);
+      funcnout = nargout(func);
     catch
       funcnout = 0;
     end_try_catch
