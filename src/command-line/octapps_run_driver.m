@@ -39,7 +39,7 @@
 ##   octapps_run <function> ... --printarg<n>=<print-function>
 ##   octapps_run <function> ... --printarg<n>=<print-function(<args>, ...)
 ##     Print the value of the function <print-function> applied to the <n>th output
-##     value of <function>.
+##     value of <function>. By default, the first argument is printed.
 ##
 ##   See the following examples, which assume the functions
 ##       a = f(), [a, b] = g()
@@ -189,14 +189,13 @@ function octapps_run_driver(func, varargin)
 
   endfor
 
+  ## print first argument by default
+  if isempty(hprintfuncs)
+    hprintfuncs = {{struct("func", @print_identity, "nout", 1)}};
+  endif
+
   ## convert arguments to flat cell array of {"name", "value", ...} pairs
   args = {{fieldnames(args){:}; struct2cell(args){:}}{:}};
-
-  ## if not printing output, call function and return
-  if isempty(hprintfuncs)
-    feval(hfunc, args{:});
-    return
-  endif
 
   ## call function and print output
   [out{1:length(hprintfuncs)}] = feval(hfunc, args{:});
