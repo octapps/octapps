@@ -34,33 +34,30 @@
 
 function coef = LocalCostCoefficients ( cost_fun, Nseg, Tseg, mis=0.5 )
 
-  ## 'natural' spacings for computing the discrete derivatives: 1e-4 variation around input point
-  dTseg = 1e-4 * Tseg;
+  ## 'natural' spacings for computing the discrete derivatives: 1e-2 variation around input point
+  dTseg = 1e-2 * Tseg;
   dmis  = 1e-2 * mis;
-  dNseg = 1e-4 * Nseg;
+  dNseg = 1e-2 * Nseg;
+
   ## Eq.(62a)
   Nseg_i = [ Nseg - 2 * dNseg, Nseg - dNseg, Nseg, Nseg + dNseg, Nseg + 2 * dNseg ];
   dlogCostN = diff ( log ( cost_fun ( Nseg_i, Tseg, mis ) ) );
   dlogN = diff ( log ( Nseg_i ) );
-  eta = dlogCostN ./ dlogN;
-  coef.eta = min ( eta );
+  coef.eta = sqrt ( mean ( ( dlogCostN ./ dlogN ).^2 ) );
 
   ## Eq.(62b)
   Tseg_i = [ Tseg - 2 * dTseg, Tseg - dTseg, Tseg, Tseg + dTseg, Tseg + 2 * dTseg ];
   dlogCostTseg = diff ( log ( cost_fun ( Nseg, Tseg_i, mis ) ) );
   dlogTseg = diff ( log ( Tseg_i ) );
-  delta = dlogCostTseg ./ dlogTseg;
-  coef.delta = min ( delta );
+  coef.delta = sqrt( mean ( ( dlogCostTseg ./ dlogTseg ).^2 ) );
 
   ## Eq.(64)
   mis_i  = [ mis - 2 * dmis, mis - dmis, mis, mis + dmis, mis + 2 * dmis ];
   dlogCostMis = diff ( log ( cost_fun ( Nseg, Tseg, mis_i ) ) );
   dlogMis = diff ( log ( mis_i ) );
-  nDim = -2 * dlogCostMis ./ dlogMis;
-  coef.nDim = min ( nDim );
+  coef.nDim = sqrt( mean( ( -2 * dlogCostMis ./ dlogMis ).^2 ) );
 
   [coef.cost, ~, coef.lattice ] = cost_fun ( Nseg, Tseg, mis );
-
   coef.xi = meanOfHist ( LatticeMismatchHist ( round ( coef.nDim ), coef.lattice ) );
 
   ## Eq.(63)
@@ -68,9 +65,7 @@ function coef = LocalCostCoefficients ( cost_fun, Nseg, Tseg, mis=0.5 )
 
   ## check sanity of local cost coefficients:
   if ( coef.eta <= 0 || coef.delta <= 0 || coef.nDim <= 0 || coef.kappa <= 0 )
-    printf ("at Nseg=%f, Tseg=%f d, mis=%f:\n", Nseg, Tseg/86400, mis );
-    printf ("cost ~ %g * Nseg^%g * Tseg^%g * mc^(-%g/2)\n", coef.kappa, coef.eta, coef.delta, coef.nDim);
-    error  ("LocalCostCoefficient(): got invalid local cost power law\n");
+    error ( "LocalCostCoefficient(): got invalid local cost ~ %g * Nseg^%g * Tseg^%g * mc^(-%g/2) at at Nseg=%f, Tseg=%f, mis=%f", coef.kappa, coef.eta, coef.delta, coef.nDim, Nseg, Tseg, mis );
   endif
 
   return;
