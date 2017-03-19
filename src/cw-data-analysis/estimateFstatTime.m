@@ -39,8 +39,9 @@ function [tauRS, tauLD, lg2NsampFFT, dtauRSBary] = estimateFstatTime ( varargin 
   %% ----- Return values
   %% tauRS:	Resampling Fstat time per frequency bin per detector assuming perfect buffering (ie excluding barycentering time)
   %% tauLD:	Demod Fstat time per frequency bin per detector assuming perfect buffering  (ie excluding barycentering time)
+  %% lg2NsampFFT: log_2 ( NsampFFT): number of FFT samples = 2 ^ lg2NsampFFT
   %% dtauRSBary: time per detector per frequency bin for resampling barycentering
-
+  %%
   %% ----- Resampling timing model ----------
   %% See the resampling F-stat notes at https://dcc.ligo.org/LIGO-T1600531-v2 for a detailed
   %% description of the resampling timing model
