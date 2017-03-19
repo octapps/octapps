@@ -55,6 +55,25 @@
 ##       g --printarg --printarg1=sin --printarg2=cos     a, mean(a), cos(b)
 ##       g --printarg2=mod(?,3)                           mod(b,3)
 
+## How to make an Octave function into an executable script:
+##
+## 1. Add the following code, after any copyright or help comment, but
+## before any Octave code:
+##
+## #{
+## exec /usr/bin/env octapps_run "$0" "${1+$@}"
+## exit 1
+## #}
+##
+## This code is treated as a comment by Octave, but will be interpreted
+## as shell code by the operating system, which will them run the script
+## under octapps_run. Do not set a she-bang line, since this will mess
+## up the Octave help comment; the operating system should use the system
+## shell if no she-bang is specified, which is the behaviour we want.
+##
+## 2. Set the script executable bit. Do not remove the .m extension,
+## otherwise Octave will no longer recognise the script as a function.
+
 function octapps_run_driver(func, varargin)
 
   ## check input
