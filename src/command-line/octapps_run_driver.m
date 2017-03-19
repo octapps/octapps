@@ -67,7 +67,8 @@ function octapps_run_driver(func, varargin)
 
   ## print help on function if requested
   if any(strcmp(varargin, "-h")) || any(strcmp(varargin, "--help"))
-    printf("\nHelp on Octave function %s():\n\n%s\n%s\n\n", func, help(func), strtrim(help("octapps_run_driver")));
+    funchelp = regexprep(help(func), '^![^\n]*\n+', '');
+    printf("\nHelp on Octave function %s():\n\n%s\n%s\n\n", func, funchelp, strtrim(help("octapps_run_driver")));
     return
   endif
 
