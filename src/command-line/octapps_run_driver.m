@@ -15,46 +15,45 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## Run an Octapps function from the command line.
+## Help on calling Octave functions from the command line:
 ##
-## Usage:
+## Only Octave functions which support keyword-value arguments can be
+## called from the command line. For these functions, keywords are
+## naturally translated into command-line options, for example:
 ##
-##   octapps_run --help
-##     Print this help message.
+##   function --option1 value1 --option2=value2
 ##
-##   octapps_run <function> ... --help
-##     Print help message for Octapps function <function>
+## is translated into the Octave function call
 ##
-##   octapps_run <function> [--argument <value>] [--argument=<value>]...
-##     Run the Octapps function <function> with the given arguments.
-##     (The function itself must use parseOptions() to parse its arguments.)
+##   function("option1", value1, "option2", value2)
 ##
-##   octapps_run <function> ... --printnargs=<n>
-##     Print the values of the first <n> output values of <function>.
+## By default the first output argument of the called function is printed.
+## Additional arguments are supported for controlling how the output of
+## a function is displayed; 
 ##
-##   octapps_run <function> ... --printarg<n>
-##     Print the value of the <n>th output value of <function>.
+##   --printnargs=<n>
+##     Print the values of the first <n> output values of the function.
+##
+##   --printarg<n>
+##     Print the value of the <n>th output value of the function.
 ##     <n> default to 1 if not given.
 ##
-##   octapps_run <function> ... --printarg<n>=<print-function>
-##   octapps_run <function> ... --printarg<n>=<print-function(<args>, ...)
-##     Print the value of the function <print-function> applied to the <n>th output
-##     value of <function>. By default, the first argument (if any) is printed.
+##   --printarg<n>=<print-function>
+##   --printarg<n>=<print-function(<args>, ...)
+##     Print the value of the function <print-function> applied to the
+##     <n>th output value of the function. See the following examples:
 ##
-##   See the following examples, which assume the functions
-##       a = f(), [a, b] = g()
-##
-##     Command                                                      Outputs printed
-##     -------                                                      ---------------
-##     octapps_run f --printnarg=1                                  a
-##     octapps_run f --printarg                                     a
-##     octapps_run f --printarg1                                    a
-##     octapps_run f --printarg=mean                                mean(a)
-##     octapps_run f --printarg=mean --printarg=stdv                mean(a), stdv(a)
-##
-##     octapps_run g --printnargs=2                                 a, b
-##     octapps_run g --printarg --printarg1=sin --printarg2=cos     a, mean(a), cos(b)
-##     octapps_run g --printarg2=mod(?,3)                           mod(b,3)
+##       Command                                          Outputs printed
+##       -------                                          ---------------
+##       f --printnarg=1                                  a = f()
+##       f --printarg                                     a
+##       f --printarg1                                    a
+##       f --printarg=mean                                mean(a)
+##       f --printarg=mean --printarg=stdv                mean(a), stdv(a)
+##  
+##       g --printnargs=2                                 [a, b] = g()
+##       g --printarg --printarg1=sin --printarg2=cos     a, mean(a), cos(b)
+##       g --printarg2=mod(?,3)                           mod(b,3)
 
 function octapps_run_driver(func, varargin)
 
@@ -68,7 +67,7 @@ function octapps_run_driver(func, varargin)
 
   ## print help on function if requested
   if any(strcmp(varargin, "-h")) || any(strcmp(varargin, "--help"))
-    disp(help(func));
+    printf("\nHelp on Octave function %s():\n\n%s\n%s\n\n", func, help(func), strtrim(help("octapps_run_driver")));
     return
   endif
 

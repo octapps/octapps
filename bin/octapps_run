@@ -20,14 +20,6 @@
 ## Run Octave function from the command line.
 OCTAVE="octave --silent --norc --no-history --no-window-system"
 
-## Print help information for 'octapps_run' itself, if requested
-if [ "x$2" = x ]; then
-    if [ "x$1" = x ] || [ "x$1" = "x-h" ] || [ "x$1" = "x--help" ]; then
-        ${OCTAVE} --eval "disp(help('octapps_run_driver'))"
-        exit 1
-    fi
-fi
-
 ## Get directory containing function, and function name without any extension
 funcdir=`dirname $1`
 funcbase=`basename $1`
