@@ -45,11 +45,10 @@
 ##
 ##       Command                                          Outputs printed
 ##       -------                                          ---------------
-##       f --printnarg=1                                  a = f()
-##       f --printarg                                     a
-##       f --printarg1                                    a
+##       f --printnarg=1, f --printarg, f --printarg1     a = f()
 ##       f --printarg=mean                                mean(a)
 ##       f --printarg=mean --printarg=stdv                mean(a), stdv(a)
+##       f --printarg=object2json                         object2json(a)
 ##  
 ##       g --printnargs=2                                 [a, b] = g()
 ##       g --printarg --printarg1=sin --printarg2=cos     a, mean(a), cos(b)
