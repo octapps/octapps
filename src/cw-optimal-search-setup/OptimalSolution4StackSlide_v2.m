@@ -183,7 +183,7 @@ function [sol, funs] = OptimalSolution4StackSlide_v2 ( varargin )
     for i = 1:length(trial)
       DebugPrintf ( 2, "------------------------------\n");
       DebugPrintf ( 2, "Constrained %18s:", trial{i}.name );
-      trial{i}.sol = iterateSolver ( trial{i}.solverFun, trial{i}.startGuess, funs, uvar.tol, maxiter );
+      trial{i}.sol = iterateSolver ( trial{i}.solverFun, trial{i}.startGuess, funs, uvar.tol, uvar.maxiter );
       if ( !isempty ( trial{i}.sol ) && !i_constraints_violated ( trial{i}.sol, i_constraints, uvar.tol ) )
         if ( isempty ( sol ) || ( trial{i}.sol.L0 > sol.L0 ) )
           sol = trial{i}.sol;
