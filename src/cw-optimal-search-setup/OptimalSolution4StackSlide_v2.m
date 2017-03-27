@@ -156,27 +156,27 @@ function [sol, funs] = OptimalSolution4StackSlide_v2 ( varargin )
     i = 0;
 
     i++;
-    trial{i}.solverFun = @(prev, funs) try_constrained_Tobs ( prev, funs, i_constraints.TobsMax );
+    trial{i}.solverFun = @(prev, funs) funs.solvers.constrainedTobs ( prev, funs, constraints.TobsMax );
     trial{i}.startGuess = guess;
     trial{i}.name = "TobsMax";
 
     i++;
-    trial{i}.solverFun = @(prev, funs) try_constrained_Tseg ( prev, funs, i_constraints.TsegMax );
+    trial{i}.solverFun = @(prev, funs) funs.solvers.constrainedTseg ( prev, funs, constraints.TsegMax );
     trial{i}.startGuess = guess;
     trial{i}.name = "TsegMax";
 
     i++;
-    trial{i}.solverFun = @(prev, funs) try_constrained_Tseg ( prev, funs, i_constraints.TsegMin );
+    trial{i}.solverFun = @(prev, funs) funs.solvers.constrainedTseg ( prev, funs, constraints.TsegMin );
     trial{i}.startGuess = guess;
     trial{i}.name = "TsegMin";
 
     i++;
-    trial{i}.solverFun = @(prev, funs) try_constrained_TobsTseg ( prev, funs, i_constraints.TobsMax, i_constraints.TsegMax );
+    trial{i}.solverFun = @(prev, funs) funs.solvers.constrainedTobsTseg ( prev, funs, constraints.TobsMax, constraints.TsegMax );
     trial{i}.name = "(TobsMax+TsegMax)";
     trial{i}.startGuess = guess;
 
     i++;
-    trial{i}.solverFun = @(prev, funs) try_constrained_TobsTseg ( prev, funs, i_constraints.TobsMax, i_constraints.TsegMin );
+    trial{i}.solverFun = @(prev, funs) funs.solvers.constrainedTobsTseg ( prev, funs, constraints.TobsMax, constraints.TsegMin );
     trial{i}.name = "(TobsMax+TsegMin)";
     trial{i}.startGuess = guess;
 
@@ -184,7 +184,7 @@ function [sol, funs] = OptimalSolution4StackSlide_v2 ( varargin )
       DebugPrintf ( 2, "------------------------------\n");
       DebugPrintf ( 2, "Constrained %18s:", trial{i}.name );
       trial{i}.sol = iterateSolver ( trial{i}.solverFun, trial{i}.startGuess, funs, uvar.tol, uvar.maxiter );
-      if ( !isempty ( trial{i}.sol ) && !i_constraints_violated ( trial{i}.sol, i_constraints, uvar.tol ) )
+      if ( !isempty ( trial{i}.sol ) && !constraints_violated ( trial{i}.sol, constraints, uvar.tol ) )
         if ( isempty ( sol ) || ( trial{i}.sol.L0 > sol.L0 ) )
           sol = trial{i}.sol;
           sol.name = trial{i}.name;
