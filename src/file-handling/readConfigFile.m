@@ -26,36 +26,42 @@ function cfg = readConfigFile(file)
   ## check input
   assert(ischar(file));
 
-  ## open file
+  ## open file for reading
   f = fopen(file, "r");
   assert(f >= 0, "%s: could not open file '%s'", funcName, file);
 
   ## setup configuration
   cfg = struct;
+  comment = "";
   section = "";
 
   ## read lines from file
+  lineno = 0;
   while !feof(f)
     line = fgetl(f);
-
-    ## remove comments and whitespace
-    for c = "#%;"
-      ii = find(line == c);
-      if length(ii) > 0
-        line = line(1:max(ii)-1);
-      endif
-    endfor
-    line = strtrim(line);
+    lineno += 1;
+    errprefix = sprintf("%s: at %s:%i", funcName, file, lineno);
 
     ## skip empty lines
     if length(line) == 0
       continue
     endif
+    line = strtrim(line);
+
+    ## store last comment
+    if any(line(1) == ";#")
+      comment = line;
+      continue
+    endif
 
     ## parse section heading
     if line(1) == "["
-      assert(length(line) > 2 && line(end) == "]", "%s: invalid section heading '%s'", funcName, line);
+      assert(length(line) > 2 && line(end) == "]", "%s, invalid section heading '%s'", errprefix, line);
       section = line(2:end-1);
+      if !isempty(comment)
+        cfg.(sprintf("_comment_%s", section)) = comment;
+        comment = "";
+      endif
       continue
     endif
 
@@ -63,27 +69,44 @@ function cfg = readConfigFile(file)
     ii = find(line == "=");
     if length(ii) > 0
 
-      ## extract name and value
+      ## extract name
       name = strtrim(line(1:min(ii)-1));
-      value = strtrim(line(min(ii)+1:end));
 
-      ## try to make value numeric
-      v = str2double(value);
-      if !isnan(v)
-        value = v;
+      ## check for section
+      assert(!isempty(section), "%s, no section for '%s'", errprefix, name);
+
+      ## check for existing value
+      if isfield(cfg, section)
+        assert(!isfield(cfg.(section), name), "%s, configuration already has a value for '%s.%s'", errprefix, section, name);
       endif
 
-      ## assign configuration value
-      if isempty(section)
-        if isfield(cfg, name)
-          error("%s: configuration already has a value for '%s'", funcName, name);
-        endif
-        cfg.(name) = value;
+      ## extract value
+      valueinlinecomment = strtrim(line(min(ii)+1:end));
+      ii = find(valueinlinecomment == ";" | valueinlinecomment == "#");
+      if length(ii) > 0
+        value = strtrim(valueinlinecomment(1:min(ii)-1));
+        inlinecomment = strtrim(valueinlinecomment(min(ii):end));
       else
-        if isfield(cfg, section) && isfield(cfg.(section), name)
-          error("%s: configuration already has a value for '%s.%s'", funcName, section, name);
-        endif
+        value = valueinlinecomment;
+        inlinecomment = "";
+      endif
+
+      ## assign configuration value, preferably numeric
+      v = str2double(value);
+      if isnan(v)
         cfg.(section).(name) = value;
+      else
+        cfg.(section).(name) = v;
+        cfg.(section).(sprintf("_str_%s", name)) = value;
+      endif
+
+      ## preserve comments
+      if !isempty(comment)
+        cfg.(section).(sprintf("_comment_%s", name)) = comment;
+        comment = "";
+      endif
+      if !isempty(inlinecomment)
+        cfg.(section).(sprintf("_inlinecomment_%s", name)) = inlinecomment;
       endif
 
       continue
@@ -91,7 +114,7 @@ function cfg = readConfigFile(file)
     endif
 
     ## could not parse line
-    error("%s: could not parse line '%s'", funcName, line);
+    error("%s, could not parse '%s'", errprefix, line);
 
   endwhile
 
