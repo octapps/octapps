@@ -1,5 +1,6 @@
 ## Copyright (C) 2006 Reinhard Prix
 ## Copyright (C) 2011 Karl Wette
+## Copyright (C) 2017 Christoph Dreissigacker
 ##
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -61,12 +62,22 @@ function p = ChiSquare_pdf(x, k, lambda=0)
      ## compute PDF
      p(ii) = exp( logp_t1(ii) + logp_t2(ii) + logp_t3(ii) );
 
+     ## approximate by normal distribution if chi square failed
+     approx = 0;
+     phelp = p(ii);
+     if any(logp_t1(ii) + logp_t2(ii) + logp_t3(ii) > 0)
+       kk = (logp_t1(ii) + logp_t2(ii) + logp_t3(ii) > 0);
+       phelp(kk) = normpdf(x(ii)(kk), k(ii)(kk) + lambda(ii)(kk), sqrt( 2.* ( k(ii)(kk) + 2.*lambda(ii)(kk) ) ));
+       p(ii) = phelp;
+       approx = 1;
+     endif
+
   endif
 
   ## check for valid probabilities
   ii = !isfinite(p) | (p < 0) | (p > 1);
   for i = find(ii(:)')
-    warning( "%s: got p=%g for x=%g, k=%g, lambda=%g", funcName, p(i), x(i), k(i), lambda(i) );
+    warning( "%s: got p=%g for x=%g, k=%g, lambda=%g, approx=%f", funcName, p(i), x(i), k(i), lambda(i), approx );
   endfor
   if any(ii(:))
     error( "%s: got invalid probabilities for some inputs", funcName );
