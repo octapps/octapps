@@ -71,6 +71,9 @@
 %typemap(freearg) gsl_matrix* {
   gsl_matrix_free($1);
 }
+%typemap(newfree) gsl_matrix* {
+  gsl_matrix_free($1);
+}
 
 // GSL quasi-random number generator
 typedef struct {
@@ -104,6 +107,7 @@ typedef struct {
     void reset() {
       gsl_qrng_init($self);
     }
+    %newobject get;
     gsl_matrix* get(size_t n = 1) {
       gsl_matrix *m = gsl_matrix_alloc($self->dimension, n);
       gsl_vector *v = gsl_vector_alloc($self->dimension);
