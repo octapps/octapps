@@ -46,11 +46,10 @@ function cfg = readConfigFile(file)
     if length(line) == 0
       continue
     endif
-    line = strtrim(line);
 
     ## store last comment
     if any(line(1) == ";#")
-      comment = line;
+      comment = strtrim(line);
       continue
     endif
 
@@ -59,7 +58,7 @@ function cfg = readConfigFile(file)
       assert(length(line) > 2 && line(end) == "]", "%s, invalid section heading '%s'", errprefix, line);
       section = line(2:end-1);
       if !isempty(comment)
-        cfg.(sprintf("_comment_%s", section)) = comment;
+        cfg.(sprintf("_comment_%s", section)) = strtrim(comment);
         comment = "";
       endif
       continue
@@ -108,6 +107,33 @@ function cfg = readConfigFile(file)
       if !isempty(inlinecomment)
         cfg.(section).(sprintf("_inlinecomment_%s", name)) = inlinecomment;
       endif
+
+      continue
+
+    endif
+
+    ## parse multi-line configuration value
+    if any(line(1) == " \t")
+
+      ## check for section
+      assert(!isempty(section), "%s, no section for '%s'", errprefix, name);
+
+      ## check for existing string value
+      if isfield(cfg, section)
+        assert(isfield(cfg.(section), name), "%s, configuration does not have a value for '%s.%s'", errprefix, section, name);
+        assert(ischar(cfg.(section).(name)), "%s, multi-line value for '%s.%s' must be a string", errprefix, section, name);
+      endif
+
+      ## get indentation
+      ii = find(line != " " & line != "\t");
+      indent_name = sprintf("_indent_%s", name);
+      indent_value = line(1:min(ii)-1);
+      if !isfield(cfg.(section), indent_name)
+        cfg.(section).(indent_name) = indent_value;
+      endif
+
+      ## append value
+      cfg.(section).(name) = cstrcat(strtrim(cfg.(section).(name)), "\n", strtrim(line));
 
       continue
 

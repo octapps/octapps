@@ -66,7 +66,8 @@ function writeConfigFile(file, cfg)
       ## write value
       value = cfg_section.(names{j});
       if ischar(value)
-        fprintf(f, "%s", value);
+        indent_value = getoptfield("  ", cfg_section, sprintf("_indent_%s", names{j}));
+        fprintf(f, "%s", strrep(value, "\n", cstrcat("\n", indent_value)));
       else
         valuestr = getoptfield("", cfg_section, sprintf("_str_%s", names{j}));
         if !isempty(valuestr) && str2double(valuestr) != value
