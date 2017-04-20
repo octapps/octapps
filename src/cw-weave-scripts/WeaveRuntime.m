@@ -1,18 +1,5 @@
-## Copyright (C) 2017 Karl Wette
+#!/usr/bin/env octapps_run
 ##
-## This program is free software; you can redistribute it and/or modify it
-## under the terms of the GNU General Public License as published by
-## the Free Software Foundation; either version 3 of the License, or
-## (at your option) any later version.
-##
-## This program is distributed in the hope that it will be useful,
-## but WITHOUT ANY WARRANTY; without even the implied warranty of
-## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-## GNU General Public License for more details.
-##
-## You should have received a copy of the GNU General Public License
-## along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 ## Estimate the runtime of 'lalapps_Weave'.
 ## Usage:
 ##   [time_total, ...] = WeaveRuntime("opt", val, ...)
@@ -50,6 +37,21 @@
 ##   time_semires:
 ##     estimate of CPU time (seconds) to compute:
 ##     - mean semicoherent F-statistic
+
+## Copyright (C) 2017 Karl Wette
+##
+## This program is free software; you can redistribute it and/or modify it
+## under the terms of the GNU General Public License as published by
+## the Free Software Foundation; either version 3 of the License, or
+## (at your option) any later version.
+##
+## This program is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License
+## along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 function [time_total, time_cohres, time_semiparts, time_semires] = WeaveRuntime(varargin)
 
