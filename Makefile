@@ -37,6 +37,7 @@ srcfilepath := $(filter-out %/deprecated, $(srcpath))
 srcmfiles := $(wildcard $(srcfilepath:%=%/*.m))
 srccfiles := $(wildcard $(srcfilepath:%=%/*.hpp) $(srcfilepath:%=%/*.cpp))
 srctestfiles := $(wildcard $(srcfilepath:%=%/*.m) $(srcfilepath:%=%/*.cpp) $(srcfilepath:%=%/*.i))
+binpath := $(shell $(FIND) $(srcpath) -type f -perm /ug+x -printf '%h\n' | $(SORT) -u)
 
 # OctApps extension module directory
 octdir := oct/$(version)
@@ -68,7 +69,7 @@ octapps-user-env.sh octapps-user-env.csh : Makefile
 	esac; \
 	cleanpath="$(SED) -e 's/^/:/;s/$$/:/;:A;s/:\([^:]*\)\(:.*\|\):\1:/:\1:\2:/g;s/:::*/:/g;tA;s/^:*//;s/:*$$//'"; \
 	octave_path="$(curdir)/$(octdir):`echo $(srcpath) | $(SED) 's/  */:/g'`:\$${OCTAVE_PATH}"; \
-	path="$(curdir)/bin:\$${PATH}"; \
+	path="$(curdir)/bin:`echo $(binpath): | $(SED) 's/  */:/g;s/:::*/:/g'`\$${PATH}"; \
 	echo "# source this file to access OctApps" > $@; \
 	echo "test \$${$${empty}OCTAVE_PATH} -eq 0 && $${setenv} OCTAVE_PATH" >>$@; \
 	echo "$${setenv} OCTAVE_PATH$${equals}\`echo $${octave_path} | $${cleanpath}\`" >>$@; \
