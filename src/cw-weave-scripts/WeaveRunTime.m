@@ -1,8 +1,8 @@
 #!/usr/bin/env octapps_run
 ##
-## Estimate the runtime of 'lalapps_Weave'.
+## Estimate the run time of 'lalapps_Weave'.
 ## Usage:
-##   [time_total, ...] = WeaveRuntime("opt", val, ...)
+##   [time_total, ...] = WeaveRunTime("opt", val, ...)
 ## Options:
 ##   setup_file:
 ##     Weave setup file, from which to extract various parameters
@@ -29,7 +29,7 @@
 ##         mean F-statistic, per template
 ## Outputs:
 ##   time_total:
-##     estimate of total CPU runtime (seconds)
+##     estimate of total CPU run time (seconds)
 ##   time_cohres:
 ##     estimate of CPU time (seconds) to compute coherent F-statistics
 ##   time_semiparts:
@@ -53,7 +53,7 @@
 ## You should have received a copy of the GNU General Public License
 ## along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-function [time_total, time_cohres, time_semiparts, time_semires] = WeaveRuntime(varargin)
+function [time_total, time_cohres, time_semiparts, time_semires] = WeaveRunTime(varargin)
 
   ## parse options
   parseOptions(varargin,

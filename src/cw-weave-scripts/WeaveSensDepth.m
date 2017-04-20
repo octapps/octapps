@@ -2,7 +2,7 @@
 ##
 ## Estimate the sensitivity depth of 'lalapps_Weave'.
 ## Usage:
-##   depth = WeaveSensitivity("opt", val, ...)
+##   depth = WeaveSensDepth("opt", val, ...)
 ## where:
 ##   depth:
 ##     estimated sensitivity depth
@@ -50,7 +50,7 @@
 ## You should have received a copy of the GNU General Public License
 ## along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-function depth = WeaveSensitivity(varargin)
+function depth = WeaveSensDepth(varargin)
 
   ## parse options
   parseOptions(varargin,
