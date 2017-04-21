@@ -34,6 +34,7 @@ function writeConfigFile(file, cfg)
 
   ## write configuration file
   sections = fieldnames(cfg);
+  sections = sections(cellfun(@(section) section(1) != "_", sections));
   for i = 1:length(sections)
 
     ## write section heading
