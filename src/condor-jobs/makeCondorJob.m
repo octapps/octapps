@@ -364,14 +364,7 @@ function job_file = makeCondorJob(varargin)
   endif
 
   ## write Condor job submit file
-  fid = fopen(job_file, "w");
-  if fid < 0
-    error("%s: could not open file '%s' for writing", funcName, job_file);
-  endif
-  assert(mod(length(job_spec), 2) == 0);
-  fprintf(fid, "%s = %s\n", job_spec{:});
-  fprintf(fid, "queue 1\n");
-  fclose(fid);
+  writeCondorSub(job_file, job_spec{:});
 
   ## write Condor job bootstrap script, and make it executable
   fid = fopen(job_boot_file, "w");
