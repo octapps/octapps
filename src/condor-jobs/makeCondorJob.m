@@ -15,27 +15,28 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## Set up a Condor job for running Octave scripts.
+## Set up a Condor job for running Octave scripts or executables.
 ## Usage:
 ##   job_file = makeCondorJob("opt", val, ...)
 ## where
 ##   job_file = name of Condor job submit file
-## Options:
+## General options:
 ##   "job_name":        name of Condor job, used to name submit file
 ##                      and input/output directories
 ##   "log_dir":         where to write Condor log files (default: $TMP)
-##   "func_name":       name of Octave function to run
-##   "arguments":       cell array of arguments to pass to function.
-##                      use $(variable) to insert reference to a Condor variable.
-##   "func_nargout":    how many outputs returned by the function to save
-##   "exec_files":      cell array of executable files required by the function
-##   "data_files":      cell array of data files required by the function;
-##                      elements of cell array may be either:
+##   "data_files":      cell array of required data files; elements of cell
+##                      array may be either:
 ##                      * "file_path", or
 ##                      * {"ENVPATH", "file_name_in_ENVPATH", ...}
 ##                      where ENVPATH is the name of an environment path
 ##   "extra_condor":    extra commands to write to Condor submit file, in form:
 ##                      {"command", "value", ...}
+## Options for running Octave scripts:
+##   "func_name":       name of Octave function to run
+##   "arguments":       cell array of arguments to pass to function.
+##                      use $(variable) to insert reference to a Condor variable.
+##   "func_nargout":    how many outputs returned by the function to save
+##   "exec_files":      cell array of executable files required by the function
 ##   "output_format":   output format of file containg saved outputs from function:
 ##                      * "Oct(Text|Bin)(Z)": Octave (text|binary) (zipped) format
 ##                        - file extension will be .(txt|bin)(.gz)
@@ -44,6 +45,10 @@
 ##                      * "Mat": Matlab (version 6) binary format
 ##                        - file extension will be .mat
 ##                      Default is "OctBinZ"
+## Options for running executables:
+##   "executable":      name of executable to run
+##   "arguments":       cell array of arguments to pass to executable.
+##                      use $(variable) to insert reference to a Condor variable.
 
 function job_file = makeCondorJob(varargin)
 
@@ -51,24 +56,28 @@ function job_file = makeCondorJob(varargin)
   parseOptions(varargin,
                {"job_name", "char"},
                {"log_dir", "char", getenv("TMP")},
-               {"func_name", "char"},
-               {"arguments", "cell,vector", {}},
-               {"func_nargout", "integer,positive,scalar"},
-               {"exec_files", "cell,vector", {}},
                {"data_files", "cell,vector", {}},
                {"extra_condor", "cell,vector", {}},
-               {"output_format", "char", "OctBinZ"},
+               {"func_name", "char", []},
+               {"executable", "char,+exactlyone:func_name", []},
+               {"arguments", "cell,vector"},
+               {"func_nargout", "integer,positive,scalar,+noneorall:func_name", []},
+               {"exec_files", "cell,vector,+exactlyone:executable", {}},
+               {"output_format", "char,+atmostone:executable", "OctBinZ"},
                []);
+
+  ## modify input if running executable
+  if isempty(func_name)
+    func_name = "condorRunExec";
+    func_nargout = 0;
+    arguments = {executable, arguments{:}};
+    exec_files = {executable};
+  endif
 
   ## check input
   if !isempty(strchr(job_name, "."))
     error("%s: job name '%s' should not contain an extension", funcName, job_name);
   endif
-  try
-    str2func(func_name);
-  catch
-    error("%s: '%s' is not a recognised function", funcName, func_name);
-  end_try_catch
   for i = 1:length(data_files)
     if iscell(data_files{i}) && length(data_files{i}) < 2
       error("%s: element %i of 'data_files' must be a cell array of at least 2 elements", funcName, i);
@@ -80,6 +89,13 @@ function job_file = makeCondorJob(varargin)
   if !all(cellfun("ischar", extra_condor))
     error("%s: 'extra_condor' must be a cell array of string entries", funcName);
   endif
+
+  ## check function
+  try
+    str2func(func_name);
+  catch
+    error("%s: '%s' is not a recognised function", funcName, func_name);
+  end_try_catch
 
   ## check output format
   switch output_format
