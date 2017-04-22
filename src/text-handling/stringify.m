@@ -30,7 +30,7 @@ function s = stringify(x)
 
       ## strings: if x == $(...), return literal x; otherwise
       ## double-quote x, escaping special characters
-      if length(x) >= 3 && strcmp(x(1:2), "$(") && x(end) == ")"
+      if length(x) >= 3 && strcmp(x(1:2), "$(") && all(x(3:end-1) != "(") && all(x(3:end-1) != ")") && x(end) == ")"
         s = x;
       else
         x = strrep(x, "\\", "\\\\");
