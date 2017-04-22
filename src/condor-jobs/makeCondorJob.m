@@ -26,7 +26,7 @@
 ##   "log_dir":         where to write Condor log files (default: $TMP)
 ##   "func_name":       name of Octave function to run
 ##   "arguments":       cell array of arguments to pass to function.
-##                      use condorVar() to insert reference to a Condor variable.
+##                      use $(variable) to insert reference to a Condor variable.
 ##   "func_nargout":    how many outputs returned by the function to save
 ##   "exec_files":      cell array of executable files required by the function
 ##   "data_files":      cell array of data files required by the function;
