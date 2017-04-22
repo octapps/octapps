@@ -89,7 +89,7 @@ function s = stringify(x)
     otherwise
       ## otherwise, try mat2str() for numbers, logical, matrices, etc.
       try
-        s = mat2str(x, 17, "class");
+        s = mat2str(x, 16);
       catch
         ## if mat2str() fails, class is not supported
         error("cannot stringify objects of class '%s'", class(x));
