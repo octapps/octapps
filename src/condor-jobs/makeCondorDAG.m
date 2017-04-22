@@ -27,7 +27,6 @@
 ##                      * "vars": struct of variable substitutions to make
 ##                      * "child": array indexing child job nodes for this node
 ##   "retries":         how man times to retry Condor jobs (default: 0)
-##   "use_stringify":   use stringify() to convert variable substitutions (default: true)
 
 function dag_file = makeCondorDAG(varargin)
 
@@ -36,7 +35,6 @@ function dag_file = makeCondorDAG(varargin)
                {"dag_name", "char"},
                {"job_nodes", "struct"},
                {"retries", "integer,positive", 0},
-               {"use_stringify", "logical,scalar", true},
                []);
 
   ## check input
@@ -132,16 +130,11 @@ function dag_file = makeCondorDAG(varargin)
       fprintf(fid, "VARS %s", job_nodes(n).name);
       vars = fieldnames(job_nodes(n).vars);
       for i = 1:length(vars)
-        value = job_nodes(n).vars.(vars{i});
-        if use_stringify
-          value = stringify(value);
-          value = strrep(value, "'", "''");
-          value = strrep(value, "\"", "\"\"");
-          value = strrep(value, "\\", "\\\\");
-          value = strrep(value, "\"", "\\\"");
-        elseif !ischar(value)
-          error("%s: value of job node #%i key '%s' is not a string", funcName, n, vars{i});
-        endif
+        value = stringify(job_nodes(n).vars.(vars{i}));
+        value = strrep(value, "'", "''");
+        value = strrep(value, "\"", "\"\"");
+        value = strrep(value, "\\", "\\\\");
+        value = strrep(value, "\"", "\\\"");
         fprintf(fid, " %s=\"%s\"", vars{i}, value);
       endfor
       fprintf(fid, "\n");
