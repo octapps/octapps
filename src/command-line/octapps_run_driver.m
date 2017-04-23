@@ -64,13 +64,6 @@ function octapps_run_driver(func, varargin)
     error("octapps_run: %s() is not a known function", func);
   end_try_catch
 
-  ## print help on function if requested
-  if any(strcmp(varargin, "-h")) || any(strcmp(varargin, "--help"))
-    funchelp = regexprep(help(func), '^![^\n]*\n+', '');
-    printf("\nHelp on Octave function %s():\n\n%s\n%s\n\n", func, funchelp, strtrim(help("octapps_run_driver")));
-    return
-  endif
-
   ## pick out command-line arguments
   nn = [find(strncmp(varargin, "--", 2)), length(varargin) + 1];
 
