@@ -2,19 +2,20 @@
 ##
 ## Estimate the run time of 'lalapps_Weave'.
 ## Usage:
-##   [time_total, ...] = WeaveRunTime("opt", val, ...)
+##   [total, times] = WeaveRunTime("opt", val, ...)
 ## Options:
 ##   setup_file:
 ##     Weave setup file, from which to extract various parameters
-##   Nsegments,detectors,coh_Tspan:
-##     Alternatives to 'setup_file'; give number of segments,
-##     comma-separated list of detectors, and time span of coherent
-##     segments
+##   Nsegments,detectors,ref_time,start_time,coh_Tspan,semi_Tspan:
+##     Alternatives to 'setup_file'; give number of segments, comma-
+##     separated list of detectors, GPS reference/start time, time
+##     span of coherent segments, and total time span of semicoherent
+##     search
 ##   result_file:
 ##     Weave result file, from which to extract various parameters
-##   freq_min,freq_max,dfreq,f1dot_max,f1dot_max,NSFTs,Fmethod:
+##   freq_min/max,dfreq,f1dot_min/max,f2dot_min/max,NSFTs,Fmethod:
 ##     Alternatives to 'result_file'; give minimum/maximum frequency,
-##     frequency spacing, maximum (absolute) 1st/2nd spindown, total
+##     frequency spacing, minimum/maximum 1st/2nd spindown, total
 ##     number of SFTs, and F-statistic method used by search
 ##   Ncohres,Nsemires:
 ##     Alternatives to 'result_file'; give number of coherent and
@@ -23,18 +24,18 @@
 ##     Fundamental timing constants; time to compute, in seconds:
 ##       tau_demod_psft:
 ##         F-statistic using demod, per template per SFT
-##       tau_resamp_{spin,FFT,Fbin}:
+##       tau_resamp_{Fbin,FFT,spin}:
 ##         F-statistic using resampling, per template per detector
 ##       tau_mean2F_{add,div}:
 ##         mean F-statistic, per template
 ## Outputs:
 ##   time_total:
 ##     estimate of total CPU run time (seconds)
-##   time_cohres:
+##   times.cohres:
 ##     estimate of CPU time (seconds) to compute coherent F-statistics
-##   time_semiparts:
+##   times.semiparts:
 ##     estimate of CPU time (seconds) to add together F-statistics
-##   time_semires:
+##   times.semires:
 ##     estimate of CPU time (seconds) to compute:
 ##     - mean semicoherent F-statistic
 
@@ -53,43 +54,54 @@
 ## You should have received a copy of the GNU General Public License
 ## along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-function [time_total, time_cohres, time_semiparts, time_semires] = WeaveRunTime(varargin)
+function [time_total, times] = WeaveRunTime(varargin)
 
   ## parse options
   parseOptions(varargin,
                {"setup_file", "char", []},
-               {"detectors", "char,+exactlyone:setup_file", []},
                {"Nsegments", "integer,strictpos,scalar,+exactlyone:setup_file", []},
+               {"detectors", "char,+exactlyone:setup_file", []},
+               {"ref_time", "real,strictpos,scalar,+exactlyone:setup_file", []},
+               {"start_time", "real,strictpos,scalar,+exactlyone:setup_file", []},
                {"coh_Tspan", "real,strictpos,scalar,+exactlyone:setup_file", []},
+               {"semi_Tspan", "real,strictpos,scalar,+exactlyone:setup_file", []},
                {"result_file", "char", []},
                {"freq_min", "real,strictpos,scalar,+exactlyone:result_file", []},
                {"freq_max", "real,strictpos,scalar,+exactlyone:result_file", []},
                {"dfreq", "real,strictpos,scalar,+exactlyone:result_file", []},
+               {"f1dot_min", "real,positive,scalar,+exactlyone:result_file", []},
                {"f1dot_max", "real,positive,scalar,+exactlyone:result_file", []},
+               {"f2dot_min", "real,positive,scalar,+exactlyone:result_file", []},
                {"f2dot_max", "real,positive,scalar,+atmostone:result_file", 0},
                {"NSFTs", "integer,strictpos,scalar,+exactlyone:result_file", []},
                {"Fmethod", "char,+exactlyone:result_file", []},
                {"Ncohres", "integer,strictpos,scalar,+exactlyone:result_file", []},
                {"Nsemires", "integer,strictpos,scalar,+exactlyone:result_file", []},
-               {"tau_demod_psft", "real,strictpos,scalar", []},
-               {"tau_resamp_spin", "real,strictpos,scalar", []},
-               {"tau_resamp_FFT", "real,strictpos,scalar", []},
-               {"tau_resamp_Fbin", "real,strictpos,scalar", []},
+               {"tau_demod_psft", "real,strictpos,scalar", 5.1e-9},
+               {"tau_resamp_Fbin", "real,strictpos,scalar", 6.1e-8},
+               {"tau_resamp_FFT", "real,strictpos,vector", [1.5e-08, 3.4e-8]},
+               {"tau_resamp_spin", "real,strictpos,scalar", 7.7e-8},
                {"tau_mean2F_add", "real,strictpos,scalar", 3.8e-10},
                {"tau_mean2F_div", "real,strictpos,scalar", 4.8e-10},
                {"TSFT", "integer,strictpos,scalar", 1800},
                []);
 
+  ## initialise variables
+  times = struct;
+
   ## if given, load setup file and extract various parameters
   if !isempty(setup_file)
     setup = fitsread(setup_file);
-    detectors = strjoin(setup.primary.header.detect, ",");
     assert(isfield(setup, "segments"));
     segs = setup.segments.data;
     segment_list = [ [segs.start_s] + 1e-9*[segs.start_ns]; [segs.end_s] + 1e-9*[segs.end_ns] ]';
     segment_props = AnalyseSegmentList(segment_list);
     Nsegments = segment_props.num_segments;
+    detectors = strjoin(setup.primary.header.detect, ",");
+    ref_time = str2double(setup.primary.header.date_obs_gps);
+    start_time = min(segment_list(:));
     coh_Tspan = segment_props.coh_mean_Tspan;
+    semi_Tspan = segment_props.inc_Tspan;
   endif
 
   ## if given, load result file and extract various parameters
@@ -99,8 +111,10 @@ function [time_total, time_cohres, time_semiparts, time_semires] = WeaveRunTime(
     freq_min = result_hdr.minrng_freq;
     freq_max = result_hdr.maxrng_freq;
     dfreq = result_hdr.dfreq;
-    f1dot_max = max(abs([getoptfield(0, result_hdr, "minrng_f1dot"), getoptfield(0, result_hdr, "maxrng_f1dot")]));
-    f2dot_max = max(abs([getoptfield(0, result_hdr, "minrng_f2dot"), getoptfield(0, result_hdr, "maxrng_f2dot")]));
+    f1dot_min = getoptfield(0, result_hdr, "minrng_f1dot");
+    f1dot_max = getoptfield(0, result_hdr, "maxrng_f1dot");
+    f2dot_min = getoptfield(0, result_hdr, "minrng_f2dot");
+    f2dot_max = getoptfield(0, result_hdr, "maxrng_f2dot");
     NSFTs = result_hdr.nsfts;
     Fmethod = result_hdr.fmethod;
     Ncohres = result_hdr.ncohres;
@@ -110,39 +124,45 @@ function [time_total, time_cohres, time_semiparts, time_semires] = WeaveRunTime(
   ## compute various parameters
   Ndetectors = length(strsplit(detectors, ","));
 
-  ## estimate F-statistic computation time per template
-  args = struct;
-  args.Tcoh = (NSFTs * TSFT) / (Nsegments * Ndetectors);
-  args.Tspan = coh_Tspan;
-  args.FreqMax = freq_max;
-  args.FreqBand = freq_max - freq_min;
-  args.dFreq = dfreq;
-  args.f1dotMax = f1dot_max;
-  args.f2dotMax = f2dot_max;
-  args.tauLDsft = tau_demod_psft;
-  args.tauSpin = tau_resamp_spin;
-  args.tauFFT = tau_resamp_FFT;
-  args.tauFbin = tau_resamp_Fbin;
-  args.Tsft = TSFT;
-  [time_resamp_perres_perdet, time_demod_perres] = fevalstruct(@estimateFstatTime, args, "stripempty", true);
-
   ## estimate time to compute coherent F-statistics
   if any(strfind(Fmethod, "Resamp"))
-    time_cohres = time_resamp_perres_perdet * Ncohres * Ndetectors;
+
+    ## estimate time using resampling F-statistic algorithm
+    args = struct;
+    args.Tcoh = (NSFTs * TSFT) / (Nsegments * Ndetectors);
+    args.Tspan = coh_Tspan;
+    args.Freq0 = freq_min;
+    args.FreqBand = freq_max - freq_min;
+    args.dFreq = dfreq;
+    args.f1dot0 = f1dot_min;
+    args.f1dotBand = f1dot_max - f1dot_min;
+    args.f2dot0 = f2dot_min;
+    args.f2dotBand = f2dot_max - f2dot_min;
+    args.refTimeShift = (ref_time - start_time) / semi_Tspan;
+    args.tauFbin = tau_resamp_Fbin;
+    args.tauFFT = tau_resamp_FFT;
+    args.tauSpin = tau_resamp_spin;
+    args.Tsft = TSFT;
+    resamp_info = fevalstruct(@predictResampTimeAndMemory, args);
+    times.cohres = Ncohres * Ndetectors * resamp_info.tauRS;
+
   elseif any(strfind(Fmethod, "Demod"))
-    time_cohres = time_demod_perres * Ncohres;
+
+    ## estimate time using demodulation F-statistic algorithm
+    times.cohres = Ncohres * NSFTs * tau_demod_psft;
+
   else
     error("%s: unknown F-statistic method '%s'", funcName, Fmethod);
   endif
 
   ## estimate time to add together coherent F-statistics
-  time_semiparts = tau_mean2F_add * Nsemires * (Nsegments - 1);
+  times.semiparts = tau_mean2F_add * Nsemires * (Nsegments - 1);
 
   ## estimate time to compute:
   ## - mean semicoherent F-statistics
-  time_semires = tau_mean2F_div * Nsemires;
+  times.semires = tau_mean2F_div * Nsemires;
 
   ## estimate total run time
-  time_total = time_cohres + time_semiparts + time_semires;
+  time_total = sum(structfun(@sum, times));
 
 endfunction
