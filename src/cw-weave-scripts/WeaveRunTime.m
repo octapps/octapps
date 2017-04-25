@@ -6,11 +6,10 @@
 ## Options:
 ##   setup_file:
 ##     Weave setup file, from which to extract various parameters
-##   Nsegments,detectors,ref_time,start_time,coh_Tspan,semi_Tspan:
-##     Alternatives to 'setup_file'; give number of segments, comma-
-##     separated list of detectors, GPS reference/start time, time
-##     span of coherent segments, and total time span of semicoherent
-##     search
+##   Nsegments,Ndetectors,ref_time,start_time,coh_Tspan,semi_Tspan:
+##     Alternatives to 'setup_file'; give number of segments/detectors,
+##     GPS reference/start time, time span of coherent segments, and
+##     total time span of semicoherent search
 ##   result_file:
 ##     Weave result file, from which to extract various parameters
 ##   freq_min/max,dfreq,f1dot_min/max,f2dot_min/max,NSFTs,Fmethod:
@@ -20,14 +19,8 @@
 ##   Ncohres,Nsemires:
 ##     Alternatives to 'result_file'; give number of coherent and
 ##     semicoherent results computed by search
-##   tau_...:
-##     Fundamental timing constants; time to compute, in seconds:
-##       tau_demod_psft:
-##         F-statistic using demod, per template per SFT
-##       tau_resamp_{Fbin,FFT,spin}:
-##         F-statistic using resampling, per template per detector
-##       tau_mean2F_{add,div}:
-##         mean F-statistic, per template
+##   tau_set:
+##     Set of fundamental timing constants to use
 ## Outputs:
 ##   time_total:
 ##     estimate of total CPU run time (seconds)
@@ -60,7 +53,7 @@ function [time_total, times] = WeaveRunTime(varargin)
   parseOptions(varargin,
                {"setup_file", "char", []},
                {"Nsegments", "integer,strictpos,scalar,+exactlyone:setup_file", []},
-               {"detectors", "char,+exactlyone:setup_file", []},
+               {"Ndetectors", "integer,strictpos,scalar,+exactlyone:setup_file", []},
                {"ref_time", "real,strictpos,scalar,+exactlyone:setup_file", []},
                {"start_time", "real,strictpos,scalar,+exactlyone:setup_file", []},
                {"coh_Tspan", "real,strictpos,scalar,+exactlyone:setup_file", []},
@@ -69,22 +62,31 @@ function [time_total, times] = WeaveRunTime(varargin)
                {"freq_min", "real,strictpos,scalar,+exactlyone:result_file", []},
                {"freq_max", "real,strictpos,scalar,+exactlyone:result_file", []},
                {"dfreq", "real,strictpos,scalar,+exactlyone:result_file", []},
-               {"f1dot_min", "real,positive,scalar,+exactlyone:result_file", []},
-               {"f1dot_max", "real,positive,scalar,+exactlyone:result_file", []},
-               {"f2dot_min", "real,positive,scalar,+exactlyone:result_file", []},
-               {"f2dot_max", "real,positive,scalar,+atmostone:result_file", 0},
+               {"f1dot_min", "real,scalar,+exactlyone:result_file", []},
+               {"f1dot_max", "real,scalar,+exactlyone:result_file", []},
+               {"f2dot_min", "real,scalar,+atmostone:result_file", 0},
+               {"f2dot_max", "real,scalar,+atmostone:result_file", 0},
                {"NSFTs", "integer,strictpos,scalar,+exactlyone:result_file", []},
                {"Fmethod", "char,+exactlyone:result_file", []},
                {"Ncohres", "integer,strictpos,scalar,+exactlyone:result_file", []},
                {"Nsemires", "integer,strictpos,scalar,+exactlyone:result_file", []},
-               {"tau_demod_psft", "real,strictpos,scalar", 5.1e-9},
-               {"tau_resamp_Fbin", "real,strictpos,scalar", 6.1e-8},
-               {"tau_resamp_FFT", "real,strictpos,vector", [1.5e-08, 3.4e-8]},
-               {"tau_resamp_spin", "real,strictpos,scalar", 7.7e-8},
-               {"tau_mean2F_add", "real,strictpos,scalar", 3.8e-10},
-               {"tau_mean2F_div", "real,strictpos,scalar", 4.8e-10},
+               {"tau_set", "char", "v1"},
                {"TSFT", "integer,strictpos,scalar", 1800},
                []);
+
+  ## parse timing constant set
+  switch tau_set
+    case "v1"
+      tau_query = 3.6e-11;
+      tau_demod_psft = 3.8e-8;
+      tau_resamp_Fbin = 6.1e-8;
+      tau_resamp_FFT = [1.5e-08, 3.4e-8];
+      tau_resamp_spin = 7.7e-8;
+      tau_mean2F_add = 4.6e-10;
+      tau_mean2F_div = 1.7e-9;
+    otherwise
+      error("%s: invalid timing constant set '%s'", funcName, tau_set);
+  endswitch
 
   ## initialise variables
   times = struct;
@@ -97,7 +99,7 @@ function [time_total, times] = WeaveRunTime(varargin)
     segment_list = [ [segs.start_s] + 1e-9*[segs.start_ns]; [segs.end_s] + 1e-9*[segs.end_ns] ]';
     segment_props = AnalyseSegmentList(segment_list);
     Nsegments = segment_props.num_segments;
-    detectors = strjoin(setup.primary.header.detect, ",");
+    Ndetectors = length(setup.primary.header.detect);
     ref_time = str2double(setup.primary.header.date_obs_gps);
     start_time = min(segment_list(:));
     coh_Tspan = segment_props.coh_mean_Tspan;
@@ -121,8 +123,8 @@ function [time_total, times] = WeaveRunTime(varargin)
     Nsemires = result_hdr.nsemires;
   endif
 
-  ## compute various parameters
-  Ndetectors = length(strsplit(detectors, ","));
+  ## estimate time to perform nearest-neighbour lookup queries
+  times.query = Nsemires * Nsegments * tau_query;
 
   ## estimate time to compute coherent F-statistics
   if any(strfind(Fmethod, "Resamp"))
@@ -149,7 +151,7 @@ function [time_total, times] = WeaveRunTime(varargin)
   elseif any(strfind(Fmethod, "Demod"))
 
     ## estimate time using demodulation F-statistic algorithm
-    times.cohres = Ncohres * NSFTs * tau_demod_psft;
+    times.cohres = Ncohres * (NSFTs / Nsegments) * tau_demod_psft;
 
   else
     error("%s: unknown F-statistic method '%s'", funcName, Fmethod);
