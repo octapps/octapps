@@ -74,7 +74,7 @@ function [times, extra] = WeaveRunTime(varargin)
                {"Fmethod", "char,+exactlyone:result_file", []},
                {"Ncohres", "integer,strictpos,scalar,+exactlyone:result_file", []},
                {"Nsemires", "integer,strictpos,scalar,+exactlyone:result_file", []},
-               {"tau_set", "char", "v1"},
+               {"tau_set", "char"},
                {"TSFT", "integer,strictpos,scalar", 1800},
                []);
 
