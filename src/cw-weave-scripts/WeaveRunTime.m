@@ -137,7 +137,7 @@ function [times, extra] = WeaveRunTime(varargin)
   times.query = Nsemires * Nsegments * tau.query;
 
   ## estimate time to compute coherent F-statistics
-  if any(strfind(Fmethod, "Resamp"))
+  if strncmpi(Fmethod, "Resamp", 6)
 
     ## estimate time using resampling F-statistic algorithm
     args = struct;
@@ -159,7 +159,7 @@ function [times, extra] = WeaveRunTime(varargin)
     times.cohres = Ncohres * Ndetectors * resamp_info.tauRS;
     extra.lg2NsampFFT = resamp_info.lg2NsampFFT;
 
-  elseif any(strfind(Fmethod, "Demod"))
+  elseif strncmpi(Fmethod, "Demod", 5)
 
     ## estimate time using demodulation F-statistic algorithm
     times.cohres = Ncohres * (NSFTs / Nsegments) * tau.demod_psft;
