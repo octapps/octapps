@@ -43,7 +43,8 @@ EOF
         exit 1
 
     fi
-    args="${args}, '$1'"
+    arg=${1//\"/\\\"}
+    args="${args}, \"${arg}\""
     shift
 done
 
