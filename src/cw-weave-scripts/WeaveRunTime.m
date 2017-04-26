@@ -22,15 +22,19 @@
 ##   tau_set:
 ##     Set of fundamental timing constants to use
 ## Outputs:
-##   time_total:
+##   times.total:
 ##     estimate of total CPU run time (seconds)
+##   times.query:
+##     estimate of CPU time to perform nearest-neighbour lookup queries
 ##   times.cohres:
-##     estimate of CPU time (seconds) to compute coherent F-statistics
+##     estimate of CPU time to compute coherent F-statistics
 ##   times.semiparts:
-##     estimate of CPU time (seconds) to add together F-statistics
+##     estimate of CPU time to add together F-statistics
 ##   times.semires:
 ##     estimate of CPU time (seconds) to compute:
-##     - mean semicoherent F-statistic
+##     - mean semicoherent F-statistics
+##   extra:
+##     extra information, potentially specific to F-statistic algorithm
 
 ## Copyright (C) 2017 Karl Wette
 ##
@@ -47,7 +51,7 @@
 ## You should have received a copy of the GNU General Public License
 ## along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-function [time_total, times] = WeaveRunTime(varargin)
+function [times, extra] = WeaveRunTime(varargin)
 
   ## parse options
   parseOptions(varargin,
@@ -77,19 +81,22 @@ function [time_total, times] = WeaveRunTime(varargin)
   ## parse timing constant set
   switch tau_set
     case "v1"
-      tau_query = 3.6e-11;
-      tau_demod_psft = 3.8e-8;
+      tau_lattice = 1.4e-10;
+      tau_query = 8.9e-11;
+      tau_demod_psft = 6.3e-8;
       tau_resamp_Fbin = 6.1e-8;
-      tau_resamp_FFT = [1.5e-08, 3.4e-8];
+      tau_resamp_FFT = 3.4e-8;
       tau_resamp_spin = 7.7e-8;
-      tau_mean2F_add = 4.6e-10;
-      tau_mean2F_div = 1.7e-9;
+      tau_mean2F_add = 7.0e-10;
+      tau_mean2F_div = 2.1e-9;
+      tau_output = 6.9e-10;
     otherwise
       error("%s: invalid timing constant set '%s'", funcName, tau_set);
   endswitch
 
   ## initialise variables
   times = struct;
+  extra = struct;
 
   ## if given, load setup file and extract various parameters
   if !isempty(setup_file)
@@ -123,6 +130,9 @@ function [time_total, times] = WeaveRunTime(varargin)
     Nsemires = result_hdr.nsemires;
   endif
 
+  ## estimate time to interate over lattice tiling
+  times.lattice = Nsemires * tau_lattice;
+
   ## estimate time to perform nearest-neighbour lookup queries
   times.query = Nsemires * Nsegments * tau_query;
 
@@ -147,6 +157,7 @@ function [time_total, times] = WeaveRunTime(varargin)
     args.Tsft = TSFT;
     resamp_info = fevalstruct(@predictResampTimeAndMemory, args);
     times.cohres = Ncohres * Ndetectors * resamp_info.tauRS;
+    extra.lg2NsampFFT = resamp_info.lg2NsampFFT;
 
   elseif any(strfind(Fmethod, "Demod"))
 
@@ -158,13 +169,16 @@ function [time_total, times] = WeaveRunTime(varargin)
   endif
 
   ## estimate time to add together coherent F-statistics
-  times.semiparts = tau_mean2F_add * Nsemires * (Nsegments - 1);
+  times.semiparts = Nsemires * (Nsegments - 1) * tau_mean2F_add;
 
   ## estimate time to compute:
   ## - mean semicoherent F-statistics
-  times.semires = tau_mean2F_div * Nsemires;
+  times.semires = Nsemires * tau_mean2F_div;
+
+  ## estimate time to output results
+  times.output = Nsemires * tau_output;
 
   ## estimate total run time
-  time_total = sum(structfun(@sum, times));
+  times.total = sum(structfun(@sum, times));
 
 endfunction
