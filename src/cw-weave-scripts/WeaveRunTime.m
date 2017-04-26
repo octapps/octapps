@@ -24,15 +24,9 @@
 ## Outputs:
 ##   times.total:
 ##     estimate of total CPU run time (seconds)
-##   times.query:
-##     estimate of CPU time to perform nearest-neighbour lookup queries
-##   times.cohres:
-##     estimate of CPU time to compute coherent F-statistics
-##   times.semiparts:
-##     estimate of CPU time to add together F-statistics
-##   times.semires:
-##     estimate of CPU time (seconds) to compute:
-##     - mean semicoherent F-statistics
+##   times.<field>:
+##     estimate of CPU time (seconds) to perform action <field>;
+##     see the script itself for further documentation
 ##   extra:
 ##     extra information, potentially specific to F-statistic algorithm
 
