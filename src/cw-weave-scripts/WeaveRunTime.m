@@ -72,18 +72,19 @@ function [times, extra] = WeaveRunTime(varargin)
                {"TSFT", "integer,strictpos,scalar", 1800},
                []);
 
-  ## parse timing constant set
+  ## parse fundamental timing constant set
+  tau = struct;
   switch tau_set
     case "v1"
-      tau_lattice = 1.4e-10;
-      tau_query = 8.9e-11;
-      tau_demod_psft = 6.3e-8;
-      tau_resamp_Fbin = 6.1e-8;
-      tau_resamp_FFT = 3.4e-8;
-      tau_resamp_spin = 7.7e-8;
-      tau_mean2F_add = 7.0e-10;
-      tau_mean2F_div = 2.1e-9;
-      tau_output = 6.9e-10;
+      tau.lattice = 1.4e-10;
+      tau.query = 8.9e-11;
+      tau.demod_psft = 6.3e-8;
+      tau.resamp_Fbin = 6.1e-8;
+      tau.resamp_FFT = 3.4e-8;
+      tau.resamp_spin = 7.7e-8;
+      tau.mean2F_add = 7.0e-10;
+      tau.mean2F_div = 2.1e-9;
+      tau.output = 6.9e-10;
     otherwise
       error("%s: invalid timing constant set '%s'", funcName, tau_set);
   endswitch
@@ -125,10 +126,10 @@ function [times, extra] = WeaveRunTime(varargin)
   endif
 
   ## estimate time to interate over lattice tiling
-  times.lattice = Nsemires * tau_lattice;
+  times.lattice = Nsemires * tau.lattice;
 
   ## estimate time to perform nearest-neighbour lookup queries
-  times.query = Nsemires * Nsegments * tau_query;
+  times.query = Nsemires * Nsegments * tau.query;
 
   ## estimate time to compute coherent F-statistics
   if any(strfind(Fmethod, "Resamp"))
@@ -145,9 +146,9 @@ function [times, extra] = WeaveRunTime(varargin)
     args.f2dot0 = f2dot_min;
     args.f2dotBand = f2dot_max - f2dot_min;
     args.refTimeShift = (ref_time - start_time) / semi_Tspan;
-    args.tauFbin = tau_resamp_Fbin;
-    args.tauFFT = tau_resamp_FFT;
-    args.tauSpin = tau_resamp_spin;
+    args.tauFbin = tau.resamp_Fbin;
+    args.tauFFT = tau.resamp_FFT;
+    args.tauSpin = tau.resamp_spin;
     args.Tsft = TSFT;
     resamp_info = fevalstruct(@predictResampTimeAndMemory, args);
     times.cohres = Ncohres * Ndetectors * resamp_info.tauRS;
@@ -156,21 +157,21 @@ function [times, extra] = WeaveRunTime(varargin)
   elseif any(strfind(Fmethod, "Demod"))
 
     ## estimate time using demodulation F-statistic algorithm
-    times.cohres = Ncohres * (NSFTs / Nsegments) * tau_demod_psft;
+    times.cohres = Ncohres * (NSFTs / Nsegments) * tau.demod_psft;
 
   else
     error("%s: unknown F-statistic method '%s'", funcName, Fmethod);
   endif
 
   ## estimate time to add together coherent F-statistics
-  times.semiparts = Nsemires * (Nsegments - 1) * tau_mean2F_add;
+  times.semiparts = Nsemires * (Nsegments - 1) * tau.mean2F_add;
 
   ## estimate time to compute:
   ## - mean semicoherent F-statistics
-  times.semires = Nsemires * tau_mean2F_div;
+  times.semires = Nsemires * tau.mean2F_div;
 
   ## estimate time to output results
-  times.output = Nsemires * tau_output;
+  times.output = Nsemires * tau.output;
 
   ## estimate total run time
   times.total = sum(structfun(@sum, times));
