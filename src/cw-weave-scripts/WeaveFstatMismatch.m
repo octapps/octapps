@@ -3,15 +3,12 @@
 ## Estimate the F-statistic mismatch distribution of 'lalapps_Weave'.
 ## Usage:
 ##   hgrm = WeaveFstatMismatch("opt", val, ...)
-## where:
-##   hgrm:
-##     Histogram of F-statistic mismatch distribution
 ## Options:
-##   setup_file:
-##     Weave setup file, from which to extract various parameters
-##   coh_Tspan,semi_Tspan:
-##     Alternatives to 'setup_file'; give time span of coherent
-##     segments, and total time span of semicoherent search
+##   EITHER:
+##     setup_file:  Weave setup file
+##   OR:
+##     coh_Tspan:   time span of coherent segments
+##     semi_Tspan:  total time span of semicoherent search
 ##   sky:
 ##     Whether to include search over sky parameters (default: true)
 ##   spindowns:
@@ -21,6 +18,9 @@
 ##   coh_max_mismatch,semi_max_mismatch:
 ##     Maximum coherent and semicoherent mismatches; for a single-
 ##     segment or non-interpolating search, set coh_max_mismatch=0
+## Outputs:
+##   hgrm:
+##     Histogram of F-statistic mismatch distribution
 
 ## Copyright (C) 2016 Karl Wette
 ##

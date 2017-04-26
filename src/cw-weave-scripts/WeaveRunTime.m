@@ -4,21 +4,26 @@
 ## Usage:
 ##   [total, times] = WeaveRunTime("opt", val, ...)
 ## Options:
-##   setup_file:
-##     Weave setup file, from which to extract various parameters
-##   Nsegments,Ndetectors,ref_time,start_time,coh_Tspan,semi_Tspan:
-##     Alternatives to 'setup_file'; give number of segments/detectors,
-##     GPS reference/start time, time span of coherent segments, and
-##     total time span of semicoherent search
-##   result_file:
-##     Weave result file, from which to extract various parameters
-##   freq_min/max,dfreq,f1dot_min/max,f2dot_min/max,NSFTs,Fmethod:
-##     Alternatives to 'result_file'; give minimum/maximum frequency,
-##     frequency spacing, minimum/maximum 1st/2nd spindown, total
-##     number of SFTs, and F-statistic method used by search
-##   Ncohres,Nsemires:
-##     Alternatives to 'result_file'; give number of coherent and
-##     semicoherent results computed by search
+##   EITHER:
+##     setup_file:      Weave setup file
+##   OR:
+##     Nsegments:       number of segments
+##     Ndetectors:      number of detectors
+##     ref_time:        GPS reference time
+##     start_time:      GPS start time
+##     coh_Tspan:       time span of coherent segments
+##     semi_Tspan:      total time span of semicoherent search
+##   EITHER:
+##     result_file:     Weave result file
+##   OR:
+##     freq_min/max:    minimum/maximum frequency range
+##     dfreq:           frequency spacing
+##     f1dot_min/max:   minimum/maximum 1st spindown
+##     f2dot_min/max:   minimum/maximum 2nd spindown (optional)
+##     NSFTs:           total number of SFTs
+##     Fmethod:         F-statistic method used by search
+##     Ncohres:         number of coherent results
+##     Nsemires:        number of semicoherent results
 ##   tau_set:
 ##     Set of fundamental timing constants to use
 ## Outputs:

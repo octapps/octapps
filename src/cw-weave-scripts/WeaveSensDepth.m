@@ -3,16 +3,14 @@
 ## Estimate the sensitivity depth of 'lalapps_Weave'.
 ## Usage:
 ##   depth = WeaveSensDepth("opt", val, ...)
-## where:
-##   depth:
-##     estimated sensitivity depth
 ## Options:
-##   setup_file:
-##     Weave setup file, from which to extract various parameters
-##   Nsegments,detectors,coh_Tspan,semi_Tspan:
-##     Alternatives to 'setup_file'; give number of segments,
-##     comma-separated list of detectors, time span of coherent
-##     segments, and total time span of semicoherent search
+##   EITHER:
+##     setup_file:  Weave setup file
+##   OR:
+##     Nsegments:   number of segments
+##     detectors:   comma-separated list of detectors
+##     coh_Tspan:   time span of coherent segments
+##     semi_Tspan:  total time span of semicoherent search
 ##   alpha,delta:
 ##     If not searching over sky parameters, give sky point of
 ##     search (default: all-sky)
@@ -27,13 +25,16 @@
 ##     total number of SFTs used by search
 ##   pFD:
 ##     false dismissal probability of search
-##   pFA,semi_ntmpl:
-##     false alarm probability of search, and number of semicoherent
-##     templates used by search
-##   mean2F_th:
-##     Alternatives to 'pFA','semi_ntmpl': threshold on mean 2F
+##   EITHER:
+##     pFA:         false alarm probability of search
+##     semi_ntmpl:  number of semicoherent templates used by search
+##   OR:
+##     mean2F_th:   threshold on mean 2F
 ##   TSFT:
 ##     Time span of a single SFT (default: 1800 seconds)
+## Outputs:
+##   depth:
+##     estimated sensitivity depth
 
 ## Copyright (C) 2017 Karl Wette
 ##
