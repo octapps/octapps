@@ -111,8 +111,8 @@ function pDET = DetectionProbabilityStackSlide ( varargin )
   ## by Rsqr_w (dim. 2)
   Rsqr_x = Rsqr_x( ii,:);
   Rsqr_w = Rsqr_w( ii,:);
-  mism_x = mism_x( :,jj)
-  mism_w = mism_w( :,jj)
+  mism_x = mism_x( :,jj);
+  mism_w = mism_w( :,jj);
 
   pDET = zeros ( size ( Depth ) );
   for i = 1 : length ( pDET(:) )
