@@ -49,7 +49,7 @@ function [rho, pd_rho] = SensitivitySNR(varargin)
                {"stat", "cell,vector"},
                {"prog", "logical,scalar", false},
                []);
-  assert(histDim(Rsqr) == 1, "%s: R^2 must be a 1D histogram", funcName);                 #add for mismatch
+  assert(histDim(Rsqr) == 1, "%s: R^2 must be a 1D histogram", funcName);
   assert(length(stat) > 1 && ischar(stat{1}), "%s: first element of 'stat' must be a string", funcName);
 
   ## select a detection statistic
@@ -66,7 +66,7 @@ function [rho, pd_rho] = SensitivitySNR(varargin)
   Rsqr_px = histProbs(Rsqr);
   [Rsqr_x, Rsqr_dx] = histBins(Rsqr, 1, "centre", "width");
 
-  ## check histogram bins are positive and contain no infinities                  # add for mismatch
+  ## check histogram bins are positive and contain no infinities
   if min(histRange(Rsqr)) < 0
     error("%s: R^2 histogram bins must be positive", funcName);
   endif
