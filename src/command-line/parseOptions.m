@@ -138,6 +138,8 @@ function varargout = parseOptions(opts, varargin)
         switch typefunccmd
           case "a"
             typefuncstr = cstrcat(typefuncstr, "isa(x,\"", typefuncarg, "\")");
+          case "acell"
+            typefuncstr = cstrcat(typefuncstr, "isa(x,\"", typefuncarg, "\") || (iscell(x) && cellfun(@isa,x,{\"", typefuncarg, "\"}))");
           case "size"
             x = str2double(typefuncarg);
             if !isvector(x) || any(mod(x,1) != 0) || any(x < 0)
