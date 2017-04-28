@@ -56,13 +56,11 @@ function sensDepth = SensitivityDepthStackSlide ( varargin )
                        {"alpha", "real,vector", [0, 2*pi]},
                        {"delta", "real,vector", [-pi/2, pi/2]},
                        []);
+
   ## check input
   assert ( ! ( isempty ( uvar.pFA ) && isempty ( uvar.avg2Fth ) ), "Need at least one of 'pFA' or 'avg2Fth' to determine false-alarm probability!\n" );
   assert ( isempty ( uvar.pFA ) || isempty ( uvar.avg2Fth ), "Must specify exactly one of 'pFA' or 'avg2Fth' to determine false-alarm probability!\n" );
   assert ( isscalar(uvar.Tdata), "Calculation for multiple Tdata not supported yet.\n");
-
-  ## compute sensitivity SNR
-  Rsqr = SqrSNRGeometricFactorHist("detectors", uvar.detectors, "detweights", uvar.detweights, "alpha", uvar.alpha, "sdelta", sin(uvar.delta) );
 
   ## two different ways to specify false-alarm / threshold
   if ( !isempty ( uvar.pFA ) )
@@ -71,7 +69,9 @@ function sensDepth = SensitivityDepthStackSlide ( varargin )
     FAarg = { "sa", uvar.Nseg * uvar.avg2Fth };
   endif
 
-  [rho, pd_rho] = SensitivitySNR ( "pd", uvar.pFD, "Ns", uvar.Nseg, "Rsqr", Rsqr,"misHist",uvar.misHist, "stat", {"ChiSqr", FAarg{:}} );
+  ## compute sensitivity SNR
+  Rsqr = SqrSNRGeometricFactorHist("detectors", uvar.detectors, "detweights", uvar.detweights, "alpha", uvar.alpha, "sdelta", sin(uvar.delta) );
+  [rho, pd_rho] = SensitivitySNR ( "pd", uvar.pFD, "Ns", uvar.Nseg, "Rsqr", Rsqr, "misHist", uvar.misHist, "stat", {"ChiSqr", FAarg{:}} );
 
   ## convert to sensitivity depth
   rhoSC = sqrt ( uvar.Nseg )  .* rho;
