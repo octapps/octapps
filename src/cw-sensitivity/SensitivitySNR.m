@@ -36,7 +36,7 @@
 ##                       Hough on the F-statistic, see
 ##                       SensitivityHoughFstatFDP() for options
 ##   "prog"        = show progress updates
-##   "misHist"     = mismatch histogram
+##   "misHist"     = mismatch histogram (default: no mismatch)
 
 function [rho, pd_rho] = SensitivitySNR(varargin)
 
@@ -45,7 +45,7 @@ function [rho, pd_rho] = SensitivitySNR(varargin)
                {"pd", "real,strictunit,column"},
                {"Ns", "integer,strictpos,column"},
                {"Rsqr", "a:Hist", []},
-               {"misHist","a:Hist"},
+               {"misHist", "a:Hist", []},
                {"stat", "cell,vector"},
                {"prog", "logical,scalar", false},
                []);
@@ -66,10 +66,6 @@ function [rho, pd_rho] = SensitivitySNR(varargin)
   Rsqr_px = histProbs(Rsqr);
   [Rsqr_x, Rsqr_dx] = histBins(Rsqr, 1, "centre", "width");
 
-  ## get probabilitiy densities for mismatch
-  mism_px = histProbs(misHist);
-  [mism_x, mism_dx] = histBins(misHist, 1, "centre", "width");
-
   ## check histogram bins are positive and contain no infinities                  # add for mismatch
   if min(histRange(Rsqr)) < 0
     error("%s: R^2 histogram bins must be positive", funcName);
@@ -83,14 +79,35 @@ function [rho, pd_rho] = SensitivitySNR(varargin)
   Rsqr_x = reshape(Rsqr_x(2:end-1), 1, []);
   Rsqr_dx = reshape(Rsqr_dx(2:end-1), 1, []);
 
-  ## chop off infinite bins and resize to layer vectors
-  mism_px = reshape(mism_px(2:end-1), 1,1, []);
-  mism_x = reshape(mism_x(2:end-1), 1,1, []);
-  mism_dx = reshape(mism_dx(2:end-1), 1,1, []);
-
   ## compute weights
   Rsqr_w = Rsqr_px .* Rsqr_dx;
-  mism_w = mism_px .* mism_dx;
+  clear Rsqr_px Rsqr_dx;
+
+  if isempty(misHist)
+
+    ## assume no mismatch
+    mism_x = 0;
+    mism_w = 1;
+
+  else
+
+    ## restrict mismatch histogram to range [0.0, 1.0]
+    misHist = restrictHist(misHist, [0.0, 1.0]);
+
+    ## get probabilitiy densities for mismatch
+    mism_px = histProbs(misHist);
+    [mism_x, mism_dx] = histBins(misHist, 1, "centre", "width");
+
+    ## chop off infinite bins and resize to layer vectors
+    mism_px = reshape(mism_px(2:end-1), 1,1, []);
+    mism_x = reshape(mism_x(2:end-1), 1,1, []);
+    mism_dx = reshape(mism_dx(2:end-1), 1,1, []);
+
+    ## compute weights
+    mism_w = mism_px .* mism_dx;
+    clear mism_px mism_dx;
+
+  endif
 
   ## show progress updates?
   if prog
