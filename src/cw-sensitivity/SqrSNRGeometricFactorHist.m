@@ -158,7 +158,11 @@ function Rsqr = SqrSNRGeometricFactorHist(varargin)
     ## (exit after 1 iteration if all parameters are constant)
   until (rng.allconst || err < hist_err)
 
-  ## reduce scale of R^2 histogram so that <R^2> = 1
+  ## normalise R^2 histogram
+  ## - the normalisation constant apxnorm is determined from the all-sky case,
+  ##   i.e. the mean over all parameters of R^2 should be 1; in the directed
+  ##   search case R^2 in general only depends on psi and cosi, therefore
+  ##   meanOfHist(Rsqr) should not give 1 because it is not averaging over sky
   Rsqr = rescaleHistBins(Rsqr, 1.0 / apxnorm);
 
 endfunction
