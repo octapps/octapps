@@ -24,7 +24,6 @@
 ##   "T"         = observation time in sidereal days (default: inf)
 ##   "detectors" = detectors to use; either e.g. "H1,L1" or "HL" (default: L1)
 ##   "detweights"= detector weights on S_h to use (default: uniform weights)
-##   "mism_hgrm" = mismatch histogram (default: no mismatch)
 ##   "alpha"     = source right ascension in radians (default: all-sky)
 ##   "sdelta"    = sine of source declination (default: all-sky)
 ##   "psi"       = source orientation in radians (default: all)
@@ -42,7 +41,6 @@ function Rsqr = SqrSNRGeometricFactorHist(varargin)
                {"T", "real,scalar", inf},
                {"detectors", "char", "L1"},
                {"detweights", "real,strictpos,vector", []},
-               {"mism_hgrm", "a:Hist", []},
                {"alpha", "real,vector", [0, 2*pi]},
                {"sdelta", "real,vector", [-1, 1]},
                {"psi", "real,vector", [0, 2*pi]},
@@ -55,11 +53,6 @@ function Rsqr = SqrSNRGeometricFactorHist(varargin)
                );
   assert(all(isalnum(detectors) | detectors == ","), ...
          "%s: invalid detectors '%s'", funcName, detectors);
-
-  ## restrict mismatch histogram to range [0.0, 1.0]
-  if ~isempty(mism_hgrm)
-    mism_hgrm = restrictHist(mism_hgrm, [0.0, 1.0]);
-  endif
 
   ## product of angular sidereal frequency and observation time
   OmegaT = 2*pi*T;   # T is in sidereal days
@@ -153,12 +146,6 @@ function Rsqr = SqrSNRGeometricFactorHist(varargin)
 
     ## calculate squared SNR geometric factor
     R2 = (ap.^2 .* avg_Fpsqr_t) + (ax.^2 .* avg_Fxsqr_t);
-
-    ## if using mismatch histogram, reduce R^2 by randomly-chosen mismatch
-    if ~isempty(mism_hgrm)
-      mismatch = drawFromHist(mism_hgrm, N);
-      R2 .*= ( 1 - mismatch' );
-    endif
 
     ## add new values to histogram
     Rsqr_old = Rsqr;
