@@ -20,23 +20,23 @@
 ## Syntax:
 ##   [rho, pd_rho] = SensitivitySNR("opt", val, ...)
 ## where:
-##   rho      = detectable r.m.s. SNR (per segment)
-##   pd_rho   = calculated false dismissal probability
+##   rho           = detectable r.m.s. SNR (per segment)
+##   pd_rho        = calculated false dismissal probability
 ## and where options are:
-##   "pd"     = false dismissal probability
-##   "Ns"     = number of segments
-##   "Rsqr"   = histogram of SNR "geometric factor" R^2,
-##              computed using SqrSNRGeometricFactorHist(),
-##              or scalar giving mean value of R^2
-##   "stat"   = detection statistic, one of:
-##              * {"ChiSqr", "opt", val, ...}
-##                  chi^2 statistic, e.g. the F-statistic, see
-##                  SensitivityChiSqrFDP() for options
-##              * {"HoughFstat", "opt", val, ...}
-##                  Hough on the F-statistic, see
-##                  SensitivityHoughFstatFDP() for options
-##   "prog"   = show progress updates
-##  "misHist" = mismatch histogram
+##   "pd"          = false dismissal probability
+##   "Ns"          = number of segments
+##   "Rsqr"        = histogram of SNR "geometric factor" R^2,
+##                   computed using SqrSNRGeometricFactorHist(),
+##                   or scalar giving mean value of R^2
+##   "stat"        = detection statistic, one of:
+##                   * {"ChiSqr", "opt", val, ...}
+##                       chi^2 statistic, e.g. the F-statistic, see
+##                       SensitivityChiSqrFDP() for options
+##                   * {"HoughFstat", "opt", val, ...}
+##                       Hough on the F-statistic, see
+##                       SensitivityHoughFstatFDP() for options
+##   "prog"        = show progress updates
+##   "misHist"     = mismatch histogram
 
 function [rho, pd_rho] = SensitivitySNR(varargin)
 
