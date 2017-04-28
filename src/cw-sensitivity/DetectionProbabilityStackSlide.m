@@ -135,3 +135,16 @@ endfunction
 %! Depths  = SensitivityDepthStackSlide ( "Nseg", Nseg, "Tdata", Tdata, "misHist", misHistSC, "pFD", 1-pDET, "pFA", pFA, "detectors", "H1,L1" );
 %! detProbs = DetectionProbabilityStackSlide ( "Nseg", Nseg, "Tdata", Tdata, "misHist", misHistSC, "pFA", pFA, "detectors", "H1,L1", "Depth", Depths );
 %! assert ( max ( abs ( detProbs - pDET ) ) < 0.01 );
+
+%!test
+%! Nseg = 90;
+%! Tseg = 60 * 3600;
+%! Tdata = 12080 * 1800;
+%! avg2Fth = 6.109;
+%! sum2Fth = Nseg * avg2Fth;
+%! pFA = falseAlarm_chi2 ( sum2Fth, 4 * Nseg );
+%! misHistSC = createGaussianHist ( 0.7,0.1);
+%! pDET = [0.95; 0.9; 0.85];
+%! Depths  = SensitivityDepthStackSlide ( "Nseg", Nseg, "Tdata", Tdata, "misHist", misHistSC, "pFD", 1-pDET, "pFA", pFA, "detectors", "H1,L1" );
+%! detProbs = DetectionProbabilityStackSlide ( "Nseg", Nseg, "Tdata", Tdata, "misHist", misHistSC, "pFA", pFA, "detectors", "H1,L1", "Depth", Depths );
+%! assert ( max ( abs ( detProbs - pDET ) ) < 0.01 );
