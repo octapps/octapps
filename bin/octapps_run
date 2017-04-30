@@ -49,6 +49,4 @@ EOF
 done
 
 ## Call function through driver script octapps_run_driver()
-exec ${OCTAVE} <<EOF
-octapps_run_driver(${args});
-EOF
+exec ${OCTAVE} --eval "octapps_run_driver(${args});"
