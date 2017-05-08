@@ -65,7 +65,7 @@ function octapps_run_driver(func, varargin)
   end_try_catch
 
   ## pick out command-line arguments
-  nn = [find(strncmp(varargin, "--", 2)), length(varargin) + 1];
+  nn = [find(cellfun(@(v) strncmp(v, "--", 2) || (length(v) == 2 && v(1) == "-"), varargin)), length(varargin) + 1];
 
   ## parse arguments and values
   hprintfuncs = {};
@@ -73,7 +73,8 @@ function octapps_run_driver(func, varargin)
   for n = 1:length(nn) - 1
 
     ## get argument name (possibly with value) and values
-    argnameval = varargin{nn(n)}(3:end);
+    argnameval = varargin{nn(n)};
+    argnameval = argnameval(min(find(argnameval != "-")):end);
     argval = varargin((nn(n)+1):(nn(n+1)-1));
 
     ## if argument contains an '='
