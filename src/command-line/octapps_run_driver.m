@@ -76,6 +76,10 @@ function octapps_run_driver(func, varargin)
     argnameval = varargin{nn(n)};
     argnameval = argnameval(min(find(argnameval != "-")):end);
     argval = varargin((nn(n)+1):(nn(n+1)-1));
+    if isempty(argval)
+      ## special value to indicate argument with no value
+      argval = { {{}} };
+    endif
 
     ## if argument contains an '='
     i = min(strfind(argnameval, "="));

@@ -65,6 +65,7 @@ function varargout = parseOptions(opts, varargin)
   reqnames = {};
   typefunc = struct;
   convfunc = struct;
+  noargvalue = struct;
   atleastone = {};
   exactlyone = {};
   atmostone = {};
@@ -105,6 +106,7 @@ function varargout = parseOptions(opts, varargin)
     ## store option specifications
     typefuncstr = "( ";
     convfuncptr = [];
+    noargval = [];
     opttypes = strtrim(strsplit(optspec{2}, ",", true));
     for i = 1:length(opttypes)
 
@@ -174,6 +176,7 @@ function varargout = parseOptions(opts, varargin)
         case { "bool", "logical" }   ## also accept numeric values 0, 1 as logical values
           typefuncstr = cstrcat(typefuncstr, "islogical(x) || ( isnumeric(x) && all((x==0)|(x==1)) )");
           convfuncptr = @logical;
+          noargval = true;
         case "cell"   ## override here because 'cell' is not a type conversion function
           typefuncstr = cstrcat(typefuncstr, "iscell(x)");
         case "function"
@@ -231,6 +234,7 @@ function varargout = parseOptions(opts, varargin)
     typefuncstr = cstrcat(typefuncstr, " )");
     typefunc.(optname) = inline(typefuncstr, "x");
     convfunc.(optname) = convfuncptr;
+    noargvalue.(optname) = noargval;
     try
       feval(typefunc.(optname), []);
     catch
@@ -324,16 +328,26 @@ function varargout = parseOptions(opts, varargin)
       end_try_catch
     endif
 
-    ## assign option value, if it's the right type
-    if !feval(typefunc.(optkey), optval)
+    ## special value to indicate argument with no value
+    if isequal(optval, {{}})
+      if isempty(noargvalue.(optkey))
+        error("%s: option '%s' requires an argument", funcName, optkey);
+      endif
+      paropts.(optkey) = noargvalue.(optkey);
+    else
 
-      ## if option value is empty, use default (i.e. do nothing), otherwise raise error
-      if !isempty(optval)
-        error("%s: value of '%s' must satisfy %s", funcName, optkey, formula(typefunc.(optkey)));
+      ## assign option value, if it's the right type
+      if !feval(typefunc.(optkey), optval)
+
+        ## if option value is empty, use default (i.e. do nothing), otherwise raise error
+        if !iscell(optspec) && !ischar(optspec) && isempty(optspec)
+          error("%s: value of '%s' must satisfy %s", funcName, optkey, formula(typefunc.(optkey)));
+        endif
+
+      else
+        paropts.(optkey) = optval;
       endif
 
-    else
-      paropts.(optkey) = optval;
     endif
 
     ## mark that this option has been used
@@ -403,7 +417,7 @@ function varargout = parseOptions(opts, varargin)
       try
         paropts.(paroptnames{n}) = feval(convfuncptr, paropts.(paroptnames{n}));
       catch
-        error("%s: could not convert evaluate %s(value of option '%s')", funcName, func2str(convfuncptr), optname);
+        error("%s: could not convert evaluate %s(value of option '%s')", funcName, func2str(convfuncptr), paroptnames{n});
       end_try_catch
     endif
   endfor
