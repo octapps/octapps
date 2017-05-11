@@ -173,7 +173,7 @@ function octapps_run_driver(func, varargin)
       if isempty(argval)
 
         ## special value to indicate argument with no value
-        argval = { {{}} };
+        argval = {{}};
 
       elseif length(argval) == 1
 
