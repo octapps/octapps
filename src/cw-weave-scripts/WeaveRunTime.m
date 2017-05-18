@@ -130,6 +130,11 @@ function [times, extra] = WeaveRunTime(varargin)
     Nsemires = result_hdr.nsemires;
   endif
 
+  ## check parameter-space ranges
+  assert(freq_max >= freq_min);
+  assert(f1dot_max >= f1dot_min);
+  assert(f2dot_max >= f2dot_min);
+
   ## estimate time to interate over lattice tiling
   times.lattice = Nsemires * tau.lattice;
 
