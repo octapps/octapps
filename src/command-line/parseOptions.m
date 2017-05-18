@@ -85,9 +85,6 @@ function varargout = parseOptions(opts, varargin)
       error("%s: expected option specification {'name','type'[,defvalue]} at varargin{%i}", funcName, n);
     endif
     optname = optspec{1};
-    if length(optname) < 2
-      error("%s: option name '%s' must be at least 2 characters", funcName, optname);
-    endif
 
     ## handle short option characters
     ii = find(optname == "|");
@@ -297,24 +294,20 @@ function varargout = parseOptions(opts, varargin)
     optkey = kvopts{n};
     optval = kvopts{n+1};
 
-    ## handle short option characters
-    if length(optkey) == 1
-      if isfield(optchars, optkey)
-        optkey = optchars.(optkey);
-      else
-        error("%s: unknown short option '%s'", funcName, optkey);
-      endif
-    endif
-
     ## check that this option is an allowed option
     ii = find(strncmp(optkey, allowed_names, length(optkey)));
     if length(ii) < 1
-      error("%s: unknown option '%s'", funcName, optkey);
-    endif
-    if length(ii) > 1
+      ## handle short option characters
+      if length(optkey) == 1 && isfield(optchars, optkey)
+        optkey = optchars.(optkey);
+      else
+        error("%s: unknown option '%s'", funcName, optkey);
+      endif
+    elseif length(ii) > 1
       error("%s: ambiguous option '%s' (matches '%s')", funcName, optkey, strjoin(allowed_names(ii), "' or '"));
+    else
+      optkey = allowed_names{ii};
     endif
-    optkey = allowed_names{ii};
 
     ## if option does not accept a 'char' value, but option value is a 'char',
     ## try evaluating it (this is used when parsing arguments from the command line)
