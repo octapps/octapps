@@ -335,7 +335,7 @@ function varargout = parseOptions(opts, varargin)
       if !feval(typefunc.(optkey), optval)
 
         ## if option value is empty, use default (i.e. do nothing), otherwise raise error
-        if !iscell(optspec) && !ischar(optspec) && isempty(optspec)
+        if iscell(optval) || ischar(optval) || !isempty(optval)
           error("%s: value of '%s' must satisfy %s", funcName, optkey, formula(typefunc.(optkey)));
         endif
 
