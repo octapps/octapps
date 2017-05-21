@@ -94,6 +94,9 @@ function varargout = parseOptions(opts, varargin)
       endif
       c = optname(ii+1);
       optname = optname(1:ii-1);
+      if isfield(allowed, c)
+        error("%s: short option character '%s' is also a long option", funcName, c);
+      endif
       optchars.(c) = optname;
     endif
 
@@ -297,17 +300,16 @@ function varargout = parseOptions(opts, varargin)
     optval = kvopts{n+1};
 
     ## check that this option is an allowed option
-    ii = find(strncmp(optkey, allowed_names, length(optkey)));
-    if length(ii) < 1
-      ## handle short option characters
-      if length(optkey) == 1 && isfield(optchars, optkey)
-        optkey = optchars.(optkey);
-      else
+    if length(optkey) == 1 && isfield(optchars, optkey)
+      optkey = optchars.(optkey);
+    else
+      ii = find(cellfun(@(a_n) strncmp(optkey, a_n, min(length(a_n), max(length(optkey), 2))), allowed_names));
+      if length(ii) < 1
         error("%s: unknown option '%s'", funcName, optkey);
       endif
-    elseif length(ii) > 1
-      error("%s: ambiguous option '%s' (matches '%s')", funcName, optkey, strjoin(allowed_names(ii), "' or '"));
-    else
+      if length(ii) > 1
+        error("%s: ambiguous option '%s' (matches '%s')", funcName, optkey, strjoin(allowed_names(ii), "' or '"));
+      endif
       optkey = allowed_names{ii};
     endif
 
