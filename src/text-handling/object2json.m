@@ -1,3 +1,4 @@
+%% Copyright (C) 2017 Karl Wette
 %% Copyright (C) 2010 Torre Herrera, Daniel de
 %%
 %% This program is free software; you can redistribute it and/or modify
@@ -80,10 +81,10 @@ function json=object2json(object)
         json=object2json(object{1});
       case 'double'
         if(isreal(object))
-          json=num2str(object);
+          json=num2str(object, 16);
         else
           if(iscomplex(object))
-            json=['{"real":',num2str(real(object)),',"imag":',num2str(imag(object)),'}'];
+            json=['{"real":',num2str(real(object), 16),',"imag":',num2str(imag(object), 16),'}'];
           endif
         endif
       case 'char'
