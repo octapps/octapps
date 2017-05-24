@@ -46,7 +46,7 @@ function sensDepth = SensitivityDepthHoughF ( varargin )
   uvar = parseOptions ( varargin,
                        {"Nseg", "integer,strictpos,column", 1 },
                        {"Tdata", "real,strictpos,column" },
-                       {"misHist", "a:Hist" },
+                       {"misHist", "acell:Hist" },
                        {"pFD", "real,strictpos,column", 0.1},
                        {"pFA", "real,strictpos,vector"},
                        {"Fth", "real,strictpos,column", 5.2/2 },
@@ -58,12 +58,8 @@ function sensDepth = SensitivityDepthHoughF ( varargin )
 
   ## compute sensitivity SNR
   Rsqr = SqrSNRGeometricFactorHist("detectors", uvar.detectors, "detweights", uvar.detweights, "alpha", uvar.alpha, "sdelta", sin(uvar.delta) );
-  rho = SensitivitySNR ( "pd", uvar.pFD, "Ns", uvar.Nseg, "Rsqr", Rsqr, "misHist", uvar.misHist, "stat", {"HoughFstat", "paNt", uvar.pFA, "Fth", uvar.Fth});
+  [sensDepth, pd_Depth] = SensitivityDepth ( "pd", uvar.pFD, "Ns", uvar.Nseg,"Tdata", uvar.Tdata, "Rsqr", Rsqr,"misHist", uvar.misHist, "stat", {"HoughFstat", "paNt", uvar.pFA, "Fth", uvar.Fth});
 
-  ## convert to sensitivity depth
-  TdataSeg = uvar.Tdata / uvar.Nseg;
-  sensDepthInv = 5/2 .* rho .* TdataSeg.^(-1/2);
-  sensDepth = 1 ./ sensDepthInv;
 
 endfunction
 
