@@ -1,3 +1,4 @@
+## Copyright (C) 2016, 2017 Christoph Dreissigacker
 ## Copyright (C) 2011, 2016 Karl Wette
 ##
 ## This program is free software; you can redistribute it and/or modify
@@ -58,7 +59,7 @@ function Rsqr = SqrSNRGeometricFactorHist(varargin)
   OmegaT = 2*pi*T;   # T is in sidereal days
 
   ## create random parameter generator for source location parameters
-  rng = CreateRandParam(alpha, sdelta, psi);
+  rng = CreateRandParam(alpha, sdelta, psi, cosi);
   N = !!rng.allconst + !rng.allconst*hist_N;
 
   ## remove non-letters from 'detectors', so that e.g. "H1,L1" becomes "HL"
@@ -90,66 +91,42 @@ function Rsqr = SqrSNRGeometricFactorHist(varargin)
 
   endfor
 
-  ## calculate squared antenna patterns averaged over time and source location parameters
-  Fpsqr_t_H = Fxsqr_t_H = Hist(1, {"lin", "dbin", hist_dx});
+  ## get signal amplitude normalisation
+  apxnorm = SignalAmplitudes(emission);
+
+
+  ## calculate histogram of squared SNR geometric factor
+  Rsqr = Hist(1, {"lin", "dbin", hist_dx});
+
   do
 
     ## new random source location parameters
-    [alpha, sdelta, psi] = NextRandParam(rng, N);
+    [alpha, sdelta, psi, cosi] = NextRandParam(rng, N);
+
+    ## calculate signal amplitudes
+    [ap, ax] = SignalAmplitudes(emission, cosi);
 
     ## calculate polarisation null vectors for this source
     [xp, yp, xx, yx] = PolarisationNullVectors(alpha, sdelta, psi);
 
-    ## loop over detectors
-    Fpsqr_t_H_old = Fpsqr_t_H;
-    Fxsqr_t_H_old = Fxsqr_t_H;
     for n = 1:length(detectors)
 
       ## calculate time-averaged squared antenna patterns
       Fpsqr_t = TimeAvgSqrAntennaPattern(det(n).a0, det(n).b0, xp, yp, det(n).zeta, OmegaT);
       Fxsqr_t = TimeAvgSqrAntennaPattern(det(n).a0, det(n).b0, xx, yx, det(n).zeta, OmegaT);
 
-      ## add new values to histograms, weighted by detector weights
-      Fpsqr_t_H = addDataToHist(Fpsqr_t_H, detweights(n) * Fpsqr_t(:));
-      Fxsqr_t_H = addDataToHist(Fxsqr_t_H, detweights(n) * Fxsqr_t(:));
+      ## calculate Rsqr
+      ## the normalization constant apxnorm is determined from the all-sky case,
+      ## i.e. the mean over all parameters of R^2 should be 1.
+      ## In the directed search case R^2 in general only depends on psi and xi therefore
+      ## meanOfHist(Rsqr) should not give 1 because it is not averaging over sky
+      R2 = (ap.^2 .* (detweights(n) .*Fpsqr_t) + ax.^2 .*(detweights(n).* Fxsqr_t));
+
+      ## add new values to histogram
+      Rsqr_old = Rsqr;
+      Rsqr = addDataToHist(Rsqr, R2(:));
 
     endfor
-
-    ## calculate difference between old and new histograms
-    err = max(histDistance(Fpsqr_t_H, Fpsqr_t_H_old),
-              histDistance(Fxsqr_t_H, Fxsqr_t_H_old));
-
-    ## continue until error is small enough
-    ## (exit after 1 iteration if all parameters are constant)
-  until (rng.allconst || err < hist_err)
-
-  ## average of squared antenna patterns over time and source location parameters
-  avg_Fpsqr_t = meanOfHist(Fpsqr_t_H);
-  avg_Fxsqr_t = meanOfHist(Fxsqr_t_H);
-
-  ## get signal amplitude normalisation
-  apxnorm = SignalAmplitudes(emission);
-
-  ## create random parameter generator for source amplitude parameters
-  rng = CreateRandParam(cosi);
-  N = !!rng.allconst + !rng.allconst*hist_N;
-
-  ## calculate histogram of squared SNR geometric factor
-  Rsqr = Hist(1, {"lin", "dbin", hist_dx});
-  do
-
-    ## new random source amplitude parameters
-    [cosi] = NextRandParam(rng, N);
-
-    ## calculate signal amplitudes
-    [ap, ax] = SignalAmplitudes(emission, cosi);
-
-    ## calculate squared SNR geometric factor
-    R2 = (ap.^2 .* avg_Fpsqr_t) + (ax.^2 .* avg_Fxsqr_t);
-
-    ## add new values to histogram
-    Rsqr_old = Rsqr;
-    Rsqr = addDataToHist(Rsqr, R2(:));
 
     ## calculate difference between old and new histograms
     err = histDistance(Rsqr, Rsqr_old);
