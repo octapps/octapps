@@ -41,7 +41,7 @@
 ## "tol"                tolerance on the obtained relative difference of the solution, required for convergence [1e-2]
 ## "maxiter"            maximal allowed number of iterations [100]
 ##
-## "sensApprox":        sensitivity approximation to use in SensitivityScalingDeviationN() [default: none] {[], "none", "Gauss", "WSG}
+## "sensApprox":        sensitivity approximation to use in SensitivityScalingDeviationN() [default: none] {[], "none", "Gauss", "WSG"}
 ##
 ## "verbose"            [optional] print useful information about solution at each iteration [default: false]
 ##
