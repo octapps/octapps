@@ -22,8 +22,8 @@
 ##     f2dot_min/max:   minimum/maximum 2nd spindown (optional)
 ##     NSFTs:           total number of SFTs
 ##     Fmethod:         F-statistic method used by search
-##     Ncohres:         number of coherent results
-##     Nsemires:        number of semicoherent results
+##     Ncohres:         total number of computed coherent results
+##     Nsemires:        number of computed semicoherent results
 ##   tau_set:
 ##     Set of fundamental timing constants to use
 ## Outputs:
