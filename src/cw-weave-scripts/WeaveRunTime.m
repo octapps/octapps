@@ -85,7 +85,7 @@ function [times, extra] = WeaveRunTime(varargin)
       tau.query = 8.9e-11;
       tau.demod_psft = 6.3e-8;
       tau.resamp_Fbin = 6.1e-8;
-      tau.resamp_FFT = 3.4e-8;
+      tau.resamp_FFT = 3.4e-8 / ( 5 * 18 );	%% 'tau0_FFT' convention changed, now per (5*N*log2(N) instead of per N
       tau.resamp_spin = 7.7e-8;
       tau.mean2F_add = 7.0e-10;
       tau.mean2F_div = 2.1e-9;
@@ -156,12 +156,12 @@ function [times, extra] = WeaveRunTime(varargin)
     args.f2dot0 = f2dot_min;
     args.f2dotBand = f2dot_max - f2dot_min;
     args.refTimeShift = (ref_time - start_time) / semi_Tspan;
-    args.tauFbin = tau.resamp_Fbin;
-    args.tauFFT = tau.resamp_FFT;
-    args.tauSpin = tau.resamp_spin;
+    args.tau0_Fbin = tau.resamp_Fbin;
+    args.tau0_FFT = tau.resamp_FFT;
+    args.tau0_spin = tau.resamp_spin;
     args.Tsft = TSFT;
-    resamp_info = fevalstruct(@predictResampTimeAndMemory, args);
-    times.cohres = Ncohres * Ndetectors * resamp_info.tauRS;
+    [resamp_info, demod_info] = fevalstruct(@predictFstatTimeAndMemory, args);
+    times.cohres = Ncohres * Ndetectors * resamp_info.tauF_core;
     extra.lg2NsampFFT = resamp_info.lg2NsampFFT;
 
   elseif strncmpi(Fmethod, "Demod", 5)
