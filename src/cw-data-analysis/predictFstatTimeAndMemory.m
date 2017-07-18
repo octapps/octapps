@@ -125,13 +125,13 @@ function [resampInfo, demodInfo] = predictFstatTimeAndMemory ( varargin )
   l2NsampFFT_sep = 18;	%% if <= this value then use tau0_FFT(1), above use tau0_FFT(2), see also http://www.fftw.org/speed/CoreDuo-3.0GHz-icc64/
 
   %% estimate sidebands as closely as possible to what's done in ComputeFstat, by using XLALCWSignalCoveringBand()
-  FreqBandLoad = zeros ( size(Tspan) );
+  FreqBandRS = zeros ( size(Tspan) );
   extraBinsMethod = 8;	%% resampling 'extra bins' value
   fudge_up = 1 + 10 * eps;
   fudge_down = 1 - 10 * eps;
   for i = 1 : len
     assert ( (binaryMaxAsini(i) != 0) || (binaryMinPeriod(i) == 0 && binaryMaxEcc(i) == 0) );
-    refTime = refTimeShift(i) * Tspan(i);
+    refTime = floor ( refTimeShift(i) * Tspan(i) );
     fkdotRef     = [ Freq0(i),    f1dot0(i),    f2dot0(i) ];
     fkdotBandRef = [ FreqBand(i), f1dotBand(i), f2dotBand(i) ];
 
@@ -142,22 +142,32 @@ function [resampInfo, demodInfo] = predictFstatTimeAndMemory ( varargin )
     spinRange.fkdot     = resize ( fkdotRef, [1, PULSAR_MAX_SPINS] );
     spinRange.fkdotBand = resize ( fkdotBandRef, [1, PULSAR_MAX_SPINS] );
     [ minCoverFreq, maxCoverFreq ] = XLALCWSignalCoveringBand ( time1, time2, spinRange, binaryMaxAsini(i), binaryMinPeriod(i), binaryMaxEcc(i));
-
-    minFreq = minCoverFreq - extraBinsMethod / Tsft(i);
-    maxFreq = maxCoverFreq + extraBinsMethod / Tsft(i);
-    iMin = floor ( minFreq * Tsft(i) * fudge_up );
-    iMax = ceil  ( maxFreq * Tsft(i) * fudge_down );
+    df = 1.0 / Tsft(i);
+    minFreq = minCoverFreq - extraBinsMethod * df;
+    maxFreq = maxCoverFreq + extraBinsMethod * df;
+    tmp = minFreq / df;
+    iMin = floor ( tmp * fudge_up );
+    tmp = maxFreq / df;
+    iMax = ceil  ( tmp * fudge_down );
     numBins = ( iMax - iMin + 1 );
-    FreqBandLoad(i) = numBins / Tsft(i);
+    FreqBandLoad = numBins * df;
+
+    %% increase band for windowed-sinc
+    extraBand = 2.0  / ( 2 * Dterms(i) + 1 ) * FreqBandLoad;
+    fMinIn = iMin * df;
+    tmp = (fMinIn - extraBand) / df;
+    iMin1 = floor ( tmp * fudge_up );
+    tmp = (fMinIn + FreqBandLoad + extraBand) / df;
+    iMax1 = ceil  ( tmp * fudge_down );
+    numBinsRS = iMax1 - iMin1 + 1;
+    FreqBandRS(i) = numBinsRS * df;
   endfor
 
-  FreqBandSFT  = FreqBandLoad .* ( 1 + 4 ./ ( 2 * Dterms + 1 ) );
-
-  dtDET = 1 ./ FreqBandSFT;
+  dtDET = 1 ./ FreqBandRS;
   NFbin = ceil ( FreqBand ./ dFreq );
   D = ceil ( Tcoh .* dFreq );
   TFFT = 1 ./ ( dFreq ./ D );
-  NsampFFT0 = floor ( TFFT ./ dtDET );
+  NsampFFT0 = ceil ( TFFT ./ dtDET );
   l2NsampFFT = log2 ( NsampFFT0 );
   if ( uvar.resampFFTPowerOf2 )
     l2NsampFFT = ceil ( l2NsampFFT );
