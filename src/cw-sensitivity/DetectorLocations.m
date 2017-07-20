@@ -1,3 +1,4 @@
+## Copyright (C) 2017 Christoph Dreissigacker
 ## Copyright (C) 2011 Karl Wette
 ##
 ## This program is free software; you can redistribute it and/or modify
@@ -27,6 +28,8 @@
 ##             "H": LIGO Hanford
 ##             "L": LIGO Livingston
 ##             "V": VIRGO
+##             "G": GEO
+##             "K": KAGRA
 
 function [L, slambda, gamma, zeta] = DetectorLocations(detID)
 
@@ -35,33 +38,49 @@ function [L, slambda, gamma, zeta] = DetectorLocations(detID)
 
   ## select an interferometer
   ## reference:
-  ##   B. F. Schutz, "Networks of gravitational wave detectors and three figures of merit", arXiv:1102.5421v2
+  ##   lalsuite/lal/src/tools/LALDetectors.h
   switch detID
 
     case "H"      # LIGO Hanford
-      longitude   = -[119 24 27.6];
-      latitude    =  [46 27 18.5];
-      orientation = 279;
+      Xarm        = 5.65487724844;
+      Yarm        = 4.08408092164;
+      longitude   = -2.08405676917;
+      latitude    =  0.81079526383;
 
     case "L"      # LIGO Livingston
-      longitude   = -[90 46 27.3];
-      latitude    =  [30 33 46.4];
-      orientation = 208;
+      Xarm        = 4.40317772346;
+      Yarm        = 2.83238139666;
+      longitude   = -1.58430937078;
+      latitude    =  0.53342313506;
 
     case "V"      # VIRGO
-      longitude   = [10 30 16];
-      latitude    = [43 37 53];
-      orientation = 333.5;
+      Xarm        = 0.33916285222;
+      Yarm        = 5.05155183261;
+      longitude   = 0.18333805213;
+      latitude    = 0.76151183984;
+
+    case "G"      # GEO
+      Xarm        = 1.19360100484;
+      Yarm        = 5.83039279401;
+      longitude   = 0.17116780435;
+      latitude    = 0.91184982752;
+
+    case "K"      # KAGRA
+      Xarm        = 1.054113;
+      Yarm        = -0.5166798;
+      longitude   = 2.396441015;
+      latitude    = 0.6355068497;
 
     otherwise
       error("%s: unknown interferometer identifier '%s'", funcName, detID);
 
   endswitch
+  zeta        = mod(Xarm - Yarm,2*pi);
+  orientation = mod(zeta/2 + Yarm,2*pi);
 
   ## calculate output quantities
-  L       =     sum(longitude ./ [180, 180*60, 180*60^2]) * pi;
-  slambda = sin(sum(latitude  ./ [180, 180*60, 180*60^2]) * pi);
-  gamma = mod(90 - orientation, 360) / 180 * pi;
-  zeta = pi/2;
+  L       =     longitude;
+  slambda = sin(latitude  );
+  gamma = mod(pi/2 - orientation, 2*pi);
 
 endfunction
