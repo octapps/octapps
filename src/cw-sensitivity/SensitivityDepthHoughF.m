@@ -74,4 +74,4 @@ endfunction
 %!  Fth = 2.5;
 %!  dets = "H1,L1";
 %!  sigma = SensitivityDepthHoughF("Nseg", Nseg, "Tdata", Tdata, "misHist", misHist, "pFD", pFD, "pFA", pFA, "Fth", Fth, "detectors", dets);
-%!  assert(max(abs(sigma - [28.070; 36.547; 43.370])) < 0.05);
+%!  assert(max(abs(sigma - [27.442; 35.784; 42.490])) < 0.05);
