@@ -15,7 +15,7 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## Helper function for SensitivitySNR:
+## Helper function for SensitivityDepth:
 ## Calculate the false dismissal probability of a chi^2 detection
 ## statistic, such as the F-statistic
 ## Options:

@@ -17,12 +17,11 @@
 ## MA  02111-1307  USA
 
 ## Calculate sensitivity in terms of the sensitivity depth.
-## This function is a derivation of SensitivitySNR.
 ## Syntax:
 ##   [Depth, pd_Depth] = SensitivityDepth("opt", val, ...)
 ## where:
-##   Depth      = SensitivityDepth
-##   pd_Depth   = calculated false dismissal probability
+##   Depth    = SensitivityDepth
+##   pd_Depth = calculated false dismissal probability
 ## and where options are:
 ##   "pd"     = false dismissal probability
 ##   "Ns"     = number of segments
