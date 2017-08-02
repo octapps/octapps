@@ -83,6 +83,7 @@ function metrics = CreateSuperskyMetrics(varargin)
   ## compute supersky metrics
   try
     SSkyMetrics = XLALComputeSuperskyMetrics( ...
+                                              SUPERSKY_METRIC_TYPE, ...
                                               spindowns, ref_time, SegmentList, fiducial_freq, ...
                                               MultiLALDet, MultiNoise, DetMotion, ephemerides ...
                                             );
@@ -93,9 +94,9 @@ function metrics = CreateSuperskyMetrics(varargin)
   ## fill metrics struct
   metrics = struct;
   metrics.coh_rssky_metric = cellfun(@native, SSkyMetrics.coh_rssky_metric, "uniformoutput", false);
-  metrics.coh_rssky_transf = cellfun(@native, SSkyMetrics.coh_rssky_transf, "uniformoutput", false);
+  metrics.coh_rssky_transf = {SSkyMetrics.coh_rssky_transf{:}};
   metrics.semi_rssky_metric = native(SSkyMetrics.semi_rssky_metric);
-  metrics.semi_rssky_transf = native(SSkyMetrics.semi_rssky_transf);
+  metrics.semi_rssky_transf = SSkyMetrics.semi_rssky_transf;
 
 endfunction
 
