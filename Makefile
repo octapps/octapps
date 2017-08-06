@@ -76,6 +76,11 @@ octapps-user-env.sh octapps-user-env.csh : Makefile
 	echo "test \$${$${empty}PATH} -eq 0 && $${setenv} PATH" >>$@; \
 	echo "$${setenv} PATH$${equals}\`echo $${path} | $${cleanpath}\`" >>$@
 
+# generate author list, sorted by last name
+all .PHONY: AUTHORS
+AUTHORS:
+	$(verbose)$(GIT) shortlog -s | $(SED) 's/^[^A-Z]*//' | $(SED) 's/ \([^ ]*\)$$/@\1/' | $(SORT) -t @ -k2,2 | $(SED) 's/@/ /' > $@
+
 ifneq ($(MKOCTFILE),false)		# build extension modules
 
 VPATH = $(srcfilepath)
