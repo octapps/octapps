@@ -28,23 +28,23 @@ function [resampInfo, demodInfo] = predictFstatTimeAndMemory ( varargin )
   %% can affect timing and memory requirements for each segment. In the case of 'Weave', however, use Tspan = Tcoh [default].
   %%
   %% ----- Input parameters:
-  %% "Tcoh":     	coherent segment length
-  %% "Tspan":    	total data time-span [Default: Tcoh]
+  %% "Tcoh":            coherent segment length
+  %% "Tspan":           total data time-span [Default: Tcoh]
   %%                    NOTE: this is used to estimate the total memory in the case of the GCT search code,
   %%                    which load the full frequency band of data over all segments. In the case of the
   %%                    Weave code, the SFT frequency band is computed for each segment separately, so
   %%                    in this case one should use Tspan==Tcoh to correctly estimate the timing and memory!
   %%
-  %% "Freq0":     	start search frequency
-  %% "FreqBand": 	search frequency band
-  %% "dFreq":    	search frequency spacing
+  %% "Freq0":           start search frequency
+  %% "FreqBand":        search frequency band
+  %% "dFreq":           search frequency spacing
   %%
   %% -- Optional arguments --
   %% "f1dot0","f1dotBand": first-order spindown range [f1dot0, f1dot0+f1dotBand]  [Default: 0]
   %% "f2dot0","f2dotBand": 2nd-order spindown range [f2dot0,f2dot0+f2dotBand]    [Default: 0]
-  %% "Dterms":   	number of 'Dterms' used in sinc-interpolation  [Default: 8]
+  %% "Dterms":          number of 'Dterms' used in sinc-interpolation  [Default: 8]
   %% "Nsft":            number of SFTs (for single segment, single detector) [Default: Nsft=Tcoh/Tsft]
-  %% "Tsft":     	SFT length [Default: 1800]
+  %% "Tsft":            SFT length [Default: 1800]
   %% "refTimeShift":    offset of reference time from starttime, measured in units of Tspan, ie refTimeShift = (refTime - startTime)/Tspan [Default: 0.5]
   %% "binaryMaxAsini":  Maximum projected semi-major axis a*sini/c (= 0 for isolated sources) [Default: 0]
   %% "binaryMinPeriod": Minimum orbital period (s); must be 0 for isolated signals [Default: 0]
@@ -52,14 +52,14 @@ function [resampInfo, demodInfo] = predictFstatTimeAndMemory ( varargin )
   %% "resampFFTPowerOf2": enforce FFT length to be a power of two (by rounding up) [Default: true]
   %%
   %% ---------- Resampling timing model coefficients ----------
-  %% "tau0_Fbin":  	Resampling timing coefficient for contributions scaling with output frequency bins NFbin
-  %% "tau0_FFT":   	Resampling timing coefficient for FFT performance. Can be 2-element vector [t1, t2]: use t1 if log2(NsampFFT) <= 18, t2 otherwise
-  %% "tau0_spin":  	Resampling timing coefficient for applying spin-down corrections
-  %% "tau0_bary":  	Resampling timing coefficient (buffered) barycentering (contributes to tauF_buffer)
+  %% "tau0_Fbin":       Resampling timing coefficient for contributions scaling with output frequency bins NFbin
+  %% "tau0_FFT":        Resampling timing coefficient for FFT performance. Can be 2-element vector [t1, t2]: use t1 if log2(NsampFFT) <= 18, t2 otherwise
+  %% "tau0_spin":       Resampling timing coefficient for applying spin-down corrections
+  %% "tau0_bary":       Resampling timing coefficient (buffered) barycentering (contributes to tauF_buffer)
   %%
   %% ---------- Demod timing model coefficients ----------
-  %% tau0_coreLD:      Demod timing coefficient for core F-stat time
-  %% tau0_bufferLD:    Demod timing coefficient for computation of buffered quantities
+  %% "tau0_coreLD":    Demod timing coefficient for core F-stat time
+  %% "tau0_bufferLD":  Demod timing coefficient for computation of buffered quantities
   %%
   %% ----- Return values
   %% two structs 'resampInfo' and 'demodInfo' with fields:
@@ -82,8 +82,8 @@ function [resampInfo, demodInfo] = predictFstatTimeAndMemory ( varargin )
                         {"Freq0",       "strictpos,matrix"},
                         {"FreqBand",    "positive,matrix"},
                         {"dFreq",       "strictpos,matrix"},
-                        {"f1dot0", 	"real,matrix",   0},
-                        {"f1dotBand", 	"real,matrix",   0},
+                        {"f1dot0",      "real,matrix",   0},
+                        {"f1dotBand",   "real,matrix",   0},
                         {"f2dot0",      "real,matrix",   0},
                         {"f2dotBand",   "real,matrix",   0},
                         {"refTimeShift", "matrix",    0.5 },
@@ -93,7 +93,7 @@ function [resampInfo, demodInfo] = predictFstatTimeAndMemory ( varargin )
                         {"binaryMaxAsini",  "positive,matrix", 0 },
                         {"binaryMinPeriod", "positive,matrix", 0},
                         {"binaryMaxEcc",    "positive,matrix", 0},
-                        {"resampFFTPowerOf2", "bool",  true },		%% is XLALComputeFstat() we using FFT rounded to next power of 2 (see optArgs->resampFFTPowerOf2)
+                        {"resampFFTPowerOf2", "bool",  true },          %% is XLALComputeFstat() we using FFT rounded to next power of 2 (see optArgs->resampFFTPowerOf2)
                         %% Resamp timing model coefficients
                         {"tau0_Fbin",    "strictpos,scalar", 5.4e-8 },
                         {"tau0_FFT",     "strictpos,vector", [1.5e-08, 3.6e-8] },   %% FFT timing coefficient [t1, t2] where t1 if log2(NsampFFT) <= 18, t2 otherwise
@@ -122,11 +122,11 @@ function [resampInfo, demodInfo] = predictFstatTimeAndMemory ( varargin )
   else
     tau0_FFT = uvar.tau0_FFT;
   endif
-  l2NsampFFT_sep = 18;	%% if <= this value then use tau0_FFT(1), above use tau0_FFT(2), see also http://www.fftw.org/speed/CoreDuo-3.0GHz-icc64/
+  l2NsampFFT_sep = 18;  %% if <= this value then use tau0_FFT(1), above use tau0_FFT(2), see also http://www.fftw.org/speed/CoreDuo-3.0GHz-icc64/
 
   %% estimate sidebands as closely as possible to what's done in ComputeFstat, by using XLALCWSignalCoveringBand()
   FreqBandRS = zeros ( size(Tspan) );
-  extraBinsMethod = 8;	%% resampling 'extra bins' value
+  extraBinsMethod = 8;  %% resampling 'extra bins' value
   fudge_up = 1 + 10 * eps;
   fudge_down = 1 - 10 * eps;
   for i = 1 : len
@@ -192,7 +192,7 @@ function [resampInfo, demodInfo] = predictFstatTimeAndMemory ( varargin )
 
   %% ----- demod timing model:
   if ( uvar.Nsft == 0 )
-    Nsft = round ( Tcoh ./ Tsft );	%% default: assume gapless
+    Nsft = round ( Tcoh ./ Tsft );      %% default: assume gapless
   endif
   demodInfo.tauF_core   = Nsft * uvar.tau0_coreLD;
   demodInfo.tauF_buffer = Nsft ./ NFbin * uvar.tau0_bufferLD;
