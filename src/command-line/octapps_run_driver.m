@@ -107,10 +107,14 @@ function octapps_run_driver(func, varargin)
 
       ## parse number of arguments
       narg = str2double(argval);
-      assert(!isnan(narg) && narg > 0 && mod(narg, 1) == 0, "octapps_run: number of arguments '%s' passed to --%s must be a positive integer", argval, argname);
+      assert(!isnan(narg) && narg >= 0 && mod(narg, 1) == 0, "octapps_run: number of arguments '%s' passed to --%s must be a positive integer", argval, argname);
 
       ## print this number of arguments
-      [hprintfuncs{1:narg}] = deal({struct("func", @print_identity, "nout", 1)});
+      if narg == 0
+        hprintfuncs = {{}};
+      else
+        [hprintfuncs{1:narg}] = deal({struct("func", @print_identity, "nout", 1)});
+      endif
 
     elseif strncmp(argname, "printarg", length("printarg"))   ## handle special argument --printarg[<n>]=<print function>
 
@@ -205,7 +209,11 @@ function octapps_run_driver(func, varargin)
   args = {{fieldnames(args){:}; struct2cell(args){:}}{:}};
 
   ## call function and print output
-  [out{1:length(hprintfuncs)}] = feval(hfunc, args{:});
+  if isempty(hprintfuncs) || isempty(hprintfuncs{1})
+    feval(hfunc, args{:});
+  else
+    [out{1:length(hprintfuncs)}] = feval(hfunc, args{:});
+  endif
 
   ## print output
   for i = 1:length(hprintfuncs)
