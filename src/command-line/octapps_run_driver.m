@@ -67,18 +67,8 @@ function octapps_run_driver(func, varargin)
   ## pick out command-line arguments
   nn = [find(cellfun(@(v) strncmp(v, "--", 2) || (length(v) == 2 && v(1) == "-"), varargin)), length(varargin) + 1];
 
-  ## print first argument by default
-  hprintfuncs = {};
-  try
-    funcnout = nargout(func);
-  catch
-    funcnout = 0;
-  end_try_catch
-  if funcnout > 0
-    hprintfuncs = {{struct("func", @print_identity, "nout", 1)}};
-  endif
-
   ## parse arguments and values
+  hprintfuncs = {};
   args = struct;
   for n = 1:length(nn) - 1
 
@@ -117,14 +107,10 @@ function octapps_run_driver(func, varargin)
 
       ## parse number of arguments
       narg = str2double(argval);
-      assert(!isnan(narg) && narg >= 0 && mod(narg, 1) == 0, "octapps_run: number of arguments '%s' passed to --%s must be a positive integer", argval, argname);
+      assert(!isnan(narg) && narg > 0 && mod(narg, 1) == 0, "octapps_run: number of arguments '%s' passed to --%s must be a positive integer", argval, argname);
 
       ## print this number of arguments
-      if narg == 0
-        hprintfuncs = {};
-      else
-        [hprintfuncs{1:narg}] = deal({struct("func", @print_identity, "nout", 1)});
-      endif
+      [hprintfuncs{1:narg}] = deal({struct("func", @print_identity, "nout", 1)});
 
     elseif strncmp(argname, "printarg", length("printarg"))   ## handle special argument --printarg[<n>]=<print function>
 
@@ -203,15 +189,23 @@ function octapps_run_driver(func, varargin)
 
   endfor
 
+  ## print first argument by default
+  if isempty(hprintfuncs)
+    try
+      funcnout = nargout(func);
+    catch
+      funcnout = 0;
+    end_try_catch
+    if funcnout > 0
+      hprintfuncs = {{struct("func", @print_identity, "nout", 1)}};
+    endif
+  endif
+
   ## convert arguments to flat cell array of {"name", "value", ...} pairs
   args = {{fieldnames(args){:}; struct2cell(args){:}}{:}};
 
   ## call function and print output
-  if isempty(hprintfuncs)
-    feval(hfunc, args{:});
-  else
-    [out{1:length(hprintfuncs)}] = feval(hfunc, args{:});
-  endif
+  [out{1:length(hprintfuncs)}] = feval(hfunc, args{:});
 
   ## print output
   for i = 1:length(hprintfuncs)
