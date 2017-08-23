@@ -88,7 +88,7 @@ function Fsqr_t = TimeAvgSqrAntennaPattern(a0, b0, x, y, zeta, OmegaT, nmax)
   if nmax >= 3
     C(3+1,:) = 0.5.*(Jm3.*Kp2 - Kp1.*Kp3);
   endif
-  if nmax >= 3
+  if nmax >= 4
     C(4+1,:) = 0.125.*(Jm3.^2 - Kp3.^2);
   endif
 
