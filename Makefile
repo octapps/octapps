@@ -2,6 +2,9 @@ SHELL = /bin/bash
 .DELETE_ON_ERROR :
 .SECONDARY :
 
+# current directory
+curdir := $(shell pwd -L)
+
 # use "make V=1" to display verbose output
 verbose = $(verbose_$(V))
 verbose_ = $(verbose_0)
@@ -28,11 +31,10 @@ CheckPkg = $(shell $(PKGCONFIG) --exists $1 && echo true)
 
 # Octave version string, and hex number define for use in C code
 version := $(shell $(OCTAVE) --eval "disp(OCTAVE_VERSION)")
-vershex := -DOCTAVE_VERSION_HEX=$(shell $(OCTAVE) --eval "disp(strcat('0x', sprintf('%02i', str2double(strrep(strsplit(OCTAVE_VERSION, '.'), '+', '')))))")
+vershex := -DOCTAVE_VERSION_HEX=$(shell $(OCTAVE) --eval "addpath('$(curdir)/src/general', '-begin'); printf('0x%x', versionstr2hex(OCTAVE_VERSION))")
 
 # OctApps source path and file list
-curdir := $(shell pwd -L)
-srcpath := $(shell $(OCTAVE) --eval "p = strsplit(genpath('$(curdir)/src'), ':'); f = cellfun(@(x) strsplit(x, filesep){end}, p, 'uniformoutput', false); b = strcat('builtin-', OCTAVE_VERSION); ii = ~cellfun(@(x) strncmp(x, 'builtin-', 8) && strcmp(sortrows(strvcat(x, b))(2,:), b), f); printf('%s ', p{ii})")
+srcpath := $(shell $(OCTAVE) --eval "addpath('$(curdir)/src/general', '-begin'); octapps_genpath()")
 srcfilepath := $(filter-out %/deprecated, $(srcpath))
 srcmfiles := $(wildcard $(srcfilepath:%=%/*.m))
 srccfiles := $(wildcard $(srcfilepath:%=%/*.hpp) $(srcfilepath:%=%/*.cpp))
