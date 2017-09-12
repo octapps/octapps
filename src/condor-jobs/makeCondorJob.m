@@ -62,7 +62,7 @@ function job_file = makeCondorJob(varargin)
                {"executable", "char,+exactlyone:func_name", []},
                {"arguments", "cell,vector"},
                {"func_nargout", "integer,positive,scalar,+noneorall:func_name", []},
-               {"exec_files", "cell,vector,+exactlyone:executable", {}},
+               {"exec_files", "cell,vector,+atmostone:executable", {}},
                {"output_format", "char,+atmostone:executable", "OctBinZ"},
                []);
 
