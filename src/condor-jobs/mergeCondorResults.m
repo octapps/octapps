@@ -82,7 +82,7 @@ function mergeCondorResults(varargin)
   dag_merged_file = sprintf("%s_%s.bin.gz", dag_name, merged_suffix);
   if exist(dag_merged_file, "file")
     printf("%s: loading '%s' ...", funcName, dag_merged_file);
-    load(dag_merged_file);
+    merged = load(dag_merged_file);
     assert(isstruct(merged), "%s: 'merged' is not a struct", funcName);
     printf(" done\n");
 
