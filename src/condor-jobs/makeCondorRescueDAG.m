@@ -35,7 +35,7 @@ function makeCondorRescueDAG(varargin)
   ## load job node data
   dag_nodes_file = strcat(dag_name, "_nodes.bin.gz");
   printf("%s: loading '%s' ...", funcName, dag_nodes_file);
-  load(dag_nodes_file);
+  load(fullfile(".", dag_nodes_file));
   assert(isstruct(job_nodes), "%s: 'job_nodes' is not a struct", funcName);
   printf(" done\n");
 
