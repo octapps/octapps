@@ -69,12 +69,14 @@ function hgrm = WeaveFstatMismatch(varargin)
   lattice_hgrm = LatticeMismatchHist(dim, lattice);
 
   ## compute the mean and standard deviation of the coherent mismatch distribution
-  coh_mean_mismatch = coh_max_mismatch * meanOfHist(lattice_hgrm);
-  coh_stdv_mismatch = coh_max_mismatch * stdvOfHist(lattice_hgrm);
+  ## - fitting coefficients from WeaveFixMismatchModel/fitModel.m
+  coh_mean_mismatch = 1.07863 * coh_max_mismatch * meanOfHist(lattice_hgrm);
+  coh_stdv_mismatch = 1.39378 * coh_max_mismatch * stdvOfHist(lattice_hgrm);
 
   ## compute the mean and standard deviation of the semicoherent mismatch distribution
-  semi_mean_mismatch = semi_max_mismatch * meanOfHist(lattice_hgrm);
-  semi_stdv_mismatch = semi_max_mismatch * stdvOfHist(lattice_hgrm);
+  ## - fitting coefficients from WeaveFixMismatchModel/fitModel.m
+  semi_mean_mismatch = 0.79683 * semi_max_mismatch * meanOfHist(lattice_hgrm);
+  semi_stdv_mismatch = 1.08506 * semi_max_mismatch * stdvOfHist(lattice_hgrm);
 
   ## compute the mean and standard deviation of the F-statistic mismatch distribution
   [mean_twoF, stdv_twoF] = EmpiricalFstatMismatch(coh_Tspan, semi_Tspan, coh_mean_mismatch, semi_mean_mismatch, coh_stdv_mismatch, semi_stdv_mismatch);
