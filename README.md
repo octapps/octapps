@@ -5,7 +5,8 @@ Welcome to OctApps, the unofficial LSC Octave script repository!
 
 Homepage: https://gitlab.aei.uni-hannover.de/octapps/octapps
 
-Bugs should be reported to: https://bugs.ligo.org/redmine/projects/octapps
+Bugs should be reported via gitlab as well: https://gitlab.aei.uni-hannover.de/octapps/octapps/issues
+and patches submitted (ideally) via merge requests.
 
 Checking out
 ------------
