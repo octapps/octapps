@@ -23,17 +23,17 @@
 ##     NSFTs:           total number of SFTs
 ##     Fmethod:         F-statistic method used by search
 ##     Ncohres:         total number of computed coherent results
-##     Nsemires:        number of computed semicoherent results
+##     Nsemitpl:        number of computed semicoherent results
 ##   tau_set:
 ##     Set of fundamental timing constants to use
+##   stats
+##     Comma-separated list of statistics being computed
 ## Outputs:
 ##   times.total:
 ##     estimate of total CPU run time (seconds)
 ##   times.<field>:
 ##     estimate of CPU time (seconds) to perform action <field>;
 ##     see the script itself for further documentation
-##   extra:
-##     extra information, potentially specific to F-statistic algorithm
 
 ## Copyright (C) 2017 Karl Wette
 ##
@@ -50,7 +50,7 @@
 ## You should have received a copy of the GNU General Public License
 ## along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-function [times, extra] = WeaveRunTime(varargin)
+function times = WeaveRunTime(varargin)
 
   ## parse options
   parseOptions(varargin,
@@ -72,31 +72,37 @@ function [times, extra] = WeaveRunTime(varargin)
                {"NSFTs", "integer,strictpos,scalar,+exactlyone:result_file", []},
                {"Fmethod", "char,+exactlyone:result_file", []},
                {"Ncohres", "integer,strictpos,scalar,+exactlyone:result_file", []},
-               {"Nsemires", "integer,strictpos,scalar,+exactlyone:result_file", []},
+               {"Nsemitpl", "integer,strictpos,scalar,+exactlyone:result_file", []},
                {"tau_set", "char"},
+               {"stats", "char"},
                {"TSFT", "integer,strictpos,scalar", 1800},
                []);
+  stats = strsplit(stats, ",");
 
   ## parse fundamental timing constant set
   tau = struct;
   switch tau_set
-    case "v1"
-      tau.lattice = 1.4e-10;
-      tau.query = 8.9e-11;
-      tau.demod_psft = 6.3e-8;
-      tau.resamp_Fbin = 6.1e-8;
-      tau.resamp_FFT = 3.4e-8 / ( 5 * 18 );	%% 'tau0_FFT' convention changed, now per (5*N*log2(N) instead of per N
-      tau.resamp_spin = 7.7e-8;
-      tau.mean2F_add = 7.0e-10;
-      tau.mean2F_div = 2.1e-9;
-      tau.output = 6.9e-10;
+    case "v2"
+      tau_iter_psemi              = 3.31987e-10;   # 75th quantile
+      tau_query_psemi             = 2.45808e-08;   # 75th quantile
+      tau_coh_coh2f_pcoh          = 7.24469e-06;   # 75th quantile
+      tau_semiseg_max2f_psemiseg  = 5.00954e-09;   # 75th quantile
+      tau_semiseg_sum2f_psemiseg  = 2.21012e-09;   # 75th quantile
+      tau_semi_mean2f_psemi       = 1.12007e-09;   # 75th quantile
+      tau_semi_log10bsgl_psemi    = 1.40847e-08;   # 75th quantile
+      tau_semi_log10bsgltl_psemi  = 2.47331e-08;   # 75th quantile
+      tau_semi_log10btsgltl_psemi = 2.52613e-08;   # 75th quantile
+      tau_output_psemi            = 6.59480e-09;   # 75th quantile
+      tau_ckpt_psemi              = 0.00000e+00;   # 75th quantile
+      demod_fstat_tau0_coreld     = 7.56737e-08;   # 75th quantile
+      demod_fstat_tau0_bufferld   = 1.28938e-06;   # 75th quantile
+      resamp_fstat_tau0_fbin      = 9.94730e-08;   # 75th quantile
+      resamp_fstat_tau0_spin      = 8.68288e-08;   # 75th quantile
+      resamp_fstat_tau0_fft       = 4.36694e-10;   # 75th quantile
+      resamp_fstat_tau0_bary      = 5.25338e-07;   # 75th quantile
     otherwise
       error("%s: invalid timing constant set '%s'", funcName, tau_set);
   endswitch
-
-  ## initialise variables
-  times = struct;
-  extra = struct;
 
   ## if given, load setup file and extract various parameters
   if !isempty(setup_file)
@@ -117,71 +123,103 @@ function [times, extra] = WeaveRunTime(varargin)
   if !isempty(result_file)
     result = fitsread(result_file);
     result_hdr = result.primary.header;
-    freq_min = result_hdr.minfreq;
-    freq_max = result_hdr.maxfreq;
+    freq_min = result_hdr.semiparam_minfreq;
+    freq_max = result_hdr.semiparam_maxfreq;
     dfreq = result_hdr.dfreq;
-    f1dot_min = result_hdr.minf1dot;
-    f1dot_max = result_hdr.maxf1dot;
-    f2dot_min = getoptfield(0, result_hdr, "minf2dot");
-    f2dot_max = getoptfield(0, result_hdr, "maxf2dot");
+    f1dot_min = result_hdr.semiparam_minf1dot;
+    f1dot_max = result_hdr.semiparam_maxf1dot;
+    f2dot_min = getoptfield(0, result_hdr, "semiparam_minf2dot");
+    f2dot_max = getoptfield(0, result_hdr, "semiparam_maxf2dot");
     NSFTs = result_hdr.nsfts;
     Fmethod = result_hdr.fmethod;
     Ncohres = result_hdr.ncohres;
-    Nsemires = result_hdr.nsemires;
+    Nsemitpl = result_hdr.nsemires;
   endif
+  Nsemiseg = Nsemitpl * (Nsegments - 1);
 
   ## check parameter-space ranges
   assert(freq_max >= freq_min);
   assert(f1dot_max >= f1dot_min);
   assert(f2dot_max >= f2dot_min);
 
-  ## estimate time to interate over lattice tiling
-  times.lattice = Nsemires * tau.lattice;
+  ## estimate time to iterate over lattice tiling
+  time_iter = tau_iter_psemi * Nsemitpl;
 
   ## estimate time to perform nearest-neighbour lookup queries
-  times.query = Nsemires * Nsegments * tau.query;
+  time_query = tau_query_psemi * Nsemitpl;
 
   ## estimate time to compute coherent F-statistics
+  args = struct;
+  args.Tcoh = (NSFTs * TSFT) / (Nsegments * Ndetectors);
+  args.Tspan = coh_Tspan;
+  args.Freq0 = freq_min;
+  args.FreqBand = freq_max - freq_min;
+  args.dFreq = dfreq;
+  args.f1dot0 = f1dot_min;
+  args.f1dotBand = f1dot_max - f1dot_min;
+  args.f2dot0 = f2dot_min;
+  args.f2dotBand = f2dot_max - f2dot_min;
+  args.refTimeShift = (ref_time - start_time) / semi_Tspan;
+  args.tau0_coreLD = demod_fstat_tau0_coreld;
+  args.tau0_bufferLD = demod_fstat_tau0_bufferld;
+  args.tau0_Fbin = resamp_fstat_tau0_fbin;
+  args.tau0_FFT = resamp_fstat_tau0_fft;
+  args.tau0_spin = resamp_fstat_tau0_spin;
+  args.tau0_bary = resamp_fstat_tau0_bary;
+  args.Tsft = TSFT;
+  [resamp_info, demod_info] = fevalstruct(@predictFstatTimeAndMemory, args);
   if strncmpi(Fmethod, "Resamp", 6)
-
-    ## estimate time using resampling F-statistic algorithm
-    args = struct;
-    args.Tcoh = (NSFTs * TSFT) / (Nsegments * Ndetectors);
-    args.Tspan = coh_Tspan;
-    args.Freq0 = freq_min;
-    args.FreqBand = freq_max - freq_min;
-    args.dFreq = dfreq;
-    args.f1dot0 = f1dot_min;
-    args.f1dotBand = f1dot_max - f1dot_min;
-    args.f2dot0 = f2dot_min;
-    args.f2dotBand = f2dot_max - f2dot_min;
-    args.refTimeShift = (ref_time - start_time) / semi_Tspan;
-    args.tau0_Fbin = tau.resamp_Fbin;
-    args.tau0_FFT = tau.resamp_FFT;
-    args.tau0_spin = tau.resamp_spin;
-    args.Tsft = TSFT;
-    [resamp_info, demod_info] = fevalstruct(@predictFstatTimeAndMemory, args);
-    times.cohres = Ncohres * Ndetectors * resamp_info.tauF_core;
-    extra.lg2NsampFFT = resamp_info.lg2NsampFFT;
-
+    time_coh_coh2f = resamp_info.tauF_core * Ndetectors * Ncohres;
   elseif strncmpi(Fmethod, "Demod", 5)
-
-    ## estimate time using demodulation F-statistic algorithm
-    times.cohres = Ncohres * (NSFTs / Nsegments) * tau.demod_psft;
-
+    time_coh_coh2f = demod_info.tauF_core * Ndetectors * Ncohres;
   else
     error("%s: unknown F-statistic method '%s'", funcName, Fmethod);
   endif
 
-  ## estimate time to add together coherent F-statistics
-  times.semiparts = Nsemires * (Nsegments - 1) * tau.mean2F_add;
+  ## estimate time to compute semicoherent F-statistics
+  time_semiseg_sum2f = tau_semiseg_sum2f_psemiseg * Nsemiseg;
+  time_semiseg_max2f = tau_semiseg_max2f_psemiseg * Nsemiseg;
+  time_semi_mean2f = tau_semi_mean2f_psemi * Nsemitpl;
 
-  ## estimate time to compute:
-  ## - mean semicoherent F-statistics
-  times.semires = Nsemires * tau.mean2F_div;
+  ## estimate time to compute line-robust statistics
+  time_semi_log10bsgl = tau_semi_log10bsgl_psemi * Nsemitpl;
+  time_semi_log10bsgltl = tau_semi_log10bsgltl_psemi * Nsemitpl;
+  time_semi_log10btsgltl = tau_semi_log10btsgltl_psemi * Nsemitpl;
 
   ## estimate time to output results
-  times.output = Nsemires * tau.output;
+  time_output = tau_output_psemi * Nsemitpl;
+
+  ## fill in times struct based on requested statistics
+  times = struct;
+  times.iter = time_iter;
+  times.query = time_query;
+  for i = 1:length(stats)
+    switch stats{i}
+      case "sum2F"
+        times.coh_coh2f = time_coh_coh2f;;
+        times.semiseg_sum2f = time_semiseg_sum2f;;
+      case "mean2F"
+        times.coh_coh2f = time_coh_coh2f;;
+        times.semiseg_sum2f = time_semiseg_sum2f;;
+        times.semi_mean2f = time_semi_mean2f;;
+      case "log10BSGL"
+        times.coh_coh2f = time_coh_coh2f;;
+        times.semi_log10bsgl = time_semi_log10bsgl;;
+      case "log10BSGLtL"
+        times.coh_coh2f = time_coh_coh2f;;
+        times.semiseg_sum2f = time_semiseg_sum2f;;
+        times.semiseg_max2f = time_semiseg_max2f;;
+        times.semi_log10bsgltl = time_semi_log10bsgltl;;
+      case "log10BtSGLtL"
+        times.coh_coh2f = time_coh_coh2f;;
+        times.semiseg_sum2f = time_semiseg_sum2f;;
+        times.semiseg_max2f = time_semiseg_max2f;;
+        times.semi_log10bsgltl = time_semi_log10bsgltl;;
+      otherwise
+        error("%s: invalid statistic '%s'", funcName, stats{i});
+    endswitch
+  endfor
+  times.output = time_output;
 
   ## estimate total run time
   times.total = sum(structfun(@sum, times));
