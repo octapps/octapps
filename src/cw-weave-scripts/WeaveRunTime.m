@@ -214,7 +214,7 @@ function times = WeaveRunTime(varargin)
         times.coh_coh2f = time_coh_coh2f;;
         times.semiseg_sum2f = time_semiseg_sum2f;;
         times.semiseg_max2f = time_semiseg_max2f;;
-        times.semi_log10bsgltl = time_semi_log10bsgltl;;
+        times.semi_log10btsgltl = time_semi_log10btsgltl;;
       otherwise
         error("%s: invalid statistic '%s'", funcName, stats{i});
     endswitch
