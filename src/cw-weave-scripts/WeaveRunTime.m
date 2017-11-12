@@ -196,25 +196,25 @@ function times = WeaveRunTime(varargin)
   for i = 1:length(stats)
     switch stats{i}
       case "sum2F"
-        times.coh_coh2f = time_coh_coh2f;;
-        times.semiseg_sum2f = time_semiseg_sum2f;;
+        times.coh_coh2f = time_coh_coh2f;
+        times.semiseg_sum2f = time_semiseg_sum2f;
       case "mean2F"
-        times.coh_coh2f = time_coh_coh2f;;
-        times.semiseg_sum2f = time_semiseg_sum2f;;
-        times.semi_mean2f = time_semi_mean2f;;
+        times.coh_coh2f = time_coh_coh2f;
+        times.semiseg_sum2f = time_semiseg_sum2f;
+        times.semi_mean2f = time_semi_mean2f;
       case "log10BSGL"
-        times.coh_coh2f = time_coh_coh2f;;
-        times.semi_log10bsgl = time_semi_log10bsgl;;
+        times.coh_coh2f = time_coh_coh2f;
+        times.semi_log10bsgl = time_semi_log10bsgl;
       case "log10BSGLtL"
-        times.coh_coh2f = time_coh_coh2f;;
-        times.semiseg_sum2f = time_semiseg_sum2f;;
-        times.semiseg_max2f = time_semiseg_max2f;;
-        times.semi_log10bsgltl = time_semi_log10bsgltl;;
+        times.coh_coh2f = time_coh_coh2f;
+        times.semiseg_sum2f = time_semiseg_sum2f;
+        times.semiseg_max2f = time_semiseg_max2f;
+        times.semi_log10bsgltl = time_semi_log10bsgltl;
       case "log10BtSGLtL"
-        times.coh_coh2f = time_coh_coh2f;;
-        times.semiseg_sum2f = time_semiseg_sum2f;;
-        times.semiseg_max2f = time_semiseg_max2f;;
-        times.semi_log10btsgltl = time_semi_log10btsgltl;;
+        times.coh_coh2f = time_coh_coh2f;
+        times.semiseg_sum2f = time_semiseg_sum2f;
+        times.semiseg_max2f = time_semiseg_max2f;
+        times.semi_log10btsgltl = time_semi_log10btsgltl;
       otherwise
         error("%s: invalid statistic '%s'", funcName, stats{i});
     endswitch
