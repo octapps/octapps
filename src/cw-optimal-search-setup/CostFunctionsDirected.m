@@ -93,6 +93,7 @@ endfunction ## CostFunctionsDirected()
 %!  TobsMax = 256.49 * DAYS;
 %!
 %!  sol = OptimalSolution4StackSlide ( "costFuns", costFuns, "cost0", cost0, "TobsMax", TobsMax, "stackparamsGuess", refParams );
+%!  sol_v2 = OptimalSolution4StackSlide_v2 ( "costFuns", costFuns, "cost0", cost0, "TobsMax", TobsMax, "stackparamsGuess", refParams );
 %!
 %!  tol = -1e-2;
 %!  assert ( sol.mCoh, 0.11892, tol );
@@ -100,6 +101,17 @@ endfunction ## CostFunctionsDirected()
 %!  assert ( sol.Nseg, 32.075, tol );
 %!  assert ( sol.Tseg, 6.9091e+05, tol );
 %!  assert ( sol.cr, 0.43838, tol );
+%!  DebugPrintf ( 0, "\nsol_v1 = " ); DebugPrintStackparams ( 0, sol ); DebugPrintf ( 0, "\n");
+%!  DebugPrintf ( 0, "sol_v2 = " ); DebugPrintStackparams ( 0, sol_v2 ); DebugPrintf ( 0, "\n");
+%!
+%! %% test 'v2' solution
+%!  assert ( sol_v2.L0 >= sol.L0 );	%% should be better than 'v1'
+%!  assert ( sol_v2.costConstraint < 5e-2 );
+%!  assert ( sol_v2.mCoh, 0.11892, tol );
+%!  assert ( sol_v2.mInc, 0.40691, tol );
+%!  assert ( sol_v2.Nseg, 32.075, tol );
+%!  assert ( sol_v2.Tseg, 6.9091e+05, tol );
+
 
 ## Recompute a S5 CasA solution given in Prix&Shaltev,PRD85,084010(2012), corrected in Shaltev thesis Eq.(4.119)
 %!test
@@ -125,6 +137,10 @@ endfunction ## CostFunctionsDirected()
 %!  TobsMax = 365 * DAYS;
 %!
 %!  sol = OptimalSolution4StackSlide ( "costFuns", costFuns, "cost0", cost0, "TobsMax", TobsMax, "stackparamsGuess", refParams, "sensApprox", "WSG" );
+%!  sol_v2 = OptimalSolution4StackSlide_v2 ( "costFuns", costFuns, "cost0", cost0, "TobsMax", TobsMax, "stackparamsGuess", refParams, "sensApprox", "WSG" );
+%!
+%!  DebugPrintf ( 0, "\nsol_v1 = " ); DebugPrintStackparams ( 0, sol ); DebugPrintf ( 0, "\n");
+%!  DebugPrintf ( 0, "sol_v2 = " ); DebugPrintStackparams ( 0, sol_v2 ); DebugPrintf ( 0, "\n");
 %!
 %!  tol = -1e-2;
 %! ##compare to reference values given in Shaltev thesis, Eq.(4.119) (adjusted for more accurate xi=mean(Ans) instead of xi~0.5)
@@ -133,7 +149,14 @@ endfunction ## CostFunctionsDirected()
 %!  assert ( sol.Nseg, 61.711, tol );
 %!  assert ( sol.Tseg, 2.0905e+05, tol );
 %!  assert ( sol.cr, 1.0013, tol );
-
+%!
+%! %% test 'v2' solution
+%!  assert ( sol_v2.L0 >= sol.L0 );	%% should be better than 'v1'
+%!  assert ( sol_v2.costConstraint < 5e-2 );
+%!  assert ( sol_v2.mCoh, 0.19219, tol );
+%!  assert ( sol_v2.mInc, 0.25250, tol );
+%!  assert ( sol_v2.Nseg, 57.035, tol );
+%!  assert ( sol_v2.Tseg, 2.1643e+05, tol );
 
 function [cost, Nt, lattice] = cost_coh_wparams ( Nseg, Tseg, mCoh, params )
   ## coherent cost function

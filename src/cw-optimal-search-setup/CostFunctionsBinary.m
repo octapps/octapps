@@ -91,6 +91,10 @@ endfunction ## CostFunctionsBinary()
 %!  TsegMax = 10 * DAYS;
 %!
 %!  sol = OptimalSolution4StackSlide ( "costFuns", costFuns, "cost0", cost0, "TobsMax", TobsMax, "TsegMax", TsegMax, "stackparamsGuess", refParams );
+%!  sol_v2 = OptimalSolution4StackSlide_v2 ( "costFuns", costFuns, "cost0", cost0, "TobsMax", TobsMax, "TsegMax", TsegMax, "stackparamsGuess", refParams );
+%!
+%!  DebugPrintf ( 0, "\nsol_v1 = " ); DebugPrintStackparams ( 0, sol ); DebugPrintf ( 0, "\n");
+%!  DebugPrintf ( 0, "sol_v2 = " ); DebugPrintStackparams ( 0, sol_v2 ); DebugPrintf ( 0, "\n");
 %!
 %!  tol = -1e-2;
 %!  assert ( sol.mCoh, 0.740353478526876, tol );	%% values corrected for xi=MeanHist(An*) instead of 0.5
@@ -98,6 +102,16 @@ endfunction ## CostFunctionsBinary()
 %!  assert ( sol.Nseg, 40.4819540406797, tol );
 %!  assert ( sol.Tseg, 768342.357405575, tol );
 %!  assert ( sol.cr, 22.3794305395332, tol );
+%!
+%! %% test 'v2' solution
+%!  assert ( sol_v2.L0 >= sol.L0 );	%% should be better than 'v1'
+%!  assert ( sol_v2.costConstraint < 5e-2 );
+%!  assert ( sol_v2.mCoh, 0.800740, tol );
+%!  assert ( sol_v2.mInc, 0.043971, tol );
+%!  assert ( sol_v2.Nseg, 36, tol );
+%!  assert ( sol_v2.Tseg, 864000, tol );
+
+
 
 ## Recompute ScoX1 solution from Leaci&Prix(2015) paper, Table III, corrected for xi=MeanHist(An*) instead of 0.5
 %!test
@@ -120,6 +134,10 @@ endfunction ## CostFunctionsBinary()
 %!  TsegMax = 10 * DAYS;
 %!
 %!  sol = OptimalSolution4StackSlide ( "costFuns", costFuns, "cost0", cost0, "TobsMax", TobsMax, "TsegMax", TsegMax, "stackparamsGuess", refParams );
+%!  sol_v2 = OptimalSolution4StackSlide_v2 ( "costFuns", costFuns, "cost0", cost0, "TobsMax", TobsMax, "TsegMax", TsegMax, "stackparamsGuess", refParams );
+%!
+%!  DebugPrintf ( 0, "\nsol_v1 = " ); DebugPrintStackparams ( 0, sol ); DebugPrintf ( 0, "\n");
+%!  DebugPrintf ( 0, "sol_v2 = " ); DebugPrintStackparams ( 0, sol_v2 ); DebugPrintf ( 0, "\n");
 %!
 %!  tol = -1e-2;
 %!  assert ( sol.mCoh, 0.037677, tol );
@@ -127,6 +145,14 @@ endfunction ## CostFunctionsBinary()
 %!  assert ( sol.Nseg, 36, tol );
 %!  assert ( sol.Tseg, 864000, tol );
 %!  assert ( sol.cr, 1.5931, tol );
+%!
+%! %% test 'v2' solution
+%!  assert ( sol_v2.L0 >= sol.L0 );	%% should be better than 'v1'
+%!  assert ( sol_v2.costConstraint < 5e-2 );
+%!  assert ( sol_v2.mCoh, 0.038235, tol );
+%!  assert ( sol_v2.mInc, 0.030999, tol );
+%!  assert ( sol_v2.Nseg, 36, tol );
+%!  assert ( sol_v2.Tseg, 864000, tol );
 
 ## Recompute ScoX1 solution from Leaci&Prix(2015) paper, Table IV, corrected for xi=MeanHist(An*) instead of 0.5
 %!test
@@ -150,6 +176,10 @@ endfunction ## CostFunctionsBinary()
 %!  TsegMax = 10 * DAYS;
 %!
 %!  sol = OptimalSolution4StackSlide ( "costFuns", costFuns, "cost0", cost0, "TobsMax", TobsMax, "TsegMax", TsegMax, "stackparamsGuess", refParams );
+%!  sol_v2 = OptimalSolution4StackSlide_v2 ( "costFuns", costFuns, "cost0", cost0, "TobsMax", TobsMax, "TsegMax", TsegMax, "stackparamsGuess", refParams );
+%!
+%!  DebugPrintf ( 0, "\nsol_v1 = " ); DebugPrintStackparams ( 0, sol ); DebugPrintf ( 0, "\n");
+%!  DebugPrintf ( 0, "sol_v2 = " ); DebugPrintStackparams ( 0, sol_v2 ); DebugPrintf ( 0, "\n");
 %!
 %!  tol = -1e-2;
 %!  assert ( sol.mCoh, 1.1838, tol );
@@ -157,7 +187,14 @@ endfunction ## CostFunctionsBinary()
 %!  assert ( sol.Nseg, 36, tol );
 %!  assert ( sol.Tseg, 864000, tol );
 %!  assert ( sol.cr, 2.6405, tol );
-
+%!
+%! %% test 'v2' solution
+%!  assert ( sol_v2.L0 >= sol.L0 );	%% should be better than 'v1'
+%!  assert ( sol_v2.costConstraint < 5e-2 );
+%!  assert ( sol_v2.mCoh, 0.81274, tol );
+%!  assert ( sol_v2.mInc, 0.30675, tol );
+%!  assert ( sol_v2.Nseg, 14.804, tol );
+%!  assert ( sol_v2.Tseg, 864000, tol );
 
 function [cost, Nt, lattice] = cost_coh_wparams ( Nseg, Tseg, mCoh, params )
   ## coherent cost function
