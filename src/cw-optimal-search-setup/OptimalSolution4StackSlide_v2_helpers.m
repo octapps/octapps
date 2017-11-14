@@ -351,6 +351,7 @@ function sol = INT_unconstrained ( stackparams, funs )
     xi0 = 0.5;
     solLin = log ( [ rCoh / ( 1 + rCoh + rInc ) / xi0, rInc / ( 1 + rCoh + rInc ) / xi0 ] );
     try
+      DebugPrintf ( 4, "\n");
       opts = optimset ( "Display", "iter", "OutputFcn", @DebugPrintFsolve ); %% , "AutoScaling", "on" );
       [X, FVEC, INFO, OUTPUT, FJAC] = fsolve ( FCN, solLin, opts );
       assert ( INFO == 1, "%s: fsolve() failed to find {mCoh,mInc}(cratio). INFO = %d\n", funcName(), INFO );
@@ -429,6 +430,7 @@ function sol = INT_constrainedTobs ( stackparams, funs, Tobs0 )
     FCN = @(v) [ eq_Tobs(exp(v(1)),exp(v(2))); eq_Nseg0(exp(v(1)),exp(v(2))) ];
     guess = log ( [ 0.5, 0.5 ] );
     try
+      DebugPrintf ( 4, "\n");
       opts = optimset ( "Display", "iter", "OutputFcn", @DebugPrintFsolve ); %%, "AutoScaling", "on" );
       [X, FVEC, INFO, OUTPUT, FJAC] = fsolve ( FCN, guess, opts );
       assert ( INFO == 1, "%s: fsolve() failed to find {mCoh,mInc} at fixed Tobs0. INFO = %d\n", funcName(), INFO );
@@ -493,6 +495,7 @@ function sol = INT_constrainedTseg ( stackparams, funs, Tseg0 )
   FCN = @(v) [ eq_Tseg(exp(v(1)),exp(v(2))); eq_Nseg1(exp(v(1)),exp(v(2))) ];
   guess = log ( [ 0.5, 0.5 ] );
   try
+    DebugPrintf ( 4, "\n");
     opts = optimset ( "Display", "iter", "OutputFcn", @DebugPrintFsolve ); %% , "AutoScaling", "on" );
     [X, FVEC, INFO, OUTPUT, FJAC] = fsolve ( FCN, guess, opts );
     assert ( INFO == 1, "%s: fsolve() failed to find {mCoh,mInc} at fixed Tseg0. INFO = %d\n", funcName(), INFO );
@@ -553,6 +556,7 @@ function sol = INT_constrainedTobsTseg ( stackparams, funs, Tobs0, Tseg0 )
   FCN = @(v) [ eqCoh(exp(v(1)),exp(v(2))); eqInc(exp(v(1)),exp(v(2))) ];
   guess = log ( [ 0.5, 0.5 ] );
   try
+    DebugPrintf ( 4, "\n");
     opts = optimset ( "Display", "iter", "OutputFcn", @DebugPrintFsolve); %% , "AutoScaling", "on" );
     [X, FVEC, INFO, OUTPUT, FJAC] = fsolve ( FCN, guess, opts );
     assert ( INFO == 1, "%s: fsolve() failed to find {mCoh,mInc} at fixed Tseg0+Tobs0. INFO = %d\n", funcName(), INFO );
@@ -752,7 +756,7 @@ function stop = DebugPrintFsolve ( v, optimValues, state )
     case 'init'
     case 'iter'
       assert ( length (v) == 2 );
-      DebugPrintf ( 4, "i = %3d: mCoh = %g, mInc = %g -> f = %g\n", optimValues.iter, exp(v(1)), exp(v(2)), optimValues.fval );
+      DebugPrintf ( 4, "fsolve: iter = %3d: mCoh = %g, mInc = %g -> f = %g\n", optimValues.iter, exp(v(1)), exp(v(2)), optimValues.fval );
     case 'done'
     otherwise
   endswitch

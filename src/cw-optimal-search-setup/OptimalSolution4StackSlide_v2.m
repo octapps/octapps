@@ -131,7 +131,7 @@ function [sol, funs] = OptimalSolution4StackSlide_v2 ( varargin )
 
   sol = [];
   for i = 1:length(trial)
-    DebugPrintf ( 1, "%18s:", sprintf("[%s]", trial{i}.name) );
+    DebugPrintf ( 1, "----- Trying solution type '%18s':", sprintf("[%s]", trial{i}.name) );
     sol_i = iterateSolver ( trial{i}.solverFun, trial{i}.startGuess, funs, uvar.tol, uvar.maxiter );
     if ( ! isempty ( sol_i ) )
       conv = ifelse ( sol_i.converged == 0, "maxiter", ifelse ( sol_i.converged == 1, "converged", "cyclical" ) );
@@ -147,7 +147,7 @@ function [sol, funs] = OptimalSolution4StackSlide_v2 ( varargin )
 
   if ( !isempty ( sol  ) )
     DebugPrintf ( 1, "==============================\n");
-    DebugPrintf ( 1, "--> Best solution foundp: [@%s] ", sol.name ); DebugPrintStackparams ( 1, sol ); DebugPrintf (1, "\n" );
+    DebugPrintf ( 1, "--> Best solution found: [@%s] ", sol.name ); DebugPrintStackparams ( 1, sol ); DebugPrintf (1, "\n" );
     DebugPrintf ( 1, "==============================\n");
   else
     DebugPrintf ( 0, "==============================\n");
@@ -199,7 +199,7 @@ function sol = iterateSolver ( solverFun, startGuess, funs, tol, maxiter )
       return;
     endif
 
-    DebugPrintf ( 3, "\ni = %2d:     ", iter ); DebugPrintStackparams ( 3, stackparams );
+    DebugPrintf ( 3, "\nsolver iteration = %2d:     ", iter ); DebugPrintStackparams ( 3, stackparams ); DebugPrintf ( 3, "\n" );
     if ( iter > 0 )
       stackparams.converged = checkConvergence ( stackparams, solpath, tol );
       assert ( any ( stackparams.converged == [-1, 0, 1] ), "Unknown convergence type returned by checkConvergence = %g\n", stackparams.converged);
