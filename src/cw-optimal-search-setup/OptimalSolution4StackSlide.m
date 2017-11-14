@@ -201,6 +201,10 @@ function stackparams = OptimalSolution4StackSlide ( varargin )
 
   endwhile
 
+  %% supplement result with estimated achieved value for the objective function 'L0'
+  stackparams.misAvg    = stackparams.coefCoh.xi * stackparams.mCoh + stackparams.coefInc.xi * stackparams.mInc;
+  stackparams.L0        = ( 1 - stackparams.misAvg ) .* stackparams.Tseg .* stackparams.Nseg.^(1 - 1./(2*stackparams.w));
+
   return;
 
 endfunction
