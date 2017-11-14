@@ -147,58 +147,12 @@ function [sol, funs] = OptimalSolution4StackSlide_v2 ( varargin )
 
   if ( !isempty ( sol  ) )
     DebugPrintf ( 1, "==============================\n");
-    DebugPrintf ( 1, "%18s:", sprintf("@[%s]", sol.name)); DebugPrintStackparams ( 1, sol ); DebugPrintf (1, "\n" );
+    DebugPrintf ( 1, "--> Best solution foundp: [@%s] ", sol.name ); DebugPrintStackparams ( 1, sol ); DebugPrintf (1, "\n" );
+    DebugPrintf ( 1, "==============================\n");
   else
-    DebugPrintf ( 2, " ==> FAILED\n" );
-  endif
-  %% ---------- step 2: try for constrained solutions:
-  if ( isempty ( sol ) )
-    i = 0;
-
-    i++;
-    trial{i}.solverFun = @(prev, funs) funs.solvers.constrainedTobs ( prev, funs, constraints.TobsMax );
-    trial{i}.startGuess = guess;
-    trial{i}.name = "TobsMax";
-
-    i++;
-    trial{i}.solverFun = @(prev, funs) funs.solvers.constrainedTseg ( prev, funs, constraints.TsegMax );
-    trial{i}.startGuess = guess;
-    trial{i}.name = "TsegMax";
-
-    i++;
-    trial{i}.solverFun = @(prev, funs) funs.solvers.constrainedTseg ( prev, funs, constraints.TsegMin );
-    trial{i}.startGuess = guess;
-    trial{i}.name = "TsegMin";
-
-    i++;
-    trial{i}.solverFun = @(prev, funs) funs.solvers.constrainedTobsTseg ( prev, funs, constraints.TobsMax, constraints.TsegMax );
-    trial{i}.name = "(TobsMax+TsegMax)";
-    trial{i}.startGuess = guess;
-
-    i++;
-    trial{i}.solverFun = @(prev, funs) funs.solvers.constrainedTobsTseg ( prev, funs, constraints.TobsMax, constraints.TsegMin );
-    trial{i}.name = "(TobsMax+TsegMin)";
-    trial{i}.startGuess = guess;
-
-    for i = 1:length(trial)
-      DebugPrintf ( 2, "------------------------------\n");
-      DebugPrintf ( 2, "Constrained %18s:", trial{i}.name );
-      trial{i}.sol = iterateSolver ( trial{i}.solverFun, trial{i}.startGuess, funs, uvar.tol, uvar.maxiter );
-      if ( !isempty ( trial{i}.sol ) && !constraints_violated ( trial{i}.sol, constraints, uvar.tol ) )
-        if ( isempty ( sol ) || ( trial{i}.sol.L0 > sol.L0 ) )
-          sol = trial{i}.sol;
-          sol.name = trial{i}.name;
-        endif
-      endif
-    endfor
-
-  endif %% isempty(solU)
-
-  if ( !isempty ( sol  ) )
-    DebugPrintf ( 2, "\n==============================\n");
-    DebugPrintf (2, "--> Best solution: [@%s] ", sol.name ); DebugPrintStackparams ( 2, sol ); DebugPrintf (2, "\n" );
-  else
-    DebugPrintf ( 0, "Could not find any feasible solution found!\n" );
+    DebugPrintf ( 0, "==============================\n");
+    DebugPrintf ( 0, "Could not find any feasible solutions!\n" );
+    DebugPrintf ( 0, "==============================\n");
   endif
 
   return;
@@ -280,6 +234,7 @@ function sol = iterateSolver ( solverFun, startGuess, funs, tol, maxiter )
   DebugPrintf ( 3, "\n");
 
   sol = stackparams;
+  sol.iterations = iter;
   return;
 
 endfunction %% iterateSolver()
