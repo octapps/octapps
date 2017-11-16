@@ -28,15 +28,15 @@ function funs = OptimalSolution4StackSlide_v2_helpers ( costFuns, constraints, p
   funs.costFuns  = costFuns;
   funs.w         = @(sp) ifelse ( isfield(sp,"w") || (sp.w = SensitivityScalingDeviationN ( funs.par.pFA, funs.par.pFD, max([1,sp.Nseg]), funs.par.sensApprox)), sp.w, "error" );
 
-  funs.misAvgNLM = @(mCoh,xiCoh,mInc,xiInc) EmpiricalFstatMismatch ( 86400, 86400*365, xiCoh * mCoh, xiInc * mInc );
-  funs.misAvgLIN = @(mCoh,xiCoh,mInc,xiInc) xiCoh * mCoh + xiInc * mInc;
+  funs.misAvgNLM = @(Tseg,Tobs,mCoh,xiCoh,mInc,xiInc) EmpiricalFstatMismatch ( Tseg, Tobs, xiCoh * mCoh, xiInc * mInc );
+  funs.misAvgLIN = @(Tseg,Tobs,mCoh,xiCoh,mInc,xiInc) xiCoh * mCoh + xiInc * mInc;
   if ( nonlinearMismatch )
     funs.misAvg  = funs.misAvgNLM;
   else
     funs.misAvg  = funs.misAvgLIN;
   endif
-  funs.zCoh      = @(mCoh,xiCoh,mInc,xiInc) ( funs.misAvg ( mCoh + funs.par.small_m, xiCoh, mInc, xiInc ) - funs.misAvg ( mCoh, xiCoh, mInc, xiInc ) ) / funs.par.small_m;
-  funs.zInc      = @(mCoh,xiCoh,mInc,xiInc) ( funs.misAvg ( mCoh, xiCoh, mInc + funs.par.small_m, xiInc ) - funs.misAvg ( mCoh, xiCoh, mInc, xiInc ) ) / funs.par.small_m;
+  funs.zCoh      = @(Tseg,Tobs,mCoh,xiCoh,mInc,xiInc) ( funs.misAvg (Tseg, Tobs, mCoh + funs.par.small_m, xiCoh, mInc, xiInc ) - funs.misAvg (Tseg, Tobs, mCoh, xiCoh, mInc, xiInc ) ) / funs.par.small_m;
+  funs.zInc      = @(Tseg,Tobs,mCoh,xiCoh,mInc,xiInc) ( funs.misAvg (Tseg, Tobs, mCoh, xiCoh, mInc + funs.par.small_m, xiInc ) - funs.misAvg (Tseg, Tobs, mCoh, xiCoh, mInc, xiInc ) ) / funs.par.small_m;
 
   if ( ! funs.par.grid_interpolation )
     %% ---------- NON-Interpolating (NONI) case ----------
@@ -62,8 +62,8 @@ function funs = OptimalSolution4StackSlide_v2_helpers ( costFuns, constraints, p
   funs.costConstraint = @(sp) (funs.cost(sp) - funs.constraints.cost0)/funs.constraints.cost0;
 
   funs.cratio = @(mCoh,mInc,sp) ...
-                 (funs.zCoh(mCoh,sp.coefCoh.xi,mInc,sp.coefInc.xi) .* mCoh ./ sp.coefCoh.nDim) ...
-                ./ (funs.zInc(mCoh,sp.coefCoh.xi,mInc,sp.coefInc.xi) .* mInc ./ sp.coefInc.nDim );
+                 (funs.zCoh(sp.Tseg,sp.Nseg*sp.Tseg,mCoh,sp.coefCoh.xi,mInc,sp.coefInc.xi) .* mCoh ./ sp.coefCoh.nDim) ...
+                ./ (funs.zInc(sp.Tseg,sp.Nseg*sp.Tseg,mCoh,sp.coefCoh.xi,mInc,sp.coefInc.xi) .* mInc ./ sp.coefInc.nDim );
 
   funs.complete_stackparams = @(sp,funs) complete_stackparams ( sp, funs );
 
@@ -90,6 +90,7 @@ function sol = NONI_unconstrained ( stackparams, funs )
   delta = coef.delta; eta = coef.eta; eps = coef.eps; a = coef.a; n = coef.nDim; k = coef.kappa; xi = coef.xi;
   w = stackparams.w;
   cost0 = funs.constraints.cost0;
+  Tseg = stackparams.Tseg; Nseg = stackparams.Nseg; Tobs = Nseg * Tseg;
   %% --------------------------------
 
   %% check if an unconstrained solution is even deemed possible at all: did we hit one of the 'hard' boundaries?
@@ -115,7 +116,7 @@ function sol = NONI_unconstrained ( stackparams, funs )
   %% ==================== Step 1: solve for optimal mismatch ====================
 
   %% ---------- Step 1a: check denominator zero and truncate range if required
-  denom = @(logm) ( 1 - funs.misAvg ( 0, 0, exp(logm), xi ) );
+  denom = @(logm) ( 1 - funs.misAvg ( Tseg, Tobs, 0, 0, exp(logm), xi ) );
   logmRange = log([1e-3, 1e3]);
   %% first check if denominator has a zero in this range
   if ( denom(logmRange(1)) * denom(logmRange(2)) < 0 )
@@ -133,7 +134,7 @@ function sol = NONI_unconstrained ( stackparams, funs )
     logmRange(2) = 0.95 * pole;	%% stay below from pole
   endif %% if denominator has zero
 
-  lhs = @(logm) funs.zInc ( 0, 0, exp(logm), xi ) .* exp(logm) ./ denom(logm);
+  lhs = @(logm) funs.zInc ( Tseg, Tobs, 0, 0, exp(logm), xi ) .* exp(logm) ./ denom(logm);
 
   %% ---------- Step 1b: solve for mInc using Eqs. obtained from (d_m L=0 and d_N L=0) and (d_m L=0 and d_Tseg L=0) *averaged* (agree when a=0)
   rhs_Nseg  = (n / (2 * eta)) * ( 1 - 1/(2*w) );
@@ -183,6 +184,7 @@ function sol = NONI_constrainedTobs ( stackparams, funs, Tobs0 )
   w = stackparams.w;
   delta = coef.delta; eta = coef.eta; eps = coef.eps; a = coef.a; n = coef.nDim; k = coef.kappa; xi = coef.xi;
   cost0 = funs.constraints.cost0;
+  Tseg = stackparams.Tseg; Nseg = stackparams.Nseg; Tobs = Nseg * Tseg;
   %% --------------------------------
 
   if ( eps < powerEps )
@@ -194,8 +196,8 @@ function sol = NONI_constrainedTobs ( stackparams, funs, Tobs0 )
 
   %% ----- eps > 0: solve for Tobs-constrained *semi-coherent* solution
   rhs = n / (4 * w * eps );
-  denom = @(logm) ( 1 - funs.misAvg ( 0, 0, exp(logm), xi ) );
-  FCN   = @(logm) funs.zInc ( 0, 0, exp(logm), xi ) .* exp(logm) ./ denom(logm) - rhs;
+  denom = @(logm) ( 1 - funs.misAvg ( Tseg, Tobs, 0, 0, exp(logm), xi ) );
+  FCN   = @(logm) funs.zInc ( Tseg, Tobs, 0, 0, exp(logm), xi ) .* exp(logm) ./ denom(logm) - rhs;
   logmRange = log([1e-3, 1e3]);
   %% first check if denominator has a zero in this range
   if ( denom(logmRange(1)) * denom(logmRange(2)) < 0 )
@@ -247,15 +249,18 @@ function sol = NONI_constrainedTseg ( stackparams, funs, Tseg0 )
   global debugLevel;
   sol = [];
 
+  %% ----- local shortcuts ----------
   cost0 = funs.constraints.cost0;
   coef = stackparams.coefInc;
   delta = coef.delta; eta = coef.eta; n = coef.nDim; k = coef.kappa; xi = coef.xi;
   w = stackparams.w = funs.w ( stackparams );
+  Tseg = stackparams.Tseg; Nseg = stackparams.Nseg; Tobs = Nseg * Tseg;
+  %% --------------------------------
 
   %% ----- solve for optimal mismatch ----------
   rhs = (n / (2 * eta )) * ( 1 - 1/(2*w) );
-  denom = @(logm) ( 1 - funs.misAvg ( 0, 0, exp(logm), xi ) );
-  FCN   = @(logm) funs.zInc ( 0, 0, exp(logm), xi ) .* exp(logm) ./ denom(logm) - rhs;
+  denom = @(logm) ( 1 - funs.misAvg ( Tseg, Tobs, 0, 0, exp(logm), xi ) );
+  FCN   = @(logm) funs.zInc ( Tseg, Tobs, 0, 0, exp(logm), xi ) .* exp(logm) ./ denom(logm) - rhs;
   logmRange = log([1e-3, 1e3]);
   %% first check if denominator has a zero in this range
   if ( denom(logmRange(1)) * denom(logmRange(2)) < 0 )
@@ -337,6 +342,7 @@ function sol = INT_unconstrained ( stackparams, funs )
   deltaInc = coefInc.delta; etaInc = coefInc.eta; epsInc = coefInc.eps; aInc = coefInc.a; nInc = coefInc.nDim; kInc = coefInc.kappa; xiInc = coefInc.xi;
   cost0 = funs.constraints.cost0;
   D = deltaCoh * etaInc - deltaInc * etaCoh;
+  Tseg = stackparams.Tseg; Nseg = stackparams.Nseg; Tobs = Nseg * Tseg;
   %% --------------------------------
 
   if ( aCoh * aInc < 0 )
@@ -345,9 +351,9 @@ function sol = INT_unconstrained ( stackparams, funs )
     crOpt = - aInc / aCoh;
     rCoh = (nCoh/2) * ( crOpt / ( crOpt * deltaCoh + deltaInc ) );
     rInc = (nInc/2) * ( 1     / ( crOpt * deltaCoh + deltaInc ) );
-    denom = @(mCoh,mInc) ( 1 - funs.misAvg(mCoh,xiCoh,mInc,xiInc) );
-    FCN = @(v) [ funs.zCoh(exp(v(1)),xiCoh,exp(v(2)),xiInc) * exp(v(1)) / denom(exp(v(1)),exp(v(2))) - rCoh; ...
-                 funs.zInc(exp(v(1)),xiCoh,exp(v(2)),xiInc) * exp(v(2)) / denom(exp(v(1)),exp(v(2))) - rInc ];
+    denom = @(mCoh,mInc) ( 1 - funs.misAvg(Tseg,Tobs,mCoh,xiCoh,mInc,xiInc) );
+    FCN = @(v) [ funs.zCoh(Tseg,Tobs,exp(v(1)),xiCoh,exp(v(2)),xiInc) * exp(v(1)) / denom(exp(v(1)),exp(v(2))) - rCoh; ...
+                 funs.zInc(Tseg,Tobs,exp(v(1)),xiCoh,exp(v(2)),xiInc) * exp(v(2)) / denom(exp(v(1)),exp(v(2))) - rInc ];
     xi0 = 0.5;
     solLin = log ( [ rCoh / ( 1 + rCoh + rInc ) / xi0, rInc / ( 1 + rCoh + rInc ) / xi0 ] );
     try
@@ -405,6 +411,7 @@ function sol = INT_constrainedTobs ( stackparams, funs, Tobs0 )
   deltaInc = coefInc.delta; etaInc = coefInc.eta; epsInc = coefInc.eps; aInc = coefInc.a; nInc = coefInc.nDim; kInc = coefInc.kappa; xiInc = coefInc.xi;
   D = deltaCoh * etaInc - deltaInc * etaCoh;
   cost0 = funs.constraints.cost0;
+  Tseg = stackparams.Tseg; Nseg = stackparams.Nseg; Tobs = Nseg * Tseg;
   %% --------------------------------
 
   if ( abs(epsCoh) < powerEps && abs(epsInc) < powerEps )
@@ -424,9 +431,9 @@ function sol = INT_constrainedTobs ( stackparams, funs, Tobs0 )
                + epsInc * log ( mCoh^(-nCoh/2) * ( 1 + 1/cr(mCoh,mInc) ) ) ...
                - epsCoh * log ( mInc^(-nInc/2) * ( 1 + cr(mCoh,mInc) ) );
     eq_Nseg0 = @(mCoh,mInc) ...
-               - (1 - funs.misAvg(mCoh,xiCoh,mInc,xiInc) ) / (4 * w ) ...
-               + epsCoh * mCoh * funs.zCoh(mCoh,xiCoh,mInc,xiInc) / nCoh ...
-               + epsInc * mInc * funs.zInc(mCoh,xiCoh,mInc,xiInc) / nInc;
+               - (1 - funs.misAvg(Tseg,Tobs,mCoh,xiCoh,mInc,xiInc) ) / (4 * w ) ...
+               + epsCoh * mCoh * funs.zCoh(Tseg,Tobs,mCoh,xiCoh,mInc,xiInc) / nCoh ...
+               + epsInc * mInc * funs.zInc(Tseg,Tobs,mCoh,xiCoh,mInc,xiInc) / nInc;
     FCN = @(v) [ eq_Tobs(exp(v(1)),exp(v(2))); eq_Nseg0(exp(v(1)),exp(v(2))) ];
     guess = log ( [ 0.5, 0.5 ] );
     try
@@ -480,6 +487,7 @@ function sol = INT_constrainedTseg ( stackparams, funs, Tseg0 )
   deltaInc = coefInc.delta; etaInc = coefInc.eta; epsInc = coefInc.eps; aInc = coefInc.a; nInc = coefInc.nDim; kInc = coefInc.kappa; xiInc = coefInc.xi;
   D = deltaCoh * etaInc - deltaInc * etaCoh;
   cost0 = funs.constraints.cost0;
+  Tseg = stackparams.Tseg; Nseg = stackparams.Nseg; Tobs = Nseg * Tseg;
   %% --------------------------------
   cr       = @(mCoh,mInc) funs.cratio ( mCoh, mInc, stackparams );
   eq_Tseg  = @(mCoh,mInc) ...
@@ -489,9 +497,9 @@ function sol = INT_constrainedTseg ( stackparams, funs, Tseg0 )
              + etaCoh * log ( mInc^(-nInc/2) * ( 1 + cr(mCoh,mInc) ) ) ...
              - etaInc * log ( mCoh^(-nCoh/2) * ( 1 + 1/cr(mCoh,mInc) ) );
   eq_Nseg1 = @(mCoh,mInc) ...
-             - (1/2)*(1 - funs.misAvg(mCoh,xiCoh,mInc,mInc) ) * (1 - 1/(2*w) ) ...
-             + etaCoh * mCoh * funs.zCoh(mCoh,xiCoh,mInc,xiInc) / nCoh ...
-             + etaInc * mInc * funs.zInc(mCoh,xiCoh,mInc,xiInc) / nInc;
+             - (1/2)*(1 - funs.misAvg(Tseg,Tobs,mCoh,xiCoh,mInc,mInc) ) * (1 - 1/(2*w) ) ...
+             + etaCoh * mCoh * funs.zCoh(Tseg,Tobs,mCoh,xiCoh,mInc,xiInc) / nCoh ...
+             + etaInc * mInc * funs.zInc(Tseg,Tobs,mCoh,xiCoh,mInc,xiInc) / nInc;
   FCN = @(v) [ eq_Tseg(exp(v(1)),exp(v(2))); eq_Nseg1(exp(v(1)),exp(v(2))) ];
   guess = log ( [ 0.5, 0.5 ] );
   try
@@ -539,6 +547,7 @@ function sol = INT_constrainedTobsTseg ( stackparams, funs, Tobs0, Tseg0 )
   deltaInc = coefInc.delta; etaInc = coefInc.eta; epsInc = coefInc.eps; aInc = coefInc.a; nInc = coefInc.nDim; kInc = coefInc.kappa; xiInc = coefInc.xi;
   D = deltaCoh * etaInc - deltaInc * etaCoh;
   cost0 = funs.constraints.cost0;
+  Tseg = stackparams.Tseg; Nseg = stackparams.Nseg; Tobs = Nseg * Tseg;
   %% --------------------------------
   Nseg0 = Tobs0 / Tseg0;
   cr    = @(mCoh,mInc) funs.cratio ( mCoh, mInc, stackparams );
@@ -584,11 +593,12 @@ function sol = COH_unconstrained ( stackparams, funs )
   coef = stackparams.coefCoh;
   deltaCoh = coef.delta; etaCoh = coef.eta; epsCoh = coef.eps; aCoh = coef.a; nCoh = coef.nDim; kCoh = coef.kappa; xiCoh = coef.xi;
   cost0 = funs.constraints.cost0;
+  Tseg = stackparams.Tseg; Nseg = stackparams.Nseg; Tobs = Nseg * Tseg;
   %% --------------------------------
 
   rCoh = (nCoh/2) / deltaCoh;	%% limit of cr->inf
-  denom = @(logm) ( 1 - funs.misAvg(exp(logm), xiCoh, 0, 0 ) );
-  FCN = @(logm) funs.zCoh(exp(logm), xiCoh, 0, 0) .* exp(logm) ./ denom(logm) - rCoh;
+  denom = @(logm) ( 1 - funs.misAvg(Tseg,Tobs,exp(logm), xiCoh, 0, 0 ) );
+  FCN = @(logm) funs.zCoh(Tseg,Tobs,exp(logm), xiCoh, 0, 0) .* exp(logm) ./ denom(logm) - rCoh;
   logmRange = log([1e-3, 1e3]);
   %% first check if denominator has a zero in this range
   if ( denom(logmRange(1)) * denom(logmRange(2)) < 0 )
@@ -630,6 +640,7 @@ function sol = COH_constrainedTobs ( stackparams, funs, Tobs0 )
   w = stackparams.w;
   deltaCoh = coef.delta; etaCoh = coef.eta; epsCoh = coef.eps; aCoh = coef.a; nCoh = coef.nDim; kCoh = coef.kappa; xiCoh = coef.xi;
   cost0 = funs.constraints.cost0;
+  Tseg = stackparams.Tseg; Nseg = stackparams.Nseg; Tobs = Nseg * Tseg;
   %% --------------------------------
 
   log_mCoh = 2/nCoh * ( log(kCoh/cost0) + deltaCoh * log(Tobs0) );
@@ -658,6 +669,10 @@ function stackparams = complete_stackparams ( stackparams, funs )
   endif
   %% ----- end compatibility fix ----------
 
+  %% ----- local shortcuts ----------
+  Tseg = stackparams.Tseg; Nseg = stackparams.Nseg; Tobs = Nseg * Tseg;
+  %% --------------------------------
+
   if ( !isfield ( stackparams, "w" ) )
     stackparams.w = funs.w ( stackparams );
   endif
@@ -672,13 +687,13 @@ function stackparams = complete_stackparams ( stackparams, funs )
   endif
 
   stackparams.nonlinearMismatch = funs.par.nonlinearMismatch;
-  stackparams.Tobs = stackparams.Nseg * stackparams.Tseg;
+  stackparams.Tobs = Tobs;
 
   if ( !isfield ( stackparams, "coefCoh" ) || !isfield ( stackparams, "coefInc" ) )
     %% ---------- coherent-cost coefficients ----------
     if ( isna ( stackparams.mCoh ) || (stackparams.mCoh <= 0) ) stackparams.mCoh = stackparams.mInc; endif
     try
-      stackparams.coefCoh = LocalCostCoefficients ( funs.costFuns.costFunCoh, round(stackparams.Nseg), stackparams.Tseg, stackparams.mCoh );
+      stackparams.coefCoh = LocalCostCoefficients ( funs.costFuns.costFunCoh, round(Nseg), Tseg, stackparams.mCoh );
     catch err
       DebugPrintf ( 3, "%s: LocalCostCoefficients on CostCoh() failed for stackparams = ", funcName );
       if ( debugLevel >= 3 ) stackparams, err, endif
@@ -694,7 +709,7 @@ function stackparams = complete_stackparams ( stackparams, funs )
     if ( isna ( stackparams.mInc ) || (stackparams.mInc <= 0) ) stackparams.mInc = stackparams.mCoh; endif
     if ( ! funs.par.grid_interpolation )	%% NON-Interpolating
       try
-        stackparams.coefInc = LocalCostCoefficients ( funs.costFuns.costFunSum, round(stackparams.Nseg), stackparams.Tseg, stackparams.mInc );
+        stackparams.coefInc = LocalCostCoefficients ( funs.costFuns.costFunSum, round(Nseg), Tseg, stackparams.mInc );
       catch err
         DebugPrintf ( 3, "%s: LocalCostCoefficients failed on CostSum() for stackparams = ", funcName );
         if ( debugLevel >= 3 ) stackparams, err, endif
@@ -703,7 +718,7 @@ function stackparams = complete_stackparams ( stackparams, funs )
       end_try_catch
     else %% INTerpolating
       try
-        stackparams.coefInc = LocalCostCoefficients ( funs.costFuns.costFunInc, round(stackparams.Nseg), stackparams.Tseg, stackparams.mInc );
+        stackparams.coefInc = LocalCostCoefficients ( funs.costFuns.costFunInc, round(Nseg), Tseg, stackparams.mInc );
       catch err
         DebugPrintf ( 3, "%s: LocalCostCoefficients failed on CostInc() for stackparams = ", funcName );
         if ( debugLevel >= 3 ) stackparams, err, endif
@@ -719,14 +734,14 @@ function stackparams = complete_stackparams ( stackparams, funs )
 
   if ( !isfield ( stackparams, "misAvgLIN" ) || !isfield ( stackparams, "misAvgNLM") || !isfield ( stackparams, "misAvg" ) )
     if ( stackparams.Nseg == 1 )	%% coherent case
-      stackparams.misAvgLIN = stackparams.mCoh * stackparams.coefCoh.xi;
-      stackparams.misAvgNLM = funs.misAvgNLM ( stackparams.mCoh, stackparams.coefCoh.xi, 0, 0 );
+      stackparams.misAvgLIN = funs.misAvgLIN ( Tseg, Tobs, stackparams.mCoh, stackparams.coefCoh.xi, 0, 0 );
+      stackparams.misAvgNLM = funs.misAvgNLM ( Tseg, Tobs, stackparams.mCoh, stackparams.coefCoh.xi, 0, 0 );
     elseif ( funs.par.grid_interpolation )	%% interpolating StackSlide
-      stackparams.misAvgLIN = stackparams.mCoh * stackparams.coefCoh.xi + stackparams.mInc * stackparams.coefInc.xi;
-      stackparams.misAvgNLM = funs.misAvgNLM ( stackparams.mCoh, stackparams.coefCoh.xi, stackparams.mInc, stackparams.coefInc.xi );
+      stackparams.misAvgLIN = funs.misAvgLIN ( Tseg, Tobs, stackparams.mCoh, stackparams.coefCoh.xi, stackparams.mInc, stackparams.coefInc.xi );
+      stackparams.misAvgNLM = funs.misAvgNLM ( Tseg, Tobs, stackparams.mCoh, stackparams.coefCoh.xi, stackparams.mInc, stackparams.coefInc.xi );
     else %% non-interpolating StackSlide
-      stackparams.misAvgLIN = stackparams.mInc * stackparams.coefInc.xi;
-      stackparams.misAvgNLM = funs.misAvgNLM ( 0, 0, stackparams.mInc, stackparams.coefInc.xi );
+      stackparams.misAvgLIN = funs.misAvgLIN ( Tseg, Tobs, 0, 0, stackparams.mInc, stackparams.coefInc.xi );
+      stackparams.misAvgNLM = funs.misAvgNLM ( Tseg, Tobs, 0, 0, stackparams.mInc, stackparams.coefInc.xi );
     endif
 
     if ( funs.par.nonlinearMismatch )
@@ -774,6 +789,7 @@ function sol = NONI_unconstrained_prev ( stackparams, funs )
   delta = coef.delta; eta = coef.eta; eps = coef.eps; a = coef.a; n = coef.nDim; k = coef.kappa; xi = coef.xi;
   w = stackparams.w;
   cost0 = funs.constraints.cost0;
+  Tseg = stackparams.Tseg; Nseg = stackparams.Nseg; Tobs = Nseg * Tseg;
   %% --------------------------------
 
   %% check if an unconstrained solution is even deemed possible at all: did we hit one of the 'hard' boundaries?
@@ -800,7 +816,7 @@ function sol = NONI_unconstrained_prev ( stackparams, funs )
   %% ==================== Step 1: solve for optimal mismatch ====================
 
   %% ---------- Step 1a: check denominator zero and truncate range if required
-  denom = @(logm) ( 1 - funs.misAvg ( 0, 0, exp(logm), xi ) );
+  denom = @(logm) ( 1 - funs.misAvg ( Tseg, Tobs, 0, 0, exp(logm), xi ) );
   logmRange = log([1e-3, 1e3]);
   %% first check if denominator has a zero in this range
   if ( denom(logmRange(1)) * denom(logmRange(2)) < 0 )
@@ -818,7 +834,7 @@ function sol = NONI_unconstrained_prev ( stackparams, funs )
     logmRange(2) = 0.95 * pole;	%% stay below from pole
   endif %% if denominator has zero
 
-  lhs = @(logm) funs.zInc ( 0, 0, exp(logm), xi ) .* exp(logm) ./ denom(logm);
+  lhs = @(logm) funs.zInc ( Tseg, Tobs, 0, 0, exp(logm), xi ) .* exp(logm) ./ denom(logm);
 
   %% ---------- Step 1b: solve for mInc using Eq. obtained from (d_m L=0 and d_N L=0)
   rhs_Nseg  = (n / (2 * eta)) * ( 1 - 1/(2*w) );
