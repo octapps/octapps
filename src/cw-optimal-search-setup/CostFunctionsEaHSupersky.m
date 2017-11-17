@@ -41,8 +41,8 @@
 ##   "det_motion":           type of detector motion [default: "spin+orbit", i.e. full ephemeris]
 ##   "lattice":              template-bank lattice ("Zn", "Ans",..) [default: "Ans"]
 ##   "grid_interpolation":   whether to use interpolating or non-interpolating StackSlide, i.e. coherent grids equal incoherent grid [default: true]
-##   "verbose":              computing-cost functions print info messages when called [default: false]
-##
+##   "debugLevel":           control level of debug output [default: 0]
+##   "cache_file":           path+filename of metrics cache-file to use, without path uses function-directory [default: "CostFunctionsEaHSupersky.cache"]
 function [cost_funs, params, guess] = CostFunctionsEaHSupersky(setup, varargin)
 
   ## load modules
@@ -173,9 +173,11 @@ function [cost_funs, params, guess] = CostFunctionsEaHSupersky(setup, varargin)
                         {"det_motion", "char", "spin+orbit"},
                         {"lattice", "char", "Ans"},
                         {"grid_interpolation", "logical,scalar", true},
-                        {"verbose", "logical,scalar", false},
+                        {"debugLevel", "integer,positive,scalar", 0},
+                        {"cache_file", "char", "CostFunctionsEaHSupersky.cache"},
                         []);
   clear defpar;
+  global debugLevel; debugLevel = params.debugLevel;
 
   ## make closures of functions with 'params'
   cost_funs = struct( "grid_interpolation", params.grid_interpolation, ...
@@ -205,16 +207,15 @@ function Nt = rssky_num_templates(Nseg, Tseg, mis, params, padding)
   assert(Tseg >= Tseg_min, "%s: Tseg=%g days is less than minimum=%g days", funcName(), Tseg/DAYS, Tseg_min/DAYS);
 
   ## only keep parameters needed to compute metrics
-  verbose = params.verbose;
   lattice = params.lattice;
-  params = struct( ...
-                  "ref_time", params.ref_time, ...
-                  "freq", params.freq, ...
-                  "fkdot_bands", params.fkdot_bands, ...
-                  "inc_duty", params.inc_duty, ...
-                  "detectors", params.detectors, ...
-                  "det_motion", params.det_motion ...
-                  );
+  metric_params = struct( ...
+                          "ref_time", params.ref_time, ...
+                          "freq", params.freq, ...
+                          "fkdot_bands", params.fkdot_bands, ...
+                          "inc_duty", params.inc_duty, ...
+                          "detectors", params.detectors, ...
+                          "det_motion", params.det_motion ...
+                        );
 
   ## cached ephemerides
   persistent ephemerides;
@@ -222,14 +223,35 @@ function Nt = rssky_num_templates(Nseg, Tseg, mis, params, padding)
     ephemerides = loadEphemerides();
   endif
 
-  ## cache of previously-computed metrics
+  ## find cache of previously-computed metrics
+  cache_fname = [];
+  if ( !isempty ( params.cache_file ) )
+    [cacheDir,fname,ext,ver] = fileparts ( params.cache_file );
+    if ( isempty(cacheDir) )
+      loc = which("CostFunctionsEaHSupersky");
+      cacheDir = fileparts (loc);
+    endif
+    cache_fname = sprintf ( "%s/%s%s", cacheDir, fname, ext );
+  endif
+
+  added_to_cache = false;
   persistent cache;
   if isempty(cache)
-    cache = struct;
+    DebugPrintf (2, "No cache currently in use ...\n");
+    if (!isempty(cache_fname) && exist (cache_fname, "file"))
+      DebugPrintf (2, "found cache file '%s' -> Loading ... ", cache_fname );
+      load ( "-binary", cache_fname, "cache" );
+      DebugPrintf (2, "done.\n");
+    else
+      DebugPrintf (2, "and no cache file found. Starting anew.\n");
+      cache = struct;
+    endif
+  else
+    DebugPrintf (3, "Active cache currently in use. Not trying to load cache from disk.\n");
   endif
 
   ## loop up cache based on hash of stringified parameters
-  param_str = stringify(params);
+  param_str = stringify(metric_params);
   cache_key = strcat("key_", md5sum(param_str, true));
   if !isfield(cache, cache_key)
     cache.(cache_key) = struct;
@@ -238,9 +260,7 @@ function Nt = rssky_num_templates(Nseg, Tseg, mis, params, padding)
   if !strcmp(param_str, cache.(cache_key).param_str)
     cache.(cache_key).param_str = param_str;
     cache.(cache_key).metrics = {};
-    if verbose
-      printf("%s: new metrics cache\n", funcName);
-    endif
+    DebugPrintf( 2, "%s: new metrics cache\n", funcName);
   endif
 
   ## metric cache indices and interpolation grid
@@ -262,39 +282,33 @@ function Nt = rssky_num_templates(Nseg, Tseg, mis, params, padding)
 
         ## retrieve metric from cache
         rssky_metric = cache.(cache_key).metrics{Nseg_ii(i), Tseg_jj(j)};
-        if verbose
-          printf("%s: retrieved metrics for Nseg=%g, Tseg=%g\n", funcName, Nseg_interp(i), Tseg_interp(j));
-        endif
+        DebugPrintf(3, "%s: retrieved metrics for Nseg=%g, Tseg=%g\n", funcName, Nseg_interp(i), Tseg_interp(j));
 
       else
 
         ## create segment list
-        segment_list = CreateSegmentList(params.ref_time, Nseg_interp(i), Tseg_interp(j), [], params.inc_duty);
+        segment_list = CreateSegmentList(metric_params.ref_time, Nseg_interp(i), Tseg_interp(j), [], metric_params.inc_duty);
 
         ## compute metric
-        if verbose
-          printf("%s: computing metrics for Nseg=%g, Tseg=%g ... ", funcName, Nseg_interp(i), Tseg_interp(j));
-        endif
+        DebugPrintf( 3, "%s: computing metrics for Nseg=%g, Tseg=%g ... ", funcName, Nseg_interp(i), Tseg_interp(j));
         metrics = CreateSuperskyMetrics(
-                      "spindowns", length(params.fkdot_bands) - 1,
+                      "spindowns", length(metric_params.fkdot_bands) - 1,
                       "segment_list", segment_list,
-                      "ref_time", params.ref_time,
-                      "fiducial_freq", params.freq + params.fkdot_bands(1),
-                      "detectors", params.detectors,
-                      "detector_motion", params.det_motion,
+                      "ref_time", metric_params.ref_time,
+                      "fiducial_freq", metric_params.freq + metric_params.fkdot_bands(1),
+                      "detectors", metric_params.detectors,
+                      "detector_motion", metric_params.det_motion,
                       "ephemerides", ephemerides
                     );
-        if verbose
-          printf("done\n");
-        endif
+        DebugPrintf ( 3, "done\n");
 
         ## add metric to cache
         rssky_metric = cache.(cache_key).metrics{Nseg_ii(i), Tseg_jj(j)} = metrics.semi_rssky_metric;
-
+        added_to_cache = true;
       endif
 
       ## compute number of templates
-      fkdot_param_space = abs([params.fkdot_bands(2:end); params.fkdot_bands(1)]);
+      fkdot_param_space = abs([metric_params.fkdot_bands(2:end); metric_params.fkdot_bands(1)]);
       Nt_interp(i, j) = NumberOfLatticeBankTemplates(
                                                      "lattice", lattice,
                                                      "metric", rssky_metric,
@@ -310,6 +324,14 @@ function Nt = rssky_num_templates(Nseg, Tseg, mis, params, padding)
   Nt = interp2(Tseg_interp, Nseg_interp, Nt_interp, Tseg, max(1, Nseg), "spline");
   assert(!isnan(Nt), "%s: could not evaluate Nt(Nseg=%g, Tseg=%g)", funcName, Nseg, Tseg);
 
+  if ( added_to_cache && !isempty(cache_fname) )
+    try
+      save ( "-binary", cache_fname, "cache" );
+    catch err
+      DebugPrintf ( 1, "Could not write cache to '%s'.", cache_fname );
+      if ( debugLevel >= 3 ) err, endif
+    end_try_catch
+  endif
 endfunction
 
 function [cost, Ntc, lattice] = cost_coh_wparams(Nseg, Tseg, mCoh, params)
@@ -391,7 +413,7 @@ endfunction
 %!  catch
 %!    disp("skipping test: LALSuite bindings not available"); return;
 %!  end_try_catch
-%!  [cost_funs, params, guess] = CostFunctionsEaHSupersky("S5R5", "verbose", true);
+%!  [cost_funs, params, guess] = CostFunctionsEaHSupersky("S5R5", "debugLevel", 2);
 %!  tol = -1e-4;	%% relative error
 %!  assert ( cost_funs.costFunCoh(guess.Nseg, guess.Tseg, guess.mCoh), guess.costCoh, tol );
 %!  assert ( cost_funs.costFunInc(guess.Nseg, guess.Tseg, guess.mInc), guess.costInc, tol );
@@ -409,7 +431,7 @@ endfunction
 %!  catch
 %!    disp("skipping test: LALSuite bindings not available"); return;
 %!  end_try_catch
-%!  [cost_funs, params, guess] = CostFunctionsEaHSupersky("S5GC1", "verbose", true);
+%!  [cost_funs, params, guess] = CostFunctionsEaHSupersky("S5GC1", "debugLevel", 2);
 %!  tol = -1e-4;
 %!  assert ( cost_funs.costFunCoh(guess.Nseg, guess.Tseg, guess.mCoh), guess.costCoh, tol );
 %!  assert ( cost_funs.costFunInc(guess.Nseg, guess.Tseg, guess.mInc), guess.costInc, tol );
@@ -427,7 +449,7 @@ endfunction
 %!  catch
 %!    disp("skipping test: LALSuite bindings not available"); return;
 %!  end_try_catch
-%!  [cost_funs, params, guess] = CostFunctionsEaHSupersky("S6Bucket", "verbose", true);
+%!  [cost_funs, params, guess] = CostFunctionsEaHSupersky("S6Bucket", "debugLevel", 2);
 %!  tol = -1e-4;
 %!  assert ( cost_funs.costFunCoh(guess.Nseg, guess.Tseg, guess.mCoh), guess.costCoh, tol );
 %!  assert ( cost_funs.costFunInc(guess.Nseg, guess.Tseg, guess.mInc), guess.costInc, tol );
