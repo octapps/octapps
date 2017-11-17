@@ -40,17 +40,14 @@ function funs = OptimalSolution4StackSlide_v2_helpers ( costFuns, constraints, p
 
   if ( ! funs.par.grid_interpolation )
     %% ---------- NON-Interpolating (NONI) case ----------
-    funs.costFuns.costFunSum    = @(Nseg, Tseg, m) costFunSum_wparams ( Nseg, Tseg, m, costFuns );
-    funs.cost                   = @(sp) funs.costFuns.costFunSum ( sp.Nseg, sp.Tseg, sp.mInc );
-
+    funs.cost                   = @(sp) costFuns.f( sp.Nseg, sp.Tseg, [], sp.mInc );
     solvers.unconstrained       = @(stackparams,funs)             NONI_unconstrained ( stackparams, funs );
     solvers.constrainedTobs     = @(stackparams,funs,Tobs0)       NONI_constrainedTobs ( stackparams, funs, Tobs0 );
     solvers.constrainedTseg     = @(stackparams,funs,Tseg0)       NONI_constrainedTseg ( stackparams, funs, Tseg0 );
     solvers.constrainedTobsTseg = @(stackparams,funs,Tobs0,Tseg0) NONI_constrainedTobsTseg ( stackparams, funs, Tobs0, Tseg0 );
   else
     %% ---------- Interpolating (INT) case ----------
-    funs.cost                   = @(sp) costFuns.costFunCoh ( sp.Nseg, sp.Tseg, sp.mCoh ) + costFuns.costFunInc ( sp.Nseg, sp.Tseg, sp.mInc );
-
+    funs.cost                   = @(sp) costFuns.f( sp.Nseg, sp.Tseg, sp.mCoh, sp.mInc );
     solvers.unconstrained       = @(stackparams,funs)             INT_unconstrained ( stackparams, funs );
     solvers.constrainedTobs     = @(stackparams,funs,Tobs0)       INT_constrainedTobs ( stackparams, funs, Tobs0 );
     solvers.constrainedTseg     = @(stackparams,funs,Tseg0)       INT_constrainedTseg ( stackparams, funs, Tseg0 );
@@ -59,7 +56,7 @@ function funs = OptimalSolution4StackSlide_v2_helpers ( costFuns, constraints, p
   funs.solvers = solvers;
 
   funs.L0             = @(sp) ( 1 - sp.misAvg ) .* sp.Tseg .* sp.Nseg.^(1 - 1./(2*funs.w(sp)));
-  funs.costConstraint = @(sp) (funs.cost(sp) - funs.constraints.cost0)/funs.constraints.cost0;
+  funs.costConstraint = @(sp) ( (sp.cost - funs.constraints.cost0)/funs.constraints.cost0);
 
   funs.cratio = @(mCoh,mInc,sp) ...
                  (funs.zCoh(sp.Tseg,sp.Nseg*sp.Tseg,mCoh,sp.coefCoh.xi,mInc,sp.coefInc.xi) .* mCoh ./ sp.coefCoh.nDim) ...
@@ -67,18 +64,11 @@ function funs = OptimalSolution4StackSlide_v2_helpers ( costFuns, constraints, p
 
   funs.complete_stackparams = @(sp,funs) complete_stackparams ( sp, funs );
 
+  funs.local_cost_coefs = @(costFuns,sp) LocalCostCoefficients_v2 ( costFuns, round(sp.Nseg), sp.Tseg, sp.mCoh, sp.mInc );
+
   return;
 
 endfunction %% OptimalSolution4StackSlide_v2_helpers()
-
-function [cost, Nt, lattice] = costFunSum_wparams ( Nseg, Tseg, m, costFuns )
-  %% sum of coherent + incoherent cost function
-  [costCoh, NtCoh, lattice ] = costFuns.costFunCoh ( Nseg, Tseg, m );
-  [costInc, NtInc, ~]        = costFuns.costFunInc ( Nseg, Tseg, m );
-  cost = costCoh + costInc;
-  Nt = NtCoh + NtInc;
-  return;
-endfunction ## costFunSum_wparams()
 
 %% ==================== NON-Interpolating solvers ====================
 
@@ -677,60 +667,33 @@ function stackparams = complete_stackparams ( stackparams, funs )
     stackparams.w = funs.w ( stackparams );
   endif
 
-  if ( !isfield ( stackparams, "cost" ) )
-    try
-      stackparams.cost = funs.cost ( stackparams );
-    catch err
-      if ( debugLevel >= 3 ) err, endif
-      DebugPrintf ( 3, "\n%s: Cost function failed for: ", funcName ); DebugPrintStackparams ( 3, stackparams ); DebugPrintf ( 3, "\n");
-    end_try_catch
-  endif
-
   stackparams.nonlinearMismatch = funs.par.nonlinearMismatch;
   stackparams.Tobs = Tobs;
 
   if ( !isfield ( stackparams, "coefCoh" ) || !isfield ( stackparams, "coefInc" ) )
-    %% ---------- coherent-cost coefficients ----------
-    if ( isna ( stackparams.mCoh ) || (stackparams.mCoh <= 0) ) stackparams.mCoh = stackparams.mInc; endif
+    %% ---------- coherent- and incoherent cost coefficients ----------
     try
-      stackparams.coefCoh = LocalCostCoefficients ( funs.costFuns.costFunCoh, round(Nseg), Tseg, stackparams.mCoh );
+      [ stackparams.coefCoh, stackparams.coefInc ] = funs.local_cost_coefs ( funs.costFuns, stackparams );
     catch err
-      DebugPrintf ( 3, "%s: LocalCostCoefficients on CostCoh() failed for stackparams = ", funcName );
+      DebugPrintf ( 3, "%s: funs.local_cost_coefs() failed for stackparams = ", funcName );
       if ( debugLevel >= 3 ) stackparams, err, endif
       stackparams = [];
       return;
-      end_try_catch
+    end_try_catch
+
     stackparams.coefCoh.eps = stackparams.coefCoh.delta - stackparams.coefCoh.eta;
     stackparams.coefCoh.a   = 2 * stackparams.w * stackparams.coefCoh.eps - stackparams.coefCoh.delta;
     coef = stackparams.coefCoh;
     DebugPrintf ( 4, "\ncoefCoh = { delta = %g, eta = %g, nDim = %g, kappa = %g, eps = %g, a = %g }\n", coef.delta, coef.eta, coef.nDim, coef.kappa, coef.eps, coef.a );
 
-    %% ---------- incoherent / summed cost coefficients ----------
-    if ( isna ( stackparams.mInc ) || (stackparams.mInc <= 0) ) stackparams.mInc = stackparams.mCoh; endif
-    if ( ! funs.par.grid_interpolation )	%% NON-Interpolating
-      try
-        stackparams.coefInc = LocalCostCoefficients ( funs.costFuns.costFunSum, round(Nseg), Tseg, stackparams.mInc );
-      catch err
-        DebugPrintf ( 3, "%s: LocalCostCoefficients failed on CostSum() for stackparams = ", funcName );
-        if ( debugLevel >= 3 ) stackparams, err, endif
-        stackparams = [];
-        return;
-      end_try_catch
-    else %% INTerpolating
-      try
-        stackparams.coefInc = LocalCostCoefficients ( funs.costFuns.costFunInc, round(Nseg), Tseg, stackparams.mInc );
-      catch err
-        DebugPrintf ( 3, "%s: LocalCostCoefficients failed on CostInc() for stackparams = ", funcName );
-        if ( debugLevel >= 3 ) stackparams, err, endif
-        stackparams = [];
-        return;
-      end_try_catch
-    endif
     stackparams.coefInc.eps = stackparams.coefInc.delta - stackparams.coefInc.eta;
     stackparams.coefInc.a   = 2 * stackparams.w * stackparams.coefInc.eps - stackparams.coefInc.delta;
     coef = stackparams.coefInc;
-    DebugPrintf ( 4, "coefInc = { delta = %g, eta = %g, nDim = %g, kappa = %g, eps = %g, a = %g }\n", coef.delta, coef.eta, coef.nDim, coef.kappa, coef.eps, coef.a );
-  endif
+    DebugPrintf ( 4, "\ncoefInc = { delta = %g, eta = %g, nDim = %g, kappa = %g, eps = %g, a = %g }\n", coef.delta, coef.eta, coef.nDim, coef.kappa, coef.eps, coef.a );
+
+  endif ## !isfield(coefCoh)||!isfield(coefInc)
+
+  stackparams.cost = stackparams.coefCoh.cost + stackparams.coefInc.cost;
 
   if ( !isfield ( stackparams, "misAvgLIN" ) || !isfield ( stackparams, "misAvgNLM") || !isfield ( stackparams, "misAvg" ) )
     if ( stackparams.Nseg == 1 )	%% coherent case

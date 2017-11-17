@@ -182,8 +182,8 @@ function [cost_funs, params, guess] = CostFunctionsEaHSupersky(setup, varargin)
 
   ## make closures of functions with 'params'
   cost_funs = struct( "grid_interpolation", params.grid_interpolation, ...
-                      "costFunCoh", @(Nseg, Tseg, mCoh=0.5) cost_coh_wparams(Nseg, Tseg, mCoh, params), ...
-                      "costFunInc", @(Nseg, Tseg, mInc=0.5) cost_inc_wparams(Nseg, Tseg, mInc, params) ...
+                      "lattice", params.lattice, ...
+                      "f", @(Nseg, Tseg, mCoh=0.5, mInc=0.5) cost_wparams(Nseg, Tseg, mCoh, mInc, params) ...
                     );
 
 endfunction
@@ -334,78 +334,49 @@ function Nt = rssky_num_templates(Nseg, Tseg, mis, params, padding)
   endif
 endfunction
 
-function [cost, Ntc, lattice] = cost_coh_wparams(Nseg, Tseg, mCoh, params)
+function [costCoh, costInc] = cost_wparams(Nseg, Tseg, mCoh, mInc, params)
+  ## coherent + incoherent cost functions
 
   ## do not page output
   pso = page_screen_output(0, "local");
 
-  ## load modules
-  UnitsConstants;
-
   ## check input parameters
-  [err, Nseg, Tseg, mCoh] = common_size(Nseg, Tseg, mCoh);
+  [err, Nseg, Tseg, mCoh, mInc] = common_size(Nseg, Tseg, mCoh, mInc);
   assert(err == 0);
+
+  if ( ! params.grid_interpolation )
+    assert ( isempty ( mCoh ) || ( mCoh == mInc ) );
+  endif
 
   ## number of detectors
   Ndet = length(strsplit(params.detectors, ","));
+  costCoh = costInc = NtCoh = NtInc = zeros ( size ( Nseg )  );
+  numCases = length(Nseg(:));
 
-  for i = 1:length(Nseg(:))
-
-    if params.resampling
-      ## resampling cost per template, assuming "enough" frequency bins
-      c0T = params.coh_c0_resamp * Ndet;
-    else
-      ## demod cost per template
-      c0T = params.coh_c0_demod * Ndet * params.coh_duty * Tseg(i);
-    endif
-
-    ## number of templates per segment
-    if ( params.grid_interpolation )
-      Ntc(i) = rssky_num_templates(1, Tseg(i), mCoh(i), params, false);
-    else
-      Ntc(i) = rssky_num_templates(Nseg(i), Tseg(i), mCoh(i), params, true);
-    endif
-
-    ## total coherent cost
-    cost(i) = Nseg(i) * Ntc(i) * c0T;
-
+  for i = 1:numCases
+    NtInc(i) = rssky_num_templates(Nseg(i), Tseg(i), mInc(i), params, false);
   endfor
+  if ( params.grid_interpolation )
+    for i = 1:numCases
+      NtCoh(i) = rssky_num_templates(1, Tseg(i), mCoh(i), params, false);
+    endfor
+  else
+    NtCoh = NtInc;
+  endif
 
-  ## return type of lattice
-  lattice = params.lattice;
+  ## coherent cost per template
+  if params.resampling
+    ## resampling cost per template, assuming "enough" frequency bins
+    c0T = params.coh_c0_resamp * Ndet;
+  else
+    ## demod cost per template
+    c0T = params.coh_c0_demod * Ndet * params.coh_duty * Tseg;
+  endif
+
+  costCoh = Nseg .* NtCoh .* c0T;
+  costInc = Nseg .* NtInc .* params.inc_c0;
 
 endfunction
-
-function [cost, Ntf, lattice] = cost_inc_wparams(Nseg, Tseg, mInc, params)
-
-  ## do not page output
-  pso = page_screen_output(0, "local");
-
-  ## load modules
-  UnitsConstants;
-
-  ## check input parameters
-  [err, Nseg, Tseg, mInc] = common_size(Nseg, Tseg, mInc);
-  assert(err == 0);
-
-  for i = 1:length(Nseg(:))
-
-    ## incoherent cost per template
-    c0T = params.inc_c0 * Nseg(i);
-
-    ## number of templates
-    Ntf(i) = rssky_num_templates(Nseg(i), Tseg(i), mInc(i), params, false);
-
-    ## total incoherent cost
-    cost(i) = Ntf(i) * c0T;
-
-  endfor
-
-  ## return type of lattice
-  lattice = params.lattice;
-
-endfunction
-
 
 %!test
 %!  try
@@ -415,8 +386,10 @@ endfunction
 %!  end_try_catch
 %!  [cost_funs, params, guess] = CostFunctionsEaHSupersky("S5R5", "debugLevel", 0);
 %!  tol = -1e-2;	%% relative error
-%!  assert ( cost_funs.costFunCoh(guess.Nseg, guess.Tseg, guess.mCoh), guess.costCoh, tol );
-%!  assert ( cost_funs.costFunInc(guess.Nseg, guess.Tseg, guess.mInc), guess.costInc, tol );
+%!  [costCoh, costInc] = cost_funs.f(guess.Nseg, guess.Tseg, guess.mCoh, guess.mInc);
+%!  assert ( costCoh, guess.costCoh, tol );
+%!  assert ( costInc, guess.costInc, tol );
+%!
 %!  sp_v2 = OptimalSolution4StackSlide_v2 ("costFuns", cost_funs, ...
 %!                                  "cost0", params.cost0, ...
 %!                                  "TobsMax", params.TobsMax, ...
@@ -437,7 +410,7 @@ endfunction
 %!    disp("skipping test: LALSuite bindings not available"); return;
 %!  end_try_catch
 %!  [cost_funs, params, guess] = CostFunctionsEaHSupersky("S5GC1", "debugLevel", 0);
-%!  tol = -1e-4;
+%!  tol = -1e-2;
 %!  [costCoh, costInc] = cost_funs.f(guess.Nseg, guess.Tseg, guess.mCoh, guess.mInc);
 %!  assert ( costCoh, guess.costCoh, tol );
 %!  assert ( costInc, guess.costInc, tol );
@@ -464,7 +437,7 @@ endfunction
 %!    disp("skipping test: LALSuite bindings not available"); return;
 %!  end_try_catch
 %!  [cost_funs, params, guess] = CostFunctionsEaHSupersky("S6Bucket", "debugLevel", 0);
-%!  tol = -1e-4;
+%!  tol = -1e-2;
 %!  [costCoh, costInc] = cost_funs.f(guess.Nseg, guess.Tseg, guess.mCoh, guess.mInc);
 %!  assert ( costCoh, guess.costCoh, tol );
 %!  assert ( costInc, guess.costInc, tol );

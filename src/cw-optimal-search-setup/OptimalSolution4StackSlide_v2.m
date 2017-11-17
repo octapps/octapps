@@ -23,9 +23,10 @@
 ##
 ## The available options are:
 ##
-## "costFuns":          structure containing cost function handles:
-##    "costFunCoh"         coherent-cost function (handle), must be of the form cost_fun(Nseg, Tseg, mis)
-##    "costFunInc"         incoherent-cost function (handle), must be of the form cost_fun(Nseg, Tseg, mis)
+## "costFuns":          structure containing parameters and cost-function handle
+##    "grid_interpolation" : boolean flag about whether to use coherent-grid interpolation or not
+##    "lattice"            : string specifying the template-bank lattice to use
+##    "fun"                : cost-function handle, of the form [ costCoh, costInc, costSum = fun(Nseg, Tseg, mCoh, mInc)
 ##
 ## "cost0":             total computing cost (in CPU seconds),
 ##
@@ -84,8 +85,9 @@ function [sol, funs] = OptimalSolution4StackSlide_v2 ( varargin )
     debugLevel = 0;
   endif
 
-  assert( isfield( uvar.costFuns, "costFunCoh" ) && is_function_handle( uvar.costFuns.costFunCoh ) );
-  assert( isfield( uvar.costFuns, "costFunInc" ) && is_function_handle( uvar.costFuns.costFunInc ) );
+  assert( isfield( uvar.costFuns, "grid_interpolation" ) );
+  assert( isfield( uvar.costFuns, "lattice" ) );
+  assert( isfield( uvar.costFuns, "f" ) && is_function_handle ( uvar.costFuns.f ) );
 
   %% check and collect all (inequality) constraints
   if ( !isempty(uvar.TsegMin) && !isempty(uvar.TobsMax) )

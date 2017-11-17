@@ -64,8 +64,8 @@ function cost_funs = CostFunctionsDirected ( varargin )
 
   ## make closures of functions with 'params'
   cost_funs = struct( "grid_interpolation", params.grid_interpolation, ...
-                      "costFunCoh", @(Nseg, Tseg, mCoh=0.5) cost_coh_wparams ( Nseg, Tseg, mCoh, params ), ...
-                      "costFunInc", @(Nseg, Tseg, mInc=0.5) cost_inc_wparams ( Nseg, Tseg, mInc, params ) ...
+                      "lattice", params.lattice, ...
+                      "f", @(Nseg, Tseg, mCoh=0.5, mInc=0.5) cost_wparams ( Nseg, Tseg, mCoh, mInc, params ) ...
                     );
 
 endfunction ## CostFunctionsDirected()
@@ -136,59 +136,43 @@ endfunction ## CostFunctionsDirected()
 %!  assert ( sol_v2.Nseg, 57.035, tol );
 %!  assert ( sol_v2.Tseg, 2.1643e+05, tol );
 
-function [cost, Nt, lattice] = cost_coh_wparams ( Nseg, Tseg, mCoh, params )
-  ## coherent cost function
+function [costCoh, costInc] = cost_wparams ( Nseg, Tseg, mCoh, mInc, params )
+  ## coherent + incoherent cost functions
 
   ## check input parameters
-  [err, Nseg, Tseg, mCoh] = common_size(Nseg, Tseg, mCoh);
+  [err, Nseg, Tseg, mCoh, mInc] = common_size(Nseg, Tseg, mCoh, mInc);
   assert(err == 0);
 
-  cost = Nt = zeros ( size ( Nseg )  );
-  for i = 1:length(Nseg(:))
+  if ( ! params.grid_interpolation )
+    assert ( isempty ( mCoh ) || ( mCoh == mInc ) );
+  endif
 
-    if ( params.grid_interpolation )
-      NsegCoh = 1;
-    else
-      NsegCoh = Nseg(i);
-    endif
+  Ndet = length(strsplit(params.detectors, ","));
 
-    Nt(i) = templateCountReal ( NsegCoh, Tseg(i), mCoh(i), params );
+  costCoh = costInc = NtCoh = NtInc = zeros ( size ( Nseg )  );
+  numCases = length(Nseg(:));
 
-    Ndet = length(strsplit(params.detectors, ","));
-    if ( params.resampling )
-      cost(i)  = Nseg(i) * Nt(i) * Ndet * params.coh_c0_resamp;
-    else
-      cost(i)  = Nseg(i) * Nt(i) * Ndet * (params.coh_c0_demod * Tseg(i) * params.coh_duty );
-    endif
-
+  for i = 1:numCases
+    NtInc(i) = templateCountReal ( Nseg(i), Tseg(i), mInc(i), params );
   endfor
+  if ( params.grid_interpolation )
+    for i = 1:numCases
+      NtCoh(i) = templateCountReal ( 1, Tseg(i), mCoh(i), params );
+    endfor
+  else
+    NtCoh = NtInc;
+  endif
 
-  lattice = params.lattice;
+  if ( params.resampling )
+    costCoh = Nseg .* NtCoh * Ndet * params.coh_c0_resamp;
+  else
+    costCoh = Nseg .* NtCoh * Ndet .* (params.coh_c0_demod .* Tseg * params.coh_duty );
+  endif
+  costInc = Nseg .* NtInc * params.inc_c0;
 
   return;
 
-endfunction ## cost_coh_wparams()
-
-
-function [cost, Nt, lattice] = cost_inc_wparams ( Nseg, Tseg, mInc, params )
-  ## incoherent cost function
-
-  ## check input parameters
-  [err, Nseg, Tseg, mInc] = common_size(Nseg, Tseg, mInc);
-  assert(err == 0);
-
-  cost = Nt = zeros ( size ( Nseg )  );
-  for i = 1:length(Nseg(:))
-    Nt(i)   = templateCountReal ( Nseg(i), Tseg(i), mInc(i), params );
-    cost(i) = Nseg(i) * Nt(i) * params.inc_c0;
-  endfor
-
-  lattice = params.lattice;
-
-  return;
-
-endfunction ## cost_inc_wparams()
-
+endfunction ## cost_wparams()
 
 function bands = templateBankDims ( Nseg, Tseg, mismatch, params )
 

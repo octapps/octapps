@@ -57,8 +57,8 @@ function cost_funs = CostFunctionsEaHGCT(varargin)
 
   ## make closures of functions with 'params'
   cost_funs = struct( "grid_interpolation", params.grid_interpolation, ...
-                      "costFunCoh", @(Nseg, Tseg, mCoh=0.5) cost_coh_wparams(Nseg, Tseg, mCoh, params), ...
-                      "costFunInc", @(Nseg, Tseg, mInc=0.5) cost_inc_wparams(Nseg, Tseg, mInc, params) ...
+                      "lattice", params.lattice, ...
+                      "f", @(Nseg, Tseg, mCoh=0.5, mInc=0.5) cost_wparams(Nseg, Tseg, mCoh, mInc, params) ...
                     );
 
 endfunction
@@ -157,53 +157,41 @@ function [Nt, s] = func_Nt ( Nseg, Tseg, mis, params )
 
 endfunction # func_Nt()
 
-function [cost, Ntc, lattice] = cost_coh_wparams ( Nseg, Tseg, mCoh, params )
+function [costCoh, costInc] = cost_wparams ( Nseg, Tseg, mCoh, mInc, params )
 
-  [err, Nseg, Tseg, mCoh] = common_size( Nseg, Tseg, mCoh);
+  [err, Nseg, Tseg, mCoh, mInc] = common_size( Nseg, Tseg, mCoh, mInc);
   assert ( err == 0 );
-  Ntc = cost = zeros ( size ( Nseg ) );
 
-  for i = 1:length(Nseg(:))
+  if ( ! params.grid_interpolation )
+    assert ( isempty ( mCoh ) || ( mCoh == mInc ) );
+  endif
 
-    if ( params.grid_interpolation )
-      [Ntc(i), s] = func_Nt ( 1, Tseg(i), mCoh(i), params );
-    else
-      [Ntc(i), s] = func_Nt ( Nseg(i), Tseg(i), mCoh(i), params );
-    endif
+  Ndet = length(strsplit(params.detectors, ","));
+  costCoh = costInc = NtCoh = NtInc = zeros ( size ( Nseg )  );
+  numCases = length(Nseg(:));
 
-    Ndet = length(strsplit(params.detectors, ","));
-    if ( params.resampling )
-      cost(i) = Nseg(i) * Ntc(i) * Ndet * params.coh_c0_resamp;
-    else
-      cost(i) = Nseg(i) * Ntc(i) * Ndet * (params.coh_c0_demod * Tseg(i) * params.coh_duty);
-    endif
-
+  for i = 1:numCases
+    [ NtInc(i), s] = func_Nt ( Nseg(i), Tseg(i), mInc(i), params );
   endfor
 
-  lattice = params.lattice;
+  if ( params.grid_interpolation )
+    for i = 1:numCases
+      [NtCoh(i), s] = func_Nt ( 1, Tseg(i), mCoh(i), params );
+    endfor
+  else
+    NtCoh = NtInc;
+  endif
+
+  if ( params.resampling )
+    costCoh = Nseg .* NtCoh .* Ndet .* params.coh_c0_resamp;
+  else
+    costCoh = Nseg .* NtCoh .* Ndet .* (params.coh_c0_demod .* Tseg * params.coh_duty);
+  endif
+  costInc = Nseg .* NtInc * params.inc_c0;
 
   return;
 
 endfunction ## cost_coh_wparams()
-
-function [cost, Ntf, lattice] = cost_inc_wparams ( Nseg, Tseg, mInc, params )
-
-  [err, Nseg, Tseg, mInc] = common_size( Nseg, Tseg, mInc);
-  assert ( err == 0 );
-  Ntf = cost = zeros ( size ( Nseg ) );
-
-  for i = 1:length(Nseg(:))
-    [Ntf(i), s] = func_Nt ( Nseg(i), Tseg(i), mInc(i), params );
-
-    cost(i) = Nseg(i) * Ntf(i) * params.inc_c0;
-  endfor
-
-  lattice = params.lattice;
-
-  return;
-
-endfunction ## cost_inc_wparams()
-
 
 ## Recomputes the E@H S5GC1 solution given in Prix&Shaltev,PRD85,084010(2012) Table~II
 ## and compares with reference result. This function either passes or fails depending on the result.
@@ -225,9 +213,8 @@ endfunction ## cost_inc_wparams()
 %!                                  "inc_c0", 6e-9 ...
 %!                                );
 %!
-%!  cost_co = costFuns.costFunCoh(refParams.Nseg, refParams.Tseg, refParams.mCoh );
-%!  cost_ic = costFuns.costFunInc(refParams.Nseg, refParams.Tseg, refParams.mInc );
-%!  cost0 = cost_co + cost_ic;
+%!  [ costCoh, costInc ] = costFuns.f(refParams.Nseg, refParams.Tseg, refParams.mCoh, refParams.mInc );
+%!  cost0 = costCoh + costInc;
 %!  TobsMax = 365 * 86400;
 %!
 %!  sol_v2 = OptimalSolution4StackSlide_v2 ( "costFuns", costFuns, "cost0", cost0, "TobsMax", TobsMax, "TsegMin", 3600, "stackparamsGuess", refParams );
