@@ -63,8 +63,8 @@ function [sol, funs] = OptimalSolution4StackSlide_v2 ( varargin )
   uvar = parseOptions ( varargin,
                        {"costFuns", "struct,scalar" },
                        {"cost0", "real,strictpos,scalar" },
-                       {"TobsMax", "real,strictpos,scalar", 365 * DAYS },
-                       {"TsegMin", "real,strictpos,scalar", 1 * DAYS },
+                       {"TobsMax", "real,strictpos,scalar", [] },
+                       {"TsegMin", "real,strictpos,scalar", [] },
                        {"TsegMax", "real,strictpos,scalar", [] },
                        {"stackparamsGuess", "struct", guessDefault },
                        {"pFA", "real,strictpos,scalar", 1e-10 },
@@ -82,11 +82,14 @@ function [sol, funs] = OptimalSolution4StackSlide_v2 ( varargin )
   assert( isfield( uvar.costFuns, "costFunInc" ) && is_function_handle( uvar.costFuns.costFunInc ) );
 
   %% check and collect all (inequality) constraints
-  assert ( uvar.TsegMin <= uvar.TobsMax );
-  if ( !isempty ( uvar.TsegMax ) )
-    assert ( (uvar.TsegMin <= uvar.TsegMax) && (uvar.TsegMax <= uvar.TobsMax) );
-  else
-    uvar.TsegMax = uvar.TobsMax;
+  if ( !isempty(uvar.TsegMin) && !isempty(uvar.TobsMax) )
+    assert ( uvar.TsegMin <= uvar.TobsMax );
+  endif
+  if ( !isempty(uvar.TsegMin) && !isempty ( uvar.TsegMax ) )
+    assert ( uvar.TsegMin <= uvar.TsegMax );
+  endif
+  if ( !isempty(uvar.TsegMax) && !isempty(uvar.TobsMax) )
+    assert ( uvar.TsegMax <= uvar.TobsMax ) ;
   endif
   constraints = struct ( "cost0", uvar.cost0, "TobsMax", uvar.TobsMax, "TsegMin", uvar.TsegMin, "TsegMax", uvar.TsegMax, "NsegMinSemi", 2 );
 
@@ -104,30 +107,40 @@ function [sol, funs] = OptimalSolution4StackSlide_v2 ( varargin )
   trial{i}.startGuess = guess;
   trial{i}.name = "Unconstrained";
 
-  i++;
-  trial{i}.solverFun = @(prev, funs) funs.solvers.constrainedTobs ( prev, funs, constraints.TobsMax );
-  trial{i}.startGuess = guess; trial{i}.startGuess.Tseg = constraints.TobsMax / trial{i}.startGuess.Nseg;
-  trial{i}.name = "TobsMax";
+  if ( !isempty(constraints.TobsMax) )
+    i++;
+    trial{i}.solverFun = @(prev, funs) funs.solvers.constrainedTobs ( prev, funs, constraints.TobsMax );
+    trial{i}.startGuess = guess; trial{i}.startGuess.Tseg = constraints.TobsMax / trial{i}.startGuess.Nseg;
+    trial{i}.name = "TobsMax";
+  endif
 
-  i++;
-  trial{i}.solverFun = @(prev, funs) funs.solvers.constrainedTseg ( prev, funs, constraints.TsegMax );
-  trial{i}.startGuess = guess; trial{i}.startGuess.Tseg = constraints.TsegMax;
-  trial{i}.name = "TsegMax";
+  if ( !isempty(constraints.TsegMax) )
+    i++;
+    trial{i}.solverFun = @(prev, funs) funs.solvers.constrainedTseg ( prev, funs, constraints.TsegMax );
+    trial{i}.startGuess = guess; trial{i}.startGuess.Tseg = constraints.TsegMax;
+    trial{i}.name = "TsegMax";
+  endif
 
-  i++;
-  trial{i}.solverFun = @(prev, funs) funs.solvers.constrainedTseg ( prev, funs, constraints.TsegMin );
-  trial{i}.startGuess = guess; trial{i}.startGuess.Tseg = constraints.TsegMin;
-  trial{i}.name = "TsegMin";
+  if ( !isempty(constraints.TsegMin) )
+    i++;
+    trial{i}.solverFun = @(prev, funs) funs.solvers.constrainedTseg ( prev, funs, constraints.TsegMin );
+    trial{i}.startGuess = guess; trial{i}.startGuess.Tseg = constraints.TsegMin;
+    trial{i}.name = "TsegMin";
+  endif
 
-  i++;
-  trial{i}.solverFun = @(prev, funs) funs.solvers.constrainedTobsTseg ( prev, funs, constraints.TobsMax, constraints.TsegMax );
-  trial{i}.name = "TobsMax+TsegMax";
-  trial{i}.startGuess = guess; trial{i}.startGuess.Tseg = constraints.TsegMax; trial{i}.startGuess.Nseg = constraints.TobsMax / trial{i}.startGuess.Tseg;
+  if ( !isempty(constraints.TobsMax) && !isempty(constraints.TsegMax) )
+    i++;
+    trial{i}.solverFun = @(prev, funs) funs.solvers.constrainedTobsTseg ( prev, funs, constraints.TobsMax, constraints.TsegMax );
+    trial{i}.name = "TobsMax+TsegMax";
+    trial{i}.startGuess = guess; trial{i}.startGuess.Tseg = constraints.TsegMax; trial{i}.startGuess.Nseg = constraints.TobsMax / trial{i}.startGuess.Tseg;
+  endif
 
-  i++;
-  trial{i}.solverFun = @(prev, funs) funs.solvers.constrainedTobsTseg ( prev, funs, constraints.TobsMax, constraints.TsegMin );
-  trial{i}.name = "TobsMax+TsegMin";
-  trial{i}.startGuess = guess; trial{i}.startGuess.Tseg = constraints.TsegMin; trial{i}.startGuess.Nseg = constraints.TobsMax / trial{i}.startGuess.Tseg;
+  if ( !isempty(constraints.TobsMax) && !isempty(constraints.TsegMin) )
+    i++;
+    trial{i}.solverFun = @(prev, funs) funs.solvers.constrainedTobsTseg ( prev, funs, constraints.TobsMax, constraints.TsegMin );
+    trial{i}.name = "TobsMax+TsegMin";
+    trial{i}.startGuess = guess; trial{i}.startGuess.Tseg = constraints.TsegMin; trial{i}.startGuess.Nseg = constraints.TobsMax / trial{i}.startGuess.Tseg;
+  endif
 
   sol = [];
   for i = 1:length(trial)
@@ -243,13 +256,13 @@ endfunction %% iterateSolver()
 function outside = constraints_violated ( sol, constraints, tol )
   %% outside = constraints_violated ( sol, constraints, tol )
   outside = 0;
-  if ( (sol.Tobs > constraints.TobsMax * (1 + tol)) )
+  if ( !isempty(constraints.TobsMax) && (sol.Tobs > constraints.TobsMax * (1 + tol)) )
     outside = bitset ( outside, 1 );
   endif
-  if ( sol.Tseg < constraints.TsegMin * (1 - tol) )
+  if ( !isempty(constraints.TsegMin) && (sol.Tseg < constraints.TsegMin * (1 - tol)) )
     outside = bitset ( outside, 2 );
   endif
-  if ( sol.Tseg > constraints.TsegMax * (1 + tol) )
+  if ( !isempty(constraints.TsegMax) && (sol.Tseg > constraints.TsegMax * (1 + tol)) )
     outside = bitset ( outside, 3 );
   endif
   if ( sol.Nseg < 1 )
