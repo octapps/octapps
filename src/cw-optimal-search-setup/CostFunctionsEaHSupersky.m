@@ -417,14 +417,6 @@ endfunction
 %!  tol = -1e-2;	%% relative error
 %!  assert ( cost_funs.costFunCoh(guess.Nseg, guess.Tseg, guess.mCoh), guess.costCoh, tol );
 %!  assert ( cost_funs.costFunInc(guess.Nseg, guess.Tseg, guess.mInc), guess.costInc, tol );
-%!  sp = OptimalSolution4StackSlide("costFuns", cost_funs, ...
-%!                                  "cost0", params.cost0, ...
-%!                                  "TobsMax", params.TobsMax, ...
-%!                                  "TsegMin", 86400, ...
-%!                                  "stackparamsGuess", guess, "verbose", true);
-%!  assert ( sp.coefCoh.cost, guess.costCoh, tol );
-%!  assert ( sp.coefInc.cost, guess.costInc, tol );
-%!
 %!  sp_v2 = OptimalSolution4StackSlide_v2 ("costFuns", cost_funs, ...
 %!                                  "cost0", params.cost0, ...
 %!                                  "TobsMax", params.TobsMax, ...
@@ -432,12 +424,7 @@ endfunction
 %!                                  "maxiter", 4, ...
 %!                                  "stackparamsGuess", guess, ...
 %!                                  "debugLevel", 2);
-%!  DebugPrintf ( 0, "\nsol_v1 = " ); DebugPrintStackparams ( 0, sp ); DebugPrintf ( 0, "\n");
-%!  DebugPrintf ( 0, "sol_v2 = " ); DebugPrintStackparams ( 0, sp_v2 ); DebugPrintf ( 0, "\n");
 %!
-%! %% check 'v2' solution
-%!  assert ( sp_v2.L0 >= sp.L0 );	%% should be better than 'v1'
-%!  assert ( sp_v2.costConstraint < 5e-2 );
 %!  assert ( sp_v2.Nseg, 54.871, tol );
 %!  assert ( sp_v2.Tseg, 86400, tol );
 %!  assert ( sp_v2.mCoh, 0.077245, tol );
@@ -451,15 +438,9 @@ endfunction
 %!  end_try_catch
 %!  [cost_funs, params, guess] = CostFunctionsEaHSupersky("S5GC1", "debugLevel", 0);
 %!  tol = -1e-4;
-%!  assert ( cost_funs.costFunCoh(guess.Nseg, guess.Tseg, guess.mCoh), guess.costCoh, tol );
-%!  assert ( cost_funs.costFunInc(guess.Nseg, guess.Tseg, guess.mInc), guess.costInc, tol );
-%!  sp = OptimalSolution4StackSlide("costFuns", cost_funs, ...
-%!                                  "cost0", params.cost0, ...
-%!                                  "TobsMax", params.TobsMax, ...
-%!                                  "TsegMin", 86400, ...
-%!                                  "stackparamsGuess", guess, "verbose", true);
-%!  assert ( sp.coefCoh.cost, guess.costCoh, tol );
-%!  assert ( sp.coefInc.cost, guess.costInc, tol );
+%!  [costCoh, costInc] = cost_funs.f(guess.Nseg, guess.Tseg, guess.mCoh, guess.mInc);
+%!  assert ( costCoh, guess.costCoh, tol );
+%!  assert ( costInc, guess.costInc, tol );
 %!
 %!  sp_v2 = OptimalSolution4StackSlide_v2("costFuns", cost_funs, ...
 %!                                  "cost0", params.cost0, ...
@@ -469,16 +450,12 @@ endfunction
 %!                                  "maxiter", 10, ...
 %!                                  "debugLevel", 1);
 %!
-%!  DebugPrintf ( 0, "\nsol_v1 = " ); DebugPrintStackparams ( 0, sp ); DebugPrintf ( 0, "\n");
-%!  DebugPrintf ( 0, "sol_v2 = " ); DebugPrintStackparams ( 0, sp_v2 ); DebugPrintf ( 0, "\n");
-%! %% check 'v2' solution
-%!  assert ( sp_v2.L0 >= sp.L0 );	%% should be better than 'v1'
+%!  DebugPrintf ( 0, "\nsol_v2 = " ); DebugPrintStackparams ( 0, sp_v2 ); DebugPrintf ( 0, "\n");
 %!  assert ( sp_v2.costConstraint < 5e-2 );
 %!  assert ( sp_v2.Nseg, 32.811, tol );
 %!  assert ( sp_v2.Tseg, 86400, tol );
 %!  assert ( sp_v2.mCoh, 0.071517, tol );
 %!  assert ( sp_v2.mInc, 0.32054, tol );
-
 
 %!test
 %!  try
@@ -488,15 +465,9 @@ endfunction
 %!  end_try_catch
 %!  [cost_funs, params, guess] = CostFunctionsEaHSupersky("S6Bucket", "debugLevel", 0);
 %!  tol = -1e-4;
-%!  assert ( cost_funs.costFunCoh(guess.Nseg, guess.Tseg, guess.mCoh), guess.costCoh, tol );
-%!  assert ( cost_funs.costFunInc(guess.Nseg, guess.Tseg, guess.mInc), guess.costInc, tol );
-%!  sp = OptimalSolution4StackSlide("costFuns", cost_funs, ...
-%!                                  "cost0", params.cost0, ...
-%!                                  "TobsMax", params.TobsMax, ...
-%!                                  "TsegMin", 86400, ...
-%!                                  "stackparamsGuess", guess, "verbose", true);
-%!  assert ( sp.coefCoh.cost, guess.costCoh, tol );
-%!  assert ( sp.coefInc.cost, guess.costInc, tol );
+%!  [costCoh, costInc] = cost_funs.f(guess.Nseg, guess.Tseg, guess.mCoh, guess.mInc);
+%!  assert ( costCoh, guess.costCoh, tol );
+%!  assert ( costInc, guess.costInc, tol );
 %!
 %!  sp_v2 = OptimalSolution4StackSlide_v2("costFuns", cost_funs, ...
 %!                                  "cost0", params.cost0, ...
@@ -506,10 +477,7 @@ endfunction
 %!                                  "maxiter", 4, ...
 %!                                  "debugLevel", 1);
 %!
-%!  DebugPrintf ( 0, "\nsol_v1 = " ); DebugPrintStackparams ( 0, sp ); DebugPrintf ( 0, "\n");
-%!  DebugPrintf ( 0, "sol_v2 = " ); DebugPrintStackparams ( 0, sp_v2 ); DebugPrintf ( 0, "\n");
-%! %% check 'v2' solution
-%!  assert ( sp_v2.L0 >= sp.L0 );	%% should be better than 'v1'
+%!  DebugPrintf ( 0, "\nsol_v2 = " ); DebugPrintStackparams ( 0, sp_v2 ); DebugPrintf ( 0, "\n");
 %!  assert ( sp_v2.costConstraint < 5e-2 );
 %!  assert ( sp_v2.Nseg, 123.00, tol );
 %!  assert ( sp_v2.Tseg, 86400, tol );

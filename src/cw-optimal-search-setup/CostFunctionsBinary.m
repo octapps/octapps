@@ -90,26 +90,16 @@ endfunction ## CostFunctionsBinary()
 %!  TobsMax = 360 * DAYS;
 %!  TsegMax = 10 * DAYS;
 %!
-%!  sol = OptimalSolution4StackSlide ( "costFuns", costFuns, "cost0", cost0, "TobsMax", TobsMax, "TsegMax", TsegMax, "stackparamsGuess", refParams );
 %!  sol_v2 = OptimalSolution4StackSlide_v2 ( "costFuns", costFuns, "cost0", cost0, "TobsMax", TobsMax, "TsegMax", TsegMax, "stackparamsGuess", refParams );
 %!
-%!  DebugPrintf ( 0, "\nsol_v1 = " ); DebugPrintStackparams ( 0, sol ); DebugPrintf ( 0, "\n");
-%!  DebugPrintf ( 0, "sol_v2 = " ); DebugPrintStackparams ( 0, sol_v2 ); DebugPrintf ( 0, "\n");
+%!  DebugPrintf ( 0, "\nsol_v2 = " ); DebugPrintStackparams ( 0, sol_v2 ); DebugPrintf ( 0, "\n");
 %!
 %!  tol = -1e-2;
-%!  assert ( sol.mCoh, 0.740353478526876, tol );	%% values corrected for xi=MeanHist(An*) instead of 0.5
-%!  assert ( sol.mInc, 0.0441091639769692, tol );
-%!  assert ( sol.Nseg, 40.4819540406797, tol );
-%!  assert ( sol.Tseg, 768342.357405575, tol );
-%!  assert ( sol.cr, 22.3794305395332, tol );
-%!
-%! %% test 'v2' solution
-%!  assert ( sol_v2.L0 >= sol.L0 );	%% should be better than 'v1'
 %!  assert ( sol_v2.costConstraint < 5e-2 );
-%!  assert ( sol_v2.mCoh, 0.800740, tol );
-%!  assert ( sol_v2.mInc, 0.043971, tol );
 %!  assert ( sol_v2.Nseg, 36, tol );
 %!  assert ( sol_v2.Tseg, 864000, tol );
+%!  assert ( sol_v2.mCoh, 0.800740, tol );
+%!  assert ( sol_v2.mInc, 0.043971, tol );
 
 
 
@@ -133,21 +123,11 @@ endfunction ## CostFunctionsBinary()
 %!  TobsMax = 360 * DAYS;
 %!  TsegMax = 10 * DAYS;
 %!
-%!  sol = OptimalSolution4StackSlide ( "costFuns", costFuns, "cost0", cost0, "TobsMax", TobsMax, "TsegMax", TsegMax, "stackparamsGuess", refParams );
 %!  sol_v2 = OptimalSolution4StackSlide_v2 ( "costFuns", costFuns, "cost0", cost0, "TobsMax", TobsMax, "TsegMax", TsegMax, "stackparamsGuess", refParams );
 %!
-%!  DebugPrintf ( 0, "\nsol_v1 = " ); DebugPrintStackparams ( 0, sol ); DebugPrintf ( 0, "\n");
-%!  DebugPrintf ( 0, "sol_v2 = " ); DebugPrintStackparams ( 0, sol_v2 ); DebugPrintf ( 0, "\n");
+%!  DebugPrintf ( 0, "\nsol_v2 = " ); DebugPrintStackparams ( 0, sol_v2 ); DebugPrintf ( 0, "\n");
 %!
 %!  tol = -1e-2;
-%!  assert ( sol.mCoh, 0.037677, tol );
-%!  assert ( sol.mInc, 0.031533, tol );
-%!  assert ( sol.Nseg, 36, tol );
-%!  assert ( sol.Tseg, 864000, tol );
-%!  assert ( sol.cr, 1.5931, tol );
-%!
-%! %% test 'v2' solution
-%!  assert ( sol_v2.L0 >= sol.L0 );	%% should be better than 'v1'
 %!  assert ( sol_v2.costConstraint < 5e-2 );
 %!  assert ( sol_v2.mCoh, 0.038235, tol );
 %!  assert ( sol_v2.mInc, 0.030999, tol );
@@ -175,21 +155,12 @@ endfunction ## CostFunctionsBinary()
 %!  TobsMax = 360 * DAYS;
 %!  TsegMax = 10 * DAYS;
 %!
-%!  sol = OptimalSolution4StackSlide ( "costFuns", costFuns, "cost0", cost0, "TobsMax", TobsMax, "TsegMax", TsegMax, "stackparamsGuess", refParams );
+%!  ##sol = OptimalSolution4StackSlide ( "costFuns", costFuns, "cost0", cost0, "TobsMax", TobsMax, "TsegMax", TsegMax, "stackparamsGuess", refParams );
 %!  sol_v2 = OptimalSolution4StackSlide_v2 ( "costFuns", costFuns, "cost0", cost0, "TobsMax", TobsMax, "TsegMax", TsegMax, "stackparamsGuess", refParams );
 %!
-%!  DebugPrintf ( 0, "\nsol_v1 = " ); DebugPrintStackparams ( 0, sol ); DebugPrintf ( 0, "\n");
-%!  DebugPrintf ( 0, "sol_v2 = " ); DebugPrintStackparams ( 0, sol_v2 ); DebugPrintf ( 0, "\n");
+%!  DebugPrintf ( 0, "\nsol_v2 = " ); DebugPrintStackparams ( 0, sol_v2 ); DebugPrintf ( 0, "\n");
 %!
 %!  tol = -1e-2;
-%!  assert ( sol.mCoh, 1.1838, tol );
-%!  assert ( sol.mInc, 0.53792, tol );
-%!  assert ( sol.Nseg, 36, tol );
-%!  assert ( sol.Tseg, 864000, tol );
-%!  assert ( sol.cr, 2.6405, tol );
-%!
-%! %% test 'v2' solution
-%!  assert ( sol_v2.L0 >= sol.L0 );	%% should be better than 'v1'
 %!  assert ( sol_v2.costConstraint < 5e-2 );
 %!  assert ( sol_v2.mCoh, 0.81274, tol );
 %!  assert ( sol_v2.mInc, 0.30675, tol );
