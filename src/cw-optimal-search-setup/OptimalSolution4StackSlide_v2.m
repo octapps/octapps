@@ -45,7 +45,7 @@
 ## "sensApprox":        sensitivity approximation to use in SensitivityScalingDeviationN() [default: none] {[], "none", "Gauss", "WSG}
 ## "nonlinearMismatch" use empirical nonlinear mismatch relation instead of linear <mis> = xi * m
 ##
-## "debugLevel"         [optional] control level of debug output [default: 0]
+## "debugLevel"         [optional] control level of debug output
 ##
 ## The return structure 'sol' has fields {Nseg, Tseg, m }
 ## where Nseg is the optimal (fractional!) number of segments, Tseg is the optimal segment length (in seconds)
@@ -73,10 +73,16 @@ function [sol, funs] = OptimalSolution4StackSlide_v2 ( varargin )
                        {"maxiter", "integer,strictpos,scalar", 30 },
                        {"sensApprox", "char", [] },
                        {"nonlinearMismatch", "logical,scalar", false },
-                       {"debugLevel", "integer,positive,scalar", 0 },
+                       {"debugLevel", "integer,positive,scalar", [] },
                        []);
   global powerEps; powerEps = 1e-5;	%% value practically considered "zero" for power-law coefficients
-  global debugLevel; debugLevel = uvar.debugLevel;
+  global debugLevel;
+  if ( !isempty(uvar.debugLevel) )
+    debugLevel = uvar.debugLevel;
+  endif
+  if ( isempty ( debugLevel ) )
+    debugLevel = 0;
+  endif
 
   assert( isfield( uvar.costFuns, "costFunCoh" ) && is_function_handle( uvar.costFuns.costFunCoh ) );
   assert( isfield( uvar.costFuns, "costFunInc" ) && is_function_handle( uvar.costFuns.costFunInc ) );
