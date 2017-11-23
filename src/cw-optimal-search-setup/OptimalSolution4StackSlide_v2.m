@@ -52,7 +52,7 @@
 ## where Nseg is the optimal (fractional!) number of segments, Tseg is the optimal segment length (in seconds)
 ## m is the optimal grid mismatch
 
-function [sol, funs] = OptimalSolution4StackSlide_v2 ( varargin )
+function sol = OptimalSolution4StackSlide_v2 ( varargin )
 
   ## do not page output
   ## pso = page_screen_output(0, "local");
@@ -187,6 +187,7 @@ function [sol, funs] = OptimalSolution4StackSlide_v2 ( varargin )
   endif
 
   sol = best_solution;
+  sol.funs = funs;
   return;
 
 endfunction %% OptimalSolution4StackSlide_v2()
