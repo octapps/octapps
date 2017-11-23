@@ -1,3 +1,4 @@
+## Copyright (C) 2017 Reinhard Prix
 ## Copyright (C) 2015 Karl Wette
 ##
 ## This program is free software; you can redistribute it and/or modify
@@ -226,12 +227,11 @@ function Nt = rssky_num_templates(Nseg, Tseg, mis, params, padding)
   ## find cache of previously-computed metrics
   cache_fname = [];
   if ( !isempty ( params.cache_file ) )
-    [cacheDir,fname,ext,ver] = fileparts ( params.cache_file );
+    [cacheDir, fname, ext] = fileparts ( params.cache_file );
     if ( isempty(cacheDir) )
-      loc = which("CostFunctionsEaHSupersky");
-      cacheDir = fileparts (loc);
+      cacheDir = fileparts ( mfilename("fullpath") );
     endif
-    cache_fname = sprintf ( "%s/%s%s", cacheDir, fname, ext );
+    cache_fname = fullfile ( cacheDir, strcat( fname, ext ) );
   endif
 
   added_to_cache = false;
