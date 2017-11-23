@@ -307,14 +307,23 @@ function Nt = rssky_num_templates(Nseg, Tseg, mis, params, padding)
         added_to_cache = true;
       endif
 
+      ## calculate bounding box of metric
+      if padding
+        bbox_metric = reshape(metricBoundingBox(rssky_metric, max_mismatch), [], 1);
+      else
+        bbox_metric = zeros(size(rssky_metric, 1), 1);
+      endif
+
+      ## calculate parameter-space volume
+      vol = 2 * (pi + 4*bbox_metric(2) + bbox_metric(1)*bbox_metric(2));
+      vol *= prod(reshape(abs(metric_params.fkdot_bands), [], 1) + bbox_metric(3:end));
+
       ## compute number of templates
-      fkdot_param_space = abs([metric_params.fkdot_bands(2:end); metric_params.fkdot_bands(1)]);
       Nt_interp(i, j) = NumberOfLatticeBankTemplates(
                                                      "lattice", lattice,
                                                      "metric", rssky_metric,
                                                      "max_mismatch", mis,
-                                                     "param_space", {"rssky", fkdot_param_space},
-                                                     "padding", padding
+                                                     "param_vol", vol
                                                      );
 
     endfor
