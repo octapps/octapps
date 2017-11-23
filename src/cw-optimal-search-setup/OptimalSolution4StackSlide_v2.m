@@ -41,7 +41,7 @@
 ## "pFD"                false-dismissal probability (=1-detection-probability) [0.1]
 ##
 ## "tol"                tolerance on the obtained relative difference of the solution, required for convergence [1e-2]
-## "maxiter"            maximal allowed number of iterations [30]
+## "maxiter"            maximal allowed number of iterations [10]
 ##
 ## "sensApprox":        sensitivity approximation to use in SensitivityScalingDeviationN() [default: none] {[], "none", "Gauss", "WSG}
 ## "nonlinearMismatch" use empirical nonlinear mismatch relation instead of linear <mis> = xi * m
@@ -71,7 +71,7 @@ function [sol, funs] = OptimalSolution4StackSlide_v2 ( varargin )
                        {"pFA", "real,strictpos,scalar", 1e-10 },
                        {"pFD", "real,strictpos,scalar", 0.1 },
                        {"tol", "real,strictpos,scalar", 1e-2 },
-                       {"maxiter", "integer,strictpos,scalar", 30 },
+                       {"maxiter", "integer,strictpos,scalar", 10 },
                        {"sensApprox", "char", [] },
                        {"nonlinearMismatch", "logical,scalar", false },
                        {"debugLevel", "integer,positive,scalar", [] },
@@ -104,9 +104,15 @@ function [sol, funs] = OptimalSolution4StackSlide_v2 ( varargin )
   funs = OptimalSolution4StackSlide_v2_helpers ( uvar.costFuns, constraints, uvar.pFA, uvar.pFD, uvar.nonlinearMismatch, uvar.sensApprox );
 
   guess = uvar.stackparamsGuess;
+  DebugPrintf ( 1, "Completing stackparams of starting point ...");
   guess = funs.complete_stackparams ( guess, funs );
-  if ( isempty ( guess ) ) return; endif
-  DebugPrintf ( 1, "\nStarting point: "); DebugPrintStackparams ( 1, guess ); DebugPrintf ( 1, "\n" );
+  if ( isempty ( guess ) )
+    DebugPrintf ( 1, "failed.\n");
+    return;
+  endif
+  DebugPrintf ( 1, " done: ");
+  DebugPrintStackparams ( 1, guess );
+  DebugPrintf ( 1, "\n" );
 
   i = 0;
   %% ---------- try all types of constraint combinations ------
@@ -150,25 +156,29 @@ function [sol, funs] = OptimalSolution4StackSlide_v2 ( varargin )
     trial{i}.startGuess = guess; trial{i}.startGuess.Tseg = constraints.TsegMin; trial{i}.startGuess.Nseg = constraints.TobsMax / trial{i}.startGuess.Tseg;
   endif
 
-  sol = [];
+  best_solution = [];
   for i = 1:length(trial)
-    DebugPrintf ( 1, "----- Trying solution type '%18s':", sprintf("[%s]", trial{i}.name) );
+    DebugPrintf ( 1, "Running solver %-18s ", sprintf("[%s]:", trial{i}.name) );
     sol_i = iterateSolver ( trial{i}.solverFun, trial{i}.startGuess, funs, uvar.tol, uvar.maxiter );
-    if ( ! isempty ( sol_i ) )
+    if ( isempty ( sol_i ) )
+      DebugPrintf ( 1, " %-11s: ", sprintf("[%s]", "FAILED")); DebugPrintf ( 1, "no solutions found\n" );
+    else
       conv = ifelse ( sol_i.converged == 0, "maxiter", ifelse ( sol_i.converged == 1, "converged", "cyclical" ) );
-      DebugPrintf ( 1, "%-11s:", sprintf("[%s]", conv)); DebugPrintStackparams ( 1, sol_i );
-      if ( ! constraints_violated ( sol_i, constraints, uvar.tol ) )
-        if ( isempty ( sol ) || ( sol_i.L0 > sol.L0 ) )
-          sol = sol_i;
-          sol.name = trial{i}.name;
+      DebugPrintf ( 1, " %-11s: ", sprintf("[%s]", conv)); DebugPrintStackparams ( 1, sol_i );
+      [ passed, msg] = checkConstraints ( sol_i, constraints, uvar.tol );
+      DebugPrintf ( 1, " ==> %s\n", msg );
+      if ( passed )
+        if ( isempty ( best_solution ) || ( sol_i.L0 > best_solution.L0 ) )
+          best_solution = sol_i;
+          best_solution.name = trial{i}.name;
         endif %% if new best solution
       endif %% if !constraints violated
     endif %% if solution found
   endfor %% i : length(trial)
 
-  if ( !isempty ( sol  ) )
+  if ( !isempty ( best_solution  ) )
     DebugPrintf ( 1, "==============================\n");
-    DebugPrintf ( 1, "--> Best solution found: [@%s] ", sol.name ); DebugPrintStackparams ( 1, sol ); DebugPrintf (1, "\n" );
+    DebugPrintf ( 1, "--> Best solution found: [%s]: ", best_solution.name ); DebugPrintStackparams ( 1, best_solution ); DebugPrintf (1, "\n" );
     DebugPrintf ( 1, "==============================\n");
   else
     DebugPrintf ( 0, "==============================\n");
@@ -176,6 +186,7 @@ function [sol, funs] = OptimalSolution4StackSlide_v2 ( varargin )
     DebugPrintf ( 0, "==============================\n");
   endif
 
+  sol = best_solution;
   return;
 
 endfunction %% OptimalSolution4StackSlide_v2()
@@ -216,26 +227,31 @@ function sol = iterateSolver ( solverFun, startGuess, funs, tol, maxiter )
 
     stackparams = funs.complete_stackparams ( stackparams, funs );
     if ( isempty ( stackparams ) )
-      DebugPrintf ( 2, " ==> FAILED to even start ... (most likely cost function error)\n" );
       return;
     endif
 
-    DebugPrintf ( 3, "\nsolver iteration = %2d:     ", iter ); DebugPrintStackparams ( 3, stackparams ); DebugPrintf ( 3, "\n" );
+    if ( iter > 0 ) cr = ""; else cr = ""; endif
+    DebugPrintf ( 3, "\n" );
+    DebugPrintf ( 1, "%siteration = %02d/%02d", cr, iter+1, maxiter );
+    DebugPrintf (3, ": " ); DebugPrintStackparams ( 3, stackparams ); DebugPrintf ( 3, "\n" );
     if ( iter > 0 )
       stackparams.converged = checkConvergence ( stackparams, solpath, tol );
       assert ( any ( stackparams.converged == [-1, 0, 1] ), "Unknown convergence type returned by checkConvergence = %g\n", stackparams.converged);
-      if ( (stackparams.converged != 0) || (iter > maxiter) )
+      if ( stackparams.converged != 0 )
         break;
       endif
     endif
 
     iter ++;
+    if ( iter >= maxiter )
+      break;
+    endif
+
     solpath{iter} = stackparams;
 
     new = solverFun ( stackparams, funs );
 
     if ( isempty ( new ) )
-      DebugPrintf ( 2, " ==> FAILED\n" );
       return;
     endif
 
@@ -252,7 +268,6 @@ function sol = iterateSolver ( solverFun, startGuess, funs, tol, maxiter )
 
     stackparams = next;
   endwhile
-  DebugPrintf ( 3, "\n");
 
   sol = stackparams;
   sol.iterations = iter;
@@ -261,8 +276,7 @@ function sol = iterateSolver ( solverFun, startGuess, funs, tol, maxiter )
 endfunction %% iterateSolver()
 
 
-function outside = constraints_violated ( sol, constraints, tol )
-  %% outside = constraints_violated ( sol, constraints, tol )
+function [ passed, msg ] = checkConstraints ( sol, constraints, tol )
   outside = 0;
   if ( !isempty(constraints.TobsMax) && (sol.Tobs > constraints.TobsMax * (1 + tol)) )
     outside = bitset ( outside, 1 );
@@ -279,32 +293,38 @@ function outside = constraints_violated ( sol, constraints, tol )
   if ( sol.costConstraint > 5 * tol )	%% must be consistent with checkConvergence()
     outside = bitset ( outside, 5 );
   endif
-
-  if ( outside > 0 )
-    DebugPrintf (1, " ==> UNFEASIBLE:");
-    if ( bitget ( outside, 1 ) )
-      DebugPrintf (2, " [TobsMax]" );
-    endif
-    if ( bitget ( outside, 2 ) )
-      DebugPrintf (2, " [TsegMin]" );
-    endif
-    if ( bitget ( outside, 3 ) )
-      DebugPrintf (2, " [TsegMax]");
-    endif
-    if ( bitget ( outside, 4 ) )
-      DebugPrintf (2, " [NsegMin]");
-    endif
-    if ( bitget ( outside, 5 ) )
-      DebugPrintf (1, " [Cost0]");
-    endif
-    DebugPrintf ( 1, "\n" );
-  else
-    DebugPrintf (2, " ==> FEASIBLE\n");
+  if ( sol.L0 <= 0 ) %% only admit solutions for positive objective function
+    outside = bitset ( outside, 6 );
   endif
 
+  if ( outside > 0 )
+    passed = false;
+    msg = "INFEASIBLE:";
+    if ( bitget ( outside, 1 ) )
+      msg = strcat ( msg, " [>TobsMax]" );
+    endif
+    if ( bitget ( outside, 2 ) )
+      msg = strcat ( msg, " [<TsegMin]" );
+    endif
+    if ( bitget ( outside, 3 ) )
+      msg = strcat ( msg, " [>TsegMax]" );
+    endif
+    if ( bitget ( outside, 4 ) )
+      msg = strcat ( msg, " [<NsegMin]" );
+    endif
+    if ( bitget ( outside, 5 ) )
+      msg = strcat ( msg, " [>Cost0]" );
+    endif
+    if ( bitget ( outside, 6 ) )
+      msg = strcat ( msg, " [L0<0]" );
+    endif
+  else
+    msg = "FEASIBLE!";
+    passed = true;
+  endif
 
   return;
-endfunction %% constraints_violated()
+endfunction %% checkConstraints()
 
 function conv = checkConvergence ( new_stackparams, prev_stackparams, tol )
 

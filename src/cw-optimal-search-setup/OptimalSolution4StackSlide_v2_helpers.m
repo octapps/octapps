@@ -56,7 +56,7 @@ function funs = OptimalSolution4StackSlide_v2_helpers ( costFuns, constraints, p
   funs.solvers = solvers;
 
   funs.L0             = @(sp) ( 1 - sp.misAvg ) .* sp.Tseg .* sp.Nseg.^(1 - 1./(2*funs.w(sp)));
-  funs.costConstraint = @(sp) ( (sp.cost - funs.constraints.cost0)/funs.constraints.cost0);
+  funs.costConstraint = @(sp) ( (sp.cost - funs.constraints.cost0)/funs.constraints.cost0);	## Note: keep sign, allows accepting cost < cost0 solutions ...
 
   funs.cratio = @(mCoh,mInc,sp) ...
                  (funs.zCoh(sp.Tseg,sp.Nseg*sp.Tseg,mCoh,sp.coefCoh.xi,mInc,sp.coefInc.xi) .* mCoh ./ sp.coefCoh.nDim) ...
@@ -222,11 +222,11 @@ function sol = NONI_constrainedTobs ( stackparams, funs, Tobs0 )
   TsegOpt = Tobs0 / NsegOpt;
 
   if ( (TsegOpt < funs.constraints.TsegMin) && isfield(stackparams, "hitTsegMin") && stackparams.hitTsegMin )	%% keeps pushing down->give up
-    DebugPrintf ( 2, "\n%s: TsegOpt = %g d, keeps pushing below TsegMin ==> giving up!\n", funcName, TsegOpt/DAYS );
+    DebugPrintf ( 2, "\n%s: TsegOpt = %g d: keeps pushing below TsegMin = %g d ==> giving up!\n", funcName, TsegOpt/DAYS, funs.constraints.TsegMin/DAYS );
     return;
   endif
   if ( (TsegOpt > funs.constraints.TsegMax) && isfield(stackparams, "hitTsegMax") && stackparams.hitTsegMax ) %% keeps pushing up->give up
-    DebugPrintf ( 2, "\n%s: TsegOpt = %g d, keeps pushing above TsegMax ==> giving up!\n", funcName, TsegOpt/DAYS );
+    DebugPrintf ( 2, "\n%s: TsegOpt = %g d: keeps pushing above TsegMax = %g d ==> giving up!\n", funcName, TsegOpt/DAYS, funs.constraints.TsegMax/DAYS );
     return;
   endif
 
@@ -236,7 +236,7 @@ function sol = NONI_constrainedTobs ( stackparams, funs, Tobs0 )
 endfunction %% NONI_constrainedTobs()
 
 function sol = NONI_constrainedTseg ( stackparams, funs, Tseg0 )
-  global debugLevel;
+  global debugLevel; global DAYS;
   sol = [];
 
   %% ----- local shortcuts ----------
@@ -284,14 +284,14 @@ function sol = NONI_constrainedTseg ( stackparams, funs, Tseg0 )
   NsegOpt = exp ( logNopt );
 
   if ( (NsegOpt < funs.constraints.NsegMinSemi) && isfield ( stackparams, "hitNsegMinSemi" ) && stackparams.hitNsegMinSemi )
-    DebugPrintf ( 2, "\n%s: keeps pushing below NsegMinSemi: calling COH_constrainedTobs()\n", funcName );
+    DebugPrintf ( 2, "\n%s: NsegOpt = %g: keeps pushing below NsegMinSemi = %g: calling COH_constrainedTobs()\n", funcName, NsegOpt, funs.constraints.NsegMinSemi );
     sol = COH_constrainedTobs ( stackparams, funs, Tseg0 );
     return;
   endif
 
   TobsOpt = NsegOpt * Tseg0;
   if ( (TobsOpt > funs.constraints.TobsMax) && isfield ( stackparams, "hitTobsMax" ) && stackparams.hitTobsMax );
-    DebugPrintf ( 2, "\n%s: keeps pushing above TsegMax ==> giving up\n", funcName );
+    DebugPrintf ( 2, "\n%s: TobsOpt = %g d: keeps pushing above TsegMax = %g d ==> giving up\n", funcName, TobsOpt/DAYS, funs.constraints.TobsMax/DAYS );
     return;
   endif
 
@@ -451,11 +451,11 @@ function sol = INT_constrainedTobs ( stackparams, funs, Tobs0 )
     TsegOpt = Tobs0 / NsegOpt;
 
     if ( (TsegOpt < funs.constraints.TsegMin) && isfield(stackparams, "hitTsegMin") && stackparams.hitTsegMin )	%% keeps pushing down->give up
-      DebugPrintf ( 2, "\n%s: TsegOpt = %g d, keeps pushing below TsegMin ==> giving up!\n", funcName, TsegOpt/DAYS );
+      DebugPrintf ( 2, "\n%s: TsegOpt = %g d: keeps pushing below TsegMin = %g d ==> giving up!\n", funcName, TsegOpt/DAYS, funs.constraints.TsegMin/DAYS );
       return;
     endif
     if ( (TsegOpt > funs.constraints.TsegMax) && isfield(stackparams, "hitTsegMax") && stackparams.hitTsegMax ) %% keeps pushing up->give up
-      DebugPrintf ( 2, "\n%s: TsegOpt = %g d, keeps pushing above TsegMax ==> giving up!\n", funcName, TsegOpt/DAYS );
+      DebugPrintf ( 2, "\n%s: TsegOpt = %g d: keeps pushing above TsegMax = %g ==> giving up!\n", funcName, TsegOpt/DAYS, funs.constraints.TsegMax/DAYS );
       return;
     endif
 
@@ -466,7 +466,7 @@ function sol = INT_constrainedTobs ( stackparams, funs, Tobs0 )
 endfunction %% INT_constrainedTobs()
 
 function sol = INT_constrainedTseg ( stackparams, funs, Tseg0 )
-  global debugLevel;
+  global debugLevel; global DAYS;
 
   sol = [];
   %% ----- local shortcuts ----------
@@ -515,7 +515,7 @@ function sol = INT_constrainedTseg ( stackparams, funs, Tseg0 )
 
   TobsOpt = NsegOpt * Tseg0;
   if ( (TobsOpt > funs.constraints.TobsMax) && isfield ( stackparams, "hitTobsMax" ) && stackparams.hitTobsMax );
-    DebugPrintf ( 2, "\n%s: keeps pushing above TsegMax ==> giving up\n", funcName );
+    DebugPrintf ( 2, "\n%s: TobsOpt = %g d: keeps pushing above TsegMax = %g d ==> giving up\n", funcName, TobsOpt/DAYS, funs.constraints.TobsMax/DAYS );
     return;
   endif
 
