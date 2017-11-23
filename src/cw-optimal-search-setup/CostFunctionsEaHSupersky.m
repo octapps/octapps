@@ -396,7 +396,7 @@ endfunction
 %!                                  "TsegMin", 86400, ...
 %!                                  "maxiter", 4, ...
 %!                                  "stackparamsGuess", guess, ...
-%!                                  "debugLevel", 2);
+%!                                  "debugLevel", 1);
 %!
 %!  assert ( sp_v2.Nseg, 54.871, tol );
 %!  assert ( sp_v2.Tseg, 86400, tol );
@@ -423,8 +423,6 @@ endfunction
 %!                                  "maxiter", 10, ...
 %!                                  "debugLevel", 1);
 %!
-%!  DebugPrintf ( 0, "\nsol_v2 = " ); DebugPrintStackparams ( 0, sp_v2 ); DebugPrintf ( 0, "\n");
-%!  assert ( sp_v2.costConstraint < 5e-2 );
 %!  assert ( sp_v2.Nseg, 32.811, tol );
 %!  assert ( sp_v2.Tseg, 86400, tol );
 %!  assert ( sp_v2.mCoh, 0.071517, tol );
@@ -450,8 +448,6 @@ endfunction
 %!                                  "maxiter", 4, ...
 %!                                  "debugLevel", 1);
 %!
-%!  DebugPrintf ( 0, "\nsol_v2 = " ); DebugPrintStackparams ( 0, sp_v2 ); DebugPrintf ( 0, "\n");
-%!  assert ( sp_v2.costConstraint < 5e-2 );
 %!  assert ( sp_v2.Nseg, 123.00, tol );
 %!  assert ( sp_v2.Tseg, 86400, tol );
 %!  assert ( sp_v2.mCoh, 0.036052, tol );

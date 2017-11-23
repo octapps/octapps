@@ -217,12 +217,9 @@ endfunction ## cost_coh_wparams()
 %!  cost0 = costCoh + costInc;
 %!  TobsMax = 365 * 86400;
 %!
-%!  sol_v2 = OptimalSolution4StackSlide_v2 ( "costFuns", costFuns, "cost0", cost0, "TobsMax", TobsMax, "TsegMin", 3600, "stackparamsGuess", refParams );
-%!
-%!  DebugPrintf ( 0, "\nsol_v2 = " ); DebugPrintStackparams ( 0, sol_v2 ); DebugPrintf ( 0, "\n");
+%!  sol_v2 = OptimalSolution4StackSlide_v2 ( "costFuns", costFuns, "cost0", cost0, "TobsMax", TobsMax, "TsegMin", 3600, "stackparamsGuess", refParams, "debugLevel", 1 );
 %!
 %!  tol = -1e-3;
-%!  assert ( sol_v2.costConstraint < 5e-2 );
 %!  assert ( sol_v2.mCoh, 0.14458, tol );
 %!  assert ( sol_v2.mInc, 0.16639, tol );
 %!  assert ( sol_v2.Nseg, 527.86, tol );

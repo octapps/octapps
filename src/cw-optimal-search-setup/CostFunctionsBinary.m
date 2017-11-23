@@ -90,12 +90,9 @@ endfunction ## CostFunctionsBinary()
 %!  TobsMax = 360 * DAYS;
 %!  TsegMax = 10 * DAYS;
 %!
-%!  sol_v2 = OptimalSolution4StackSlide_v2 ( "costFuns", costFuns, "cost0", cost0, "TobsMax", TobsMax, "TsegMax", TsegMax, "stackparamsGuess", refParams );
-%!
-%!  DebugPrintf ( 0, "\nsol_v2 = " ); DebugPrintStackparams ( 0, sol_v2 ); DebugPrintf ( 0, "\n");
+%!  sol_v2 = OptimalSolution4StackSlide_v2 ( "costFuns", costFuns, "cost0", cost0, "TobsMax", TobsMax, "TsegMax", TsegMax, "stackparamsGuess", refParams, "debugLevel", 1, "maxiter", 3 );
 %!
 %!  tol = -1e-2;
-%!  assert ( sol_v2.costConstraint < 5e-2 );
 %!  assert ( sol_v2.Nseg, 36, tol );
 %!  assert ( sol_v2.Tseg, 864000, tol );
 %!  assert ( sol_v2.mCoh, 0.800740, tol );
@@ -123,12 +120,9 @@ endfunction ## CostFunctionsBinary()
 %!  TobsMax = 360 * DAYS;
 %!  TsegMax = 10 * DAYS;
 %!
-%!  sol_v2 = OptimalSolution4StackSlide_v2 ( "costFuns", costFuns, "cost0", cost0, "TobsMax", TobsMax, "TsegMax", TsegMax, "stackparamsGuess", refParams );
-%!
-%!  DebugPrintf ( 0, "\nsol_v2 = " ); DebugPrintStackparams ( 0, sol_v2 ); DebugPrintf ( 0, "\n");
+%!  sol_v2 = OptimalSolution4StackSlide_v2 ( "costFuns", costFuns, "cost0", cost0, "TobsMax", TobsMax, "TsegMax", TsegMax, "stackparamsGuess", refParams, "debugLevel", 1, "maxiter", 3 );
 %!
 %!  tol = -1e-2;
-%!  assert ( sol_v2.costConstraint < 5e-2 );
 %!  assert ( sol_v2.mCoh, 0.038235, tol );
 %!  assert ( sol_v2.mInc, 0.030999, tol );
 %!  assert ( sol_v2.Nseg, 36, tol );
@@ -155,13 +149,9 @@ endfunction ## CostFunctionsBinary()
 %!  TobsMax = 360 * DAYS;
 %!  TsegMax = 10 * DAYS;
 %!
-%!  ##sol = OptimalSolution4StackSlide ( "costFuns", costFuns, "cost0", cost0, "TobsMax", TobsMax, "TsegMax", TsegMax, "stackparamsGuess", refParams );
-%!  sol_v2 = OptimalSolution4StackSlide_v2 ( "costFuns", costFuns, "cost0", cost0, "TobsMax", TobsMax, "TsegMax", TsegMax, "stackparamsGuess", refParams );
-%!
-%!  DebugPrintf ( 0, "\nsol_v2 = " ); DebugPrintStackparams ( 0, sol_v2 ); DebugPrintf ( 0, "\n");
+%!  sol_v2 = OptimalSolution4StackSlide_v2 ( "costFuns", costFuns, "cost0", cost0, "TobsMax", TobsMax, "TsegMax", TsegMax, "stackparamsGuess", refParams, "debugLevel", 1 );
 %!
 %!  tol = -1e-2;
-%!  assert ( sol_v2.costConstraint < 5e-2 );
 %!  assert ( sol_v2.mCoh, 0.81274, tol );
 %!  assert ( sol_v2.mInc, 0.30675, tol );
 %!  assert ( sol_v2.Nseg, 14.804, tol );
