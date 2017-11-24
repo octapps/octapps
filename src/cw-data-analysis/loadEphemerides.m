@@ -35,6 +35,13 @@ function ephemerides = loadEphemerides(varargin)
                {"sun_file", "char", "sun00-19-DE405.dat.gz"},
                []);
 
+  ## use pre-loaded default ephemerides
+  global default_ephemerides;
+  if length(varargin) == 0 && !isempty(default_ephemerides)
+    ephemerides = default_ephemerides;
+    return
+  endif
+
   ## load ephemerides
   try
     ephemerides = XLALInitBarycenter(earth_file, sun_file);
@@ -42,4 +49,15 @@ function ephemerides = loadEphemerides(varargin)
     error("%s: Could not load ephemerides", funcName);
   end_try_catch
 
+  ## store pre-loaded default ephemerides
+  if length(varargin) == 0 && isempty(default_ephemerides)
+    default_ephemerides = ephemerides;
+  endif
+
 endfunction
+
+
+%!test
+%!  ephemerides = loadEphemerides();
+%!  ephemerides = loadEphemerides();
+%!  ephemerides = loadEphemerides();
