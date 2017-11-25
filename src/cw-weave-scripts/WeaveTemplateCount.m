@@ -2,7 +2,11 @@
 ##
 ## Estimate the number of templates computed by 'lalapps_Weave'
 ## Usage:
-##   [cohNt, semiNt] = WeaveTemplateCount("opt", val, ...)
+##   [coh_Nt, semi_Nt, dfreq] = WeaveTemplateCount("opt", val, ...)
+## where:
+##   coh_Nt  = number of coherent templates
+##   semi_Nt = number of semicoherent templates
+##   dfreq   = frequency spacing
 ## Options:
 ##   EITHER:
 ##     setup_file:
@@ -53,7 +57,7 @@
 ## along with Octave; see the file COPYING.  If not, see
 ## <http://www.gnu.org/licenses/>.
 
-function [coh_Nt, semi_Nt] = WeaveTemplateCount(varargin)
+function [coh_Nt, semi_Nt, dfreq] = WeaveTemplateCount(varargin)
 
   ## parse options
   parseOptions(varargin,
@@ -124,7 +128,7 @@ function [coh_Nt, semi_Nt] = WeaveTemplateCount(varargin)
   coh_Tspan_interp = max(coh_Tspan_min, unique(max(1, round(coh_Tspan / coh_Tspan_step) + (-1:1))) * coh_Tspan_step);
 
   ## compute interpolation grid for number of templates
-  coh_Nt_interp = semi_Nt_interp = zeros(length(Nsegments_interp), length(coh_Tspan_interp));
+  coh_Nt_interp = semi_Nt_interp = dfreq_interp = zeros(length(Nsegments_interp), length(coh_Tspan_interp));
   for i = 1:length(Nsegments_interp)
     for j = 1:length(coh_Tspan_interp)
 
@@ -141,7 +145,12 @@ function [coh_Nt, semi_Nt] = WeaveTemplateCount(varargin)
       for k = 1:metrics.num_segments
         coh_Nt_interp(i, j) += number_of_lattice_templates(lattice, metrics.coh_rssky_metric{k}.data, coh_max_mismatch, sky_area, fkdot_bands);
       endfor
+
+      ## compute number of semicoherent templates
       semi_Nt_interp(i, j) = number_of_lattice_templates(lattice, metrics.semi_rssky_metric.data, semi_max_mismatch, sky_area, fkdot_bands);
+
+      ## compute frequency spacing
+      dfreq_interp(i, j) = 2 * sqrt(semi_max_mismatch / metrics.semi_rssky_metric.data(end, end));
 
     endfor
   endfor
@@ -151,6 +160,8 @@ function [coh_Nt, semi_Nt] = WeaveTemplateCount(varargin)
   assert(!isnan(coh_Nt), "%s: could not evaluate coh_Nt(Nsegments=%g, coh_Tspan=%g)", funcName, Nsegments, coh_Tspan);
   semi_Nt = interp2(coh_Tspan_interp, Nsegments_interp, semi_Nt_interp, coh_Tspan, max(1, Nsegments), "spline");
   assert(!isnan(semi_Nt), "%s: could not evaluate semi_Nt(Nsegments=%g, coh_Tspan=%g)", funcName, Nsegments, coh_Tspan);
+  dfreq = interp2(coh_Tspan_interp, Nsegments_interp, dfreq_interp, coh_Tspan, max(1, Nsegments), "spline");
+  assert(!isnan(dfreq), "%s: could not evaluate dfreq(Nsegments=%g, coh_Tspan=%g)", funcName, Nsegments, coh_Tspan);
 
 endfunction
 
