@@ -83,8 +83,8 @@ function times = WeaveRunTime(varargin)
   tau = struct;
   switch tau_set
     case "v2"
-      tau_iter_psemi              = 3.31987e-10;   # 75th quantile
-      tau_query_psemi             = 2.45808e-08;   # 75th quantile
+      tau_semi_iter_psemi         = 3.31987e-10;   # 75th quantile
+      tau_semi_query_psemi        = 2.45808e-08;   # 75th quantile
       tau_coh_coh2f_pcoh          = 7.24469e-06;   # 75th quantile
       tau_semiseg_max2f_psemiseg  = 5.00954e-09;   # 75th quantile
       tau_semiseg_sum2f_psemiseg  = 2.21012e-09;   # 75th quantile
@@ -131,7 +131,7 @@ function times = WeaveRunTime(varargin)
     f2dot_min = getoptfield(0, result_hdr, "semiparam_minf2dot");
     f2dot_max = getoptfield(0, result_hdr, "semiparam_maxf2dot");
     NSFTs = result_hdr.nsfts;
-    Fmethod = result_hdr.fmethod;
+    Fmethod = result_hdr.fstat_method;
     Ncohres = result_hdr.ncohres;
     Nsemitpl = result_hdr.nsemires;
   endif
@@ -143,10 +143,10 @@ function times = WeaveRunTime(varargin)
   assert(f2dot_max >= f2dot_min);
 
   ## estimate time to iterate over lattice tiling
-  time_iter = tau_iter_psemi * Nsemitpl;
+  time_semi_iter = tau_semi_iter_psemi * Nsemitpl;
 
   ## estimate time to perform nearest-neighbour lookup queries
-  time_query = tau_query_psemi * Nsemitpl;
+  time_semi_query = tau_semi_query_psemi * Nsemitpl;
 
   ## estimate time to compute coherent F-statistics
   args = struct;
@@ -191,8 +191,8 @@ function times = WeaveRunTime(varargin)
 
   ## fill in times struct based on requested statistics
   times = struct;
-  times.iter = time_iter;
-  times.query = time_query;
+  times.iter = time_semi_iter;
+  times.query = time_semi_query;
   for i = 1:length(stats)
     switch stats{i}
       case "sum2F"
