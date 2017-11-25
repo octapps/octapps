@@ -26,8 +26,10 @@
 ##     Nsemitpl:        number of computed semicoherent results
 ##   tau_set:
 ##     Set of fundamental timing constants to use
-##   stats
+##   stats:
 ##     Comma-separated list of statistics being computed
+##   TSFT:
+##     Length of an SFT (default: 1800s)
 ## Outputs:
 ##   times.total:
 ##     estimate of total CPU run time (seconds)
