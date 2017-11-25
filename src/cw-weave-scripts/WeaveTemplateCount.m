@@ -156,9 +156,9 @@ function [coh_Nt, semi_Nt, dfreq] = WeaveTemplateCount(varargin)
   endfor
 
   ## compute interpolated number of templates at requested Nsegments and coh_Tspan
-  coh_Nt = interp2(coh_Tspan_interp, Nsegments_interp, coh_Nt_interp, coh_Tspan, max(1, Nsegments), "spline");
+  coh_Nt = ceil(interp2(coh_Tspan_interp, Nsegments_interp, coh_Nt_interp, coh_Tspan, max(1, Nsegments), "spline"));
   assert(!isnan(coh_Nt), "%s: could not evaluate coh_Nt(Nsegments=%g, coh_Tspan=%g)", funcName, Nsegments, coh_Tspan);
-  semi_Nt = interp2(coh_Tspan_interp, Nsegments_interp, semi_Nt_interp, coh_Tspan, max(1, Nsegments), "spline");
+  semi_Nt = ceil(interp2(coh_Tspan_interp, Nsegments_interp, semi_Nt_interp, coh_Tspan, max(1, Nsegments), "spline"));
   assert(!isnan(semi_Nt), "%s: could not evaluate semi_Nt(Nsegments=%g, coh_Tspan=%g)", funcName, Nsegments, coh_Tspan);
   dfreq = interp2(coh_Tspan_interp, Nsegments_interp, dfreq_interp, coh_Tspan, max(1, Nsegments), "spline");
   assert(!isnan(dfreq), "%s: could not evaluate dfreq(Nsegments=%g, coh_Tspan=%g)", funcName, Nsegments, coh_Tspan);
