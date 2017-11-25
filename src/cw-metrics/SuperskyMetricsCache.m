@@ -50,8 +50,7 @@ function varargout = SuperskyMetricsCache(action)
   switch action
 
     case "install"
-      chdir(cache_parent_dir);
-      [status, msg] = system(sprintf("tar xf %s", fullfile(script_dir, "SuperskyMetricsCache.tar.bz2")));
+      [status, msg] = system(sprintf("cd '%s' && tar xf '%s'", cache_parent_dir, fullfile(script_dir, "SuperskyMetricsCache.tar.bz2")));
       if status != 0
         error("%s: could not run tar: %s", funcName, msg);
       endif
@@ -60,16 +59,15 @@ function varargout = SuperskyMetricsCache(action)
       rmdir(cache_dir, "s");
 
     case "copytorepo"
-      chdir(cache_parent_dir);
-      [status, msg] = system("tar cf SuperskyMetricsCache.tar ComputeSuperskyMetrics/");
+      [status, msg] = system(sprintf("cd '%s' && tar cf SuperskyMetricsCache.tar ComputeSuperskyMetrics/", cache_parent_dir));
       if status != 0
         error("%s: could not run tar: %s", funcName, msg);
       endif
-      [status, msg] = system("bzip2 -v9 SuperskyMetricsCache.tar");
+      [status, msg] = system(sprintf("cd '%s' && bzip2 -v9 SuperskyMetricsCache.tar", cache_parent_dir));
       if status != 0
         error("%s: could not run bzip2: %s", funcName, msg);
       endif
-      [status, msg] = movefile("SuperskyMetricsCache.tar.bz2", fullfile(script_dir, "SuperskyMetricsCache.tar.bz2"));
+      [status, msg] = movefile(fullfile(cache_parent_dir, "SuperskyMetricsCache.tar.bz2"), fullfile(script_dir, "SuperskyMetricsCache.tar.bz2"));
       if status != 1
         error("%s: could not move files: %s", funcName, msg);
       endif
