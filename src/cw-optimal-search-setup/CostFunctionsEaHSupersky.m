@@ -43,7 +43,6 @@
 ##   "lattice":              template-bank lattice ("Zn", "Ans",..) [default: "Ans"]
 ##   "grid_interpolation":   whether to use interpolating or non-interpolating StackSlide, i.e. coherent grids equal incoherent grid [default: true]
 ##   "debugLevel":           control level of debug output [default: 0]
-##   "cache_file":           path+filename of metrics cache-file to use, without path uses function-directory [default: "CostFunctionsEaHSupersky.cache"]
 function [cost_funs, params, guess] = CostFunctionsEaHSupersky(setup, varargin)
 
   ## load modules
@@ -175,7 +174,6 @@ function [cost_funs, params, guess] = CostFunctionsEaHSupersky(setup, varargin)
                         {"lattice", "char", "Ans"},
                         {"grid_interpolation", "logical,scalar", true},
                         {"debugLevel", "integer,positive,scalar", 0},
-                        {"cache_file", "char", "CostFunctionsEaHSupersky.cache"},
                         []);
   clear defpar;
   global debugLevel; debugLevel = params.debugLevel;
@@ -218,51 +216,6 @@ function Nt = rssky_num_templates(Nseg, Tseg, mis, params, padding)
                           "det_motion", params.det_motion ...
                         );
 
-  ## cached ephemerides
-  persistent ephemerides;
-  if isempty(ephemerides)
-    ephemerides = loadEphemerides();
-  endif
-
-  ## find cache of previously-computed metrics
-  cache_fname = [];
-  if ( !isempty ( params.cache_file ) )
-    [cacheDir, fname, ext] = fileparts ( params.cache_file );
-    if ( isempty(cacheDir) )
-      cacheDir = fileparts ( mfilename("fullpath") );
-    endif
-    cache_fname = fullfile ( cacheDir, strcat( fname, ext ) );
-  endif
-
-  added_to_cache = false;
-  persistent cache;
-  if isempty(cache)
-    DebugPrintf (2, "No cache currently in use ...\n");
-    if (!isempty(cache_fname) && exist (cache_fname, "file"))
-      DebugPrintf (2, "found cache file '%s' -> Loading ... ", cache_fname );
-      load ( "-binary", cache_fname, "cache" );
-      DebugPrintf (2, "done.\n");
-    else
-      DebugPrintf (2, "and no cache file found. Starting anew.\n");
-      cache = struct;
-    endif
-  else
-    DebugPrintf (3, "Active cache currently in use. Not trying to load cache from disk.\n");
-  endif
-
-  ## loop up cache based on hash of stringified parameters
-  param_str = stringify(metric_params);
-  cache_key = strcat("key_", md5sum(param_str, true));
-  if !isfield(cache, cache_key)
-    cache.(cache_key) = struct;
-    cache.(cache_key).param_str = "";
-  endif
-  if !strcmp(param_str, cache.(cache_key).param_str)
-    cache.(cache_key).param_str = param_str;
-    cache.(cache_key).metrics = {};
-    DebugPrintf( 2, "%s: new metrics cache\n", funcName);
-  endif
-
   ## metric cache indices and interpolation grid
   Nseg_ii = unique(max(1, round(Nseg) + (-1:1)));
   Nseg_interp = Nseg_ii;
@@ -277,35 +230,21 @@ function Nt = rssky_num_templates(Nseg, Tseg, mis, params, padding)
   for i = 1:length(Nseg_interp)
     for j = 1:length(Tseg_interp)
 
-      ## try to find metric in cache
-      if all([Nseg_ii(i), Tseg_jj(j)] <= size(cache.(cache_key).metrics)) && !isempty(cache.(cache_key).metrics{Nseg_ii(i), Tseg_jj(j)})
+      ## create segment list
+      segment_list = CreateSegmentList(metric_params.ref_time, Nseg_interp(i), Tseg_interp(j), [], metric_params.inc_duty);
 
-        ## retrieve metric from cache
-        rssky_metric = cache.(cache_key).metrics{Nseg_ii(i), Tseg_jj(j)};
-        DebugPrintf(3, "%s: retrieved metrics for Nseg=%g, Tseg=%g\n", funcName, Nseg_interp(i), Tseg_interp(j));
-
-      else
-
-        ## create segment list
-        segment_list = CreateSegmentList(metric_params.ref_time, Nseg_interp(i), Tseg_interp(j), [], metric_params.inc_duty);
-
-        ## compute metric
-        DebugPrintf( 3, "%s: computing metrics for Nseg=%g, Tseg=%g ... ", funcName, Nseg_interp(i), Tseg_interp(j));
-        metrics = CreateSuperskyMetrics(
-                      "spindowns", length(metric_params.fkdot_bands) - 1,
-                      "segment_list", segment_list,
-                      "ref_time", metric_params.ref_time,
-                      "fiducial_freq", metric_params.freq + metric_params.fkdot_bands(1),
-                      "detectors", metric_params.detectors,
-                      "detector_motion", metric_params.det_motion,
-                      "ephemerides", ephemerides
-                    );
-        DebugPrintf ( 3, "done\n");
-
-        ## add metric to cache
-        rssky_metric = cache.(cache_key).metrics{Nseg_ii(i), Tseg_jj(j)} = metrics.semi_rssky_metric;
-        added_to_cache = true;
-      endif
+      ## compute metric
+      DebugPrintf( 3, "%s: computing metrics for Nseg=%g, Tseg=%g ... ", funcName, Nseg_interp(i), Tseg_interp(j));
+      metrics = ComputeSuperskyMetrics(
+                    "spindowns", length(metric_params.fkdot_bands) - 1,
+                    "segment_list", segment_list,
+                    "ref_time", metric_params.ref_time,
+                    "fiducial_freq", metric_params.freq + metric_params.fkdot_bands(1),
+                    "detectors", metric_params.detectors,
+                    "detector_motion", metric_params.det_motion
+                  );
+      DebugPrintf ( 3, "done\n");
+      rssky_metric = native(metrics.semi_rssky_metric);
 
       ## calculate bounding box of metric
       if padding
@@ -333,14 +272,6 @@ function Nt = rssky_num_templates(Nseg, Tseg, mis, params, padding)
   Nt = interp2(Tseg_interp, Nseg_interp, Nt_interp, Tseg, max(1, Nseg), "spline");
   assert(!isnan(Nt), "%s: could not evaluate Nt(Nseg=%g, Tseg=%g)", funcName, Nseg, Tseg);
 
-  if ( added_to_cache && !isempty(cache_fname) )
-    try
-      save ( "-binary", cache_fname, "cache" );
-    catch err
-      DebugPrintf ( 1, "Could not write cache to '%s'.", cache_fname );
-      if ( debugLevel >= 3 ) err, endif
-    end_try_catch
-  endif
 endfunction
 
 function [costCoh, costInc] = cost_wparams(Nseg, Tseg, mCoh, mInc, params)
