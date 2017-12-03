@@ -178,7 +178,7 @@ function metrics = ComputeSuperskyMetrics(varargin)
         fits_file = XLALFITSFileOpenWrite(cache_file);
         XLALFITSWriteSuperskyMetrics(fits_file, metrics);
         clear fits_file;
-        DebugPrintf(2, "... saved to disk\n");
+        DebugPrintf(2, "... saved to disk");
       catch
         DebugPrintf(2, "\n");
         error("%s: Could not save supersky metrics to disk", funcName);
