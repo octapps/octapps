@@ -85,23 +85,23 @@ function times = WeaveRunTime(varargin)
   tau = struct;
   switch tau_set
     case "v2"
-      tau_semi_iter_psemi         = 3.31987e-10;   # 75th quantile
-      tau_semi_query_psemi        = 2.45808e-08;   # 75th quantile
-      tau_coh_coh2f_pcoh          = 7.24469e-06;   # 75th quantile
-      tau_semiseg_max2f_psemiseg  = 5.00954e-09;   # 75th quantile
-      tau_semiseg_sum2f_psemiseg  = 2.21012e-09;   # 75th quantile
-      tau_semi_mean2f_psemi       = 1.12007e-09;   # 75th quantile
-      tau_semi_log10bsgl_psemi    = 1.40847e-08;   # 75th quantile
-      tau_semi_log10bsgltl_psemi  = 2.47331e-08;   # 75th quantile
-      tau_semi_log10btsgltl_psemi = 2.52613e-08;   # 75th quantile
-      tau_output_psemi            = 6.59480e-09;   # 75th quantile
-      tau_ckpt_psemi              = 0.00000e+00;   # 75th quantile
-      demod_fstat_tau0_coreld     = 7.56737e-08;   # 75th quantile
-      demod_fstat_tau0_bufferld   = 1.28938e-06;   # 75th quantile
-      resamp_fstat_tau0_fbin      = 9.94730e-08;   # 75th quantile
-      resamp_fstat_tau0_spin      = 8.68288e-08;   # 75th quantile
-      resamp_fstat_tau0_fft       = 4.36694e-10;   # 75th quantile
-      resamp_fstat_tau0_bary      = 5.25338e-07;   # 75th quantile
+      tau_semi_iter_psemi               = 3.31987e-10;      # 75th quantile
+      tau_semi_query_psemi              = 2.45808e-08;      # 75th quantile
+      tau_coh_coh2f_pcoh                = 7.24469e-06;      # 75th quantile
+      tau_semiseg_max2f_psemisegdet     = 5.00954e-09 / 3;  # 75th quantile
+      tau_semiseg_sum2f_psemisegdet     = 2.21012e-09 / 3;  # 75th quantile
+      tau_semi_mean2f_psemi             = 1.12007e-09;      # 75th quantile
+      tau_semi_log10bsgl_psemi          = 1.40847e-08;      # 75th quantile
+      tau_semi_log10bsgltl_psemi        = 2.47331e-08;      # 75th quantile
+      tau_semi_log10btsgltl_psemi       = 2.52613e-08;      # 75th quantile
+      tau_output_psemi                  = 6.59480e-09;      # 75th quantile
+      tau_ckpt_psemi                    = 0.00000e+00;      # 75th quantile
+      demod_fstat_tau0_coreld           = 7.56737e-08;      # 75th quantile
+      demod_fstat_tau0_bufferld         = 1.28938e-06;      # 75th quantile
+      resamp_fstat_tau0_fbin            = 9.94730e-08;      # 75th quantile
+      resamp_fstat_tau0_spin            = 8.68288e-08;      # 75th quantile
+      resamp_fstat_tau0_fft             = 4.36694e-10;      # 75th quantile
+      resamp_fstat_tau0_bary            = 5.25338e-07;      # 75th quantile
     otherwise
       error("%s: invalid timing constant set '%s'", funcName, tau_set);
   endswitch
@@ -179,8 +179,8 @@ function times = WeaveRunTime(varargin)
   endif
 
   ## estimate time to compute semicoherent F-statistics
-  time_semiseg_sum2f = tau_semiseg_sum2f_psemiseg * Nsemiseg;
-  time_semiseg_max2f = tau_semiseg_max2f_psemiseg * Nsemiseg;
+  time_semiseg_sum2f_pdet = tau_semiseg_sum2f_psemisegdet * Nsemiseg;
+  time_semiseg_max2f_pdet = tau_semiseg_max2f_psemisegdet * Nsemiseg;
   time_semi_mean2f = tau_semi_mean2f_psemi * Nsemitpl;
 
   ## estimate time to compute line-robust statistics
@@ -199,23 +199,24 @@ function times = WeaveRunTime(varargin)
     switch stats{i}
       case "sum2F"
         times.coh_coh2f = time_coh_coh2f;
-        times.semiseg_sum2f = time_semiseg_sum2f;
+        times.semiseg_sum2f = time_semiseg_sum2f_pdet;
       case "mean2F"
         times.coh_coh2f = time_coh_coh2f;
-        times.semiseg_sum2f = time_semiseg_sum2f;
+        times.semiseg_sum2f = time_semiseg_sum2f_pdet;
         times.semi_mean2f = time_semi_mean2f;
       case "log10BSGL"
         times.coh_coh2f = time_coh_coh2f;
+        times.semiseg_sum2f = time_semiseg_sum2f_pdet * (1 + Ndetectors);
         times.semi_log10bsgl = time_semi_log10bsgl;
       case "log10BSGLtL"
         times.coh_coh2f = time_coh_coh2f;
-        times.semiseg_sum2f = time_semiseg_sum2f;
-        times.semiseg_max2f = time_semiseg_max2f;
+        times.semiseg_sum2f = time_semiseg_sum2f_pdet * (1 + Ndetectors);
+        times.semiseg_max2f = time_semiseg_max2f_pdet * (1 + Ndetectors);
         times.semi_log10bsgltl = time_semi_log10bsgltl;
       case "log10BtSGLtL"
         times.coh_coh2f = time_coh_coh2f;
-        times.semiseg_sum2f = time_semiseg_sum2f;
-        times.semiseg_max2f = time_semiseg_max2f;
+        times.semiseg_sum2f = time_semiseg_sum2f_pdet * (1 + Ndetectors);
+        times.semiseg_max2f = time_semiseg_max2f_pdet * (1 + Ndetectors);
         times.semi_log10btsgltl = time_semi_log10btsgltl;
       otherwise
         error("%s: invalid statistic '%s'", funcName, stats{i});
