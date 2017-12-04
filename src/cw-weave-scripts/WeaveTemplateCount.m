@@ -127,6 +127,10 @@ function [coh_Nt, semi_Nt, dfreq] = WeaveTemplateCount(varargin)
   coh_Tspan_step = 21600;
   coh_Tspan_interp = max(coh_Tspan_min, unique(max(1, round(coh_Tspan / coh_Tspan_step) + (-1:1))) * coh_Tspan_step);
 
+  ## empirical factors used to scale number of templates to match output of Weave
+  coh_Nt_scale = 1.436;
+  semi_Nt_scale = 1.000;
+
   ## compute interpolation grid for number of templates
   coh_Nt_interp = semi_Nt_interp = dfreq_interp = zeros(length(Nsegments_interp), length(coh_Tspan_interp));
   for i = 1:length(Nsegments_interp)
@@ -143,11 +147,11 @@ function [coh_Nt, semi_Nt, dfreq] = WeaveTemplateCount(varargin)
 
       ## compute number of coherent templates
       for k = 1:metrics.num_segments
-        coh_Nt_interp(i, j) += number_of_lattice_templates(lattice, metrics.coh_rssky_metric{k}.data, coh_max_mismatch, sky_area, fkdot_bands);
+        coh_Nt_interp(i, j) += coh_Nt_scale * number_of_lattice_templates(lattice, metrics.coh_rssky_metric{k}.data, coh_max_mismatch, sky_area, fkdot_bands);
       endfor
 
       ## compute number of semicoherent templates
-      semi_Nt_interp(i, j) = number_of_lattice_templates(lattice, metrics.semi_rssky_metric.data, semi_max_mismatch, sky_area, fkdot_bands);
+      semi_Nt_interp(i, j) = semi_Nt_scale * number_of_lattice_templates(lattice, metrics.semi_rssky_metric.data, semi_max_mismatch, sky_area, fkdot_bands);
 
       ## compute frequency spacing
       dfreq_interp(i, j) = 2 * sqrt(semi_max_mismatch / metrics.semi_rssky_metric.data(end, end));
