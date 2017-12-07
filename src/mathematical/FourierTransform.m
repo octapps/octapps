@@ -39,20 +39,20 @@
 function freqSeries = FourierTransform ( ti, xi, oversampleby = 1 )
 
   %% ----- input sanity checks ----------
-  if ( ! isvector ( ti ) )
-    error ("Time-steps input 'ti' must be a 1D vector\n");
-  endif
+  assert ( isvector ( ti ), "Time-steps input 'ti' must be a 1D vector\n");
+  assert ( ismatrix(xi) );
+  assert ( isscalar(oversampleby) && mod(oversampleby,1)==0 && oversampleby >= 1 );
+
   N = length(ti);
   dt = mean ( diff ( ti ) );
 
-  [Nseries, Nsamp] = size ( xi );
-  if ( Nsamp != N )
-    error ("Number of time-steps 'ti' (%d) does not agree with samples in 'xi' (%d)!\n", N, Nsamp );
+  if ( isvector(xi) )
+    Nsamp = length ( xi );
+    xi = reshape ( xi, 1, Nsamp );
+  else
+    [Nseries, Nsamp] = size ( xi );
   endif
-
-  if ( ( round(oversampleby) != oversampleby ) || (oversampleby <= 0) )
-    error ("Input argument 'oversampleby' must be a positive integer! (%f)", oversampleby);
-  endif
+  assert ( Nsamp == N, "Number of time-steps 'ti' (%d) does not agree with samples in 'xi' (%d)!\n", N, Nsamp );
 
   N1 = oversampleby * N;
   Tobs1 = N1 * dt;

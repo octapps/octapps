@@ -27,13 +27,21 @@
 
 function timeSeries = FourierTransformInv ( fk, xk, oversampleby = 1 )
 
-  df = mean ( diff ( fk ) );
+  %% ----- input sanity checks ----------
+  assert ( isvector ( fk ), "Frequency bins 'fk' must be a 1D vector\n");
+  assert ( ismatrix(xk) );
+  assert ( isscalar(oversampleby) && mod(oversampleby,1)==0 && oversampleby >= 1 );
 
+  df = mean ( diff ( fk ) );
   N = length(fk);
 
-  if ( ( round(oversampleby) != oversampleby ) || (oversampleby <= 0) )
-    error ("Input argument 'oversampleby' must be a positive integer! (%f)", oversampleby);
+  if ( isvector(xk) )
+    Nbins = length ( xk );
+    xk = reshape ( xk, 1, Nbins );
+  else
+    [Nseries, Nbins] = size ( xk );
   endif
+  assert ( Nbins == N, "Number of frequency bins 'fk' (%d) does not agree with number of samples in 'xk' (%d)!\n", N, Nbins );
 
   N1 = oversampleby * N;
   Band1 = N1 * df;
