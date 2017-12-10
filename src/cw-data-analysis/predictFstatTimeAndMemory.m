@@ -96,7 +96,7 @@ function [resampInfo, demodInfo] = predictFstatTimeAndMemory ( varargin )
                         {"resampFFTPowerOf2", "bool",  true },          %% is XLALComputeFstat() we using FFT rounded to next power of 2 (see optArgs->resampFFTPowerOf2)
                         %% Resamp timing model coefficients
                         {"tau0_Fbin",    "strictpos,scalar", 5.4e-8 },
-                        {"tau0_FFT",     "strictpos,vector", [1.5e-08, 3.6e-8] },   %% FFT timing coefficient [t1, t2] where t1 if log2(NsampFFT) <= 18, t2 otherwise
+                        {"tau0_FFT",     "strictpos,vector", [1.5e-10, 3.6e-10] },   %% FFT timing coefficient [t1, t2] where t1 if log2(NsampFFT) <= 18, t2 otherwise
                         {"tau0_spin",    "strictpos,scalar", 5.1e-8 },
                         {"tau0_bary",    "strictpos,scalar", 3.3e-7 },
                         %% Demod timing model coefficients
