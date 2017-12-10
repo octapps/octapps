@@ -26,7 +26,8 @@
 ## "costFuns":          structure containing parameters and cost-function handle
 ##    "grid_interpolation" : boolean flag about whether to use coherent-grid interpolation or not
 ##    "lattice"            : string specifying the template-bank lattice to use
-##    "fun"                : cost-function handle, of the form [ costCoh, costInc, costSum = fun(Nseg, Tseg, mCoh, mInc)
+##    "fun"                : cost-function handle, of the form [ costCoh, costInc ] = fun(Nseg, Tseg, mCoh, mInc)
+##                           where the cost function must accept vector-arguments (of equal length or scalar)
 ##
 ## "cost0":             total computing cost (in CPU seconds),
 ##
