@@ -38,7 +38,7 @@ srcpath := $(shell $(OCTAVE) --eval "addpath('$(curdir)/src/general', '-begin');
 srcfilepath := $(filter-out %/deprecated, $(srcpath))
 srcmfiles := $(wildcard $(srcfilepath:%=%/*.m))
 srccfiles := $(wildcard $(srcfilepath:%=%/*.hpp) $(srcfilepath:%=%/*.cpp))
-srctestfiles := $(wildcard $(srcfilepath:%=%/*.m) $(srcfilepath:%=%/*.cpp) $(srcfilepath:%=%/*.i))
+srctestfiles := $(wildcard $(srcfilepath:%=%/*.m) $(srcfilepath:%=%/@*/*.m) $(srcfilepath:%=%/*.cpp) $(srcfilepath:%=%/*.i))
 binpath := $(shell $(FIND) $(srcpath) -type f -perm /ug+x -printf '%h\n' | $(SORT) -u)
 
 # OctApps extension module directory
@@ -150,6 +150,11 @@ check : all
 	for testfile in $(patsubst $(curdir)/src/%,%,$(srctestfiles)); do \
 		testfiledir=`dirname $${testfile}`; \
 		testfilename=`basename $${testfile}`; \
+		testclass=`basename $${testfiledir}`; \
+		case "$${testclass}" in \
+			@*) \
+				testfilename="$${testclass}::$${testfilename}";; \
+		esac; \
 		if test -n "$${TESTS}"; then \
 			case " $${TESTS} " in \
 				*" $${testfilename%.*} "*) testfiles="$${testfiles} $${testfilename}";; \
@@ -184,14 +189,15 @@ check : all
 		*j*) cn='\n'; cr='';; \
 		*) cn=''; cr='\r';; \
 	esac; \
-	printf "%-48s: $${cn}" "$*"; \
-	$(OCTAVE) --eval "test $*" 2>&1 | { \
+	test=`echo "$*" | $(SED) 's|::|/|g'`; \
+	printf "%-48s: $${cn}" "$${test}"; \
+	$(OCTAVE) --eval "test $${test}" 2>&1 | { \
 		while read line; do \
 			case "$${line}" in \
 				"?????"*) printf "$${cr}"; exit 0;; \
-				"skip"*) printf "$${cr}%-48s: skip\n" "$*"; exit 0;; \
-				"PASSES"*) printf "$${cr}%-48s: pass\n" "$*"; exit 0;; \
-				"!!!!!"*) printf "$${cr}%-48s: FAIL\n" "$*"; exit 1;; \
+				"skip"*) printf "$${cr}%-48s: skip\n" "$${test}"; exit 0;; \
+				"PASSES"*) printf "$${cr}%-48s: pass\n" "$${test}"; exit 0;; \
+				"!!!!!"*) printf "$${cr}%-48s: FAIL\n" "$${test}"; exit 1;; \
 			esac; \
 		done; \
 	}
