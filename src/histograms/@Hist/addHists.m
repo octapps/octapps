@@ -98,6 +98,3 @@ endfunction
 %!  hgrmt = addHists("count", hgrms{:});
 %!  p = histProbs(hgrmt);
 %!  assert(length(p) == 14 && p(2:end-1) == 1/12);
-
-%!test
-%!  assert(isempty(addHists("count", [])));
