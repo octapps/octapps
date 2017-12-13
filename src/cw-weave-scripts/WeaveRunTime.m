@@ -100,7 +100,8 @@ function times = WeaveRunTime(varargin)
       demod_fstat_tau0_bufferld         = 1.28938e-06;      # 75th quantile
       resamp_fstat_tau0_fbin            = 9.94730e-08;      # 75th quantile
       resamp_fstat_tau0_spin            = 8.68288e-08;      # 75th quantile
-      resamp_fstat_tau0_fft             = 4.36694e-10;      # 75th quantile
+      resamp_fstat_tau0_fft_le18        = 4.36694e-10;      # 75th quantile, to be updated
+      resamp_fstat_tau0_fft_gt18        = 4.36694e-10;      # 75th quantile, to be updated
       resamp_fstat_tau0_bary            = 5.25338e-07;      # 75th quantile
     otherwise
       error("%s: invalid timing constant set '%s'", funcName, tau_set);
@@ -152,8 +153,7 @@ function times = WeaveRunTime(varargin)
 
   ## estimate time to compute coherent F-statistics
   args = struct;
-  args.Tcoh = (NSFTs * TSFT) / (Nsegments * Ndetectors);
-  args.Tspan = coh_Tspan;
+  args.Tcoh = coh_Tspan;
   args.Freq0 = freq_min;
   args.FreqBand = freq_max - freq_min;
   args.dFreq = dfreq;
@@ -165,15 +165,16 @@ function times = WeaveRunTime(varargin)
   args.tau0_coreLD = demod_fstat_tau0_coreld;
   args.tau0_bufferLD = demod_fstat_tau0_bufferld;
   args.tau0_Fbin = resamp_fstat_tau0_fbin;
-  args.tau0_FFT = resamp_fstat_tau0_fft;
+  args.tau0_FFT = [resamp_fstat_tau0_fft_le18, resamp_fstat_tau0_fft_gt18];
   args.tau0_spin = resamp_fstat_tau0_spin;
   args.tau0_bary = resamp_fstat_tau0_bary;
+  args.Nsft = NSFTs / (Nsegments * Ndetectors);
   args.Tsft = TSFT;
   [resamp_info, demod_info] = fevalstruct(@predictFstatTimeAndMemory, args);
   if strncmpi(Fmethod, "Resamp", 6)
-    time_coh_coh2f = resamp_info.tauF_core * Ndetectors * Ncohres;
+    time_coh_coh2f = resamp_info.tauF_eff * Ndetectors * Ncohres;
   elseif strncmpi(Fmethod, "Demod", 5)
-    time_coh_coh2f = demod_info.tauF_core * Ndetectors * Ncohres;
+    time_coh_coh2f = demod_info.tauF_eff * Ndetectors * Ncohres;
   else
     error("%s: unknown F-statistic method '%s'", funcName, Fmethod);
   endif
