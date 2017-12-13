@@ -157,29 +157,40 @@ endfunction
 
 function [costCoh, costInc] = weave_cost_function(Nseg, Tseg, mCoh, mInc, template_count_args, run_time_args)
 
-  ## compute number of templates
-  template_count_args.Nsegments = Nseg;
-  template_count_args.coh_Tspan = Tseg;
-  template_count_args.coh_max_mismatch = mCoh;
-  template_count_args.semi_max_mismatch = mInc;
-  [coh_Nt, semi_Nt, dfreq] = fevalstruct(@WeaveTemplateCount, template_count_args);
+  [err, Nseg, Tseg, mCoh, mInc] = common_size ( Nseg, Tseg, mCoh, mInc );
+  assert ( err == 0 );
 
-  ## compute total cost
-  run_time_args.Nsegments = Nseg;
-  run_time_args.coh_Tspan = Tseg;
-  run_time_args.dfreq = dfreq;
-  run_time_args.Ncohres = coh_Nt;
-  run_time_args.Nsemitpl = semi_Nt;
-  costs = fevalstruct(@WeaveRunTime, run_time_args);
+  costCoh = costInc = zeros ( size ( Nseg ) );
 
-  ## split into coherent and incoherent costs
-  costCoh = costInc = 0;
-  for [cost, cost_name] = costs
-    if strncmp(cost_name, "coh", 3)
-      costCoh += cost;
-    elseif strncmp(cost_name, "semi", 4)
-      costInc += cost;
-    endif
+  for i = 1 : numel(Nseg)
+
+    ## compute number of templates
+    template_count_args.Nsegments = Nseg(i);
+    template_count_args.coh_Tspan = Tseg(i);
+    template_count_args.coh_max_mismatch = mCoh(i);
+    template_count_args.semi_max_mismatch = mInc(i);
+    [coh_Nt, semi_Nt, dfreq] = fevalstruct(@WeaveTemplateCount, template_count_args);
+
+    ## compute total cost
+    run_time_args.Nsegments = round ( Nseg(i) );
+    run_time_args.coh_Tspan = Tseg(i);
+    run_time_args.dfreq = dfreq;
+    run_time_args.Ncohres = coh_Nt;
+    run_time_args.Nsemitpl = semi_Nt;
+    costs = fevalstruct(@WeaveRunTime, run_time_args);
+
+    ## split into coherent and incoherent costs
+    costCoh_i = costInc_i = 0;
+    for [cost, cost_name] = costs
+      if strncmp(cost_name, "coh", 3)
+        costCoh_i += cost;
+      elseif strncmp(cost_name, "semi", 4)
+        costInc_i += cost;
+      endif
+    endfor
+
+    costCoh(i) = costCoh_i;
+    costInc(i) = costInc_i;
   endfor
 
 endfunction
