@@ -2,7 +2,7 @@
 ##
 ## Estimate the run time of 'lalapps_Weave'.
 ## Usage:
-##   [total, times] = WeaveRunTime("opt", val, ...)
+##   [times] = WeaveRunTime("opt", val, ...)
 ## Options:
 ##   EITHER:
 ##     setup_file:      Weave setup file
@@ -82,7 +82,6 @@ function times = WeaveRunTime(varargin)
   stats = strsplit(stats, ",");
 
   ## parse fundamental timing constant set
-  tau = struct;
   switch tau_set
     case "v2"
       tau_semi_iter_psemi               = 3.31987e-10;      # 75th quantile
