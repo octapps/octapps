@@ -1,8 +1,8 @@
 #!/usr/bin/env octapps_run
 ##
-## Estimate the run time of 'lalapps_Weave'.
+## Estimate the run time and maximum memory usage of 'lalapps_Weave'.
 ## Usage:
-##   [times] = WeaveRunTime("opt", val, ...)
+##   [times, maxmem] = WeaveRunTime("opt", val, ...)
 ## Options:
 ##   EITHER:
 ##     setup_file:      Weave setup file
@@ -24,6 +24,7 @@
 ##     Fmethod:         F-statistic method used by search
 ##     Ncohres:         total number of computed coherent results
 ##     Nsemitpl:        number of computed semicoherent results
+##     cache_max:       maximum size of coherent results cache
 ##   tau_set:
 ##     Set of fundamental timing constants to use
 ##   stats:
@@ -35,6 +36,11 @@
 ##     estimate of total CPU run time (seconds)
 ##   times.<field>:
 ##     estimate of CPU time (seconds) to perform action <field>;
+##     see the script itself for further documentation
+##   maxmem.total:
+##     estimate of maximum total memory usage (MB)
+##   maxmem.<field>:
+##     estimate of maximum memory usage (MB) of component <field>;
 ##     see the script itself for further documentation
 
 ## Copyright (C) 2017 Karl Wette
@@ -52,7 +58,7 @@
 ## You should have received a copy of the GNU General Public License
 ## along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-function times = WeaveRunTime(varargin)
+function [times, maxmem] = WeaveRunTime(varargin)
 
   ## parse options
   parseOptions(varargin,
@@ -75,6 +81,7 @@ function times = WeaveRunTime(varargin)
                {"Fmethod", "char,+exactlyone:result_file", []},
                {"Ncohres", "integer,strictpos,scalar,+exactlyone:result_file", []},
                {"Nsemitpl", "integer,strictpos,scalar,+exactlyone:result_file", []},
+               {"cache_max", "integer,strictpos,scalar,+atmostone:result_file", []},
                {"tau_set", "char"},
                {"stats", "char"},
                {"TSFT", "integer,strictpos,scalar", 1800},
@@ -136,6 +143,7 @@ function times = WeaveRunTime(varargin)
     Fmethod = result_hdr.fstat_method;
     Ncohres = result_hdr.ncohres;
     Nsemitpl = result_hdr.nsemires;
+    cache_max = result_hdr.cachemax;
   endif
   Nsemiseg = Nsemitpl * (Nsegments - 1);
 
@@ -150,7 +158,7 @@ function times = WeaveRunTime(varargin)
   ## estimate time to perform nearest-neighbour lookup queries
   time_semi_query = tau_semi_query_psemi * Nsemitpl;
 
-  ## estimate time to compute coherent F-statistics
+  ## estimate time and memory to compute coherent F-statistics
   args = struct;
   args.Tcoh = coh_Tspan;
   args.Freq0 = freq_min;
@@ -171,9 +179,11 @@ function times = WeaveRunTime(varargin)
   args.Tsft = TSFT;
   [resamp_info, demod_info] = fevalstruct(@predictFstatTimeAndMemory, args);
   if strncmpi(Fmethod, "Resamp", 6)
-    time_coh_coh2f = resamp_info.tauF_eff * Ndetectors * Ncohres;
+    time_coh_coh2f = resamp_info.tauF_core * Ndetectors * Ncohres;
+    mem_Fstat = resamp_info.MBWorkspace + resamp_info.MBDataPerDetSeg * Ndetectors * Nsegments;
   elseif strncmpi(Fmethod, "Demod", 5)
-    time_coh_coh2f = demod_info.tauF_eff * Ndetectors * Ncohres;
+    time_coh_coh2f = demod_info.tauF_core * Ndetectors * Ncohres;
+    mem_Fstat = demod_info.MBDataPerDetSeg * Ndetectors * Nsegments;
   else
     error("%s: unknown F-statistic method '%s'", funcName, Fmethod);
   endif
@@ -226,5 +236,40 @@ function times = WeaveRunTime(varargin)
 
   ## estimate total run time
   times.total = sum(structfun(@sum, times));
+
+  if !isempty(cache_max)
+
+    ## estimate maximum memory usage of components
+    MB = 1024 * 1024;
+    maxmem = struct;
+    maxmem.Fstat = mem_Fstat;
+    mem_cache_pbin = struct;
+    for i = 1:length(stats)
+      switch stats{i}
+        case "sum2F"
+          mem_cache_pbin.coh2f = 4;
+        case "mean2F"
+          mem_cache_pbin.coh2f = 4;
+        case "log10BSGL"
+          mem_cache_pbin.coh2f = 4;
+          mem_cache_pbin.coh2f_det = 4 * Ndetectors;
+        case "log10BSGLtL"
+          mem_cache_pbin.coh2f = 4;
+          mem_cache_pbin.coh2f_det = 4 * Ndetectors;
+        case "log10BtSGLtL"
+          mem_cache_pbin.coh2f = 4;
+          mem_cache_pbin.coh2f_det = 4 * Ndetectors;
+        otherwise
+          error("%s: invalid statistic '%s'", funcName, stats{i});
+      endswitch
+    endfor
+    mem_cache_pbin = sum(structfun(@sum, mem_cache_pbin));
+    mem_cache_bins = (freq_max - freq_min) / dfreq;
+    maxmem.cache = cache_max * mem_cache_bins * mem_cache_pbin / MB;
+
+    ## estimate maximum total memory usage
+    maxmem.total = sum(structfun(@sum, maxmem));
+
+  endif
 
 endfunction
