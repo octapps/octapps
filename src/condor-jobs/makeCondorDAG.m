@@ -27,6 +27,7 @@
 ##                      * "vars": struct of variable substitutions to make
 ##                      * "child": array indexing child job nodes for this node
 ##   "retries":         how man times to retry Condor jobs (default: 0)
+##   "sub_dags":        split DAG into this many subfiles (default: 1)
 
 function dag_file = makeCondorDAG(varargin)
 
@@ -35,6 +36,7 @@ function dag_file = makeCondorDAG(varargin)
                {"dag_name", "char"},
                {"job_nodes", "struct"},
                {"retries", "integer,positive", 0},
+               {"sub_dags", "integer,strictpos", 1},
                []);
 
   ## check input
@@ -85,11 +87,17 @@ function dag_file = makeCondorDAG(varargin)
     endif
   endfor
 
-  ## check that DAG submit file and output base directory do not exist
-  dag_file = strcat(dag_name, ".dag");
-  if exist(dag_file, "file")
-    error("%s: DAG file '%s' already exists", funcName, dag_file);
-  endif
+  ## check that DAG submit file(s) and output base directory do not exist
+  for s = 1:sub_dags
+    if sub_dags > 1
+      dag_file{s} = sprintf("%s_%02i.dag", dag_name, s);
+    else
+      dag_file{s} = sprintf("%s.dag", dag_name);
+    endif
+    if exist(dag_file{s}, "file")
+      error("%s: DAG file '%s' already exists", funcName, dag_file{s});
+    endif
+  endfor
   job_out_base_dir = strcat(dag_name, ".out");
   if exist(job_out_base_dir, "dir")
     error("%s: job output base directory '%s' already exists", funcName, job_out_base_dir);
@@ -112,22 +120,28 @@ function dag_file = makeCondorDAG(varargin)
   job_out_dirs = unique(job_out_dirs);
 
   ## write Condor DAG submit file, with nodes in reverse order
-  fid = fopen(dag_file, "w");
-  if fid < 0
-    error("%s: could not open file '%s' for writing", funcName, dag_file);
-  endif
+  for s = 1:sub_dags
+    fid(s) = fopen(dag_file{s}, "w");
+    if fid(s) < 0
+      error("%s: could not open file '%s' for writing", funcName, dag_file{s});
+    endif
+  endfor
+  s = 0;
   for n = length(job_nodes):-1:1
+
+    ## increment sub-dag index
+    s = mod(s, sub_dags) + 1;
 
     ## print node
     job_node_file = fullfile(pwd, job_nodes(n).file);
     job_node_dir = fullfile(pwd, job_nodes(n).dir);
-    fprintf(fid, "\n");
-    fprintf(fid, "JOB %s %s DIR %s\n", job_nodes(n).name, job_node_file, job_node_dir);
-    fprintf(fid, "RETRY %s %d\n", job_nodes(n).name, retries);
+    fprintf(fid(s), "\n");
+    fprintf(fid(s), "JOB %s %s DIR %s\n", job_nodes(n).name, job_node_file, job_node_dir);
+    fprintf(fid(s), "RETRY %s %d\n", job_nodes(n).name, retries);
 
     ## print node variables
     if isfield(job_nodes(n), "vars") && !isempty(job_nodes(n).vars)
-      fprintf(fid, "VARS %s", job_nodes(n).name);
+      fprintf(fid(s), "VARS %s", job_nodes(n).name);
       vars = fieldnames(job_nodes(n).vars);
       for i = 1:length(vars)
         value = stringify(job_nodes(n).vars.(vars{i}));
@@ -135,22 +149,24 @@ function dag_file = makeCondorDAG(varargin)
         value = strrep(value, "\"", "\"\"");
         value = strrep(value, "\\", "\\\\");
         value = strrep(value, "\"", "\\\"");
-        fprintf(fid, " %s=\"%s\"", vars{i}, value);
+        fprintf(fid(s), " %s=\"%s\"", vars{i}, value);
       endfor
-      fprintf(fid, "\n");
+      fprintf(fid(s), "\n");
     endif
 
     ## print node children
     if isfield(job_nodes(n), "child") && !isempty(job_nodes(n).child)
-      fprintf(fid, "PARENT %s CHILD", job_nodes(n).name);
+      fprintf(fid(s), "PARENT %s CHILD", job_nodes(n).name);
       for i = 1:length(job_nodes(n).child)
-        fprintf(fid, " %s", job_nodes(job_nodes(n).child(i)).name);
+        fprintf(fid(s), " %s", job_nodes(job_nodes(n).child(i)).name);
       endfor
-      fprintf(fid, "\n");
+      fprintf(fid(s), "\n");
     endif
 
   endfor
-  fclose(fid);
+  for s = 1:sub_dags
+    fclose(fid(s));
+  endfor
 
   ## create job node output directory names, and check that they do not exist
   for i = 1:length(job_out_dirs)
@@ -162,5 +178,10 @@ function dag_file = makeCondorDAG(varargin)
   ## save job node data for later use
   dag_nodes_file = strcat(dag_name, "_nodes.bin.gz");
   save("-binary", "-zip", dag_nodes_file, "job_nodes");
+
+  ## flatten 'dag_file' if only one DAG file
+  if sub_dags > 1
+    dag_file = dag_file{1};
+  endif
 
 endfunction
