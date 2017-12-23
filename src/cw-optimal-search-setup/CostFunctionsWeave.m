@@ -46,8 +46,6 @@
 ##       total number of SFTs
 ##     Fmethod:
 ##       F-statistic method used by search
-##   tau_set:
-##     Set of fundamental timing constants to use
 ##   stats
 ##     Comma-separated list of statistics being computed
 ##   lattice:
@@ -79,7 +77,6 @@ function cost_funs = CostFunctionsWeave(varargin)
                {"f2dot_max", "real,scalar,+atmostone:result_file", 0},
                {"NSFTs", "integer,strictpos,scalar,+exactlyone:result_file", []},
                {"Fmethod", "char,+exactlyone:result_file", []},
-               {"tau_set", "char"},
                {"stats", "char"},
                {"lattice", "char", "Ans"},
                {"grid_interpolation", "logical,scalar", true},
@@ -142,7 +139,6 @@ function cost_funs = CostFunctionsWeave(varargin)
   run_time_args.f2dot_max = f2dot_max;
   run_time_args.NSFTs = NSFTs;
   run_time_args.Fmethod = Fmethod;
-  run_time_args.tau_set = tau_set;
   run_time_args.stats = stats;
   run_time_args.TSFT = TSFT;
 

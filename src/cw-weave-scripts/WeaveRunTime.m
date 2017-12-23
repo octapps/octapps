@@ -25,8 +25,6 @@
 ##     Ncohres:         total number of computed coherent results
 ##     Nsemitpl:        number of computed semicoherent results
 ##     cache_max:       maximum size of coherent results cache
-##   tau_set:
-##     Set of fundamental timing constants to use
 ##   stats:
 ##     Comma-separated list of statistics being computed
 ##   TSFT:
@@ -82,36 +80,31 @@ function [times, maxmem] = WeaveRunTime(varargin)
                {"Ncohres", "integer,strictpos,scalar,+exactlyone:result_file", []},
                {"Nsemitpl", "integer,strictpos,scalar,+exactlyone:result_file", []},
                {"cache_max", "integer,strictpos,scalar,+atmostone:result_file", []},
-               {"tau_set", "char"},
                {"stats", "char"},
                {"TSFT", "integer,strictpos,scalar", 1800},
                []);
   stats = strsplit(stats, ",");
 
-  ## parse fundamental timing constant set
-  switch tau_set
-    case "v2"
-      tau_semi_iter_psemi               = 3.31987e-10;      # 75th quantile
-      tau_semi_query_psemi              = 2.45808e-08;      # 75th quantile
-      tau_coh_coh2f_pcoh                = 7.24469e-06;      # 75th quantile
-      tau_semiseg_max2f_psemisegdet     = 5.00954e-09 / 3;  # 75th quantile
-      tau_semiseg_sum2f_psemisegdet     = 2.21012e-09 / 3;  # 75th quantile
-      tau_semi_mean2f_psemi             = 1.12007e-09;      # 75th quantile
-      tau_semi_log10bsgl_psemi          = 1.40847e-08;      # 75th quantile
-      tau_semi_log10bsgltl_psemi        = 2.47331e-08;      # 75th quantile
-      tau_semi_log10btsgltl_psemi       = 2.52613e-08;      # 75th quantile
-      tau_output_psemi                  = 6.59480e-09;      # 75th quantile
-      tau_ckpt_psemi                    = 0.00000e+00;      # 75th quantile
-      demod_fstat_tau0_coreld           = 7.56737e-08;      # 75th quantile
-      demod_fstat_tau0_bufferld         = 1.28938e-06;      # 75th quantile
-      resamp_fstat_tau0_fbin            = 9.94730e-08;      # 75th quantile
-      resamp_fstat_tau0_spin            = 8.68288e-08;      # 75th quantile
-      resamp_fstat_tau0_fft_le18        = 4.36694e-10;      # 75th quantile, to be updated
-      resamp_fstat_tau0_fft_gt18        = 4.36694e-10;      # 75th quantile, to be updated
-      resamp_fstat_tau0_bary            = 5.25338e-07;      # 75th quantile
-    otherwise
-      error("%s: invalid timing constant set '%s'", funcName, tau_set);
-  endswitch
+  ## fundamental timing constants
+  tau_iter_psemi                          = 1.36256e-10; # mean
+  tau_query_psemi_pseg                    = 8.55514e-11; # mean
+  tau_semiseg_sum2f_psemi_psegm           = 7.33955e-10; # mean
+  tau_semi_mean2f_psemi                   = 8.28286e-10; # mean
+  tau_output_psemi_ptopl                  = 7.91060e-10; # mean
+  tau_semiseg_max2f_psemi_psegm           = 1.16579e-09; # mean
+  tau_semiseg_max2f_det_psemi_psegm       = 1.12084e-09; # mean
+  tau_semiseg_sum2f_det_psemi_psegm       = 6.85809e-10; # mean
+  tau_semi_log10bsgl_psemi                = 9.89425e-09; # mean
+  tau_semi_log10bsgltl_psemi              = 1.77331e-08; # mean
+  tau_semi_log10btsgltl_psemi             = 1.79320e-08; # mean
+  demod_fstat_tau0_coreld                 = 5.05010e-08; # mean
+  demod_fstat_tau0_bufferld               = 8.61947e-07; # mean
+  resamp_fstat_tau0_fbin                  = 6.97346e-08; # mean
+  resamp_fstat_tau0_spin                  = 6.41612e-08; # mean
+  resamp_fstat_tau0_fft_le18              = 2.51857e-10; # mean
+  resamp_fstat_tau0_fft_gt18              = 4.50738e-10; # mean
+  resamp_fstat_tau0_bary                  = 4.18658e-07; # mean
+  fstat_b                                 = 5.35952e-01; # mean
 
   ## if given, load setup file and extract various parameters
   if !isempty(setup_file)
@@ -145,7 +138,9 @@ function [times, maxmem] = WeaveRunTime(varargin)
     Nsemitpl = result_hdr.nsemires;
     cache_max = result_hdr.cachemax;
   endif
-  Nsemiseg = Nsemitpl * (Nsegments - 1);
+  Nsemiseg = Nsemitpl * Nsegments;
+  Nsemisegm = Nsemitpl * (Nsegments - 1);
+  Nsemitoplists = Nsemitpl * length(stats);
 
   ## check parameter-space ranges
   assert(freq_max >= freq_min);
@@ -153,12 +148,12 @@ function [times, maxmem] = WeaveRunTime(varargin)
   assert(f2dot_max >= f2dot_min);
 
   ## estimate time to iterate over lattice tiling
-  time_semi_iter = tau_semi_iter_psemi * Nsemitpl;
+  time_iter = tau_iter_psemi * Nsemitpl;
 
   ## estimate time to perform nearest-neighbour lookup queries
-  time_semi_query = tau_semi_query_psemi * Nsemitpl;
+  time_query = tau_query_psemi_pseg * Nsemiseg;
 
-  ## estimate time and memory to compute coherent F-statistics
+  ## estimate coherent F-statistic time and memory usage
   args = struct;
   args.Tcoh = coh_Tspan;
   args.Freq0 = freq_min;
@@ -179,55 +174,65 @@ function [times, maxmem] = WeaveRunTime(varargin)
   args.Tsft = TSFT;
   [resamp_info, demod_info] = fevalstruct(@predictFstatTimeAndMemory, args);
   if strncmpi(Fmethod, "Resamp", 6)
-    time_coh_coh2f = resamp_info.tauF_core * Ndetectors * Ncohres;
+    tau_Fstat = resamp_info.tauF_core + fstat_b * resamp_info.tauF_buffer;
     mem_Fstat = resamp_info.MBWorkspace + resamp_info.MBDataPerDetSeg * Ndetectors * Nsegments;
   elseif strncmpi(Fmethod, "Demod", 5)
-    time_coh_coh2f = demod_info.tauF_core * Ndetectors * Ncohres;
+    tau_Fstat = demod_info.tauF_core + fstat_b * demod_info.tauF_buffer;
     mem_Fstat = demod_info.MBDataPerDetSeg * Ndetectors * Nsegments;
   else
     error("%s: unknown F-statistic method '%s'", funcName, Fmethod);
   endif
 
+  ## estimate time to compute coherent F-statistics
+  time_coh2F = tau_Fstat * Ndetectors * Ncohres;
+
   ## estimate time to compute semicoherent F-statistics
-  time_semiseg_sum2f_pdet = tau_semiseg_sum2f_psemisegdet * Nsemiseg;
-  time_semiseg_max2f_pdet = tau_semiseg_max2f_psemisegdet * Nsemiseg;
-  time_semi_mean2f = tau_semi_mean2f_psemi * Nsemitpl;
+  time_sum2F = tau_semiseg_sum2f_psemi_psegm * Nsemisegm;
+  time_sum2F_det = tau_semiseg_sum2f_det_psemi_psegm * Nsemisegm;
+  time_max2F = tau_semiseg_max2f_psemi_psegm * Nsemisegm;
+  time_max2F_det = tau_semiseg_max2f_det_psemi_psegm * Nsemisegm;
+  time_mean2F = tau_semi_mean2f_psemi * Nsemitpl;
 
   ## estimate time to compute line-robust statistics
-  time_semi_log10bsgl = tau_semi_log10bsgl_psemi * Nsemitpl;
-  time_semi_log10bsgltl = tau_semi_log10bsgltl_psemi * Nsemitpl;
-  time_semi_log10btsgltl = tau_semi_log10btsgltl_psemi * Nsemitpl;
+  time_log10BSGL = tau_semi_log10bsgl_psemi * Nsemitpl;
+  time_log10BSGLtL = tau_semi_log10bsgltl_psemi * Nsemitpl;
+  time_log10BtSGLtL = tau_semi_log10btsgltl_psemi * Nsemitpl;
 
   ## estimate time to output results
-  time_output = tau_output_psemi * Nsemitpl;
+  time_output = tau_output_psemi_ptopl * Nsemitoplists;
 
   ## fill in times struct based on requested statistics
   times = struct;
-  times.iter = time_semi_iter;
-  times.query = time_semi_query;
+  times.iter = time_iter;
+  times.query = time_query;
   for i = 1:length(stats)
     switch stats{i}
       case "sum2F"
-        times.coh_coh2f = time_coh_coh2f;
-        times.semiseg_sum2f = time_semiseg_sum2f_pdet;
+        times.coh_coh2f = time_coh2F;
+        times.semiseg_sum2f = time_sum2F;
       case "mean2F"
-        times.coh_coh2f = time_coh_coh2f;
-        times.semiseg_sum2f = time_semiseg_sum2f_pdet;
-        times.semi_mean2f = time_semi_mean2f;
+        times.coh_coh2f = time_coh2F;
+        times.semiseg_sum2f = time_sum2F;
+        times.semi_mean2f = time_mean2F;
       case "log10BSGL"
-        times.coh_coh2f = time_coh_coh2f;
-        times.semiseg_sum2f = time_semiseg_sum2f_pdet * (1 + Ndetectors);
-        times.semi_log10bsgl = time_semi_log10bsgl;
+        times.coh_coh2f = time_coh2F;
+        times.semiseg_sum2f = time_sum2F;
+        times.semiseg_sum2f_det = time_sum2F_det * Ndetectors;
+        times.semi_log10bsgl = time_log10BSGL;
       case "log10BSGLtL"
-        times.coh_coh2f = time_coh_coh2f;
-        times.semiseg_sum2f = time_semiseg_sum2f_pdet * (1 + Ndetectors);
-        times.semiseg_max2f = time_semiseg_max2f_pdet * (1 + Ndetectors);
-        times.semi_log10bsgltl = time_semi_log10bsgltl;
+        times.coh_coh2f = time_coh2F;
+        times.semiseg_sum2f = time_sum2F;
+        times.semiseg_sum2f_det = time_sum2F_det * Ndetectors;
+        times.semiseg_max2f = time_max2F;
+        times.semiseg_max2f_det = time_max2F_det * Ndetectors;
+        times.semi_log10bsgltl = time_log10BSGLtL;
       case "log10BtSGLtL"
-        times.coh_coh2f = time_coh_coh2f;
-        times.semiseg_sum2f = time_semiseg_sum2f_pdet * (1 + Ndetectors);
-        times.semiseg_max2f = time_semiseg_max2f_pdet * (1 + Ndetectors);
-        times.semi_log10btsgltl = time_semi_log10btsgltl;
+        times.coh_coh2f = time_coh2F;
+        times.semiseg_sum2f = time_sum2F;
+        times.semiseg_sum2f_det = time_sum2F_det * Ndetectors;
+        times.semiseg_max2f = time_max2F;
+        times.semiseg_max2f_det = time_max2F_det * Ndetectors;
+        times.semi_log10btsgltl = time_log10BtSGLtL;
       otherwise
         error("%s: invalid statistic '%s'", funcName, stats{i});
     endswitch
@@ -247,18 +252,18 @@ function [times, maxmem] = WeaveRunTime(varargin)
     for i = 1:length(stats)
       switch stats{i}
         case "sum2F"
-          mem_cache_pbin.coh2f = 4;
+          mem_cache_pbin.coh2F = 4;
         case "mean2F"
-          mem_cache_pbin.coh2f = 4;
+          mem_cache_pbin.coh2F = 4;
         case "log10BSGL"
-          mem_cache_pbin.coh2f = 4;
-          mem_cache_pbin.coh2f_det = 4 * Ndetectors;
+          mem_cache_pbin.coh2F = 4;
+          mem_cache_pbin.coh2F_det = 4 * Ndetectors;
         case "log10BSGLtL"
-          mem_cache_pbin.coh2f = 4;
-          mem_cache_pbin.coh2f_det = 4 * Ndetectors;
+          mem_cache_pbin.coh2F = 4;
+          mem_cache_pbin.coh2F_det = 4 * Ndetectors;
         case "log10BtSGLtL"
-          mem_cache_pbin.coh2f = 4;
-          mem_cache_pbin.coh2f_det = 4 * Ndetectors;
+          mem_cache_pbin.coh2F = 4;
+          mem_cache_pbin.coh2F_det = 4 * Ndetectors;
         otherwise
           error("%s: invalid statistic '%s'", funcName, stats{i});
       endswitch
