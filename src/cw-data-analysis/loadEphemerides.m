@@ -58,6 +58,12 @@ endfunction
 
 
 %!test
+%!  try
+%!    lal; lalpulsar;
+%!  catch
+%!    disp("skipping test: LALSuite bindings not available"); return;
+%!  end_try_catch
+%!
 %!  ephemerides = loadEphemerides();
 %!  ephemerides = loadEphemerides();
 %!  ephemerides = loadEphemerides();
