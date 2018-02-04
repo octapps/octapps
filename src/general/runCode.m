@@ -51,12 +51,13 @@ function output = runCode(params, code, verbose=false)
 
     if ( ischar ( val ) )
       valstr = sprintf ("'%s'", val );
-    elseif ( isscalar (val) && isreal (val) )
-      valstr = sprintf ("%.16g", val );
+    elseif ( isreal (val) && isvector(val) )
+      tmp = sprintf ("%.16g,", val );
+      valstr = tmp(1:end-1);	%% remove trailing ','
     elseif ( islogical ( val ) )
       valstr = sprintf ("%d", val );
     else
-      error ("%s: Field '%s' is neither a string, bool or real scalar!\n", funcName, option );
+      error ("%s: Field '%s' is neither a string, bool or real vector!\n", funcName, option );
     endif
 
     if strcmp( option, "LAL_DEBUG_LEVEL" )
