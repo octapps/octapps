@@ -85,15 +85,11 @@ function cost_funs = CostFunctionsWeave(varargin)
 
   ## if given, load setup file and extract various parameters
   if !isempty(setup_file)
-    setup = fitsread(setup_file);
-    assert(isfield(setup, "segments"));
-    segs = setup.segments.data;
-    segment_list = [ [segs.start_s] + 1e-9*[segs.start_ns]; [segs.end_s] + 1e-9*[segs.end_ns] ]';
-    segment_props = AnalyseSegmentList(segment_list);
-    detectors = strjoin(setup.primary.header.detect, ",");
-    ref_time = str2double(setup.primary.header.date_obs_gps);
-    start_time = min(segment_list(:));
-    semi_Tspan = segment_props.inc_Tspan;
+    setup = WeaveReadSetup(setup_file);
+    detectors  = strjoin(setup.detectors,",");
+    ref_time   = setup.ref_time;
+    start_time = setup.start_time;
+    semi_Tspan = setup.semi_Tspan;
   endif
 
   ## if given, load result file and extract various parameters

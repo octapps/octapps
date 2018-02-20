@@ -53,13 +53,9 @@ function hgrm = WeaveFstatMismatch(varargin)
 
   ## if given, load setup file and extract various parameters
   if !isempty(setup_file)
-    setup = fitsread(setup_file);
-    assert(isfield(setup, "segments"));
-    segs = setup.segments.data;
-    segment_list = [ [segs.start_s] + 1e-9*[segs.start_ns]; [segs.end_s] + 1e-9*[segs.end_ns] ]';
-    segment_props = AnalyseSegmentList(segment_list);
-    coh_Tspan = segment_props.coh_mean_Tspan;
-    semi_Tspan = segment_props.inc_Tspan;
+    setup = WeaveReadSetup(setup_file);
+    coh_Tspan  = setup.coh_Tspan;
+    semi_Tspan = setup.semi_Tspan;
   endif
 
   ## dimensionality of search parameter space: 2 sky + 1 frequency + spindowns

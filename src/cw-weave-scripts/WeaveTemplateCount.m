@@ -85,16 +85,12 @@ function [coh_Nt, semi_Nt, dfreq] = WeaveTemplateCount(varargin)
 
   ## if given, load setup file and extract various parameters
   if !isempty(setup_file)
-    setup = fitsread(setup_file);
-    assert(isfield(setup, "segments"));
-    segs = setup.segments.data;
-    segment_list = [ [segs.start_s] + 1e-9*[segs.start_ns]; [segs.end_s] + 1e-9*[segs.end_ns] ]';
-    segment_props = AnalyseSegmentList(segment_list);
-    Nsegments = segment_props.num_segments;
-    detectors = strjoin(setup.primary.header.detect, ",");
-    ref_time = str2double(setup.primary.header.date_obs_gps);
-    coh_Tspan = segment_props.coh_mean_Tspan;
-    semi_Tspan = segment_props.inc_Tspan;
+    setup = WeaveReadSetup(setup_file);
+    Nsegments  = setup.Nsegments;
+    detectors  = setup.detectors;
+    ref_time   = setup.ref_time;
+    coh_Tspan  = setup.coh_Tspan;
+    semi_Tspan = setup.semi_Tspan;
   endif
 
   ## if given, load result file and extract various parameters
@@ -194,5 +190,5 @@ function Nt = number_of_lattice_templates(lattice, metric, max_mismatch, sky_are
 
   ## compute number of templates
   Nt = NumberOfLatticeBankTemplates("lattice", lattice, "metric", metric(nsii, nsii), "max_mismatch", max_mismatch, "param_vol", param_vol);
-  
+
 endfunction
