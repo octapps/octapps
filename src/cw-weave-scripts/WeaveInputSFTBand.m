@@ -73,6 +73,7 @@ function [SFT_freq_min, SFT_freq_max] = WeaveInputSFTBand(varargin)
   ## if given, load setup file and extract various parameters
   if !isempty(setup_file)
     setup = WeaveReadSetup(setup_file);
+    segment_list = setup.segment_list;
     ref_time = setup.ref_time;
   endif
 
