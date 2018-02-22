@@ -35,6 +35,12 @@ function p = ChiSquare_pdf(x, k, lambda=0)
   endif
   p = NaN(size(x));
 
+  ## deal with special input values +-inf
+  ii = isinf(x);
+  if any(ii(:))
+    p(ii) = 0;
+  endif
+
   ## compute the central chi^2 PDF for special case lambda==0
   ii = !isfinite(p) & (lambda == 0);
   if any(ii(:))
