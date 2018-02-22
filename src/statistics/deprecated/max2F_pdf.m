@@ -15,18 +15,21 @@
 %% Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 %% MA  02111-1307  USA
 
-%% p = max2F_pdf ( maxTwoF, Ntrials, Nseg = 1 )
-%%
-%% Probability density for maximum 2F(semi-coherent over Nseg segment) out of Ntrials
-%% independent draws.
-%% Can take vector-arguments for maxTwoF.
-%%
-
 function p = max2F_pdf ( maxTwoF, Ntrials, Nseg = 1 )
+  %% DEPRECATED: use maxChi2FromNdraws_pdf() instead.
+  %%
+  %% p = max2F_pdf ( maxTwoF, Ntrials, Nseg = 1 )
+  %%
+  %% Probability density for maximum 2F(semi-coherent over Nseg segment) out of Ntrials
+  %% independent draws. Can take vector-arguments for maxTwoF.
+
+  warning ( "DEPRECATED: use maxChi2FromNdraws_pdf() instead\n");
+
   assert ( isscalar ( Nseg ) );
   assert ( isscalar ( Ntrials ) );
 
   dof = 4 * Nseg;
-  logp = log(Ntrials) + log(ChiSquare_pdf ( maxTwoF, dof, lambda=0)) +  (Ntrials-1) * log ( ChiSquare_cdf( maxTwoF, dof, lambda=0 ) );
-  p = e.^logp;
+  p = maxChi2FromNdraws_pdf ( maxTwoF, Ntrials, dof );
+
+  return;
 endfunction
