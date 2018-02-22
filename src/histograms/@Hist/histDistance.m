@@ -15,15 +15,20 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## Computes a distance between histograms, defined to be the
-## sum of the absolute difference in probability density in
-## each bin (for a common bin set), multiplied by the bin area.
-## Syntax:
-##   d = histDistance(hgrm1, hgrm2)
+## [d, KLD, JSD] = histDistance(hgrm1, hgrm2)
 ## where:
 ##   hgrm{1,2} = histogram objects
+##
+## Computes different distance measures between histograms
+## 'd'  : defined to be the sum of the absolute difference in probability density in
+##        each bin (for a common bin set), multiplied by the bin area.
+## 'KLD': is the (non-symmetric) Kullback–Leibler divergence D_KL(hgrm1 || hgrm2) >= 0
+##        https://en.wikipedia.org/wiki/Kullback-Leibler_divergence
+## 'JSD': is the (symmetric) Jensen–Shannon divergence 0 <= JDS <= 1
+##        https://en.wikipedia.org/wiki/Jensen-Shannon_divergence
+##
 
-function d = histDistance(hgrm1, hgrm2)
+function [d, KLD, JSD] = histDistance(hgrm1, hgrm2)
 
   ## check input
   assert(isHist(hgrm1) && isHist(hgrm2));
@@ -55,4 +60,24 @@ function d = histDistance(hgrm1, hgrm2)
   ## return distance
   d = sum(diff_area(:));
 
+  ## compute discrete probability distributions
+  P1 = p1 .* areas;
+  P2 = p2 .* areas;
+  ## compute Kullback–Leibler divergence D_KL(P1|P2)  between discrete probability distributions P1=hgrm1 and P2=hgrm2:
+  KLD = compute_KLD ( P1, P2 );
+
+  ## compute Jensen–Shannon divergence (symmetrized version of KLD)
+  pM = 0.5 * ( P1 + P2 );
+  JSD = 0.5 * ( compute_KLD ( P1, pM ) + compute_KLD ( P2, pM ) );
+
+  return;
+
+endfunction
+
+
+function KLD = compute_KLD ( P, Q )
+  iPos = find ( (P > eps) & (Q > eps) );
+  KL0 = - P(iPos) .* log ( Q(iPos) ./ P(iPos) );
+  KLD = sum ( KL0(:) );
+  return;
 endfunction
