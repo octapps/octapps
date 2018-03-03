@@ -116,7 +116,7 @@ $(octdir) :
 	$(verbose)mkdir -p $@
 
 $(octdir)/%.o : %.cc Makefile
-	$(making)$(call Compile, -Wall)
+	$(making)$(call Compile, -Wall -Wno-narrowing)
 
 $(octdir)/%.oct : $(octdir)/%.o Makefile
 	$(making)$(call Link)
@@ -130,7 +130,7 @@ $(octdir)/gsl.oct : LIBS = $(shell $(PKGCONFIG) --libs gsl)
 all : $(swig_octs:%=$(octdir)/%.oct)
 
 $(swig_octs:%=$(octdir)/%.o) : $(octdir)/%.o : oct/%.cc Makefile
-	$(making)$(call Compile)
+	$(making)$(call Compile, -Wno-narrowing)
 
 $(swig_octs:%=oct/%.cc) : oct/%.cc : %.i Makefile
 	$(making)$(SWIG) $(vershex) -octave -c++ -globals "." -o $@ $<
