@@ -58,9 +58,6 @@ function sol = OptimalSolution4StackSlide_v2 ( varargin )
   ## do not page output
   ## pso = page_screen_output(0, "local");
 
-  global DAYS = 86400;
-  guessDefault = struct ( "Nseg", 10, "Tseg", 1 * DAYS, "m", 0.3 );
-
   ## parse options
   uvar = parseOptions ( varargin,
                        {"costFuns", "struct,scalar" },
@@ -68,7 +65,7 @@ function sol = OptimalSolution4StackSlide_v2 ( varargin )
                        {"TobsMax", "real,strictpos,scalar", [] },
                        {"TsegMin", "real,strictpos,scalar", [] },
                        {"TsegMax", "real,strictpos,scalar", [] },
-                       {"stackparamsGuess", "struct", guessDefault },
+                       {"stackparamsGuess", "struct" },
                        {"pFA", "real,strictpos,scalar", 1e-10 },
                        {"pFD", "real,strictpos,scalar", 0.1 },
                        {"tol", "real,strictpos,scalar", 1e-2 },
@@ -195,7 +192,7 @@ endfunction %% OptimalSolution4StackSlide_v2()
 
 
 function sol = iterateSolver ( solverFun, startGuess, funs, tol, maxiter )
-  global DAYS;
+  DAYS = 86400;
   sol = [];
 
   iter = 0;
