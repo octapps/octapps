@@ -192,7 +192,7 @@ endfunction %% OptimalSolution4StackSlide_v2()
 
 
 function sol = iterateSolver ( solverFun, startGuess, funs, tol, maxiter )
-  DAYS = 86400;
+  global DAYS = 86400;
   sol = [];
 
   iter = 0;
