@@ -191,9 +191,10 @@ check : all
 	esac; \
 	test=`echo "$*" | $(SED) 's|::|/|g'`; \
 	printf "%-48s: $${cn}" "$${test}"; \
-	$(OCTAVE) --eval "test $${test}" 2>&1 | { \
+	$(OCTAVE) --eval "assert(length(help('$${test}')) > 0, 'no help message'); test $${test}" 2>&1 | { \
 		while read line; do \
 			case "$${line}" in \
+				"error: no help message"*) printf "$${cr}%-48s: NO HELP MESSAGE\n" "$${test}"; exit 1;; \
 				"?????"*) printf "$${cr}"; exit 0;; \
 				"skip"*) printf "$${cr}%-48s: skip\n" "$${test}"; exit 0;; \
 				"PASSES"*) printf "$${cr}%-48s: pass\n" "$${test}"; exit 0;; \
