@@ -81,7 +81,7 @@ octapps-user-env.sh octapps-user-env.csh : Makefile
 # generate author list, sorted by last name
 all .PHONY: AUTHORS
 AUTHORS:
-	$(verbose)$(GIT) shortlog -s | $(SED) 's/^[^A-Z]*//' | $(SED) 's/ \([^ ]*\)$$/@\1/' | $(SORT) -t @ -k2,2 | $(SED) 's/@/ /' > $@
+	$(verbose)$(GIT) shortlog -s -e | $(SED) '/^[^@]*$$/d;s/^[^A-Z]*//;s/ <.*$$//' | $(SED) 's/ \([^ ]*\)$$/@\1/' | $(SORT) -u -t @ -k2,2 | $(SED) 's/@/ /' > $@
 
 ifneq ($(MKOCTFILE),false)		# build extension modules
 
