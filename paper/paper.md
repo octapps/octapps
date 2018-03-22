@@ -52,6 +52,7 @@ For example, it provides the following modules:
 - `src/cw-optimal-search-setup`: scripts which determine the optimally-sensitive search for continuous gravitational waves, given a fixed computing budget, following the method of [@PrixShal2012a].
 - `src/cw-line-veto`: scripts which implement detection statistics which are robust to instrumental disturbances in the detector data, as described in [@KeitEtAl2014a].
 - `src/cw-metrics` and `src/cw-template-banks`: scripts which determine the number of filtering operations required to search for continuous waves over various astrophysical parameter spaces, described further in [@WettPrix2013a, @LeacPrix2015a].
+- `src/cw-weave-scripts`: scripts which characterize the behaviour of *Weave*, an implementation of an optimized search pipeline for continuous waves [@Wett2018a].
 
 In addition, *OctApps* provides many general-purpose functions and scripts, which may be of broader interest to users of Octave.
 These include:
