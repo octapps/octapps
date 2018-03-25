@@ -31,10 +31,10 @@ CheckPkg = $(shell $(PKGCONFIG) --exists $1 && echo true)
 
 # Octave version string, and hex number define for use in C code
 version := $(shell $(OCTAVE) --eval "disp(OCTAVE_VERSION)")
-vershex := -DOCTAVE_VERSION_HEX=$(shell $(OCTAVE) --eval "addpath('$(curdir)/src/general', '-begin'); printf('0x%x', versionstr2hex(OCTAVE_VERSION))")
+vershex := -DOCTAVE_VERSION_HEX=$(shell $(OCTAVE) --eval "addpath('$(curdir)/src/version-handling', '-begin'); printf('0x%x', versionstr2hex(OCTAVE_VERSION))")
 
 # OctApps source path and file list
-srcpath := $(shell $(OCTAVE) --eval "addpath('$(curdir)/src/general', '-begin'); octapps_genpath()")
+srcpath := $(shell $(OCTAVE) --eval "addpath('$(curdir)/src/version-handling', '-begin'); octapps_genpath()")
 srcfilepath := $(filter-out %/deprecated, $(srcpath))
 srcmfiles := $(wildcard $(srcfilepath:%=%/*.m))
 srccfiles := $(wildcard $(srcfilepath:%=%/*.hpp) $(srcfilepath:%=%/*.cpp))
