@@ -1,5 +1,5 @@
 ---
-title: 'OctApps: a library of Octave functions and scripts for gravitational-wave data analysis'
+title: 'OctApps: a library of Octave functions for gravitational-wave data analysis'
 tags:
   - Octave
   - gravitational waves
@@ -33,7 +33,7 @@ affiliations:
     index: 5
   - name: Rochester Institute of Technology, Rochester, NY 14623, USA
     index: 6
-date: 21 March 2018
+date: 26 March 2018
 bibliography: paper.bib
 ---
 
@@ -45,22 +45,32 @@ Gravitational waves from rapidly-rotating neutron stars, whose shape deviates fr
 The search for these type of signals, also known as continuous waves, presents a significant data analysis challenge, as their weak signatures are expected to be buried deep within the instrumental noise of the LIGO and Virgo detectors.
 For reviews of continuous wave sources, data analysis techniques, and recent searches of LIGO and Virgo data, see for example [@Prix2009a, @Rile2017a].
 
-The *OctApps* library provides various functions and scripts, written in Octave [@Octave2015], intended to aid research scientists who perform searches for continuous gravitational waves.
-For example, it provides the following modules:
+The *OctApps* library provides various functions, written in Octave [@Octave2015], intended to aid research scientists who perform searches for continuous gravitational waves.
+They are organised into the following directories:
 
-- `src/cw-sensitivity`: scripts which predict the sensitivity of a search for continuous waves, following the method of [@Wett2012a].
-- `src/cw-optimal-search-setup`: scripts which determine the optimally-sensitive search for continuous gravitational waves, given a fixed computing budget, following the method of [@PrixShal2012a].
-- `src/cw-line-veto`: scripts which implement detection statistics which are robust to instrumental disturbances in the detector data, as described in [@KeitEtAl2014a].
-- `src/cw-metrics` and `src/cw-template-banks`: scripts which determine the number of filtering operations required to search for continuous waves over various astrophysical parameter spaces, described further in [@WettPrix2013a, @LeacPrix2015a].
-- `src/cw-weave-scripts`: scripts which characterize the behaviour of *Weave*, an implementation of an optimized search pipeline for continuous waves [@Wett2018a].
+- `src/cw-data-analysis`: general-purpose functions for continuous-wave data analysis.
+- `src/cw-line-veto`: functions which implement detection statistics which are robust to instrumental disturbances in the detector data, as described in [@KeitEtAl2014a].
+- `src/cw-metric-template-banks`: functions which determine the number of filtering operations required to search for continuous waves over various astrophysical parameter spaces, described further in [@WettPrix2013a, @LeacPrix2015a].
+- `src/cw-optimal-search-setup`: functions which determine the optimally-sensitive search for continuous gravitational waves, given a fixed computing budget, following the method of [@PrixShal2012a].
+- `src/cw-sensitivity`: functions which predict the sensitivity of a search for continuous waves, following the method of [@Wett2012a].
+- `src/cw-weave-models`: functions which characterize the behaviour of *Weave*, an implementation of an optimized search pipeline for continuous waves [@Wett2018a].
 
-In addition, *OctApps* provides many general-purpose functions and scripts, which may be of broader interest to users of Octave.
-These include:
+In addition, *OctApps* provides various general-purpose functions, which may be of broader interest to users of Octave, organised into the following directories:
 
-- `parseOptions()`: a powerful parser for Octave function argument lists in the form of key--value pairs.
-- `octapps_run`: a Unix shell script which allows Octave functions which use `parseOptions()` to also be called directly from the Unix command line using a `--key=value` argument syntax.
-- `@Hist`: an Octave class representing a histogram, with various method functions which perform common statistical operations, such as computing the cumulative distribution function.
-- `depends()`: a low-level function written using Octave's C++ API which, given the name of an Octave function, returns the names of all Octave functions called by the named function. It can be used to deploy a self-contained tarball of OctApps scripts to a remote node on a computer cluster.
+- `src/array-handling`: manipulation of Octave arrays and cell arrays.
+- `src/command-line`: includes `parseOptions()`, a powerful parser for Octave function argument lists in the form of key--value pairs. Together with `octapps_run`, a Unix shell script, it allows Octave functions to also be called directly from the Unix command line using a `--key=value` argument syntax.
+- `src/condor-jobs`: submission of jobs to a computer cluster using the [HTCondor](https://research.cs.wisc.edu/htcondor/) job submission system. It includes `depends()`, a low-level function written using Octave's C++ API which, given the name of an Octave function, returns the names of all Octave functions called by the named function, and which is used to deploy a self-contained tarball of Octave functions to a remote node on a computer cluster.
+- `src/convert-units`: conversion between different angular units, and between different time standards.
+- `src/file-handling`: parsing of various file formats suchs as FITS and `.ini`.
+- `src/general`: miscellaneous general-purpose functions.
+- `src/geometry`: mathematical operations associated with geometric objects, e.g. intersection of two lines.
+- `src/histograms`: includes `@Hist`, an Octave class representing a histogram, with various method functions which perform common statistical operations, such as computing the cumulative distribution function.
+- `src/lattices`: mathematical operations associated with lattice theory.
+- `src/mathematical`: miscellaneous general mathematical functions, including some functions accessed from the GSL [@GSL2009] library using [SWIG](http://www.swig.org/).
+- `src/plotting`: helper functions for plot creation and output.
+- `src/statistics`: miscellaneous statistical functions, particularly for probability distributions.
+- `src/text-handling`: various functions for creating text output, e.g. in [TeX](https://www.tug.org/).
+- `src/version-handling`: handling of version information, particularly from the [Git](https://git-scm.com/) version control system.
 
 Development of *OctApps* is hosted [here](https://gitlab.aei.uni-hannover.de/octapps/octapps).
-Documentation of each function or script is provided through the `help` function in Octave.
+Documentation of each function is provided through the `help` function in Octave.
