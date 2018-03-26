@@ -78,3 +78,8 @@ In addition, *OctApps* provides various general-purpose functions, which may be 
 Development of *OctApps* is hosted [here](https://gitlab.aei.uni-hannover.de/octapps/octapps).
 Installation of *OctApps* is described in the [README](https://gitlab.aei.uni-hannover.de/octapps/octapps/blob/master/README.md) file.
 Documentation of each function is provided through the `help` function in Octave.
+
+## Acknowledgements
+
+We acknowledge that *OctApps* includes software written and/or contributed to by: Zdravko Botev, Juan Pablo Carbajal, Ronaldas Macas, John McNabb, and Daniel de Torre Herrera.
+This paper has document number LIGO-P1800078-v1.
