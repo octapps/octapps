@@ -62,17 +62,17 @@ In addition, *OctApps* provides various general-purpose functions, which may be 
 
 - `src/array-handling`: manipulation of Octave arrays and cell arrays.
 - `src/command-line`: includes `parseOptions()`, a powerful parser for Octave function argument lists in the form of key--value pairs. Together with `octapps_run`, a Unix shell script, it allows Octave functions to also be called directly from the Unix command line using a `--key=value` argument syntax.
-- `src/condor-jobs`: submission of jobs to a computer cluster using the [HTCondor](https://research.cs.wisc.edu/htcondor/) job submission system. It includes `depends()`, a low-level function written using Octave's C++ API which, given the name of an Octave function, returns the names of all Octave functions called by the named function, and which is used to deploy a self-contained tarball of Octave functions to a remote node on a computer cluster.
-- `src/convert-units`: conversion between different angular units, and between different time standards.
-- `src/file-handling`: parsing of various file formats such as FITS and `.ini`.
+- `src/condor-jobs`: submission of jobs to a computer cluster using the [HTCondor](https://research.cs.wisc.edu/htcondor/) job submission system. It includes `depends()`, a low-level function written using Octave's C++ API which, given the name of an Octave function, returns the names of all Octave functions called by the named function; it is used to deploy a self-contained tarball of Octave `.m` files to a remote node on a computer cluster.
+- `src/convert-units`: functions which convert between different angular units, and between different time standards.
+- `src/file-handling`: parsing of various file formats, such as FITS and `.ini`.
 - `src/general`: miscellaneous general-purpose functions.
-- `src/geometry`: mathematical operations associated with geometric objects, e.g. intersection of two lines.
-- `src/histograms`: includes `@Hist`, an Octave class representing a histogram, with various method functions which perform common statistical operations, such as computing the cumulative distribution function.
-- `src/lattices`: mathematical operations associated with lattice theory.
-- `src/mathematical`: miscellaneous general mathematical functions, including some functions accessed from the GNU Scientific Library [@GSL2009] using [SWIG](http://www.swig.org/).
-- `src/plotting`: helper functions for plot creation and output.
+- `src/geometry`: mathematical operations associated with geometric objects, e.g. computing the intersection of two lines.
+- `src/histograms`: includes `@Hist`, an Octave class representing a histogram, with various method functions which perform common statistical operations, e.g. computing the cumulative distribution function.
+- `src/lattices`: mathematical operations associated with lattice theory, e.g. computing the nearest point in a lattice to a given point in space.
+- `src/mathematical`: miscellaneous general mathematical functions, including some C functions incorporated from the GNU Scientific Library [@GSL2009], using [SWIG](http://www.swig.org/) to provide the C-to-Octave interface.
+- `src/plotting`: helper functions for plot creation and output in [TeX](https://www.tug.org/) format.
 - `src/statistics`: miscellaneous statistical functions, particularly for probability distributions.
-- `src/text-handling`: various functions for creating text output, e.g. in [TeX](https://www.tug.org/).
+- `src/text-handling`: various functions for creating formatted text output.
 - `src/version-handling`: handling of version information, particularly from the [Git](https://git-scm.com/) version control system.
 
 Development of *OctApps* is hosted [here](https://gitlab.aei.uni-hannover.de/octapps/octapps).
