@@ -1,4 +1,4 @@
-%% Copyright (C) 2006 Matt Pitkin
+%% Copyright (C) 2006 Matthew Pitkin
 %% Copyright (C) 2007 Reinhard Prix
 %%
 %% This program is free software; you can redistribute it and/or modify

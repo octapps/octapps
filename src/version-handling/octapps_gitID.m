@@ -1,5 +1,5 @@
 ## Copyright (C) 2012 Karl Wette
-## Copyright (C) 2008 Reinhard Prix, John Whelan
+## Copyright (C) 2008 Reinhard Prix, John T. Whelan
 ##
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by

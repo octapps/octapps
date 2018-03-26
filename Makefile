@@ -25,6 +25,7 @@ PKGCONFIG := $(call CheckProg, pkg-config)
 SED := $(call CheckProg, gsed sed)
 SORT := LC_ALL=C $(call CheckProg, sort) -f
 SWIG := $(call CheckProg, swig3.0 swig2.0 swig)
+TR := $(call CheckProg, tr)
 
 # check for existence of package using pkg-config
 CheckPkg = $(shell $(PKGCONFIG) --exists $1 && echo true)
@@ -81,7 +82,7 @@ octapps-user-env.sh octapps-user-env.csh : Makefile
 # generate author list, sorted by last name
 all .PHONY: AUTHORS
 AUTHORS:
-	$(verbose)$(GIT) shortlog -s -e | $(SED) '/^[^@]*$$/d;s/^[^A-Z]*//;s/ <.*$$//' | $(SED) 's/ \([^ ]*\)$$/@\1/' | $(SORT) -u -t @ -k2,2 | $(SED) 's/@/ /' > $@
+	$(verbose)( $(GIT) shortlog -s | $(SED) 's/^[^A-Z]*//'; $(GIT) grep Copyright src/ | $(SED) 's/^.*Copyright ([Cc]) [-0-9, ]*//' | $(TR) ',' '\n' ) | $(SED) 's/^ *//' | $(SORT) -u > $@
 
 ifneq ($(MKOCTFILE),false)		# build extension modules
 
