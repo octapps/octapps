@@ -5,36 +5,38 @@ tags:
   - gravitational waves
   - data analysis
 authors:
-  - name: Reinhard Prix
-    affiliation: "1, 2"
   - name: Karl Wette
     orcid: 0000-0002-4394-7179
-    affiliation: 3
-  - name: Christoph Dreissigacker
-    affiliation: "1, 2"
+    affiliation: 1
+  - name: Reinhard Prix
+    affiliation: "2, 3"
   - name: David Keitel
     orcid: 0000-0002-2824-626X
     affiliation: 4
-  - name: Paola Leaci
-    affiliation: "5, 6"
-  - name: Matthew Pitkin
-    affiliation: 4
   - name: John T. Whelan
-    affiliation: 7
+    orcid: 0000-0001-5710-6576
+    affiliation: 5
+  - name: Christoph Dreissigacker
+    affiliation: "2, 3"
+  - name: Paola Leaci
+    affiliation: "6, 7"
+  - name: Matthew Pitkin
+    orcid: 0000-0003-4548-526X
+    affiliation: 4
 affiliations:
-  - name: Max Planck Institute for Gravitational Physics (Albert Einstein Institute), D-30167 Hannover, Germany
-    index: 1
-  - name: Leibniz Universität Hannover, D-30167 Hannover, Germany
-    index: 2
   - name: ARC Centre of Excellence for Gravitational Wave Discovery (OzGrav) and Centre for Gravitational Physics, Research School of Physics and Engineering, The Australian National University, ACT 0200, Australia
+    index: 1
+  - name: Max Planck Institute for Gravitational Physics (Albert Einstein Institute), D-30167 Hannover, Germany
+    index: 2
+  - name: Leibniz Universität Hannover, D-30167 Hannover, Germany
     index: 3
   - name: Institute for Gravitational Research, SUPA, University of Glasgow, Glasgow G12 8QQ, UK
     index: 4
-  - name: Università di Roma 'La Sapienza,' I-00185 Roma, Italy
-    index: 5
-  - name: INFN, Sezione di Roma, I-00185 Roma, Italy
-    index: 6
   - name: Rochester Institute of Technology, Rochester, NY 14623, USA
+    index: 5
+  - name: Università di Roma 'La Sapienza,' I-00185 Roma, Italy
+    index: 6
+  - name: INFN, Sezione di Roma, I-00185 Roma, Italy
     index: 7
 date: 26 March 2018
 bibliography: paper.bib
@@ -81,5 +83,5 @@ Documentation of each function is provided through the `help` function in Octave
 
 ## Acknowledgements
 
-We acknowledge that *OctApps* includes software written and/or contributed to by: Zdravko Botev, Juan Pablo Carbajal, Ronaldas Macas, John McNabb, and Daniel de Torre Herrera.
+We acknowledge that *OctApps* includes licensed contributions from Zdravko Botev, Juan Pablo Carbajal, Ronaldas Macas, John McNabb, and Daniel de Torre Herrera.
 This paper has document number LIGO-P1800078-v1.
