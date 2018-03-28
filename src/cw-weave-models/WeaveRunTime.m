@@ -2,7 +2,7 @@
 ##
 ## Estimate the run time and maximum memory usage of 'lalapps_Weave'.
 ## Usage:
-##   [times, maxmem] = WeaveRunTime("opt", val, ...)
+##   [times, maxmem, tau] = WeaveRunTime("opt", val, ...)
 ## Options:
 ##   EITHER:
 ##     setup_file:      Weave setup file
@@ -40,6 +40,8 @@
 ##   maxmem.<field>:
 ##     estimate of maximum memory usage (MB) of component <field>;
 ##     see the script itself for further documentation
+##   tau.<field>"
+##     fundamental timing constants
 
 ## Copyright (C) 2017 Karl Wette
 ##
@@ -56,7 +58,7 @@
 ## You should have received a copy of the GNU General Public License
 ## along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-function [times, maxmem] = WeaveRunTime(varargin)
+function [times, maxmem, tau] = WeaveRunTime(varargin)
 
   ## parse options
   parseOptions(varargin,
@@ -85,18 +87,21 @@ function [times, maxmem] = WeaveRunTime(varargin)
                []);
   stats = strsplit(stats, ",");
 
+  ## initialise output variables
+  times = maxmem = tau = struct;
+
   ## fundamental timing constants
-  tau_iter_psemi                          = 1.36256e-10; # mean
-  tau_query_psemi_pseg                    = 8.55514e-11; # mean
-  tau_semiseg_sum2f_psemi_psegm           = 7.33955e-10; # mean
-  tau_semi_mean2f_psemi                   = 8.28286e-10; # mean
-  tau_output_psemi_ptopl                  = 7.91060e-10; # mean
-  tau_semiseg_max2f_psemi_psegm           = 1.16579e-09; # mean
-  tau_semiseg_max2f_det_psemi_psegm       = 1.12084e-09; # mean
-  tau_semiseg_sum2f_det_psemi_psegm       = 6.85809e-10; # mean
-  tau_semi_log10bsgl_psemi                = 9.89425e-09; # mean
-  tau_semi_log10bsgltl_psemi              = 1.77331e-08; # mean
-  tau_semi_log10btsgltl_psemi             = 1.79320e-08; # mean
+  tau.iter_psemi                          = 1.36256e-10; # mean
+  tau.query_psemi_pseg                    = 8.55514e-11; # mean
+  tau.semiseg_sum2f_psemi_psegm           = 7.33955e-10; # mean
+  tau.semi_mean2f_psemi                   = 8.28286e-10; # mean
+  tau.output_psemi_ptopl                  = 7.91060e-10; # mean
+  tau.semiseg_max2f_psemi_psegm           = 1.16579e-09; # mean
+  tau.semiseg_max2f_det_psemi_psegm       = 1.12084e-09; # mean
+  tau.semiseg_sum2f_det_psemi_psegm       = 6.85809e-10; # mean
+  tau.semi_log10bsgl_psemi                = 9.89425e-09; # mean
+  tau.semi_log10bsgltl_psemi              = 1.77331e-08; # mean
+  tau.semi_log10btsgltl_psemi             = 1.79320e-08; # mean
   demod_fstat_tau0_coreld                 = 5.05010e-08; # mean
   demod_fstat_tau0_bufferld               = 8.61947e-07; # mean
   resamp_fstat_tau0_fbin                  = 6.97346e-08; # mean
@@ -144,10 +149,10 @@ function [times, maxmem] = WeaveRunTime(varargin)
   assert(f2dot_max >= f2dot_min);
 
   ## estimate time to iterate over lattice tiling
-  time_iter = tau_iter_psemi * Nsemitpl;
+  time_iter = tau.iter_psemi * Nsemitpl;
 
   ## estimate time to perform nearest-neighbour lookup queries
-  time_query = tau_query_psemi_pseg * Nsemiseg;
+  time_query = tau.query_psemi_pseg * Nsemiseg;
 
   ## estimate coherent F-statistic time and memory usage
   args = struct;
@@ -170,35 +175,34 @@ function [times, maxmem] = WeaveRunTime(varargin)
   args.Tsft = TSFT;
   [resamp_info, demod_info] = fevalstruct(@predictFstatTimeAndMemory, args);
   if strncmpi(Fmethod, "Resamp", 6)
-    tau_Fstat = resamp_info.tauF_core + fstat_b * resamp_info.tauF_buffer;
-    mem_Fstat = resamp_info.MBWorkspace + resamp_info.MBDataPerDetSeg * Ndetectors * Nsegments;
+    tau.Fstat = resamp_info.tauF_core + fstat_b * resamp_info.tauF_buffer;
+    maxmem.Fstat = resamp_info.MBWorkspace + resamp_info.MBDataPerDetSeg * Ndetectors * Nsegments;
   elseif strncmpi(Fmethod, "Demod", 5)
-    tau_Fstat = demod_info.tauF_core + fstat_b * demod_info.tauF_buffer;
-    mem_Fstat = demod_info.MBDataPerDetSeg * Ndetectors * Nsegments;
+    tau.Fstat = demod_info.tauF_core + fstat_b * demod_info.tauF_buffer;
+    maxmem.Fstat = demod_info.MBDataPerDetSeg * Ndetectors * Nsegments;
   else
     error("%s: unknown F-statistic method '%s'", funcName, Fmethod);
   endif
 
   ## estimate time to compute coherent F-statistics
-  time_coh2F = tau_Fstat * Ndetectors * Ncohres;
+  time_coh2F = tau.Fstat * Ndetectors * Ncohres;
 
   ## estimate time to compute semicoherent F-statistics
-  time_sum2F = tau_semiseg_sum2f_psemi_psegm * Nsemisegm;
-  time_sum2F_det = tau_semiseg_sum2f_det_psemi_psegm * Nsemisegm;
-  time_max2F = tau_semiseg_max2f_psemi_psegm * Nsemisegm;
-  time_max2F_det = tau_semiseg_max2f_det_psemi_psegm * Nsemisegm;
-  time_mean2F = tau_semi_mean2f_psemi * Nsemitpl;
+  time_sum2F = tau.semiseg_sum2f_psemi_psegm * Nsemisegm;
+  time_sum2F_det = tau.semiseg_sum2f_det_psemi_psegm * Nsemisegm;
+  time_max2F = tau.semiseg_max2f_psemi_psegm * Nsemisegm;
+  time_max2F_det = tau.semiseg_max2f_det_psemi_psegm * Nsemisegm;
+  time_mean2F = tau.semi_mean2f_psemi * Nsemitpl;
 
   ## estimate time to compute line-robust statistics
-  time_log10BSGL = tau_semi_log10bsgl_psemi * Nsemitpl;
-  time_log10BSGLtL = tau_semi_log10bsgltl_psemi * Nsemitpl;
-  time_log10BtSGLtL = tau_semi_log10btsgltl_psemi * Nsemitpl;
+  time_log10BSGL = tau.semi_log10bsgl_psemi * Nsemitpl;
+  time_log10BSGLtL = tau.semi_log10bsgltl_psemi * Nsemitpl;
+  time_log10BtSGLtL = tau.semi_log10btsgltl_psemi * Nsemitpl;
 
   ## estimate time to output results
-  time_output = tau_output_psemi_ptopl * Nsemitoplists;
+  time_output = tau.output_psemi_ptopl * Nsemitoplists;
 
   ## fill in times struct based on requested statistics
-  times = struct;
   times.iter = time_iter;
   times.query = time_query;
   for i = 1:length(stats)
@@ -242,8 +246,6 @@ function [times, maxmem] = WeaveRunTime(varargin)
 
     ## estimate maximum memory usage of components
     MB = 1024 * 1024;
-    maxmem = struct;
-    maxmem.Fstat = mem_Fstat;
     mem_cache_pbin = struct;
     for i = 1:length(stats)
       switch stats{i}
