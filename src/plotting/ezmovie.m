@@ -124,7 +124,7 @@ function ezmovie(action, varargin)
       end_unwind_protect
 
       ## check that 'avconv' has not encountered errors
-      assert(ferror(state.avconv_fin) == 0, "%s: '%s' has failed!", funcName, state.avconv_cmd);
+      assert(waitpid(state.avconv_pid, WNOHANG) == 0, "%s: '%s' has failed!", funcName, state.avconv_cmd);
 
     case "stop"   ## stop movie generation
 
@@ -133,8 +133,8 @@ function ezmovie(action, varargin)
 
       ## close any open 'avconv' pipe
       if isfield(state, "avconv_pid")
-        kill(state.avconv_pid, SIG.INT);
         fclose(state.avconv_fin);
+        waitpid(state.avconv_pid);
         state = [];
       endif
 
