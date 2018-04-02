@@ -303,12 +303,15 @@ function varargout = parseOptions(opts, varargin)
     if length(optkey) == 1 && isfield(optchars, optkey)
       optkey = optchars.(optkey);
     else
-      ii = find(cellfun(@(a_n) strncmp(optkey, a_n, min(length(a_n), max(length(optkey), 2))), allowed_names));
-      if length(ii) < 1
-        error("%s: unknown option '%s'", funcName, optkey);
-      endif
-      if length(ii) > 1
-        error("%s: ambiguous option '%s' (matches '%s')", funcName, optkey, strjoin(allowed_names(ii), "' or '"));
+      ii = find(cellfun(@(a_n) strcmp(optkey, a_n), allowed_names));
+      if length(ii) != 1
+        ii = find(cellfun(@(a_n) strncmp(optkey, a_n, min(length(a_n), max(length(optkey), 2))), allowed_names));
+        if length(ii) < 1
+          error("%s: unknown option '%s'", funcName, optkey);
+        endif
+        if length(ii) > 1
+          error("%s: ambiguous option '%s' (matches '%s')", funcName, optkey, strjoin(allowed_names(ii), "' or '"));
+        endif
       endif
       optkey = allowed_names{ii};
     endif
