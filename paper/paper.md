@@ -60,6 +60,8 @@ They are organized into the following directories:
 - `src/cw-sensitivity`: functions which predict the sensitivity of a search for continuous waves, following the method of [@Wett2012a].
 - `src/cw-weave-models`: functions which characterize the behaviour of *Weave*, an implementation of an optimized search pipeline for continuous waves [@Wett2018a].
 
+Many of these scripts make use of C functions from the [LSC Algorithm Library Suite (LALSuite)](https://wiki.ligo.org/DASWG/LALSuite), using [SWIG](http://www.swig.org/) to provide the C-to-Octave interface.
+
 In addition, *OctApps* provides various general-purpose functions, which may be of broader interest to users of Octave, organized into the following directories:
 
 - `src/array-handling`: manipulation of Octave arrays and cell arrays.
@@ -71,7 +73,7 @@ In addition, *OctApps* provides various general-purpose functions, which may be 
 - `src/geometry`: mathematical operations associated with geometric objects, e.g. computing the intersection of two lines.
 - `src/histograms`: includes `@Hist`, an Octave class representing a histogram, with various method functions which perform common statistical operations, e.g. computing the cumulative distribution function.
 - `src/lattices`: mathematical operations associated with lattice theory, e.g. computing the nearest point in a lattice to a given point in space.
-- `src/mathematical`: miscellaneous general mathematical functions, including some C functions incorporated from the GNU Scientific Library [@GSL2009], using [SWIG](http://www.swig.org/) to provide the C-to-Octave interface.
+- `src/mathematical`: miscellaneous general mathematical functions, including some C functions incorporated from the GNU Scientific Library [@GSL2009], using SWIG to provide the C-to-Octave interface.
 - `src/plotting`: helper functions for plot creation and output in [TeX](https://www.tug.org/) format.
 - `src/statistics`: miscellaneous statistical functions, particularly for probability distributions.
 - `src/text-handling`: various functions for creating formatted text output.
