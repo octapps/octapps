@@ -39,8 +39,8 @@ vershex := -DOCTAVE_VERSION_HEX=$(shell $(OCTAVE) --eval "addpath('$(curdir)/src
 srcpath := $(shell $(OCTAVE) --eval "addpath('$(curdir)/src/version-handling', '-begin'); octapps_genpath()")
 srcfilepath := $(filter-out %/deprecated, $(srcpath))
 srcmfiles := $(wildcard $(srcfilepath:%=%/*.m))
-srccfiles := $(wildcard $(srcfilepath:%=%/*.hpp) $(srcfilepath:%=%/*.cpp))
-srctestfiles := $(wildcard $(srcfilepath:%=%/*.m) $(srcfilepath:%=%/@*/*.m) $(srcfilepath:%=%/*.cpp) $(srcfilepath:%=%/*.i))
+srccfiles := $(wildcard $(srcfilepath:%=%/*.hpp) $(srcfilepath:%=%/*.cc))
+srctestfiles := $(wildcard $(srcfilepath:%=%/*.m) $(srcfilepath:%=%/@*/*.m) $(srcfilepath:%=%/*.cc) $(srcfilepath:%=%/*.i))
 binpath := $(shell $(FIND) $(srcpath) -type f -perm /ug+x -printf '%h\n' | $(SORT) -u)
 
 # OctApps extension module directory
@@ -72,7 +72,7 @@ octapps-user-env.sh octapps-user-env.csh : Makefile
 		*) empty='#'; setenv='export'; equals='=';; \
 	esac; \
 	cleanpath="$(SED) -e 's/^/:/;s/$$/:/;:A;s/:\([^:]*\)\(:.*\|\):\1:/:\1:\2:/g;s/:::*/:/g;tA;s/^:*//;s/:*$$//'"; \
-	octave_path="$(curdir)/$(octdir):`echo $(srcpath) | $(SED) 's/  */:/g'`:\$${OCTAVE_PATH}"; \
+	octave_path="$(curdir)/$(octdir):$(curdir)/oct:`echo $(srcpath) | $(SED) 's/  */:/g'`:\$${OCTAVE_PATH}"; \
 	path="$(curdir)/bin:`echo $(binpath): | $(SED) 's/  */:/g;s/:::*/:/g'`\$${PATH}"; \
 	echo "# source this file to access OctApps" > $@; \
 	echo "test \$${$${empty}OCTAVE_PATH} -eq 0 && $${setenv} OCTAVE_PATH" >>$@; \
@@ -110,7 +110,7 @@ all : $(octdir) $(octs:%=$(octdir)/%.oct)
 $(octdir) :
 	@mkdir -p $@
 
-$(octdir)/%.o : %.cpp Makefile
+$(octdir)/%.o : %.cc Makefile
 	$(verbose)$(call Compile, -Wall)
 
 $(octdir)/%.oct : $(octdir)/%.o Makefile
@@ -124,10 +124,10 @@ $(octdir)/gsl.oct : LIBS = $(shell $(PKGCONFIG) --libs gsl)
 
 all : $(swig_octs:%=$(octdir)/%.oct)
 
-$(swig_octs:%=$(octdir)/%.o) : $(octdir)/%.o : oct/%_wrap.cpp Makefile
+$(swig_octs:%=$(octdir)/%.o) : $(octdir)/%.o : oct/%.cc Makefile
 	$(verbose)$(call Compile)
 
-$(swig_octs:%=oct/%_wrap.cpp) : oct/%_wrap.cpp : %.i Makefile
+$(swig_octs:%=oct/%.cc) : oct/%.cc : %.i Makefile
 	$(verbose)$(SWIG) $(vershex) -octave -c++ -globals "." -o $@ $<
 
 $(swig_octs:%=$(octdir)/%.oct) : $(octdir)/%.oct : $(octdir)/%.o Makefile
