@@ -18,7 +18,7 @@
 function ishgrm = isHist(hgrm)
 
   ## Check whether the input argument is an internally consistent histogram object
-  ishgrm = isa(hgrm, "Hist") && iscell(hgrm.bins) && isvector(hgrm.bins) && length(hgrm.bins) > 0 && ismatrix(hgrm.counts);
+  ishgrm = isa(hgrm, "Hist") && iscell(hgrm.bins) && isvector(hgrm.bins) && length(hgrm.bins) > 0 && length(size(hgrm.counts)) >= 2;
   if ishgrm
     for k = 1:length(hgrm.bins)
       ishgrm = ishgrm && isvector(hgrm.bins{k}) && length(hgrm.bins{k}) >= 2 && ...
