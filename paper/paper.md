@@ -9,6 +9,7 @@ authors:
     orcid: 0000-0002-4394-7179
     affiliation: 1
   - name: Reinhard Prix
+    orcid: 0000-0002-3789-6424
     affiliation: "2, 3"
   - name: David Keitel
     orcid: 0000-0002-2824-626X
