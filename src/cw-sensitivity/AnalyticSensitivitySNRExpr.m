@@ -53,3 +53,5 @@ function [rho,tms] = AnalyticSensitivitySNRExpr(za, pd, Ns, nu)
   rho = (2*nu./Ns).^0.25 .* sqrt(tms{1}+tms{2}+tms{3});
 
 endfunction
+
+%!assert(AnalyticSensitivitySNRExpr(0.01, 0.1, 100, 4), 0.6312, 1e-3)
