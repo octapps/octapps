@@ -183,7 +183,10 @@ check : all
 	else \
 		echo "Running all tests"; \
 	fi; \
+	export OCTAPPS_TMPDIR=`mktemp -d -t octapps-make-check.XXXXXX`; \
+	echo "Created temporary directory $${OCTAPPS_TMPDIR} for test results"; \
 	$(MAKE) `printf "%s.test\n" $${testfiles} | $(SORT)` || exit 1; \
+	rm -rf "$${OCTAPPS_TMPDIR}"; \
 	echo "=================================================="; \
 	echo "OctApps test suite has passed successfully!"; \
 	echo "=================================================="
@@ -196,7 +199,7 @@ check : all
 	esac; \
 	test=`echo "$*" | $(SED) 's|::|/|g'`; \
 	printf "%-48s: $${cn}" "$${test}"; \
-	$(OCTAVE) --eval "assert(length(help('$${test}')) > 0, 'no help message'); test $${test}" 2>&1 | { \
+	env TMPDIR="$${OCTAPPS_TMPDIR}" $(OCTAVE) --eval "assert(length(help('$${test}')) > 0, 'no help message'); test $${test}" 2>&1 | { \
 		while read line; do \
 			case "$${line}" in \
 				"error: no help message"*) printf "$${cr}%-48s: NO HELP MESSAGE\n" "$${test}"; exit 1;; \
