@@ -79,3 +79,7 @@ function [gct_freq_min, gct_freq_band, gct_phys_freq_min, gct_phys_freq_band] = 
  gct_phys_freq_band = maxFreqMethod - minFreqMethod;
 
 endfunction # PredictGCTFreqband()
+
+%!test
+%!  [gct_freq_min, gct_freq_band, gct_phys_freq_min, gct_phys_freq_band] = PredictGCTFreqband(100, 0.1, 1e-7, -1e-8, 1e-8, 1e-11, 0, 0, 0, 800000000, 23*3600, 800000000, 1800, 101, 8);
+%!  assert([gct_freq_min, gct_freq_band, gct_phys_freq_min, gct_phys_freq_band], [99.956, 0.18897, 99.984, 0.13175], 1e-2)
