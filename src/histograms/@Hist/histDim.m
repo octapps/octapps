@@ -31,3 +31,9 @@ function dim = histDim(hgrm)
   dim = length(hgrm.bins);
 
 endfunction
+
+%!assert(histDim(Hist(1, {"lin", "dbin", 0.1})), 1)
+%!assert(histDim(Hist(2, {"lin", "dbin", 0.1}, {"lin", "dbin", 0.1})), 2)
+%!assert(histDim(Hist(3, {"lin", "dbin", 0.1}, {"lin", "dbin", 0.1}, {"lin", "dbin", 0.1})), 3)
+%!assert(histDim(Hist(4, {"lin", "dbin", 0.1}, {"lin", "dbin", 0.1}, {"lin", "dbin", 0.1}, {"lin", "dbin", 0.1})), 4)
+%!assert(histDim(Hist(5, {"lin", "dbin", 0.1}, {"lin", "dbin", 0.1}, {"lin", "dbin", 0.1}, {"lin", "dbin", 0.1}, {"lin", "dbin", 0.1})), 5)
