@@ -38,3 +38,6 @@ function varargout = runningFunction(F, n, varargin)
   endfor
 
 endfunction
+
+%!assert(runningFunction(@mean, 3, 1.1:0.7:9.3), 1.8:0.7:8.1, 1e-3)
+%!assert(runningFunction(@median, 3, 1:10), 2:9, 1e-3)
