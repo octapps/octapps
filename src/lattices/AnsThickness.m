@@ -26,3 +26,9 @@ function ret = AnsThickness ( n )
   ret = UnitHypersphereVolume ( n ) .* AnsNormalizedThickness(n);
 
 endfunction
+
+%!assert(AnsThickness(1) > 0)
+%!assert(AnsThickness(2) > 0)
+%!assert(AnsThickness(3) > 0)
+%!assert(AnsThickness(4) > 0)
+%!assert(AnsThickness(5) > 0)
