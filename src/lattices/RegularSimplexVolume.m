@@ -26,3 +26,9 @@ function ret = RegularSimplexVolume ( n )
   ret = sqrt(n+1) ./ ( gamma(n+1) .* 2.^(n/2) );
 
 endfunction
+
+%!assert(RegularSimplexVolume(1) > 0)
+%!assert(RegularSimplexVolume(2) > 0)
+%!assert(RegularSimplexVolume(3) > 0)
+%!assert(RegularSimplexVolume(4) > 0)
+%!assert(RegularSimplexVolume(5) > 0)
