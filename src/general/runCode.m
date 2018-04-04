@@ -90,3 +90,6 @@ function output = runCode(params, code, verbose=false)
   endif
 
 endfunction
+
+%!test
+%!  runCode(struct("c", 'echo "This is a test of runCode()"'), "/bin/sh");
