@@ -29,3 +29,9 @@ function ret = RandNormalizedThickness ( dim, falseDismissal )
   ret = - log(falseDismissal) ./ UnitHypersphereVolume ( dim );
 
 endfunction
+
+%!assert(RandNormalizedThickness(1, 0.05) > 0)
+%!assert(RandNormalizedThickness(2, 0.05) > 0)
+%!assert(RandNormalizedThickness(3, 0.05) > 0)
+%!assert(RandNormalizedThickness(4, 0.05) > 0)
+%!assert(RandNormalizedThickness(5, 0.05) > 0)
