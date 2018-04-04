@@ -137,3 +137,12 @@ function ezprint(filepath, varargin)
   endif
 
 endfunction
+
+%!test
+%!  graphics_toolkit gnuplot;
+%!  figname = strcat(tempname(tempdir), ".tex");
+%!  fig = figure("visible", "off");
+%!  plot(0:100, mod(0:100, 10));
+%!  ezprint(figname, "width", 100);
+%!  close(fig);
+%!  assert(exist(figname, "file"));
