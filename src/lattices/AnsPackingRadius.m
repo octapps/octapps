@@ -30,3 +30,9 @@ function packingRadius = AnsPackingRadius ( dim )
   return;
 
 endfunction %% AnsPackingRadius()
+
+%!assert(AnsPackingRadius(1) > 0)
+%!assert(AnsPackingRadius(2) > 0)
+%!assert(AnsPackingRadius(3) > 0)
+%!assert(AnsPackingRadius(4) > 0)
+%!assert(AnsPackingRadius(5) > 0)
