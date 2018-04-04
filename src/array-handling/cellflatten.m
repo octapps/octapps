@@ -35,7 +35,6 @@ function C = cellflatten(varargin)
   endif
 endfunction
 
-
 %!assert(all(cellfun(@eq, cellflatten({}), {})))
 %!assert(all(cellfun(@eq, cellflatten({1}), {1})))
 %!assert(all(cellfun(@eq, cellflatten({1,2}), {1,2})))
