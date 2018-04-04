@@ -27,3 +27,5 @@ function fA = falseAlarm_chi2 ( thresh, dof )
   fA = 1 - eta;
 
 endfunction
+
+%!assert(falseAlarm_chi2([23.513 28.473 33.377 38.442 43.258 48.051 52.827 57.590 62.341 67.082 71.816 76.539 81.257 85.968 90.675 95.376 100.074], 4), logspace(-4, -20, 17), 1e-3)
