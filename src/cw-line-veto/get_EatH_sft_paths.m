@@ -51,7 +51,7 @@ function [sfts, firstsft, sfts_cell] = get_EatH_sft_paths ( sftdir, filenamebit,
     error(["Required SFT file ", sftfile, " does not exist."]);
    endif
   endif
-  sfts = [sfts, sftfile];
+  sfts = strcat(sfts, sftfile);
   if ( numsft == 1 )
    firstsft = sftfile;
   endif
@@ -64,3 +64,6 @@ function [sfts, firstsft, sfts_cell] = get_EatH_sft_paths ( sftdir, filenamebit,
  endfor # numsft = 1:1:num_sfts_to_load
 
 endfunction # get_EatH_sft_paths()
+
+%!test
+%!  disp("no test exists for this function as it requires access to data not included in OctApps");
