@@ -197,3 +197,11 @@ function varargout = plotHist(varargin)
   endif
 
 endfunction
+
+%!test
+%!  fig = figure("visible", "off");
+%!  hgrm = createGaussianHist(1.2, 3.4, "binsize", 0.1);
+%!  plotHist(hgrm, "k-");
+%!  plotHist(hgrm, "k-", "stairs", true);
+%!  plotHist(hgrm, "k-", "stairs", false);
+%!  close(fig);
