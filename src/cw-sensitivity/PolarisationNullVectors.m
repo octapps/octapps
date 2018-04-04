@@ -56,3 +56,10 @@ function [xp, yp, xx, yx] = PolarisationNullVectors(alpha, sdelta, psi)
   yp = (xx + yx) / sqrt(2);
 
 endfunction
+
+%!test
+%!  [xp, yp, xx, yx] = PolarisationNullVectors(0, 0, pi/2);
+%!  assert(xp, [0; -1/sqrt(2); 1/sqrt(2)], 1e-3);
+%!  assert(yp, [0; 1/sqrt(2); 1/sqrt(2)], 1e-3);
+%!  assert(xx, [0; 0; 1], 1e-3);
+%!  assert(yx, [0; 1; 0], 1e-3);
