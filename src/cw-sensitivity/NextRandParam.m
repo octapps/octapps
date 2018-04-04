@@ -49,3 +49,9 @@ function varargout = NextRandParam(rng, N)
   endif
 
 endfunction
+
+%!test
+%!  gsl;
+%!  [a, b] = NextRandParam(CreateRandParam([0, 5.5], [2.2, 7]), 100);
+%!  assert(0 <= min(a) && max(a) <= 5.5);
+%!  assert(2.2 <= min(b) && max(b) <= 7);
