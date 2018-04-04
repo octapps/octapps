@@ -26,3 +26,9 @@ function ret = UnitHypersphereVolume ( n )
   ret = pi.^(n/2) ./ gamma ( n/2 + 1 );
 
 endfunction
+
+%!assert(UnitHypersphereVolume(1) > 0)
+%!assert(UnitHypersphereVolume(2) > 0)
+%!assert(UnitHypersphereVolume(3) > 0)
+%!assert(UnitHypersphereVolume(4) > 0)
+%!assert(UnitHypersphereVolume(5) > 0)
