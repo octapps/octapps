@@ -42,3 +42,7 @@ function [metric, dnorm, invdnorm] = DiagonalNormaliseMetric(metric, tolerant=""
   metric = dnorm' * metric * dnorm;
 
 endfunction
+
+%!shared g
+%!  g = [7,3,5; 3,6,2; 5,2,5];
+%!assert(DiagonalNormaliseMetric(g), g ./ sqrt(diag(g) * diag(g)'), 1e-3)
