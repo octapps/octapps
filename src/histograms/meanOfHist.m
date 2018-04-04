@@ -33,3 +33,10 @@ function mean = meanOfHist(hgrm, k = 1)
   mean = momentOfHist(hgrm, k, 1);
 
 endfunction
+
+
+## test histogram standard deviation with Gaussian/uniform histogram
+%!shared hgrm
+%!  hgrm = Hist(2, {"lin", "dbin", 0.01}, {"lin", "dbin", 0.1});
+%!  hgrm = addDataToHist(hgrm, [normrnd(1.7, 4.3, 1e6, 1), rand(1e6, 1)]);
+%!assert(abs(meanOfHist(hgrm) - 1.7) < 5e-2)
