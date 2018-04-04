@@ -84,7 +84,6 @@ function [X, Y] = simplifyLines(x, y, Nmax)
 
 endfunction
 
-
 function [dist ii] = maxdistance (p, idx)
 
   %% Separate the groups of points according to the edge they can divide.
@@ -100,7 +99,6 @@ function [dist ii] = maxdistance (p, idx)
   [dist ii] = cellfun(@dd, points,edges,idxc);
 
 endfunction
-
 
 function [dist ii] = dd (p,e,idx)
   [d pos] = distancePointEdge(p,e);

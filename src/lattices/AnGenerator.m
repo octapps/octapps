@@ -32,9 +32,9 @@ function [ generator, rotator ] = AnGenerator ( dim )
     for col = [1:dim+1]
 
       if ( col == row )
-	gen0(row,col) = -1;
+        gen0(row,col) = -1;
       elseif ( col == row + 1 )
-	gen0(row,col) = +1;
+        gen0(row,col) = +1;
       endif
 
     endfor %% for col < dim + 1

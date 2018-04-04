@@ -58,7 +58,6 @@ function x = drawFromHist(hgrm, N)
 
 endfunction
 
-
 ## create histograms for testing
 %!shared hgrmA, hgrmB, hgrmC, N
 %!  hgrmA = Hist(1, {"lin", "dbin", 0.1});

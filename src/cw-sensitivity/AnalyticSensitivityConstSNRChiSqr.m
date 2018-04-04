@@ -51,7 +51,6 @@ function [rhob,tms] = AnalyticSensitivityConstSNRChiSqr(paNt, pd, Ns, nu)
 
 endfunction
 
-
 ## Test sensitivity calculated for chi^2 statistic
 ## against values calculated by SensitivityDepth(),
 ## corrected for constant SNR

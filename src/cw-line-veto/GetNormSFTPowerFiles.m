@@ -15,7 +15,6 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-
 function ret = GetNormSFTPowerFiles ( varargin )
  ## ret = GetNormSFTPowerFiles ( varargin )
  ## function to produce files of normalized SFT power over a large set of frequency bands (input sft files) for a single IFO
@@ -255,7 +254,6 @@ function [params_init] = check_input_parameters ( params_init )
 
 endfunction # check_input_parameters()
 
-
 function [sftstartfreq, num_sfts_to_load] = get_sft_range ( params_init, startfreq, freqband )
  ## [sftstartfreq, num_sfts_to_load] = get_sft_range ( params_init, startfreq, freqband )
  ## function to compute the necessary SFT start frequency and the number of (contiguous) SFTs starting from there
@@ -276,7 +274,6 @@ function [sftstartfreq, num_sfts_to_load] = get_sft_range ( params_init, startfr
  endwhile
 
 endfunction # get_sft_range()
-
 
 function formatstring_body = write_header_to_details_file ( outfile_detail, lalapps_version_string )
  ## formatstring_body = write_header_to_details_file ( outfile_detail, lalapps_version_string )

@@ -74,7 +74,6 @@ function [d, KLD, JSD] = histDistance(hgrm1, hgrm2)
 
 endfunction
 
-
 function KLD = compute_KLD ( P, Q )
   iPos = find ( (P > eps) & (Q > eps) );
   KL0 = - P(iPos) .* log ( Q(iPos) ./ P(iPos) );

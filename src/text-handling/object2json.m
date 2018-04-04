@@ -151,8 +151,6 @@ function json=object2json(object)
   endif
 endfunction
 
-
-
 % JSON only admits the next escape sequences:
 % \", \\, \/, \b, \f, \n, \r, \t and \u four-hex-digits
 % This function replace every escaped sequence that isn't on that list

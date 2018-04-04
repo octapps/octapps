@@ -725,7 +725,6 @@ function stackparams = complete_stackparams ( stackparams, funs )
 
 endfunction %% complete_stackparams()
 
-
 %% -------------------- debug output functions --------------------
 function stop = DebugPrintFsolve ( v, optimValues, state )
   stop = false;
@@ -740,8 +739,6 @@ function stop = DebugPrintFsolve ( v, optimValues, state )
   endswitch
   return;
 endfunction
-
-
 
 %% ---------- kept for temporary reference
 function sol = NONI_unconstrained_prev ( stackparams, funs )

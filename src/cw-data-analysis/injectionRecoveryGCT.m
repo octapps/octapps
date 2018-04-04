@@ -54,32 +54,32 @@ function results = injectionRecoveryGCT ( varargin )
 
   ## parse options
   uvar = parseOptions ( varargin,
-			{"Ntrials", "real,strictpos,scalar", 1},
-			{"timestampsFiles", "char"},
-			{"IFOs", "char"},
-			{"segmentList", "char"},
-			{"inj_sqrtSX", "real,positive,scalar", [] },
-			{"inj_h0", "real,positive,scalar", [] },
-			{"inj_SNR", "real,positive,scalar", [] },
-			{"inj_AlphaRange", "real,vector", [0, 2*pi]},
-			{"inj_DeltaRange", "real,vector", [-pi/2, pi/2]},
-			{"inj_FreqRange", "real,strictpos,vector"},
-			{"inj_fkdotRange", "real,matrix", []},
-			{"dFreq", "real,strictpos,scalar"},
-			{"dfkdot", "real,positive,vector", []},
-			{"gammaRefine", "real,strictpos,vector", []},
-			{"skyGridFile", "char"},
-			{"sch_Nsky", "real,strictpos,scalar", 1 },
-			{"sch_Nfreq", "real,strictpos,scalar" },
-			{"sch_Nfkdot", "real,strictpos,vector" [] },
-			{"FstatMethod", "char", "DemodBest" },
-			{"computeBSGL", "bool, scalar", false},
-			{"Fstar0sc", "real, positive, scalar", 0},
-			{"nCand", "real,strictpos,scalar", 1 },
-			{"GCT_binary", "char", "lalapps_HierarchSearchGCT"},
-			{"debugLevel", "real,positive,scalar", 0},
-			{"cleanup", "bool,scalar", true},
-			[]);
+                        {"Ntrials", "real,strictpos,scalar", 1},
+                        {"timestampsFiles", "char"},
+                        {"IFOs", "char"},
+                        {"segmentList", "char"},
+                        {"inj_sqrtSX", "real,positive,scalar", [] },
+                        {"inj_h0", "real,positive,scalar", [] },
+                        {"inj_SNR", "real,positive,scalar", [] },
+                        {"inj_AlphaRange", "real,vector", [0, 2*pi]},
+                        {"inj_DeltaRange", "real,vector", [-pi/2, pi/2]},
+                        {"inj_FreqRange", "real,strictpos,vector"},
+                        {"inj_fkdotRange", "real,matrix", []},
+                        {"dFreq", "real,strictpos,scalar"},
+                        {"dfkdot", "real,positive,vector", []},
+                        {"gammaRefine", "real,strictpos,vector", []},
+                        {"skyGridFile", "char"},
+                        {"sch_Nsky", "real,strictpos,scalar", 1 },
+                        {"sch_Nfreq", "real,strictpos,scalar" },
+                        {"sch_Nfkdot", "real,strictpos,vector" [] },
+                        {"FstatMethod", "char", "DemodBest" },
+                        {"computeBSGL", "bool, scalar", false},
+                        {"Fstar0sc", "real, positive, scalar", 0},
+                        {"nCand", "real,strictpos,scalar", 1 },
+                        {"GCT_binary", "char", "lalapps_HierarchSearchGCT"},
+                        {"debugLevel", "real,positive,scalar", 0},
+                        {"cleanup", "bool,scalar", true},
+                        []);
 
   global debugLevel;
   debugLevel = uvar.debugLevel;
@@ -180,10 +180,10 @@ function results = injectionRecoveryGCT ( varargin )
   SFTfiles = "*.sft";
 
   ## ---------- prepare histograms to store results in ----------
-  hists.avgPFS		 = Hist (1, {"lin", "dbin", 0.01} );
-  hists.avgTwoFSig	 = Hist (1, {"lin", "dbin", 0.01} );
-  hists.avgTwoFMax	 = Hist (1, {"lin", "dbin", 0.01} );
-  hists.avgTwoFRMax	 = Hist (1, {"lin", "dbin", 0.01} );
+  hists.avgPFS           = Hist (1, {"lin", "dbin", 0.01} );
+  hists.avgTwoFSig       = Hist (1, {"lin", "dbin", 0.01} );
+  hists.avgTwoFMax       = Hist (1, {"lin", "dbin", 0.01} );
+  hists.avgTwoFRMax      = Hist (1, {"lin", "dbin", 0.01} );
   if uvar.computeBSGL == true
     hists.log10BSGL   = Hist (1, {"lin", "dbin", 0.01} );
     hists.log10BSGLR  = Hist (1, {"lin", "dbin", 0.01} );
@@ -191,8 +191,8 @@ function results = injectionRecoveryGCT ( varargin )
   endif
 
   hists.misSig   = Hist (1, {"lin", "dbin", 0.001 } );
-  hists.misSC	 = Hist (1, {"lin", "dbin", 0.01 } );
-  hists.misSCR	 = Hist (1, {"lin", "dbin", 0.01 } );
+  hists.misSC    = Hist (1, {"lin", "dbin", 0.01 } );
+  hists.misSCR   = Hist (1, {"lin", "dbin", 0.01 } );
 
   hists.offsBins.skyInd = Hist (1, {"lin", "dbin", 1,   "bin0", 0 } );
   hists.offsBins.Freq   = Hist (1, {"lin", "dbin", 0.2, "bin0", -ceil(uvar.sch_Nfreq/2) } );
@@ -276,13 +276,12 @@ function results = injectionRecoveryGCT ( varargin )
 
     %% prepare injection sources
     inj.injectionSources = sprintf ( "{h0 = %g; cosi = %g; psi = %g; phi0 = %g; Alpha = %.16g; Delta = %.16g; Freq = %.16g; refTime = %.16g",
-				     inj.h0, inj.cosi, inj.psi, inj.phi0, inj.Alpha, inj.Delta, inj.Freq, inj.refTime );
+                                     inj.h0, inj.cosi, inj.psi, inj.phi0, inj.Alpha, inj.Delta, inj.Freq, inj.refTime );
     for k = 1 : spindown_order
       inj.injectionSources = sprintf ( "%s; f%ddot = %.16g", inj.injectionSources, k, inj.fkdot(k) );
     endfor
     inj.injectionSources = strcat ( inj.injectionSources, "}");
     trials{iTrial}.inj = inj;
-
 
     ## ---------- determine GCT search box on injection +- Nbins ----------
     DebugPrintf ( 1, "Determine GCT search box ... ");
@@ -293,7 +292,7 @@ function results = injectionRecoveryGCT ( varargin )
     %% as mentioned above, we don't truncate the search frequency box to the
     %% 'GCT search grid', as we're assuming contiguous WUs above and below this
     %% search frequency range, so there's no "boundary"
-    sch.Freq	 = FreqGrid_GCT(iFreq0) - floor(uvar.sch_Nfreq/2) * uvar.dFreq;		%% start floor(Nfreq/2) bins below iFreq0 bin
+    sch.Freq     = FreqGrid_GCT(iFreq0) - floor(uvar.sch_Nfreq/2) * uvar.dFreq;		%% start floor(Nfreq/2) bins below iFreq0 bin
     sch.FreqBand = (uvar.sch_Nfreq-1) * uvar.dFreq;					%% search Nfreq bins total
 
     %% ----- fkdot search range
@@ -400,7 +399,6 @@ function results = injectionRecoveryGCT ( varargin )
     GCT.loudestTwoFPerSeg = true;
 
     runCode ( GCT, uvar.GCT_binary, (uvar.debugLevel > 0) );
-
 
     ## ---------- load avg-Fstat results and parse results
     DebugPrintf ( 1, "Loading GCT toplist file '%s' ... ", GCT.fnameout );
@@ -541,15 +539,15 @@ function results = injectionRecoveryGCT ( varargin )
     GCTSig.Freq		= inj.Freq;
     GCTSig.FreqBand	= 0;
     if ( spindown_order >= 1 )
-      GCTSig.f1dot	 = inj.fkdot(1);
-      GCTSig.f1dotBand	 = 0;
-      GCTSig.df1dot	 = uvar.dfkdot(1);
+      GCTSig.f1dot       = inj.fkdot(1);
+      GCTSig.f1dotBand   = 0;
+      GCTSig.df1dot      = uvar.dfkdot(1);
       GCTSig.gammaRefine = 1;
     endif
     if ( spindown_order >= 2 )
-      GCTSig.f2dot	  = inj.fkdot(2);
-      GCTSig.f2dotBand	  = 0;
-      GCTSig.df2dot	  = uvar.dfkdot(2);
+      GCTSig.f2dot        = inj.fkdot(2);
+      GCTSig.f2dotBand    = 0;
+      GCTSig.df2dot       = uvar.dfkdot(2);
       GCTSig.gamma2Refine = 1;
     endif
 

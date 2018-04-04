@@ -38,7 +38,6 @@ function f = isInteractive()
     f = [];
   endif
 
-
 endfunction
 
 %!test

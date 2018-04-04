@@ -63,7 +63,6 @@ function thgrm = transformHist(hgrm, F, err = 1e-2)
 
 endfunction
 
-
 ## create 1-D histograms for testing
 %!shared hgrmA, hgrmA1, hgrmA2, hgrmA3
 %!  hgrmA = hgrmA1 = hgrmA2 = hgrmA3 = Hist(1, {"lin", "dbin", 0.1});
@@ -91,7 +90,6 @@ endfunction
 %!test
 %!  t_hgrmA3 = transformHist(hgrmA, @(x) sin(x));
 %!  assert(histDistance(hgrmA3, t_hgrmA3) < 0.05);
-
 
 ## create 2-D histograms for testing
 %!shared hgrmB, hgrmB1, hgrmB2, hgrmB3

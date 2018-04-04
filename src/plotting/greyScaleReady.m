@@ -32,7 +32,6 @@
 ##              magenta-blue   magenta-red
 ##              yellow-green   yellow-red
 
-
 ##   n    = number of colour map entries
 
 function map = greyScaleReady(name, n=64)
@@ -104,7 +103,6 @@ function map = greyScaleReady(name, n=64)
 
 endfunction
 
-
 %!test greyScaleReady("blue-cyan");
 %!test greyScaleReady("blue-magenta");
 %!test greyScaleReady("green-cyan");
@@ -118,7 +116,6 @@ endfunction
 %!test greyScaleReady("magenta-red");
 %!test greyScaleReady("yellow-green");
 %!test greyScaleReady("yellow-red");
-
 
 %!demo
 %!  [x, y] = ndgrid(-49:49, -49:49);

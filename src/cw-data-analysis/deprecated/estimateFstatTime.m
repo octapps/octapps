@@ -58,20 +58,20 @@ function [tauRS, tauLD, lg2NsampFFT, dtauRSBary] = estimateFstatTime ( varargin 
 
   ## parse options
   uvar = parseOptions ( varargin,
-                        {"Tcoh", 	"strictpos,matrix"},
-                        {"Tspan", 	"positive,matrix", 	0},
-                        {"FreqMax", 	"strictpos,matrix"},
+                        {"Tcoh",        "strictpos,matrix"},
+                        {"Tspan",       "positive,matrix",      0},
+                        {"FreqMax",     "strictpos,matrix"},
                         {"FreqBand",	"strictpos,matrix"},
                         {"dFreq",	"strictpos,matrix"},
-                        {"f1dotMax",	"real,matrix", 		0},
-                        {"f2dotMax", 	"real,matrix", 		0},
+                        {"f1dotMax",	"real,matrix",          0},
+                        {"f2dotMax",    "real,matrix",          0},
                         {"tauFbin",	"strictpos,scalar", 6.1e-8 },
                         {"tauFFT",	"strictpos,scalar", 3.3e-8 },	%% FFT time assuming NFFT>2^18
                         {"tauSpin",	"strictpos,scalar", 7.7e-8 },
                         {"tauBary",	"strictpos,scalar", 2.6e-7 },
                         {"tauLDsft",	"strictpos,scalar", 7.4e-8 },	%% Demod time per SFT
                         {"Tsft",	"strictpos,scalar", 1800 },
-                        {"Nsft", 	"positive,scalar", 0}
+                        {"Nsft",        "positive,scalar", 0}
                       );
 
   if ( uvar.Tspan == 0 )

@@ -124,7 +124,6 @@ function hgrm = restrictHist(hgrm, varargin)
 
 endfunction
 
-
 %!test
 %!  hgrm = Hist(2, {"lin", 0.01}, {"lin", 0.01});
 %!  hgrm = addDataToHist(hgrm, rand(50000,2));

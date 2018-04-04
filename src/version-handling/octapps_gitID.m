@@ -62,8 +62,8 @@ function ID = octapps_gitID ( directory, name )
   endif
   mytime = gmtime(str2num(git_udate));
   git_date_utc = sprintf("%04d-%02d-%02d %02d:%02d:%02d UTC",
-			 1900 + mytime.year, 1 + mytime.mon, mytime.mday,
-			 mytime.hour, mytime.min, mytime.sec);
+                         1900 + mytime.year, 1 + mytime.mon, mytime.mday,
+                         mytime.hour, mytime.min, mytime.sec);
   [ err, git_author ] = system ( logcmd_author );
   if ( err )
     error ("%s: unexpectedly failed to get git-author, error was %d", funcName, err );

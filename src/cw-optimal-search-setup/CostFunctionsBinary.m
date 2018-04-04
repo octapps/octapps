@@ -98,8 +98,6 @@ endfunction ## CostFunctionsBinary()
 %!  assert ( sol_v2.mCoh, 0.800740, tol );
 %!  assert ( sol_v2.mInc, 0.043971, tol );
 
-
-
 ## Recompute ScoX1 solution from Leaci&Prix(2015) paper, Table III, corrected for xi=MeanHist(An*) instead of 0.5
 %!test
 %!  UnitsConstants;
@@ -283,7 +281,6 @@ function [ Nt, nDim ] = numTemplatesFixedDim ( Nseg, Tseg, misMax, params )
              * MaxMin(params.freqRange, 3) ...
              * MaxMin(params.asiniRange, 2) ...
              * MaxMin(params.tAscRange, 1);
-
 
   nDim = zeros ( size ( Nt ));
   nDim(ii3d) = 3;

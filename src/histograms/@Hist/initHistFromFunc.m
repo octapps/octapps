@@ -48,7 +48,6 @@ function hgrm = initHistFromFunc(hgrm, F, varargin)
 
 endfunction
 
-
 %!test
 %!  hgrm = Hist(1, {"lin", "dbin", 0.1});
 %!  hgrm = initHistFromFunc(hgrm, @(x) normpdf(x, 1.3, 2.7), [-20, 20]);

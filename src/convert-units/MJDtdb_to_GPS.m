@@ -29,8 +29,8 @@ function GPS = MJDtdb_to_GPS ( MJD_tdb )
   endif
 
   Tdiff = MJD_tdb + (2400000.5 - 2451545.0);
-  meanAnomaly = 357.53 + 0.98560028 * Tdiff; 	%% mean anomaly in degrees
-  meanAnomaly *= pi/180; 			%% mean anomaly in rads
+  meanAnomaly = 357.53 + 0.98560028 * Tdiff;    %% mean anomaly in degrees
+  meanAnomaly *= pi/180;                        %% mean anomaly in rads
 
   TDBtoTT = 0.001658 * sin(meanAnomaly) + 0.000014 * sin(2 * meanAnomaly); %% time diff in seconds
 

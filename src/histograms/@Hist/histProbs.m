@@ -60,7 +60,6 @@ function prob = histProbs(hgrm, finite = [])
 
 endfunction
 
-
 ## generate Gaussian histograms and test normalisation with equal/unequal bins
 %!shared hgrm1, hgrm2
 %!  hgrm1 = Hist(1, {"lin", "dbin", 0.01});

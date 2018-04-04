@@ -53,29 +53,28 @@
 ##
 ##
 
-
 function sensDepth = SensitivityDepthStackSlide ( varargin )
 
   ## parse options
   uvar = parseOptions ( varargin,
-		       {"Nseg", "integer,strictpos,matrix", 1 },
-		       {"Tdata", "real,strictpos,matrix" },
-		       {"misHist", "acell:Hist", []},
-		       {"pFD", "real,strictpos,column", 0.1},
-		       {"pFA", "real,strictpos,matrix", []},
-		       {"avg2Fth", "real,strictpos,matrix", []},
-		       {"detectors", "char", "H1,L1" },
-		       {"detweights", "real,strictpos,vector", []},
-		       {"alpha", "real,vector", [0, 2*pi]},
-		       {"delta", "real,vector", [-pi/2, pi/2]},
-		       []);
+                       {"Nseg", "integer,strictpos,matrix", 1 },
+                       {"Tdata", "real,strictpos,matrix" },
+                       {"misHist", "acell:Hist", []},
+                       {"pFD", "real,strictpos,column", 0.1},
+                       {"pFA", "real,strictpos,matrix", []},
+                       {"avg2Fth", "real,strictpos,matrix", []},
+                       {"detectors", "char", "H1,L1" },
+                       {"detweights", "real,strictpos,vector", []},
+                       {"alpha", "real,vector", [0, 2*pi]},
+                       {"delta", "real,vector", [-pi/2, pi/2]},
+                       []);
 
   ## check input
   assert ( ! ( isempty ( uvar.pFA ) && isempty ( uvar.avg2Fth ) ), "Need at least one of 'pFA' or 'avg2Fth' to determine false-alarm probability!\n" );
   assert ( isempty ( uvar.pFA ) || isempty ( uvar.avg2Fth ), "Must specify exactly one of 'pFA' or 'avg2Fth' to determine false-alarm probability!\n" );
   assert ( !isempty(uvar.Tdata), "Tdata must be specified.\n");
   assert ( isempty(uvar.misHist) ||(((size(uvar.pFA,2) == length(uvar.misHist)) || (size(uvar.avg2Fth,2) == length(uvar.misHist))) && size(uvar.Nseg,2) == length(uvar.misHist)) ,
-	   "#stages unclear, #columns in pFA/avg2Fth and Nseg must match #mismatch histograms.\n");
+           "#stages unclear, #columns in pFA/avg2Fth and Nseg must match #mismatch histograms.\n");
 
   ## two different ways to specify false-alarm / threshold
   if ( !isempty ( uvar.pFA ) )
@@ -87,7 +86,6 @@ function sensDepth = SensitivityDepthStackSlide ( varargin )
   ## compute sensitivity SNR
   Rsqr = SqrSNRGeometricFactorHist("detectors", uvar.detectors, "detweights", uvar.detweights, "alpha", uvar.alpha, "sdelta", sin(uvar.delta) );
   [sensDepth, pd_Depth] = SensitivityDepth ( "pd", uvar.pFD, "Ns", uvar.Nseg, "Tdata",uvar.Tdata, "Rsqr", Rsqr,"misHist",uvar.misHist, "stat", {"ChiSqr", FAarg{:}} );
-
 
 endfunction
 

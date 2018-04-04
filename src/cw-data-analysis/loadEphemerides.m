@@ -56,7 +56,6 @@ function ephemerides = loadEphemerides(varargin)
 
 endfunction
 
-
 %!test
 %!  try
 %!    lal; lalpulsar;

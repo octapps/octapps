@@ -209,7 +209,6 @@ function stackparams = OptimalSolution4StackSlide ( varargin )
 
 endfunction
 
-
 function is_converged = checkConvergence ( new_stackparams, stackparams, tol )
 
   rel_Nseg = relError ( new_stackparams.Nseg, stackparams.Nseg );

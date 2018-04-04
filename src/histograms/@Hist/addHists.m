@@ -85,7 +85,6 @@ function hgrmt = addHists(addop, varargin)
 
 endfunction
 
-
 %!test
 %!  hgrm1 = addDataToHist(Hist(1, 0:12), 0.5 + (0:11)');
 %!  hgrm2 = addDataToHist(Hist(1, 0:3:12), 0.5 + (0:11)');

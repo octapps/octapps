@@ -165,7 +165,6 @@ function [coh_Nt, semi_Nt, dfreq] = WeaveTemplateCount(varargin)
 
 endfunction
 
-
 function Nt = number_of_lattice_templates(lattice, metric, max_mismatch, sky_area, fkdot_bands)
 
   ## calculate bounding box of metric

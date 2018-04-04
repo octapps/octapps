@@ -60,9 +60,7 @@ function sensDepth = SensitivityDepthHoughF ( varargin )
   Rsqr = SqrSNRGeometricFactorHist("detectors", uvar.detectors, "detweights", uvar.detweights, "alpha", uvar.alpha, "sdelta", sin(uvar.delta) );
   [sensDepth, pd_Depth] = SensitivityDepth ( "pd", uvar.pFD, "Ns", uvar.Nseg,"Tdata", uvar.Tdata, "Rsqr", Rsqr,"misHist", uvar.misHist, "stat", {"HoughFstat", "paNt", uvar.pFA, "Fth", uvar.Fth});
 
-
 endfunction
-
 
 ## a basic example to test functionality
 %!test

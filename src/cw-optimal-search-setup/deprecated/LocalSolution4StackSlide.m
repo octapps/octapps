@@ -224,11 +224,11 @@ function stackparams = LocalSolution4StackSlide ( coefCoh, coefInc, constraints,
   NsegOpt  = NsegOpt_fcr ( crOpt );
 
   %% package this into return-struct 'stackparams'
-  stackparams.mCoh 	= mcOpt;
-  stackparams.mInc 	= mfOpt;
-  stackparams.Nseg 	= NsegOpt;
-  stackparams.Tseg 	= TobsOpt / NsegOpt;
-  stackparams.cr   	= crOpt;
+  stackparams.mCoh      = mcOpt;
+  stackparams.mInc      = mfOpt;
+  stackparams.Nseg      = NsegOpt;
+  stackparams.Tseg      = TobsOpt / NsegOpt;
+  stackparams.cr        = crOpt;
 
   return;
 

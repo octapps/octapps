@@ -190,7 +190,6 @@ function sol = OptimalSolution4StackSlide_v2 ( varargin )
 
 endfunction %% OptimalSolution4StackSlide_v2()
 
-
 function sol = iterateSolver ( solverFun, startGuess, funs, tol, maxiter )
   global DAYS = 86400;
   sol = [];
@@ -220,7 +219,7 @@ function sol = iterateSolver ( solverFun, startGuess, funs, tol, maxiter )
     if ( stackparams.Nseg * stackparams.Tseg > funs.constraints.TobsMax )
       DebugPrintf ( 3, "\n%s: Tobs = %g d > (TobsMax = %g d) --> resetting to Tobs=TobsMax\n", funcName, stackparams.Nseg*stackparams.Tseg/DAYS, funs.constraints.TobsMax/DAYS );
       stackparams.Nseg = funs.constraints.TobsMax / stackparams.Tseg;
-      stackparams.hitTobsMax = true; 	%% flag this to solvers
+      stackparams.hitTobsMax = true;    %% flag this to solvers
     endif
     %% --------------------
 
@@ -273,7 +272,6 @@ function sol = iterateSolver ( solverFun, startGuess, funs, tol, maxiter )
   return;
 
 endfunction %% iterateSolver()
-
 
 function [ passed, msg ] = checkConstraints ( sol, constraints, tol )
   outside = 0;

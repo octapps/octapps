@@ -51,7 +51,6 @@ function hgrm = createGaussianHist ( varargin )
 
 endfunction
 
-
 ## generate Gaussian histogram and check its properties
 %!shared hgrm
 %!  hgrm = createGaussianHist(1.2, 3.4, "binsize", 0.1);

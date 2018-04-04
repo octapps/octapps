@@ -47,10 +47,10 @@ function [ convention, numSignals ] = checkAmplitudeParams ( Amp )
       [rows4, cols4 ] = size ( Amp.InitialPhase );
 
       if ( cols1 != 1 || cols2 != 1 || cols3 != 1 || cols4 != 1 )
-	error ("Amplitude params must be Nx1 column vectors!\n");
+        error ("Amplitude params must be Nx1 column vectors!\n");
       endif
       if ( rows1 != rows2 || rows1 != rows3 || rows1 != rows4 )
-	error ("Amplitude params must be Nx1 column vectors of identical length!\n");
+        error ("Amplitude params must be Nx1 column vectors of identical length!\n");
       endif
       numSignals = rows1;
 
@@ -73,10 +73,10 @@ function [ convention, numSignals ] = checkAmplitudeParams ( Amp )
       [rows4, cols4 ] = size ( Amp.phi0 );
 
       if ( cols1 != 1 || cols2 != 1 || cols3 != 1 || cols4 != 1 )
-	error ("Amplitude params must be Nx1 column vectors!\n");
+        error ("Amplitude params must be Nx1 column vectors!\n");
       endif
       if ( rows1 != rows2 || rows1 != rows3 || rows1 != rows4 )
-	error ("Amplitude params must be Nx1 column vectors of identical length!\n");
+        error ("Amplitude params must be Nx1 column vectors of identical length!\n");
       endif
       numSignals = rows1;
 

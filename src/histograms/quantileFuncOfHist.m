@@ -81,7 +81,6 @@ function qf = quantileFuncOfHist(hgrm, p, k = 1)
 
 endfunction
 
-
 ## test quantile function with Gaussian/uniform histogram
 %!shared hgrm
 %!  hgrm = Hist(2, {"lin", "dbin", 0.1}, {"lin", "dbin", 0.1});

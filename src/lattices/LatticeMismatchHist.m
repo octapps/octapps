@@ -103,7 +103,6 @@ function hgrm = LatticeMismatchHist( dim, lattice, varargin )
 
 endfunction
 
-
 ## This function is called by depends() to record extra file dependencies
 function file = __depends_extra_files__()
   file = fullfile(fileparts(mfilename("fullpath")), "lattice_mismatch_hgrms.bin.gz");

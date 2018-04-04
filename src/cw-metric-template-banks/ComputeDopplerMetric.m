@@ -211,7 +211,6 @@ function [metric, coordIDs] = ComputeDopplerMetric(varargin)
 
 endfunction
 
-
 %!test
 %!  try
 %!    lal; lalpulsar;

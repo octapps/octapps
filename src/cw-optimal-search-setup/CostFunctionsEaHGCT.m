@@ -63,7 +63,6 @@ function cost_funs = CostFunctionsEaHGCT(varargin)
 
 endfunction
 
-
 function ret = jn ( n, x )
   %% spherical bessel function j_n(x), using expression in terms of
   %% ordinary Bessel functions J_n(x) from wikipedia:
@@ -103,7 +102,7 @@ endfunction ## refinement()
 function ret = func_Nt_given_s ( s, Nseg, Tseg, mis, params )
   ## number of templates Nt for given search-parameters {Nseg, Tseg, mis} and spindown-order 's'
   ## using Eqs.(56) and (82) in Pletsch(2010)
-  C_SI 		= 299792458;		%% Speed of light in vacuo, m s^-1
+  C_SI          = 299792458;		%% Speed of light in vacuo, m s^-1
   DAYSID_SI	= 86164.09053;		%% Mean sidereal day, s
   REARTH_SI	= 6.378140e6;		%% Earth equatorial radius, m
   OmE = 2*pi / DAYSID_SI;
@@ -124,11 +123,11 @@ function ret = func_Nt_given_s ( s, Nseg, Tseg, mis, params )
       case 1
         %% Eq.(56) in Pletsch(2010)
         prefact = rho0 * pi^5 * tauE^2 / (2 * tau_min ) * ( fmax^4 - fmin^4 );
-        Ntc 	= fracSky * prefact * sqrt(detg1(phi)) .* Tseg.^3;
+        Ntc     = fracSky * prefact * sqrt(detg1(phi)) .* Tseg.^3;
 
       case 2
         prefact = rho0  * pi^6 * tauE^2 / (15 * tau_min.^3) * ( fmax^5 - fmin^5 );
-        Ntc 	= fracSky * prefact * sqrt(detg2(phi)) .* Tseg.^6;
+        Ntc     = fracSky * prefact * sqrt(detg2(phi)) .* Tseg.^6;
 
       otherwise
         error ("Invalid value of s: '%f' given, allowed are {1,2}\n", s );
@@ -140,7 +139,6 @@ function ret = func_Nt_given_s ( s, Nseg, Tseg, mis, params )
 
   return;
 endfunction ## func_Nt_given_s()
-
 
 function [Nt, s] = func_Nt ( Nseg, Tseg, mis, params )
   ## number of templates Nt for given search-parameters 'Nseg,Tseg,mis' and

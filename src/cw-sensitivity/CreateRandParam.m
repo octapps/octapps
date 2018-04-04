@@ -37,14 +37,14 @@ function rng = CreateRandParam(varargin)
     p = varargin{i};
     switch numel(p)
       case 1    # <constant>
-	rng.cii(end+1,1) = i;
-	rng.cc(end+1,1) = p;
+        rng.cii(end+1,1) = i;
+        rng.cc(end+1,1) = p;
       case 2    # [<min>, <max>]
-	rng.rii(end+1,1) = i;
-	rng.rm(end+1,1) = max(p) - min(p);
-	rng.rc(end+1,1) = min(p);
+        rng.rii(end+1,1) = i;
+        rng.rm(end+1,1) = max(p) - min(p);
+        rng.rc(end+1,1) = min(p);
       otherwise
-	error("Invalid random parameter spec!");
+        error("Invalid random parameter spec!");
     endswitch
   endfor
 

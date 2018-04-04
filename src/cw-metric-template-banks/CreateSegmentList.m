@@ -77,7 +77,6 @@ function varargout = CreateSegmentList(mean_time, Nseg, Tseg, Tspan, duty, alway
 
 endfunction
 
-
 %!assert( iscell(CreateSegmentList(123, 10, [3, 4], [], 1.0)) )
 %!assert( numel(CreateSegmentList(123, 10, [3, 4], [], 1.0)) == 2 )
 %!assert( !iscell(CreateSegmentList(123, 10, 3, [], 1.0)) )

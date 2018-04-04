@@ -15,7 +15,6 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-
 function ret = TuneAdaptiveLVPriors ( varargin )
  ## ret = TuneAdaptiveLVPriors ( varargin )
  ## function to count outliers in SFT power statistic over a large set of frequency bands (input sft files) and derive LV priors from that
@@ -259,7 +258,6 @@ function [params_init] = check_input_parameters ( params_init )
 
 endfunction # check_input_parameters()
 
-
 function params_run = get_params_run ( runconfigfile )
  ## params_run = get_params_run ( runconfigfile )
  ## get EatH run parameters from a config file and check that all required fields were provided
@@ -288,7 +286,6 @@ function params_run = get_params_run ( runconfigfile )
 
 endfunction # get_params_run()
 
-
 function sideBand = getSidebandAtFreq ( Freq, params_run, use_rngmedSideband )
  ## sideBand = getSidebandAtFreq ( Freq, params_run, use_rngmedSideband )
  ## based on CFS_S6LV1_setup.C from EatH project-daemons
@@ -307,7 +304,6 @@ function sideBand = getSidebandAtFreq ( Freq, params_run, use_rngmedSideband )
 
 endfunction # getSidebandAtFreq()
 
-
 function deltaFreqMax = getf1dotSidebands ( f1dot, f1dotBand, Tspan )
  ## deltaFreqMax = getf1dotSidebands ( f1dot, f1dotBand, Tspan )
  ## based on CFS_S6LV1_setup.C from EatH project-daemons
@@ -322,7 +318,6 @@ function deltaFreqMax = getf1dotSidebands ( f1dot, f1dotBand, Tspan )
   deltaFreqMax = max ( dFreq1, dFreq2 ); # maximal frequency-shift forward or backward from mid-time = reftime
 
 endfunction # getf1dotSidebands()
-
 
 function [iFreq0, iFreq1] = get_iFreqRange4DataFile ( f0, params_run )
  ## [iFreq0, iFreq1] = get_iFreqRange4DataFile ( f0, params_run )
@@ -361,7 +356,6 @@ function [iFreq0, iFreq1] = get_iFreqRange4DataFile ( f0, params_run )
  endif
 
 endfunction # get_iFreqRange4DataFile()
-
 
 function [valid_band, frequencies, offset, iFreq0_old] = get_freq_ranges ( frequencies, params_init, params_run, offset, iFreq0_old, curr_step );
  ## [valid_band, frequencies, offset, iFreq0_old] = get_freq_ranges ( frequencies, params_init, params_run, offset, iFreq0_old, curr_step )
@@ -410,7 +404,6 @@ function [valid_band, frequencies, offset, iFreq0_old] = get_freq_ranges ( frequ
 
 endfunction # get_freq_ranges()
 
-
 function [sftstartfreq, num_sfts_to_load, rngmedbins_effective] = get_sft_range ( params_init, params_run, startfreq, freqband )
  ## [sftstartfreq, num_sfts_to_load, rngmedbins_effective] = get_sft_range ( params_init, params_run, startfreq, freqband )
  ## function to compute the necessary SFT start frequency and the number of (contiguous) SFTs starting from there
@@ -455,7 +448,6 @@ function [sftstartfreq, num_sfts_to_load, rngmedbins_effective] = get_sft_range 
  endwhile
 
 endfunction # get_sft_range()
-
 
 function write_results_to_file (outfile, frequencies, freqbins, num_outliers, max_outlier, oLGX, num_steps_done, curr_step, FreqMax )
  ## write_results_to_file (outfile, frequencies, freqbins, num_outliers, max_outlier, oLGX, num_steps_done, curr_step, FreqMax )

@@ -112,7 +112,6 @@ function rhoh = NextSNR(R0, zap, pd, Nsp, nu, Delta, rhob, rhoh)
 
 endfunction
 
-
 ## Test sensitivity calculated for chi^2 statistic
 ## against values calculated by SensitivityDepth()
 ##  - test SNR depth against reference value depth0

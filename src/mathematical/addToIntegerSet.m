@@ -67,7 +67,6 @@ function intset = addToIntegerSet(intset, ints)
 
 endfunction
 
-
 ## tests
 %!assert(isempty(addToIntegerSet([], [])))
 %!assert(addToIntegerSet([], 1:4) == [1,4])

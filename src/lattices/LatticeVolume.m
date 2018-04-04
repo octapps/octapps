@@ -28,7 +28,7 @@ function ret = LatticeVolume ( dim, lattice )
   if ( strcmp ( lattice, valid{1}) )		%% Zn
     ret = ZnVolume ( dim );
     return;
-  elseif ( strcmp ( lattice, valid{2} ) ) 	%% An
+  elseif ( strcmp ( lattice, valid{2} ) )       %% An
     ret = AnVolume ( dim );
     return;
   elseif ( strcmp ( lattice, valid{3} ) )	%% An*

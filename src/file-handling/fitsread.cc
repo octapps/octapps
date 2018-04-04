@@ -280,7 +280,6 @@ DEFUN_DLD( fitsread, args, nargout, fitsread_usage ) {
 
       }
 
-
       // Determine name of HDU
       std::string hduname;
       if (header.isfield("hduname")) {

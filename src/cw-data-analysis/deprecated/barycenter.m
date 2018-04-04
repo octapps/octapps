@@ -133,7 +133,6 @@ derot = OMEGA*rd*cos(latitude)*( ...
     - sin(earth.gastRad+longitude-earth.zA)*cosDeltaCosAlphaMinusZA ...
     + cos(earth.gastRad+longitude-earth.zA)*cosDeltaSinAlphaMinusZA );
 
-
 % --------------------------------------------------------------------------
 % Now adding approx nutation (= short-period,forced motion, by definition).
 % These two dominant terms, with periods 18.6 yrs (big term) and
@@ -201,7 +200,7 @@ if b < rsun && seDotN < 0 % if gw travels thru interior of Sun
     shapiro  = 9.852e-6*log( (AU_SI/C_SI) / ...
         (seDotN + sqrt(rsun*rsun + seDotN*seDotN))) ...
         + 19.704e-6*(1 - b/rsun);
-	dshapiro = - 19.704e-6*db/rsun;
+        dshapiro = - 19.704e-6*db/rsun;
 else  %else the usual expression
     shapiro  = 9.852e-6*log( (AU_SI/C_SI)/(earth.rse + seDotN));
     dshapiro = -9.852e-6*(earth.drse + dseDotN)/(earth.rse + seDotN);
@@ -226,7 +225,7 @@ if baryinput.dInv > 1.0e-11 %implement if corr.  > 1 microsec
     dfiniteDistCorr = -(0.5e0*dr2 - roemer*droemer)*baryinput.dInv;
 
 else
-	finiteDistCorr = 0;
+        finiteDistCorr = 0;
     dfiniteDistCorr = 0;
 end
 

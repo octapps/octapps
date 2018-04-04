@@ -38,7 +38,6 @@ function s = strjoin(cstr, sep)
 
 endfunction
 
-
 %!assert(strcmp(strjoin({"a"},","), "a"))
 %!assert(strcmp(strjoin({"a","b","c"},","), "a,b,c"))
 %!assert(strcmp(strjoin({" a","b "," c "},","), " a,b , c "))

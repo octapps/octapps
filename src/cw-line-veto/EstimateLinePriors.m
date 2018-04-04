@@ -224,7 +224,6 @@ function ret = EstimateLinePriors ( varargin )
 
 endfunction # EstimateLinePriors()
 
-
 %%%%%%%%%%%%%% AUXILIARY FUNCTIONS %%%%%%%%%%%%%
 
 function params_init = check_input_parameters ( params_init )

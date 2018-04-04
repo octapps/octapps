@@ -43,14 +43,14 @@ function [Depth, pd_Depth] = SensitivityDepth(varargin)
 
   ## parse options
   parseOptions(varargin,
-	       {"pd", "real,strictunit,column"},
-	       {"Ns", "integer,strictpos,matrix"},
-	       {"Tdata","real, matrix"},
-	       {"Rsqr", "a:Hist", []},
-	       {"misHist","acell:Hist", []},
-	       {"stat", "cell,vector"},
-	       {"prog", "logical,scalar", false},
-	       []);
+               {"pd", "real,strictunit,column"},
+               {"Ns", "integer,strictpos,matrix"},
+               {"Tdata","real, matrix"},
+               {"Rsqr", "a:Hist", []},
+               {"misHist","acell:Hist", []},
+               {"stat", "cell,vector"},
+               {"prog", "logical,scalar", false},
+               []);
   assert(histDim(Rsqr) == 1, "%s: R^2 must be a 1D histogram", funcName);                 #add for mismatch
   assert(length(stat) > 1 && ischar(stat{1}), "%s: first element of 'stat' must be a string", funcName);
   assert(isempty(misHist) || size(Ns,2) == length(misHist),"#stages unclear, #columns in Nseg must match #mismatch histograms.\n");
@@ -89,7 +89,6 @@ function [Depth, pd_Depth] = SensitivityDepth(varargin)
   if length(fdp_vars) > 1
     fdp_vars{2} = num2cell(fdp_vars{2},1);
   endif
-
 
   ## get probability densities and bin quantities
   Rsqr_px = histProbs(Rsqr);
@@ -174,18 +173,12 @@ function [Depth, pd_Depth] = SensitivityDepth(varargin)
     printf("%s: starting\n", funcName);
   endif
 
-
-
-
-
   ## Depth is computed for each pd and Ns (dim. 1) by summing
   ## false dismissal probability for fixed Rsqr_x, weighted
   ## by Rsqr_w (dim. 2)
   ## copy values along trials dimension
   Rsqr_x = Rsqr_x(ii + 0, :);
   Rsqr_w = Rsqr_w(ii + 0, :);
-
-
 
   ## initialise variables
   pd_Depth = Depth = nan(length(ii), 1);
@@ -196,8 +189,8 @@ function [Depth, pd_Depth] = SensitivityDepth(varargin)
   ## probability
   Depth_min = ones(size(Depth));
   pd_Depth_min(ii) = callFDP(Depth_min,ii,
-			   jj,kk,pd,Ns, Tdata,Rsqr_x,Rsqr_w,mism_x, mism_w,
-			   FDP,fdp_vars,fdp_opts);
+                           jj,kk,pd,Ns, Tdata,Rsqr_x,Rsqr_w,mism_x, mism_w,
+                           FDP,fdp_vars,fdp_opts);
   ii0 = (pd_Depth_min <= pd);
 
   ## find Depth_max where the false dismissal probability becomes
@@ -219,8 +212,8 @@ function [Depth, pd_Depth] = SensitivityDepth(varargin)
 
     ## calculate false dismissal probability
     pd_Depth_max(ii) = callFDP(Depth_max,ii,
-			     jj,kk,pd,Ns, Tdata,Rsqr_x,Rsqr_w, mism_x, mism_w,
-			     FDP,fdp_vars,fdp_opts);
+                             jj,kk,pd,Ns, Tdata,Rsqr_x,Rsqr_w, mism_x, mism_w,
+                             FDP,fdp_vars,fdp_opts);
 
     ## determine which Depth to keep calculating for
     ## exit when there are none left
@@ -246,8 +239,8 @@ function [Depth, pd_Depth] = SensitivityDepth(varargin)
 
     ## calculate new false dismissal probability
     pd_Depth(ii) = callFDP(Depth,ii,
-			 jj,kk,pd,Ns, Tdata,Rsqr_x,Rsqr_w, mism_x, mism_w,
-			 FDP,fdp_vars,fdp_opts);
+                         jj,kk,pd,Ns, Tdata,Rsqr_x,Rsqr_w, mism_x, mism_w,
+                         FDP,fdp_vars,fdp_opts);
 
     ## replace bounds with mid-point as required
     iimin = ii & (pd_Depth_min < pd & pd_Depth < pd);
@@ -268,8 +261,6 @@ function [Depth, pd_Depth] = SensitivityDepth(varargin)
     ii = (isfinite(err1) & err1 > 1e-5) & (isfinite(err2) & err2 > 1e-10);
   until !any(ii)
 
-
-
   ## display progress updates?
   if prog
     printf("%s: done\n", funcName);
@@ -280,15 +271,15 @@ endfunction
 
 ## call a false dismissal probability calculation equation
 function pd_Depth = callFDP(Depth,ii,
-			  jj,kk,pd,Ns, Tdata,Rsqr_x,Rsqr_w,mism_x, mism_w,
-			  FDP,fdp_vars,fdp_opts)
+                          jj,kk,pd,Ns, Tdata,Rsqr_x,Rsqr_w,mism_x, mism_w,
+                          FDP,fdp_vars,fdp_opts)
   if any(ii)
     for i = 1:length(mism_x)
       ##integrating over the mismatch distributions
       cdfs(:,:,i) = sum((1 -  feval(FDP,pd(ii,jj,kk{i}), Ns{i}(ii,jj,kk{i}),                       ## lower dimensional arrays are copied to the remaining dimensions
-		       (2 / 5 .*sqrt(Tdata{i}(ii,jj,kk{i}) ./Ns{i}(ii,jj,kk{i}))./Depth(ii,jj,kk{i})).^2 .*Rsqr_x(ii,:,kk{i}).*(1 - mism_x{i}(ii,jj,:)), ## might be better to do that before the loop
-		       cellfun(@(x) x{i}(ii,jj,kk{i}),fdp_vars,"UniformOutput",false),
-		       fdp_opts )) .*mism_w{i}(ii,jj,:),3);
+                       (2 / 5 .*sqrt(Tdata{i}(ii,jj,kk{i}) ./Ns{i}(ii,jj,kk{i}))./Depth(ii,jj,kk{i})).^2 .*Rsqr_x(ii,:,kk{i}).*(1 - mism_x{i}(ii,jj,:)), ## might be better to do that before the loop
+                       cellfun(@(x) x{i}(ii,jj,kk{i}),fdp_vars,"UniformOutput",false),
+                       fdp_opts )) .*mism_w{i}(ii,jj,:),3);
     endfor
     ## product of the mismatch integrals, integration over R^2
     pd_Depth = 1 - sum(prod(cdfs,3).* Rsqr_w(ii,:) , 2);

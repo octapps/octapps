@@ -63,10 +63,8 @@ function [bandwidth,density,xmesh]=kde(data,n,MIN,MAX)
 %           data=[randn(100,1);randn(100,1)*2+35 ;randn(100,1)+55];
 %              kde(data,2^14,min(data)-5,max(data)+5);
 
-
 %  Notes:   If you have a more reliable and accurate one-dimensional kernel density
 %           estimation software, please email me at botev@maths.uq.edu.au
-
 
 data=data(:); %make data a column vector
 if nargin<2 % if n is not supplied switch to the default
@@ -111,7 +109,6 @@ f=2*pi^(2*s)*sum(I.^s.*a2.*exp(-I*pi^2*time));
 end
 out=t-(2*N*sqrt(pi)*f)^(-2/5);
 end
-
 
 %##############################################################
 function out = idct1d(data)

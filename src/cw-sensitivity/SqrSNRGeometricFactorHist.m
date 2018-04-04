@@ -94,7 +94,6 @@ function Rsqr = SqrSNRGeometricFactorHist(varargin)
   ## get signal amplitude normalisation
   apxnorm = SignalAmplitudes(emission);
 
-
   ## calculate histogram of squared SNR geometric factor
   Rsqr = Hist(1, {"lin", "dbin", hist_dx});
 

@@ -61,7 +61,6 @@ function gProj_ss = projectMetric2Subspace ( g_ij, sSpace )
 
 endfunction
 
-
 %!shared gij, tol
 %!  rand("seed", 2); tmp = rand(4,4); gij = (tmp + tmp'); %% 4x4 pos-definite matrix, det~3.6, cond~9
 %!  tol = 10*eps;

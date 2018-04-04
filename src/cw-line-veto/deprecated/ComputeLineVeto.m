@@ -15,7 +15,6 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-
 function LVstat = ComputeLineVeto ( twoF_multi, twoF_single, rho, lX, useAllTerms )
  ## LVstat = ComputeLineVeto ( twoF_multi, twoF_single, rho, lX, useAllTerms )
  ## function to calculate Line Veto statistics for N detectors

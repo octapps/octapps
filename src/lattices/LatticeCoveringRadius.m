@@ -28,7 +28,7 @@ function R = LatticeCoveringRadius ( dim, lattice )
   if ( strcmp ( lattice, valid{1}) )		%% Zn
     R = ZnCoveringRadius ( dim );
     return;
-  elseif ( strcmp ( lattice, valid{2} ) ) 	%% An
+  elseif ( strcmp ( lattice, valid{2} ) )       %% An
     R = AnCoveringRadius ( dim );
     return;
   elseif ( strcmp ( lattice, valid{3} ) )	%% An*

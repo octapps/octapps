@@ -54,7 +54,7 @@ function [xx, yy, zz] = metricEllipsoid ( gij, mismatch, Nsteps=20, method=1 )
 
   %% decompose metric
   switch ( method )
-    case 1	    	%% Cholesky decompose the metric
+    case 1              %% Cholesky decompose the metric
       R = chol ( gij );
       Rinv = inv ( R );
     case 2		%% Eigenvalue-decompose metric
@@ -93,7 +93,6 @@ function [xx, yy] = unitCircle ( Nsteps )
 
   return;
 endfunction %% unitCircle()
-
 
 function [xx, yy, zz] = unitSphere3D ( Nsteps )
   %% return points drawn quasi-isotropically on a unit sphere, using Nsteps steps per direction

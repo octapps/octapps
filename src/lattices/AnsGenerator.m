@@ -33,19 +33,19 @@ function [ generator, rotator ] = AnsGenerator ( dim )
       %% ---------- find value for that matrix element ----------*/
       if ( row < dim )
 
-	if ( col == 1 )
-	  val = 1.0;
-	elseif (col == row + 1)
-	  val = -1.0;
-	else
-	  continue;
-	endif
+        if ( col == 1 )
+          val = 1.0;
+        elseif (col == row + 1)
+          val = -1.0;
+        else
+          continue;
+        endif
       else
-	if ( col == 1 )
-	  val = - 1.0 * dim / ( dim + 1.0);
-	else
-	  val =   1.0 / (dim + 1.0);
-	endif
+        if ( col == 1 )
+          val = - 1.0 * dim / ( dim + 1.0);
+        else
+          val =   1.0 / (dim + 1.0);
+        endif
       endif
       %% ---------- set matrix element ---------- */
       gen0 ( row, col ) = val;

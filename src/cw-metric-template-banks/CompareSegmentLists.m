@@ -44,7 +44,6 @@ function iseq = CompareSegmentLists(seglist, varargin)
 
 endfunction
 
-
 %!test
 %!  seglists = CreateSegmentList(123, [2, 3, 5, 9, 17], [1.2, 4.5, 9.7], [], [0.7, 0.9]);
 %!  for n = 1:numel(seglists)

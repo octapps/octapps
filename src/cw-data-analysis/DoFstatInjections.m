@@ -282,7 +282,6 @@ function [results, multiSFTs, multiTser] = DoFstatInjections(varargin)
 
 endfunction
 
-
 ## common arguments for tests
 %!shared common_args
 %!  common_args = {"ref_time", 731163327, "start_time", 850468953, "time_span", 86400, "detectors", "H1,L1", ...

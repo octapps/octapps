@@ -90,7 +90,6 @@ function p = ChiSquare_pdf(x, k, lambda=0)
 
 endfunction
 
-
 %!assert(ChiSquare_pdf(10^-2, 10^-2, 1), 0.44224, 1e-3)
 %!assert(ChiSquare_pdf(10^+2, 10^+2, 2), 0.027895, 1e-3)
 %!assert(ChiSquare_pdf(10^10, 10^10, 3), 2.8209e-06, 1e-3)

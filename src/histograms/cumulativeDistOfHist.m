@@ -70,7 +70,6 @@ function cdf = cumulativeDistOfHist(hgrm, x, k = 1)
 
 endfunction
 
-
 ## test cumulative distribution function with Gaussian/uniform histogram
 %!shared hgrm
 %!  hgrm = Hist(2, {"lin", "dbin", 0.1}, {"lin", "dbin", 0.1});

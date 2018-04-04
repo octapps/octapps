@@ -78,7 +78,6 @@ function closest = AnsFindClosestPoint ( x, embedded )
     closest = close0;
   endif
 
-
   return;
 
 endfunction

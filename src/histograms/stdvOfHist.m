@@ -34,7 +34,6 @@ function stdv = stdvOfHist(hgrm, k = 1)
 
 endfunction
 
-
 ## test histogram mean deviation with Gaussian/uniform histogram
 %!shared hgrm
 %!  hgrm = Hist(2, {"lin", "dbin", 0.01}, {"lin", "dbin", 0.1});

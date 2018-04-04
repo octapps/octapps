@@ -109,7 +109,6 @@ ephemS.gps = zeros(ephemS.nentries,1);
 % giving the number of secs that have ticked since start of GPS epoch
 % +  on 1980 Jan. 6 00:00:00 UTC
 
-
 % read the remaining lines
 ret = fscanf(fp1, '%le %le %le %le %le %le %le %le %le %le', ...
     [10 ephemS.nentries]);

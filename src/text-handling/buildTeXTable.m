@@ -229,7 +229,6 @@ function tex = buildTeXTable(spec, varargin)
 
 endfunction
 
-
 function spec = parse_spec(spec, numfmt)
 
   ## check that 'spec' is a 1-D cell array

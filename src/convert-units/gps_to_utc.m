@@ -52,7 +52,6 @@ function utc = gps_to_utc(gps)
 
 endfunction
 
-
 %!test
 %!  try
 %!    lal; lalpulsar;

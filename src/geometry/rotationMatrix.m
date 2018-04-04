@@ -30,8 +30,8 @@ function rotMatrix = rotationMatrix ( angle, rotAxis )
   xyC = x*yC; yzC = y*zC; zxC = z*xC;
 
   rotMatrix = [ x * xC + c, xyC - zs,  zxC + ys ;
-	       xyC + zs,    y * yC + c,    yzC - xs ;
-	       zxC - ys,    yzC + xs,   z * zC + c ];
+               xyC + zs,    y * yC + c,    yzC - xs ;
+               zxC - ys,    yzC + xs,   z * zC + c ];
 
 endfunction ## rotationMatrix()
 

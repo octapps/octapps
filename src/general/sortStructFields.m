@@ -40,7 +40,6 @@ function S = sortStructFields(S)
 
 endfunction
 
-
 %!test
 %!  S1 = struct('name', {'Peter', 'Hannah', 'Robert'}, 'age', {23, 16, 3});
 %!  S2 = sortStructFields(S1);

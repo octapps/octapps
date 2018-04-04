@@ -154,7 +154,6 @@ function hgrm = addDataToHist(hgrm, data)
 
 endfunction
 
-
 %!assert(histBins(addDataToHist(Hist(1, {"lin", "dbin", 1}), -2), 1, "finite", "bins")', -2:0)
 %!assert(histBins(addDataToHist(Hist(1, {"lin", "dbin", 1}), -1), 1, "finite", "bins")', -1:0)
 %!assert(histBins(addDataToHist(Hist(1, {"lin", "dbin", 1}),  0), 1, "finite", "bins")',  0:1)

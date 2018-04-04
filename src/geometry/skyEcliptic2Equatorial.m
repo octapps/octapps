@@ -46,7 +46,7 @@ endfunction
 %! vnEqu1 = skyEcliptic2Equatorial ( vnEclIn );
 %!
 %! LongLatEclOut = skyEquatorial2Ecliptic ( LongLatEqu1 );
-%! vnEclOut 	 = skyEquatorial2Ecliptic ( vnEqu1 );
+%! vnEclOut      = skyEquatorial2Ecliptic ( vnEqu1 );
 %!
 %! err1 = max ( abs ( LongLatEclIn - LongLatEclOut )(:) );
 %! err2 = max ( abs ( vnEclIn - vnEclOut )(:) );

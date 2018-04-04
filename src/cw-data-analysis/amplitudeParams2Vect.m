@@ -33,7 +33,7 @@ function Amu = amplitudeParams2Vect ( Amp )
     in.h0 = 2 * Amp.Amplitude;
     in.cosi = - cos ( Amp.Inclination );
     in.psi = pi/2 - Amp.Polarization ;
-    in.phi0 = Amp.InitialPhase + pi; 	%% FIXME: Mystery sign flip
+    in.phi0 = Amp.InitialPhase + pi;    %% FIXME: Mystery sign flip
   else
     in = Amp;
   endif

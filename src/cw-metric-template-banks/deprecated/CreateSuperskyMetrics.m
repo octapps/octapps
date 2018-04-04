@@ -100,7 +100,6 @@ function metrics = CreateSuperskyMetrics(varargin)
 
 endfunction
 
-
 %!test
 %!  try
 %!    lal; lalpulsar;

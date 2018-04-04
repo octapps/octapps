@@ -15,7 +15,6 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-
 function writeCommandLineToFile ( filename, params, scriptname )
  ## writeCommandLineToFile ( filename, params, scriptname )
  ## write an octapps_run commandline as an output file header

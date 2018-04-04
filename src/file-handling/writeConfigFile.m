@@ -81,7 +81,7 @@ function writeConfigFile(file, cfg)
           fprintf(f, valuefmt, value)
         endif
       endif
-        
+
       ## write inline comment
       inlinecomment = getoptfield("", cfg_section, sprintf("_inlinecomment_%s", names{j}));
       if !isempty(inlinecomment)

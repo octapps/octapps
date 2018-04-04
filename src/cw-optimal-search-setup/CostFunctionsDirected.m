@@ -100,7 +100,6 @@ endfunction ## CostFunctionsDirected()
 %!  assert ( sol_v2.Nseg, 32.075, tol );
 %!  assert ( sol_v2.Tseg, 6.9091e+05, tol );
 
-
 ## Recompute a S5 CasA solution given in Prix&Shaltev,PRD85,084010(2012), corrected in Shaltev thesis Eq.(4.119)
 %!test
 %!  UnitsConstants;
@@ -215,7 +214,6 @@ function bands = templateBankDims ( Nseg, Tseg, mismatch, params )
   return;
 endfunction ## templateBankDims()
 
-
 function Nt = templateCountReal ( Nseg, Tseg, mismatch, params )
   %% compute number of templates of for directed search spaces
   %% for a given frequency band [fmin,fmax], allowing for variable spindown-orders over this band
@@ -301,7 +299,6 @@ function gss = frequencyMetric ( sMax, Nseg, Tseg )
   return;
 endfunction ## frequencyMetric()
 
-
 function ret = frequencyMetricNat ( sMax, Nseg, Tseg )
   %% compute metric g_{ss'} in frequency-space: f^{(s)}(tRef),
   %% in natural units om^{(s)} = 2pi f^{(s)}/(s+1)! (Tseg/2)^(s+1),
@@ -369,7 +366,6 @@ function ret = frequencyMetricNat ( sMax, Nseg, Tseg )
   return;
 
 endfunction ## frequencyMetricNat()
-
 
 function ret = invNatUnit (sMax, Tseg)
   %% metric conversion factor of dimension n= 1 + sMax

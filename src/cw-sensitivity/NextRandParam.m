@@ -40,7 +40,7 @@ function varargout = NextRandParam(rng, N)
   if length(rng.rii) > 0
     r = rng.q.get(N);
     [varargout{rng.rii}] = deal(mat2cell(rng.rm(:,ones(N,1)) .* r + ...
-					 rng.rc(:,ones(N,1)),ones(length(rng.rii),1),N){:});
+                                         rng.rc(:,ones(N,1)),ones(length(rng.rii),1),N){:});
   endif
 
   ## fill constant parameters

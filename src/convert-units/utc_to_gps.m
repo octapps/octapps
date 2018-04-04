@@ -60,7 +60,6 @@ function [gps, gpsns] = utc_to_gps(utc)
 
 endfunction
 
-
 %!test
 %!  try
 %!    lal; lalpulsar;

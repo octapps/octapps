@@ -29,7 +29,7 @@
 ##
 ## By default the first output argument of the called function is printed.
 ## Additional arguments are supported for controlling how the output of
-## a function is displayed; 
+## a function is displayed;
 ##
 ##   --printnargs=<n>
 ##     Print the values of the first <n> output values of the function.
@@ -49,7 +49,7 @@
 ##       f --printarg=mean                                mean(a)
 ##       f --printarg=mean --printarg=stdv                mean(a), stdv(a)
 ##       f --printarg=object2json                         object2json(a)
-##  
+##
 ##       g --printnargs=2                                 [a, b] = g()
 ##       g --printarg --printarg1=sin --printarg2=cos     a, mean(a), cos(b)
 ##       g --printarg2=mod(?,3)                           mod(b,3)
@@ -240,7 +240,6 @@ function octapps_run_driver(func, varargin)
   endfor
 
 endfunction
-
 
 ## identity function
 function x = print_identity(x)

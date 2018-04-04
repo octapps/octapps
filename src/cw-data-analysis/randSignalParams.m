@@ -48,7 +48,6 @@ function ret = randSignalParams(ranges, numSignals)
     ranges.f3dot = 0;
   endif
 
-
   ret.Freq  = pickFromRange ( ranges.Freq, numSignals );
   ret.Alpha = pickFromRange ( ranges.Alpha, numSignals );
 

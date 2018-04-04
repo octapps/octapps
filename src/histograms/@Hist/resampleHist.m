@@ -150,7 +150,6 @@ function hgrm = resampleHist(hgrm, varargin)
 
 endfunction
 
-
 ## Round given histogram bins boundaries to within a small
 ## fraction of the smallest overall bin size, so that one
 ## can compare floating-point precision bin boundaries robustly.

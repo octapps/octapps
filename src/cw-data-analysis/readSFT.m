@@ -27,7 +27,7 @@
 %% INT4   gpsNanoSeconds;
 %% REAL8  timeBase;		/* length of data-stretch in seconds */
 %% INT4   fminBinIndex;	/* first frequency-index contained in SFT */
-%% INT4   length;  		/* number of frequency bins */
+%% INT4   length;               /* number of frequency bins */
 %%
 %% /* v2-specific part: */
 %% INT8 crc64;		/* 64 bits */
