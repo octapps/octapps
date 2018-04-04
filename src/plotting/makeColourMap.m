@@ -50,3 +50,6 @@ function map = makeColourMap(r, g, b, n=64)
   map(max(map) > 1) = 1;
 
 endfunction
+
+%!test
+%!  makeColourMap([0 1;0.114 1;0.701 1;1 0.35], [0 1;0.114 1;0.701 0.35;1 0.35], [0 1;0.114 0.35;0.701 0.35;1 0.35]);
