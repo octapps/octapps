@@ -28,3 +28,6 @@ function num_SFTs = GetNumSFTsFromFile ( sftfile )
  num_SFTs = str2num(output);
 
 endfunction # GetNumSFTsFromFile()
+
+%!test
+%!  disp("no test exists for this function as it requires access to data not included in OctApps");
