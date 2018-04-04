@@ -50,3 +50,5 @@ function [fkdot_epoch1, fkdotband_epoch1] = ExtrapolatePulsarSpinRange ( epoch0,
  endfor # l = 0:1:numSpins
 
 endfunction # ExtrapolatePulsarSpinRange()
+
+%!assert(ExtrapolatePulsarSpinRange(800000000, 900000000, [100, -1e-8], [1e-2, 1e-8], 1), [99, 1e-8], 1e-3)
