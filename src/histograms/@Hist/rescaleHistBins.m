@@ -36,3 +36,7 @@ function hgrm = rescaleHistBins(hgrm, s)
   endfor
 
 endfunction
+
+%!shared hgrm
+%!  hgrm = createGaussianHist(1.2, 3.4, "binsize", 0.1);
+%!assert(meanOfHist(rescaleHistBins(hgrm, 64.2)), 1.2 * 64.2, 1e-3)
