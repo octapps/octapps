@@ -50,3 +50,5 @@ function pdf = binomialRatePDF ( f, N, K )
   indsNaN = find ( isnan(pdf) );
   pdf (indsNaN) = Ni(indsNaN) +1;
 endfunction
+
+%!assert(binomialRatePDF(0:0.1:1, 10, 7), [0.000 0.000 0.009 0.099 0.467 1.289 2.365 2.935 2.215 0.631 0.000], 1e-3)
