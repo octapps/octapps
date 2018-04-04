@@ -38,3 +38,8 @@ function [ua, ub] = TwoLineIntersection(p1a, p2a, p1b, p2b)
   ub = u(2);
 
 endfunction
+
+%!test
+%!  [ua,ub] = TwoLineIntersection([-1;-1], [3;3], [-1;1], [1;-1]);
+%!  assert(ua, 0.25, 1e-3);
+%!  assert(ub, 0.5, 1e-3);
