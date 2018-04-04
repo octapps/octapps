@@ -40,3 +40,7 @@ function [minCoverFreq, maxCoverFreq] = CWSignalCoveringBand  ( fkdot_starttime,
  maxCoverFreq *= 1.0 + extraPerFreq;
 
 endfunction # CWSignalCoveringBand()
+
+%!test
+%!  [minCoverFreq, maxCoverFreq] = CWSignalCoveringBand([100, -1e-8], [1e-2, 1e-11], [99, -1e-8], [1e-2, 1e-11]);
+%!  assert([minCoverFreq, maxCoverFreq], [98.990, 100.02], 1e-2)
