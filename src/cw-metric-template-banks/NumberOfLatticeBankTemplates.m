@@ -47,3 +47,5 @@ function N = NumberOfLatticeBankTemplates(varargin)
   N = thickness * max_mismatch^(-0.5*dim) * sqrt(det_metric) * param_vol;
 
 endfunction
+
+%!assert(round(NumberOfLatticeBankTemplates("lattice", "Ans", "metric", [5,1;1,1], "max_mismatch", 0.2, "param_vol", 100)), 385, 1e-3)
