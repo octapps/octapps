@@ -45,3 +45,7 @@ function closest = LatticeFindClosestPoint ( x, lattice )
   return;
 
 endfunction
+
+%!assert(isvector(LatticeFindClosestPoint(rand(4, 1), "Zn")))
+%!assert(isvector(LatticeFindClosestPoint(rand(4, 1), "An")))
+%!assert(isvector(LatticeFindClosestPoint(rand(4, 1), "Ans")))
