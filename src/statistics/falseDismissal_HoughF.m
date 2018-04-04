@@ -48,3 +48,6 @@ function fDH = falseDismissal_HoughF ( nth, Nseg, Fth, SNR0sq )
   fDH = sum ( exp ( logpni ) );
 
 endfunction
+
+%!assert(falseDismissal_HoughF(11, 100, 5.5, 2.2), 0.303, 1e-3)
+%!assert(falseDismissal_HoughF(18, 100, 5.5, 2.2), 0.939, 1e-3)
