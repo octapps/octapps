@@ -71,3 +71,4 @@ function ret = randSignalParams(ranges, numSignals)
 
 endfunction % randSignalParams()
 
+%!assert(isstruct(randSignalParams(struct("h0", 1e-24, "cosi", 0, "psi", pi/4, "phi0", pi/5))))
