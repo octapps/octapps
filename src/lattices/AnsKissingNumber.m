@@ -28,3 +28,9 @@ function ret = AnsKissingNumber ( dim )
   return;
 
 endfunction
+
+%!assert(AnsKissingNumber(1) > 0)
+%!assert(AnsKissingNumber(2) > 0)
+%!assert(AnsKissingNumber(3) > 0)
+%!assert(AnsKissingNumber(4) > 0)
+%!assert(AnsKissingNumber(5) > 0)
