@@ -86,3 +86,5 @@ function tex = num2TeX(num, fmt, varargin)
   endif
 
 endfunction
+
+%!assert(num2TeX([1.234, 5.67e-8], "g"), {"$1.234$", "$5.67{\\times}10^{-8}$"})
