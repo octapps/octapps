@@ -34,3 +34,8 @@ function rotMatrix = rotationMatrix ( angle, rotAxis )
 	       zxC - ys,    yzC + xs,   z * zC + c ];
 
 endfunction ## rotationMatrix()
+
+%!shared rotMatrix
+%!  rotMatrix = rotationMatrix(1.357, [0.9, 8.7, 6.5]);
+%!assert(ismatrix(rotMatrix))
+%!assert(rotMatrix' * rotMatrix, eye(3), 1e-3)
