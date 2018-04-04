@@ -26,3 +26,9 @@ function ret = CoxeterFewRogersBound ( n )
   ret = UnitHypersphereVolume ( n ) .* CoxeterFewRogersBoundNormalized ( n );
 
 endfunction
+
+%!assert(CoxeterFewRogersBound(1) > 0)
+%!assert(CoxeterFewRogersBound(2) > 0)
+%!assert(CoxeterFewRogersBound(3) > 0)
+%!assert(CoxeterFewRogersBound(4) > 0)
+%!assert(CoxeterFewRogersBound(5) > 0)
