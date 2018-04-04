@@ -32,3 +32,9 @@ function coveringRadius = AnCoveringRadius ( dim )
   return;
 
 endfunction
+
+%!assert(AnCoveringRadius(1) > 0)
+%!assert(AnCoveringRadius(2) > 0)
+%!assert(AnCoveringRadius(3) > 0)
+%!assert(AnCoveringRadius(4) > 0)
+%!assert(AnCoveringRadius(5) > 0)
