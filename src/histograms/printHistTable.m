@@ -81,3 +81,8 @@ function printHistTable(hgrm, varargin)
   endfor
 
 endfunction
+
+%!test
+%!  hgrm = Hist(2, {"lin", "dbin", 0.01}, {"lin", "dbin", 0.1});
+%!  hgrm = addDataToHist(hgrm, [normrnd(1.7, 4.3, 1e6, 1), rand(1e6, 1)]);
+%!  showHist(hgrm);
