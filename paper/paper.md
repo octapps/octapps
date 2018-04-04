@@ -13,16 +13,16 @@ authors:
   - name: David Keitel
     orcid: 0000-0002-2824-626X
     affiliation: 4
-  - name: John T. Whelan
-    orcid: 0000-0001-5710-6576
-    affiliation: 5
-  - name: Christoph Dreissigacker
-    affiliation: "2, 3"
-  - name: Paola Leaci
-    affiliation: "6, 7"
   - name: Matthew Pitkin
     orcid: 0000-0003-4548-526X
     affiliation: 4
+  - name: Christoph Dreissigacker
+    affiliation: "2, 3"
+  - name: John T. Whelan
+    orcid: 0000-0001-5710-6576
+    affiliation: 5
+  - name: Paola Leaci
+    affiliation: "6, 7"
 affiliations:
   - name: ARC Centre of Excellence for Gravitational Wave Discovery (OzGrav) and Centre for Gravitational Physics, Research School of Physics and Engineering, The Australian National University, ACT 0200, Australia
     index: 1
