@@ -71,7 +71,8 @@ function [fLower, fUpper] = binomialConfidenceInterval ( N, K, confidence )
 endfunction
 
 %% ---------- testing and demo functions ----------
-
+%!test
+%!  binomialConfidenceInterval(10, 0, 0.9545);
 %!demo if 1
 %!  function plot_this ( N, K )
 %!    conf2sigma = 0.9545;
