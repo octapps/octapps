@@ -30,3 +30,9 @@ function vol = ZnVolume ( dim )
   return;
 
 endfunction %% ZnVolume()
+
+%!assert(ZnVolume(1) > 0)
+%!assert(ZnVolume(2) > 0)
+%!assert(ZnVolume(3) > 0)
+%!assert(ZnVolume(4) > 0)
+%!assert(ZnVolume(5) > 0)
