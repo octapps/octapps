@@ -108,3 +108,14 @@ endfunction
 function file = __depends_extra_files__()
   file = fullfile(fileparts(mfilename("fullpath")), "lattice_mismatch_hgrms.bin.gz");
 endfunction
+
+%!assert(meanOfHist(LatticeMismatchHist(1, "Zn")), 0.33333, 1e-2)
+%!assert(meanOfHist(LatticeMismatchHist(2, "Zn")), 0.33333, 1e-2)
+%!assert(meanOfHist(LatticeMismatchHist(3, "Zn")), 0.33333, 1e-2)
+%!assert(meanOfHist(LatticeMismatchHist(4, "Zn")), 0.33333, 1e-2)
+%!assert(meanOfHist(LatticeMismatchHist(5, "Zn")), 0.33333, 1e-2)
+%!assert(meanOfHist(LatticeMismatchHist(1, "Ans")), meanOfHist(LatticeMismatchHist(1, "Zn")), 1e-2)
+%!assert(meanOfHist(LatticeMismatchHist(2, "Ans")) > meanOfHist(LatticeMismatchHist(2, "Zn")))
+%!assert(meanOfHist(LatticeMismatchHist(3, "Ans")) > meanOfHist(LatticeMismatchHist(3, "Zn")))
+%!assert(meanOfHist(LatticeMismatchHist(4, "Ans")) > meanOfHist(LatticeMismatchHist(4, "Zn")))
+%!assert(meanOfHist(LatticeMismatchHist(5, "Ans")) > meanOfHist(LatticeMismatchHist(5, "Zn")))
