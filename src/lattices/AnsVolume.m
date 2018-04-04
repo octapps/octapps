@@ -30,3 +30,9 @@ function vol = AnsVolume ( dim )
   return;
 
 endfunction %% AnsVolume()
+
+%!assert(AnsVolume(1) > 0)
+%!assert(AnsVolume(2) > 0)
+%!assert(AnsVolume(3) > 0)
+%!assert(AnsVolume(4) > 0)
+%!assert(AnsVolume(5) > 0)
