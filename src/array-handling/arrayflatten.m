@@ -31,7 +31,6 @@ function A = arrayflatten(varargin)
   endif
 endfunction
 
-
 %!assert(all(arrayflatten([]) == []))
 %!assert(all(arrayflatten([1]) == [1]))
 %!assert(all(arrayflatten([1,2]) == [1,2]))
