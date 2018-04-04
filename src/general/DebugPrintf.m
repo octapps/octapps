@@ -23,3 +23,8 @@ function DebugPrintf ( level, varargin )
   endif
   return;
 endfunction %% DebugPrintf()
+
+%!test
+%!  global debugLevel;
+%!  debugLevel = 1;
+%!  DebugPrintf(0, "Hi there\n");
