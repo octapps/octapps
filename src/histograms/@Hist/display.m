@@ -37,3 +37,11 @@ function s = display(hgrm)
   printf("}\n");
 
 endfunction
+
+%!test
+%!  display(Hist())
+%!  display(Hist(1, {"lin", "dbin", 0.1}))
+%!  display(Hist(2, {"lin", "dbin", 0.1}, {"lin", "dbin", 0.1}))
+%!  display(Hist(3, {"lin", "dbin", 0.1}, {"lin", "dbin", 0.1}, {"lin", "dbin", 0.1}))
+%!  display(Hist(4, {"lin", "dbin", 0.1}, {"lin", "dbin", 0.1}, {"lin", "dbin", 0.1}, {"lin", "dbin", 0.1}))
+%!  display(Hist(5, {"lin", "dbin", 0.1}, {"lin", "dbin", 0.1}, {"lin", "dbin", 0.1}, {"lin", "dbin", 0.1}, {"lin", "dbin", 0.1}))
