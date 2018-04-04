@@ -340,3 +340,6 @@ function params_init = check_input_parameters ( params_init )
  endif
 
 endfunction # EstimateLinePriors()
+
+%!test
+%!  disp("no test exists for this function as it requires access to data not included in OctApps");
