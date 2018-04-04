@@ -56,3 +56,6 @@ function IDstring = format_gitID(varargin)
   endfor
 
 endfunction
+
+%!test
+%!  format_gitID(octapps_gitID());
