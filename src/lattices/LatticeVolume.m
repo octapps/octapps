@@ -44,3 +44,13 @@ function ret = LatticeVolume ( dim, lattice )
   return;
 
 endfunction
+
+%!assert(LatticeVolume(1, "Zn") > 0)
+%!assert(LatticeVolume(1, "An") > 0)
+%!assert(LatticeVolume(1, "Ans") > 0)
+%!assert(LatticeVolume(2, "Zn") > 0)
+%!assert(LatticeVolume(2, "An") > 0)
+%!assert(LatticeVolume(2, "Ans") > 0)
+%!assert(LatticeVolume(3, "Zn") > 0)
+%!assert(LatticeVolume(3, "An") > 0)
+%!assert(LatticeVolume(3, "Ans") > 0)
