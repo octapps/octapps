@@ -22,3 +22,6 @@ function octapps_build(varargin)
   rootdir = fullfile(fileparts(mfilename("fullpath")), "..", "..");
   system(sprintf("cd '%s' && make %s", rootdir, sprintf(" %s", varargin{:})));
 endfunction
+
+%!test
+%!  octapps_build();
