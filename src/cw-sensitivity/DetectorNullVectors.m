@@ -51,3 +51,8 @@ function [a, b] = DetectorNullVectors(Phis, slambda, gamma)
   b = [ c3.*s1 + c1.*c2.*s3; -s1.*s3 + c1.*c2.*c3; -c1.*s2 ];
 
 endfunction
+
+%!test
+%!  [a,b] = DetectorNullVectors(0.0, 0.0, pi/2);
+%!  assert(a, [0;1;0], 1e-3)
+%!  assert(b, [0;0;1], 1e-3)
