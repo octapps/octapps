@@ -70,3 +70,10 @@ function freqSeries = FourierTransform ( ti, xi, oversampleby = 1 )
   return;
 
 endfunction
+
+%!test
+%!  f0 = 10.0;
+%!  t = 0:0.01:1;
+%!  F = FourierTransform(t, sin(2*pi*f0*t));
+%!  [~, ii] = max(abs(F.xk));
+%!  assert(abs(F.fk(ii)), f0, 0.1);
