@@ -93,3 +93,14 @@ function [mtwoF, stwoF] = EmpiricalFstatMismatch(Tcoh, Tsemi, mcoh, msemi, scoh=
   stwoF(stwoF < 0) = 0;
 
 endfunction
+
+%!assert(EmpiricalFstatMismatch(0, 0, 0, 0) == 0)
+%!assert(EmpiricalFstatMismatch(86400, 10*86400, 0, 0) == 0)
+%!assert(EmpiricalFstatMismatch(86400, 10*86400, 0, 0.5) > 0)
+%!assert(EmpiricalFstatMismatch(86400, 10*86400, 0, 0.5) < 1)
+%!assert(EmpiricalFstatMismatch(86400, 10*86400, 0.1, 0.5) > 0)
+%!assert(EmpiricalFstatMismatch(86400, 10*86400, 0.1, 0.5) < 1)
+%!assert(EmpiricalFstatMismatch(86400, 10*86400, 0.1, 50) > 0)
+%!assert(EmpiricalFstatMismatch(86400, 10*86400, 0.1, 50) < 1)
+%!assert(EmpiricalFstatMismatch(86400, 10*86400, 50, inf) == 1)
+%!assert(EmpiricalFstatMismatch(86400, 10*86400, inf, inf) == 1)
