@@ -136,7 +136,7 @@ function [coh_Nt, semi_Nt, dfreq] = WeaveTemplateCount(varargin)
       segment_list = CreateSegmentList(ref_time, Nsegments_interp(i), coh_Tspan_interp(j), semi_Tspan, []);
 
       ## compute supersky metrics
-      metrics = ComputeSuperskyMetrics("spindowns", size(fkdot_bands, 1) - 1, "segment_list", segment_list, "ref_time", ref_time, "fiducial_freq", freq_max, "detectors", detectors);
+      metrics = ComputeSuperskyMetrics("spindowns", size(fkdot_bands, 1) - 1, "segment_list", segment_list, "ref_time", ref_time, "fiducial_freq", freq_max, "detectors", strjoin(detectors, ","));
 
       ## equalise frequency spacing between coherent and semicoherent metrics
       XLALEqualizeReducedSuperskyMetricsFreqSpacing(metrics, coh_max_mismatch, semi_max_mismatch);
@@ -192,3 +192,17 @@ function Nt = number_of_lattice_templates(lattice, metric, max_mismatch, sky_are
   Nt = NumberOfLatticeBankTemplates("lattice", lattice, "metric", metric(nsii, nsii), "max_mismatch", max_mismatch, "param_vol", param_vol);
 
 endfunction
+
+%!test
+%!  try
+%!    lal; lalpulsar;
+%!  catch
+%!    disp("skipping test: LALSuite bindings not available"); return;
+%!  end_try_catch
+%!  results = fitsread(fullfile(fileparts(file_in_loadpath("WeaveReadSetup.m")), "test_result_file.fits"));
+%!  args = struct;
+%!  args.setup_file = fullfile(fileparts(file_in_loadpath("WeaveReadSetup.m")), "test_setup_file.fits");
+%!  args.result_file = fullfile(fileparts(file_in_loadpath("WeaveReadSetup.m")), "test_result_file.fits");
+%!  [coh_Nt, semi_Nt] = fevalstruct(@WeaveTemplateCount, args);
+%!  assert(coh_Nt, results.primary.header.ncohtpl, -0.2);
+%!  assert(semi_Nt, results.primary.header.nsemitpl, -0.2);
