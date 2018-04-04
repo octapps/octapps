@@ -379,3 +379,6 @@ function relerr = relError ( a, b )
   relerr = abs(a - b) ./ (0.5 * (abs(a) + abs(b)) );
   return;
 endfunction %% relError()
+
+%!test
+%!  disp("to test OptimalSolution4StackSlide_v2(), run the CostFunctions...() test(s)");
