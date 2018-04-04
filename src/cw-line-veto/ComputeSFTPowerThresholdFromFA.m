@@ -20,3 +20,5 @@ function SFTpower_thresh = ComputeSFTPowerThresholdFromFA ( SFTpower_fA, num_SFT
  SFTpower_thresh = norminv ( 1.0 - SFTpower_fA, 1.0, 1.0/sqrt(num_SFTs) );
 
 endfunction # ComputeSFTPowerThresholdFromFA()
+
+%!assert(ComputeSFTPowerThresholdFromFA(0.01, 100), 1.2326, 1e-3)
