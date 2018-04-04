@@ -95,3 +95,5 @@ function outvalue = ConvertLRStransitionScaleParams ( outname, inname, invalue, 
  endif
 
 endfunction # ConvertLRStransitionScaleParams()
+
+%!assert(ConvertLRStransitionScaleParams("Fstar0", "LVrho", 1.23), -3.4204, 1e-3)
