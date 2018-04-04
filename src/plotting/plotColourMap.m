@@ -16,10 +16,11 @@
 
 ## Visualise a colour map.
 ## Usage:
-##   plotColourMap(map, [name])
+##   lum = plotColourMap(map, [name])
 ## where
 ##   map  = colour map
 ##   name = optional colour map name
+##   lum  = luma of colour map
 
 function plotColourMap(map, name="")
 
@@ -39,6 +40,9 @@ function plotColourMap(map, name="")
   g = map(:, 2);
   b = map(:, 3);
   lum = r * 0.299 + g * 0.587 + b * 0.114;
+  if nargout == 0
+    return
+  endif
 
   ## visualise colour map
   clf reset;
@@ -61,3 +65,6 @@ function plotColourMap(map, name="")
   ylabel("Intensity");
 
 endfunction
+
+%!test
+%!  plotColourMap(colormap());
