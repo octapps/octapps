@@ -6,9 +6,12 @@ SHELL = /bin/bash
 curdir := $(shell pwd -L)
 
 # use "make V=1" to display verbose output
+making = $(making_$(V))
+making_ = $(making_0)
+making_0 = @echo "Making $@";
 verbose = $(verbose_$(V))
 verbose_ = $(verbose_0)
-verbose_0 = @echo "Making $@";
+verbose_0 = @
 
 # check for a program in a list using type -P, or return false
 CheckProg = $(strip $(shell $(1:%=type -P % || ) echo false))
@@ -51,7 +54,7 @@ octdir := oct/$(version)
 
 # print list of deprecated functions at finish
 all :
-	@test -f .deprecated || echo > .deprecated; \
+	$(verbose)test -f .deprecated || echo > .deprecated; \
 	$(FIND) $(curdir)/src -path '*/deprecated/*.m' -printf '%f\n' > .deprecated-new; \
 	$(DIFF) --normal .deprecated .deprecated-new | $(SED) -n 's|^>|Warning: deprecated function|p'; \
 	mv -f .deprecated-new .deprecated
@@ -67,7 +70,7 @@ all :
 # generate environment scripts
 all .PHONY : octapps-user-env.sh octapps-user-env.csh
 octapps-user-env.sh octapps-user-env.csh : Makefile
-	$(verbose)case $@ in \
+	$(making)case $@ in \
 		*.csh) empty='?'; setenv='setenv'; equals=' ';; \
 		*) empty='#'; setenv='export'; equals='=';; \
 	esac; \
@@ -83,7 +86,7 @@ octapps-user-env.sh octapps-user-env.csh : Makefile
 # generate author list, sorted by last name
 all .PHONY: AUTHORS
 AUTHORS:
-	$(verbose)$(GIT) shortlog -s | $(SORT) -k1,1 -n -r | $(SED) 's/^[^A-Z]*//' > .$@.1; \
+	$(making)$(GIT) shortlog -s | $(SORT) -k1,1 -n -r | $(SED) 's/^[^A-Z]*//' > .$@.1; \
 	$(GIT) grep Copyright src/ | $(SED) 's/^.*Copyright ([Cc]) [-0-9, ]*//' | $(TR) ',' '\n' | $(SED) 's/^ *//' | $(SORT) -u | $(SORT) - .$@.1 .$@.1 | $(UNIQ) -u > .$@.2; \
 	cat .$@.1 .$@.2 > $@; \
 	rm -f .$@.*
@@ -108,13 +111,13 @@ endif						# compile FITS reading module
 all : $(octdir) $(octs:%=$(octdir)/%.oct)
 
 $(octdir) :
-	@mkdir -p $@
+	$(verbose)mkdir -p $@
 
 $(octdir)/%.o : %.cc Makefile
-	$(verbose)$(call Compile, -Wall)
+	$(making)$(call Compile, -Wall)
 
 $(octdir)/%.oct : $(octdir)/%.o Makefile
-	$(verbose)$(call Link)
+	$(making)$(call Link)
 
 ifneq ($(SWIG),false)				# generate SWIG extension modules
 
@@ -125,13 +128,13 @@ $(octdir)/gsl.oct : LIBS = $(shell $(PKGCONFIG) --libs gsl)
 all : $(swig_octs:%=$(octdir)/%.oct)
 
 $(swig_octs:%=$(octdir)/%.o) : $(octdir)/%.o : oct/%.cc Makefile
-	$(verbose)$(call Compile)
+	$(making)$(call Compile)
 
 $(swig_octs:%=oct/%.cc) : oct/%.cc : %.i Makefile
-	$(verbose)$(SWIG) $(vershex) -octave -c++ -globals "." -o $@ $<
+	$(making)$(SWIG) $(vershex) -octave -c++ -globals "." -o $@ $<
 
 $(swig_octs:%=$(octdir)/%.oct) : $(octdir)/%.oct : $(octdir)/%.o Makefile
-	$(verbose)$(call Link)
+	$(making)$(call Link)
 
 else						# generate SWIG extension modules
 
@@ -151,7 +154,7 @@ endif					# build extension modules
 
 # run test scripts
 check : all
-	@testfiles=; \
+	$(verbose)testfiles=; \
 	for testfile in $(patsubst $(curdir)/src/%,%,$(srctestfiles)); do \
 		testfiledir=`dirname $${testfile}`; \
 		testfilename=`basename $${testfile}`; \
@@ -192,7 +195,7 @@ check : all
 	echo "=================================================="
 
 %.test :
-	@source octapps-user-env.sh; \
+	$(verbose)source octapps-user-env.sh; \
 	case "X$(MAKEFLAGS)" in \
 		*j*) cn='\n'; cr='';; \
 		*) cn=''; cr='\r';; \
@@ -216,10 +219,10 @@ ifneq ($(CTAGSEX),false)
 
 all .PHONY : TAGS
 TAGS :
-	$(verbose)$(CTAGSEX) -e $(srcmfiles) $(srccfiles)
+	$(making)$(CTAGSEX) -e $(srcmfiles) $(srccfiles)
 
 endif # neq ($(CTAGSEX),false)
 
 # cleanup
 clean :
-	@$(GIT) clean -Xdf
+	$(verbose)$(GIT) clean -Xdf
