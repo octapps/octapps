@@ -51,3 +51,11 @@ function varargout = fevalstruct(name, argstruct, varargin)
   [varargout{1:nargout}] = feval(name, keyvals{:});
 
 endfunction
+
+%!test
+%!  args = struct;
+%!  args.real_strictpos_scalar = 1.23;
+%!  args.integer_vector = [-5, 3];
+%!  args.string = "Hi";
+%!  args.cell = {1, 9};
+%!  fevalstruct(@__test_parseOptions, args);
