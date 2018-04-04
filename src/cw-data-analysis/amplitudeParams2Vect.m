@@ -56,3 +56,10 @@ function Amu = amplitudeParams2Vect ( Amp )
 
 endfunction %% amplitudeParams2Vect()
 
+%!test
+%!  p0 = struct("h0", 1e-24, "cosi", 0, "psi", pi/4, "phi0", pi/5);
+%!  p = amplitudeVect2Params(amplitudeParams2Vect(p0));
+%!  assert(p.h0, p0.h0, 1e-3);
+%!  assert(p.cosi, p0.cosi, 1e-3);
+%!  assert(p.psi, p0.psi, 1e-3);
+%!  assert(p.phi0, p0.phi0, 1e-3);
