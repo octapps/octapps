@@ -79,3 +79,18 @@ function hgrm = WeaveFstatMismatch(varargin)
   hgrm = createGaussianHist(mean_twoF, stdv_twoF, "binsize", 0.01, "domain", [0, 1]);
 
 endfunction
+
+%!test
+%!  try
+%!    lal; lalpulsar;
+%!  catch
+%!    disp("skipping test: LALSuite bindings not available"); return;
+%!  end_try_catch
+%!  results = fitsread(fullfile(fileparts(file_in_loadpath("WeaveReadSetup.m")), "test_result_file.fits"));
+%!  args = struct;
+%!  args.setup_file = fullfile(fileparts(file_in_loadpath("WeaveReadSetup.m")), "test_setup_file.fits");
+%!  args.spindowns = results.primary.header.nspins;
+%!  args.coh_max_mismatch = str2double(results.primary.header.progarg_coh_max_mismatch);
+%!  args.semi_max_mismatch = str2double(results.primary.header.progarg_semi_max_mismatch);
+%!  hgrm = fevalstruct(@WeaveFstatMismatch, args);
+%!  assert(meanOfHist(hgrm), 0.0876, 1e-3);
