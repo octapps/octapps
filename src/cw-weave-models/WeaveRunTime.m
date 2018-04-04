@@ -136,7 +136,7 @@ function [times, maxmem, tau] = WeaveRunTime(varargin)
     NSFTs = result_hdr.nsfts;
     Fmethod = result_hdr.fstat_method;
     Ncohres = result_hdr.ncohres;
-    Nsemitpl = result_hdr.nsemires;
+    Nsemitpl = result_hdr.nsemitpl;
     cache_max = result_hdr.cachemax;
   endif
   Nsemiseg = Nsemitpl * Nsegments;
@@ -276,3 +276,19 @@ function [times, maxmem, tau] = WeaveRunTime(varargin)
   endif
 
 endfunction
+
+%!test
+%!  try
+%!    lal; lalpulsar;
+%!  catch
+%!    disp("skipping test: LALSuite bindings not available"); return;
+%!  end_try_catch
+%!  results = fitsread(fullfile(fileparts(file_in_loadpath("WeaveReadSetup.m")), "test_result_file.fits"));
+%!  args = struct;
+%!  args.setup_file = fullfile(fileparts(file_in_loadpath("WeaveReadSetup.m")), "test_setup_file.fits");
+%!  args.result_file = fullfile(fileparts(file_in_loadpath("WeaveReadSetup.m")), "test_result_file.fits");
+%!  args.stats = "sum2F,mean2F,log10BSGL,log10BSGLtL,log10BtSGLtL";
+%!  [times, maxmem, tau] = fevalstruct(@WeaveRunTime, args);
+%!  assert(times.total > 0);
+%!  assert(maxmem.total > 0);
+%!  assert(all(structfun(@(t) t > 0, tau)));
