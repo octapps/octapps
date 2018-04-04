@@ -50,3 +50,16 @@ function closest = FindClosestTemplate(points, metric, max_mismatch, lattice)
   closest = tolattice \ LatticeFindClosestPoint(tolattice * points, lattice);
 
 endfunction
+
+%!test
+%!  x = unifrnd(-10, 10, [3,100]);
+%!  metric = [7,3,5; 3,6,2; 5,2,5];
+%!  max_mismatch = 0.4;
+%!  dx = x - FindClosestTemplate(x, metric, max_mismatch, "Zn");
+%!  assert(dot(dx, metric * dx) <= max_mismatch);
+%!test
+%!  x = unifrnd(-10, 10, [3,100]);
+%!  metric = [7,3,5; 3,6,2; 5,2,5];
+%!  max_mismatch = 0.4;
+%!  dx = x - FindClosestTemplate(x, metric, max_mismatch, "Ans");
+%!  assert(dot(dx, metric * dx) <= max_mismatch);
