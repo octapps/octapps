@@ -35,3 +35,8 @@ function hgrm = thresholdHist(hgrm, pth)
   hgrm.counts(find(prob < pth)) = 0;
 
 endfunction
+
+%!test
+%!  hgrm = createGaussianHist(1.2, 3.4, "binsize", 0.1);
+%!  assert(meanOfHist(thresholdHist(hgrm, 1e-10)), 1.2, 1e-3);
+%!  assert(meanOfHist(thresholdHist(hgrm, 0.1)), 1.2, 1e-3);
