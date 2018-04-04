@@ -84,3 +84,11 @@ function props = AnalyseSegmentList(segment_list, Ndet, Tsft=1800)
   endif
 
 endfunction
+
+%!shared props
+%!  props = AnalyseSegmentList([0:2:10; 1:2:11]' * 86400);
+%!assert(props.num_segments, 6)
+%!assert(props.coh_mean_Tspan, 86400)
+%!assert(props.inc_Tobs, 6 * 86400)
+%!assert(props.inc_Tspan, 11 * 86400)
+%!assert(props.inc_duty, 6 / 11, 1e-3)
