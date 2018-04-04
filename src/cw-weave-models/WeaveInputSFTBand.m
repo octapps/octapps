@@ -112,3 +112,17 @@ function [SFT_freq_min, SFT_freq_max] = WeaveInputSFTBand(varargin)
   SFT_freq_max -= extra_bins_freq;
 
 endfunction
+
+%!test
+%!  try
+%!    lal; lalpulsar;
+%!  catch
+%!    disp("skipping test: LALSuite bindings not available"); return;
+%!  end_try_catch
+%!  results = fitsread(fullfile(fileparts(file_in_loadpath("WeaveReadSetup.m")), "test_result_file.fits"));
+%!  args = struct;
+%!  args.setup_file = fullfile(fileparts(file_in_loadpath("WeaveReadSetup.m")), "test_setup_file.fits");
+%!  args.result_file = fullfile(fileparts(file_in_loadpath("WeaveReadSetup.m")), "test_result_file.fits");
+%!  [SFT_freq_min, SFT_freq_max] = fevalstruct(@WeaveInputSFTBand, args);
+%!  assert(SFT_freq_min <= min([results.segment_info.data.sft_min_freq]));
+%!  assert(SFT_freq_max >= max([results.segment_info.data.sft_max_freq]));
