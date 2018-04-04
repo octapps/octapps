@@ -55,3 +55,6 @@ function [num_outliers, max_outlier, freqbins] = CountSFTPowerOutliers ( params_
  freqbins     = length(psd(:,1));
 
 endfunction # CountSFTPowerOutliers()
+
+%!test
+%!  disp("no test exists for this function as it requires access to data not included in OctApps");
