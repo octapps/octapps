@@ -50,3 +50,5 @@ function [NN, XX] = normHist ( data, bins )
   NN ./= dx;
 
 endfunction
+
+%!assert(normHist(0:0.001:100), 0.011 * ones(1, 10), 1e-3)
