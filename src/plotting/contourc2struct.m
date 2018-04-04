@@ -40,3 +40,9 @@ function S = contourc2struct(C)
   endwhile
 
 endfunction
+
+%!test
+%!  [X, Y] = ndgrid(-10:10, -10:10);
+%!  Z = X.^2 + Y.^2;
+%!  C = contourc(Z);
+%!  contourc2struct(C);
