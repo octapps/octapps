@@ -34,3 +34,8 @@ function dir = mkpath(varargin)
     endif
   endfor
 endfunction
+
+%!test
+%!  dir0 = tempname(tempdir);
+%!  mkpath(dir0, "a", "b", "c");
+%!  assert(isdir(fullfile(dir0, "a", "b", "c")));
