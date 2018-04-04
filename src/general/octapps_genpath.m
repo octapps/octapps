@@ -14,7 +14,7 @@
 ## along with Octave; see the file COPYING.  If not, see
 ## <http://www.gnu.org/licenses/>.
 
-## Generates the Octave path for Octapps.
+## Generates the Octave path for OctApps.
 ## Usage:
 ##   octapps_genpath
 

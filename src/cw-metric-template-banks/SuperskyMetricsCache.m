@@ -24,11 +24,11 @@
 ##     location of cache directory
 ##   <action>: one of
 ##     install:
-##       Install the precomputed cache from the Octapps repository
+##       Install the precomputed cache from the OctApps repository
 ##     clear:
 ##       Clear the cache
 ##     copytorepo:
-##       Copy the current cache to the Octapps repository
+##       Copy the current cache to the OctApps repository
 
 function varargout = SuperskyMetricsCache(action)
 
