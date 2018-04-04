@@ -42,3 +42,6 @@ function x = replOver(x, dims, siz)
   x = repmat(reshape(x, r), s);
 
 endfunction
+
+%!assert(replOver([1,2,3], 1, [3,3]), [1, 2, 3; 1, 2, 3; 1, 2, 3])
+%!assert(replOver([1,2,3], 2, [3,3]), [1, 1, 1; 2, 2, 2; 3, 3, 3])
