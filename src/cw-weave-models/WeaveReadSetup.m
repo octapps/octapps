@@ -52,3 +52,8 @@ function setup = WeaveReadSetup ( setup_file )
 
   return;
 endfunction
+
+%!test
+%!  setup_file = fullfile(fileparts(file_in_loadpath("WeaveReadSetup.m")), "test_setup_file.fits");
+%!  setup = WeaveReadSetup(setup_file);
+%!  assert(isstruct(setup));
