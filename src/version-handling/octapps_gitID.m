@@ -87,3 +87,6 @@ function ID = octapps_gitID ( directory, name )
   ID.vcsStatus = git_status;
 
 endfunction
+
+%!test
+%!  octapps_gitID();
