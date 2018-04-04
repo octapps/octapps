@@ -34,8 +34,8 @@ function [threshold, pFA_MPE, pFA_Lower, pFA_Upper, threshold_Lower, threshold_U
   [pFA_MPE, pFA_Lower, pFA_Upper] = estimateRateFromSamples ( DATA, threshold, confidence );
 
   ## estimate uncertainty on threshold by going back to threshold(pFA)
-  threshold_Lower = empirical_inv ( 1 - pFA_Lower, DATA );
-  threshold_Upper = empirical_inv ( 1 - pFA_Upper, DATA );
+  threshold_Upper = empirical_inv ( 1 - pFA_Lower, DATA );
+  threshold_Lower = empirical_inv ( 1 - pFA_Upper, DATA );
 
   return;
 
