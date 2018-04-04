@@ -53,3 +53,11 @@ function DebugPrintStackparams ( level, stackparams )
 
   return;
 endfunction %% DebugPrintStackparams()
+
+%!test
+%!  params.Nseg = 205;
+%!  params.Tseg = 25 * 3600;
+%!  params.mCoh = 0.5;
+%!  params.mInc = 0.5;
+%!  DebugPrintStackparams(0, params);
+%!  DebugPrintf(0, "\n");
