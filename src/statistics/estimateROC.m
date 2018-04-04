@@ -36,6 +36,12 @@ function [pDet_MPE, pDet_Lower, pDet_Upper, pFA_MPE, pFA_Lower, pFA_Upper] = est
 
 endfunction
 
+%!test
+%!  Ntrials_N = 600; Ntrials_S = 300;
+%!  stat_S = normrnd ( 1, 1, 1, Ntrials_S );
+%!  stat_N = normrnd ( 0, 1, 1, Ntrials_N );
+%!  pFA = linspace ( 0, 1, 15 );
+%!  [pDet_MPE, pDet_Lower, pDet_Upper, pFA_MPE, pFA_Lower, pFA_Upper] = estimateROC ( stat_N, stat_S, pFA, confidence=0.9545 );
 %!demo
 %!  Ntrials_N = 600; Ntrials_S = 300;
 %!  stat_S = normrnd ( 1, 1, 1, Ntrials_S );
