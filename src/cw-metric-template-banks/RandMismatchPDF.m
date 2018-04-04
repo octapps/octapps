@@ -27,3 +27,5 @@ function ret = RandMismatchPDF ( mt, dim, falseDismissal )
   ret = (dim/2) * mt.^(dim/2 - 1) * Thick .* exp ( - mt.^(dim/2) * Thick );
 
 endfunction
+
+%!assert(RandMismatchPDF(0.5, 3, 0.01), 0.95877, 1e-3)
