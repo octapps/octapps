@@ -49,3 +49,9 @@ function ret = AnsMinimalVectors ( dim )
   return;
 
 endfunction %% AnsMinimalVectors()
+
+%!assert(size(AnsMinimalVectors(1)), [1, 2])
+%!assert(size(AnsMinimalVectors(2)), [2, 3])
+%!assert(size(AnsMinimalVectors(3)), [3, 4])
+%!assert(size(AnsMinimalVectors(4)), [4, 5])
+%!assert(size(AnsMinimalVectors(5)), [5, 6])
