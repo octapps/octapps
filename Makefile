@@ -17,6 +17,7 @@ verbose_0 = @
 CheckProg = $(strip $(shell $(1:%=type -P % || ) echo false))
 
 # required programs
+AWK := $(call CheckProg, gawk awk)
 CTAGSEX := $(call CheckProg, ctags-exuberant)
 DIFF := $(call CheckProg, diff)
 FIND := $(call CheckProg, gfind find)
@@ -87,8 +88,9 @@ octapps-user-env.sh octapps-user-env.csh : Makefile
 all .PHONY: AUTHORS
 AUTHORS:
 	$(making)( $(GIT) shortlog -s | $(SED) 's/^[^A-Z]*//'; $(GIT) grep Copyright src/ | $(SED) 's/^.*Copyright ([Cc]) [-0-9, ]*//' | $(TR) ',' '\n' | $(SED) 's/^ *//' ) | $(SORT) -u > .$@.all; \
-	$(GIT) shortlog -s -e  | $(SORT) -k1,1 -n -r | $(SED) -n 's/^[^A-Z]*//;s/ <[^@]*@[^@]*>$$//p' > $@; \
-	$(SORT) .$@.all $@ $@ | $(UNIQ) -u | $(SED) 's/ \([a-z][a-z]*\) / \1@/;t;s/ \([^ ][^ ]*\)$$/@\1/' | $(SORT) -t @ -k2,2 | $(SED) 's/@/ /g' >> $@
+	awkscript='/^[A-Z].*@.*$$/ { name = $$0 } /^[0-9]/ { lines[name] += $$1 } END { for (name in lines) printf "%i\t%s\n", lines[name], name }'; \
+	$(GIT) log --pretty='format:%aN <%aE>' --numstat | $(AWK) "$${awkscript}" | $(SORT) -k1,1 -n -r | $(SED) -n 's/^[^A-Z]*//;s/ <[^@]*@[^@]*>$$//p' > $@; \
+	echo >> $@; $(SORT) .$@.all $@ $@ | $(UNIQ) -u | $(SED) 's/ \([a-z][a-z]*\) / \1@/;t;s/ \([^ ][^ ]*\)$$/@\1/' | $(SORT) -t @ -k2,2 | $(SED) 's/@/ /g' >> $@
 
 ifneq ($(MKOCTFILE),false)		# build extension modules
 
