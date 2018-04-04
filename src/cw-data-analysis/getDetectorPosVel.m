@@ -86,3 +86,13 @@ function [p, v, sp, sv, op, ov] = getDetectorPosVel(varargin)
   v = sv + ov;
 
 endfunction
+
+%!test
+%!  try
+%!    lal; lalpulsar;
+%!  catch
+%!    disp("skipping test: LALSuite bindings not available"); return;
+%!  end_try_catch
+%!  [p, v, sp, sv, op, ov] = getDetectorPosVel("gps_times", 800000000 + 100*(0:5));
+%!  assert(p, sp + op, 1e-3);
+%!  assert(v, sv + ov, 1e-3);
