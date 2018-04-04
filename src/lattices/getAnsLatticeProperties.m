@@ -34,3 +34,9 @@ function ret = getAnsLatticeProperties ( dim )
   return;
 
 endfunction %% getAnsLatticeProperties()
+
+%!assert(isstruct(getAnsLatticeProperties(1)))
+%!assert(isstruct(getAnsLatticeProperties(2)))
+%!assert(isstruct(getAnsLatticeProperties(3)))
+%!assert(isstruct(getAnsLatticeProperties(4)))
+%!assert(isstruct(getAnsLatticeProperties(5)))
