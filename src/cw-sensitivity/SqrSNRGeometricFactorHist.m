@@ -143,3 +143,5 @@ function Rsqr = SqrSNRGeometricFactorHist(varargin)
   Rsqr = rescaleHistBins(Rsqr, 1.0 / apxnorm);
 
 endfunction
+
+%!assert(class(SqrSNRGeometricFactorHist()), "Hist")
