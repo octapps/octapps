@@ -112,3 +112,10 @@ function hgrm = Hist(dim, varargin)
   hgrm = class(hgrm, "Hist");
 
 endfunction
+
+%!assert(class(Hist()), "Hist")
+%!assert(class(Hist(1, {"lin", "dbin", 0.1})), "Hist")
+%!assert(class(Hist(2, {"lin", "dbin", 0.1}, {"lin", "dbin", 0.1})), "Hist")
+%!assert(class(Hist(3, {"lin", "dbin", 0.1}, {"lin", "dbin", 0.1}, {"lin", "dbin", 0.1})), "Hist")
+%!assert(class(Hist(4, {"lin", "dbin", 0.1}, {"lin", "dbin", 0.1}, {"lin", "dbin", 0.1}, {"lin", "dbin", 0.1})), "Hist")
+%!assert(class(Hist(5, {"lin", "dbin", 0.1}, {"lin", "dbin", 0.1}, {"lin", "dbin", 0.1}, {"lin", "dbin", 0.1}, {"lin", "dbin", 0.1})), "Hist")
