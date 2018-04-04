@@ -112,3 +112,12 @@ function prog = printProgress(prog, varargin)
   endif
 
 endfunction
+
+%!test
+%!  prog = [];
+%!  for i = 1:50
+%!    for j = 1:5
+%!      prog = printProgress(prog, "inner loop", [i, j], [50, 5]);
+%!    endfor
+%!    prog = printProgress(prog, [i, j], [50, 5]);
+%!  endfor
