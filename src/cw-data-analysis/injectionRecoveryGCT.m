@@ -74,7 +74,7 @@ function results = injectionRecoveryGCT ( varargin )
 			{"sch_Nfkdot", "real,strictpos,vector" [] },
 			{"FstatMethod", "char", "DemodBest" },
 			{"computeBSGL", "bool, scalar", false},
-			{"Fstar0", "real, positive, scalar", 0},
+			{"Fstar0sc", "real, positive, scalar", 0},
 			{"nCand", "real,strictpos,scalar", 1 },
 			{"GCT_binary", "char", "lalapps_HierarchSearchGCT"},
 			{"debugLevel", "real,positive,scalar", 0},
@@ -386,14 +386,18 @@ function results = injectionRecoveryGCT ( varargin )
     GCT.fnameout	= "GCT.out";
     GCT.nCand1		= uvar.nCand;	%% keep this many candidates in toplist
     GCT.recalcToplistStats = true;	%% re-calculate toplist
-    GCT.SortToplist	= 3;	%% sort by 2F and BSGL
+    if uvar.computeBSGL
+      GCT.SortToplist	= 3;	%% sort by 2F and BSGL
+    else
+      GCT.SortToplist	= 0;	%% sort by 2F
+    endif
     GCT.FstatMethod	= uvar.FstatMethod;
     GCT.computeBSGL     = uvar.computeBSGL;
     GCT.Fstar0          = uvar.Fstar0sc; ## old option name as this is using an old GCT version
-    if GCT.computeBSGL == true;
+    if uvar.computeBSGL
       GCT.getMaxFperSeg = true;
     endif
-    GCT.loudestTwoFperSeg = true;
+    GCT.loudestTwoFPerSeg = true;
 
     runCode ( GCT, uvar.GCT_binary, (uvar.debugLevel > 0) );
 
@@ -522,7 +526,7 @@ function results = injectionRecoveryGCT ( varargin )
 
     ## ---------- load and parse loudest per-segment F-stat values ----------
     DebugPrintf ( 1, "Analysing coherent per-segment mismatch ... ");
-    loudestTwoFperSeg_fname = strcat ( GCT.fnameout, "_loudestTwoFperSeg" );
+    loudestTwoFperSeg_fname = strcat ( GCT.fnameout, "_loudestTwoFPerSeg" );
     loudestTwoFperSeg = load ( loudestTwoFperSeg_fname );
     assert ( length(loudestTwoFperSeg) == Nseg, "Inconsistent number of segments\n");
     for l = 1 : Nseg
@@ -552,7 +556,7 @@ function results = injectionRecoveryGCT ( varargin )
     GCTSig.skyGridFile	= sprintf ( "{ %.16g %.16g; }", inj.Alpha, inj.Delta );
     GCTSig.fnameout	= "GCT0.out";
     GCTSig.nCand1	= 1;	%% keep this many candidates in toplist
-    GCTSig.loudestTwoFperSeg = false;
+    GCTSig.loudestTwoFPerSeg = false;
 
     runCode ( GCTSig, uvar.GCT_binary, (uvar.debugLevel > 0) );
 
@@ -600,3 +604,49 @@ function results = injectionRecoveryGCT ( varargin )
   endif
 
 endfunction ## measureGCTmismatch()
+
+%!test
+%!  if !file_in_path(EXEC_PATH, "lalapps_ComputeFstatistic_v2")
+%!    disp("skipping test: LALApps programs not available"); return;
+%!  endif
+%!  oldpwd = pwd;
+%!  basedir = mkpath(tempname(tempdir));
+%!  unwind_protect
+%!    cd(basedir);
+%!    args = struct;
+%!    args.timestampsFiles = "H1.txt";
+%!    args.IFOs = "H1";
+%!    args.segmentList = "segs.txt";
+%!    args.inj_sqrtSX = 1.0;
+%!    args.inj_h0 = 1.0;
+%!    args.inj_AlphaRange = [0, 2*pi];
+%!    args.inj_DeltaRange = [-pi/2, pi/2];
+%!    args.inj_FreqRange = [100, 100.01];
+%!    args.inj_fkdotRange = [-1e-8, 0];
+%!    args.dFreq = 1e-7;
+%!    args.dfkdot = 1e-11;
+%!    args.gammaRefine = 100;
+%!    args.skyGridFile = "sky.txt";
+%!    args.sch_Nsky = 5;
+%!    args.sch_Nfreq = 5;
+%!    args.sch_Nfkdot = 5;
+%!    args.FstatMethod = "DemodBest";
+%!    args.cleanup = true;
+%!    fid = fopen(args.timestampsFiles, "w");
+%!    for i = 1:10
+%!      fprintf(fid, "%i\n", 800000000 + 1800*i);
+%!    endfor
+%!    fclose(fid);
+%!    fid = fopen(args.segmentList, "w");
+%!    fprintf(fid, "%i %i\n", 800000000 + 1800*[0, 5]);
+%!    fprintf(fid, "%i %i\n", 800000000 + 1800*[5, 10]);
+%!    fclose(fid);
+%!    fid = fopen(args.skyGridFile, "w");
+%!    for i = 1:50
+%!      fprintf(fid, "%.5f %.5f\n", unifrnd(0, 2*pi), unifrnd(-pi/2, pi/2));
+%!    endfor
+%!    fclose(fid);
+%!    fevalstruct(@injectionRecoveryGCT, args);
+%!  unwind_protect_cleanup
+%!    cd(oldpwd);
+%!  end_unwind_protect
