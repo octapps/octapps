@@ -263,3 +263,6 @@ function mergeCondorResults(varargin)
   printf(" done\n");
 
 endfunction
+
+%!test
+%!  disp("no test exists for this function as it requires access to an HTCondor computer cluster");
