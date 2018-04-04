@@ -38,3 +38,6 @@ function octapps_genpath()
   endfor
   printf("\n");
 endfunction
+
+%!test
+%!  octapps_genpath();
