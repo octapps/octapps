@@ -20,8 +20,7 @@ function version_string = getLalAppsVersionInfo (lalapps_command);
  version_string = ["# version info from ", lalapps_command, ":\n"];
 
  % get version info from the given lalapps code
- params_lalapps.version = 1;
- lalapps_version_output = runCode ( params_lalapps, lalapps_command );
+ [~, lalapps_version_output] = system ( cstrcat( lalapps_command, " --version" ) );
 
  % reformat it: remove trailing whitespaces and newlines, replace '%%' comment markers by '#'
  lalapps_version_output = strsplit(lalapps_version_output,"\n");
@@ -36,3 +35,9 @@ function version_string = getLalAppsVersionInfo (lalapps_command);
  endfor
 
 endfunction # getLalAppsVersionInfo()
+
+%!test
+%!  if !file_in_path(EXEC_PATH, "lalapps_ComputeFstatistic_v2")
+%!    disp("skipping test: LALApps programs not available"); return;
+%!  endif
+%!  getLalAppsVersionInfo("lalapps_ComputeFstatistic_v2");
