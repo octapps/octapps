@@ -58,3 +58,5 @@ function varargout = native(varargin)
   endfor
 
 endfunction
+
+%!assert(isscalar(native(rand())))
