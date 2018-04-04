@@ -44,3 +44,13 @@ function R = LatticeCoveringRadius ( dim, lattice )
   return;
 
 endfunction
+
+%!assert(LatticeCoveringRadius(1, "Zn") > 0)
+%!assert(LatticeCoveringRadius(1, "An") > 0)
+%!assert(LatticeCoveringRadius(1, "Ans") > 0)
+%!assert(LatticeCoveringRadius(2, "Zn") > 0)
+%!assert(LatticeCoveringRadius(2, "An") > 0)
+%!assert(LatticeCoveringRadius(2, "Ans") > 0)
+%!assert(LatticeCoveringRadius(3, "Zn") > 0)
+%!assert(LatticeCoveringRadius(3, "An") > 0)
+%!assert(LatticeCoveringRadius(3, "Ans") > 0)
