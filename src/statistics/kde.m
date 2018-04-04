@@ -144,7 +144,6 @@ data = [ data(1:2:end,:); data(end:-2:2,:) ];
 data= real(weight.* fft(data));
 end
 
-
-
-
-
+%!test
+%!  data=[randn(100,1);randn(100,1)*2+35 ;randn(100,1)+55];
+%!  [bandwidth,density,xmesh]=kde(data,2^14,min(data)-5,max(data)+5);
