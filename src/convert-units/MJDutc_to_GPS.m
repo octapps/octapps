@@ -34,3 +34,6 @@ function GPS = MJDutc_to_GPS ( MJDutc )
   return;
 
 endfunction
+
+%!assert(MJDutc_to_GPS(45123), 75945613, 1e-6)
+%!assert(MJDutc_to_GPS(123456), 6843916813, 1e-6)
