@@ -56,3 +56,6 @@ function varargout = cputic(name)
   endif
 
 endfunction
+
+%!test
+%!  cputic("__test");
