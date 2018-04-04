@@ -48,3 +48,9 @@ function p = randPointInNSphere(n, u)
   p = p .* s(ones(n, 1), :);
 
 endfunction
+
+%!assert(norm(randPointInNSphere(1, 1)), 1.0, 1e-4)
+%!assert(norm(randPointInNSphere(2, 1)), 1.0, 1e-4)
+%!assert(norm(randPointInNSphere(3, 1)), 1.0, 1e-4)
+%!assert(norm(randPointInNSphere(4, 1)), 1.0, 1e-4)
+%!assert(norm(randPointInNSphere(5, 1)), 1.0, 1e-4)
