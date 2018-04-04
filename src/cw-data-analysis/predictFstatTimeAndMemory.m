@@ -203,3 +203,25 @@ function [resampInfo, demodInfo] = predictFstatTimeAndMemory ( varargin )
   return;
 
 endfunction
+
+%!test
+%!  try
+%!    lal; lalpulsar;
+%!  catch
+%!    disp("skipping test: LALSuite bindings not available"); return;
+%!  end_try_catch
+%!  [resampInfo, demodInfo] = predictFstatTimeAndMemory("Tcoh", 86400, "Freq0", 100, "FreqBand", 1e-2, "dFreq", 1e-7);
+%!  assert(isstruct(resampInfo));
+%!  assert(isfield(resampInfo, "tauF_core"));
+%!  assert(resampInfo.tauF_core > 0);
+%!  assert(isfield(resampInfo, "tauF_buffer"));
+%!  assert(resampInfo.tauF_buffer > 0);
+%!  assert(isfield(resampInfo, "MBDataPerDetSeg"));
+%!  assert(resampInfo.MBDataPerDetSeg > 0);
+%!  assert(isstruct(demodInfo));
+%!  assert(isfield(demodInfo, "tauF_core"));
+%!  assert(demodInfo.tauF_core > 0);
+%!  assert(isfield(demodInfo, "tauF_buffer"));
+%!  assert(demodInfo.tauF_buffer > 0);
+%!  assert(isfield(demodInfo, "MBDataPerDetSeg"));
+%!  assert(demodInfo.MBDataPerDetSeg > 0);
