@@ -78,7 +78,7 @@ function hax = PlotGrid(varargin)
       endfor
 
       ## setup figure and store grid in property
-      clf reset;
+      clf;
       try
         set(gcf, "plotgrid", grid);
       catch
@@ -127,9 +127,8 @@ function hax = PlotGrid(varargin)
   endswitch
 
 endfunction
-
-%!demo
-%!  clf reset;
+%!test
+%!  fig = figure("visible", "off");
 %!  N = 5;
 %!  M = 3;
 %!  PlotGrid([0.1,0.9], [0.1,0.8], 0.05, 0.03, N, M);
@@ -139,3 +138,4 @@ endfunction
 %!      text(0.5,0.5,sprintf("%g,%g",i,j));
 %!    endfor
 %!  endfor
+%!  close(fig);
