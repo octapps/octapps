@@ -26,3 +26,9 @@ function ret = CoxeterFewRogersBoundNormalized ( n )
   ret = ( 2 * n  ./ ( n + 1 ) ) .^ ( n/2 ) .* RogersBoundNormalized ( n );
 
 endfunction
+
+%!assert(CoxeterFewRogersBoundNormalized(1) > 0)
+%!assert(CoxeterFewRogersBoundNormalized(2) > 0)
+%!assert(CoxeterFewRogersBoundNormalized(3) > 0)
+%!assert(CoxeterFewRogersBoundNormalized(4) > 0)
+%!assert(CoxeterFewRogersBoundNormalized(5) > 0)
