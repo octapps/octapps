@@ -160,3 +160,8 @@ function varargout = roundHistBinBounds(varargin)
   dbins = 10^(floor(log10(dbins)) - 3);
   varargout = cellfun(@(b) unique(round(b / dbins) * dbins), varargin, "UniformOutput", false);
 endfunction
+
+%!test
+%!  hgrm = Hist(2, {"lin", "dbin", 0.01}, {"lin", "dbin", 0.1});
+%!  hgrm = addDataToHist(hgrm, [normrnd(1.7, 4.3, 1e6, 1), rand(1e6, 1)]);
+%!  assert(meanOfHist(hgrm, 1), meanOfHist(resampleHist(hgrm, 1, -30:0.2:30), 1), 1e-3);
