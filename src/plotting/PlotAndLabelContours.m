@@ -180,3 +180,12 @@ function varargout = PlotAndLabelContours(S, varargin)
   endif
 
 endfunction
+
+%!test
+%!  fig = figure("visible", "off");
+%!  [X, Y] = ndgrid(-10:10, -10:10);
+%!  Z = X.^2 - Y.^2;
+%!  lbllev = 10:10:90;
+%!  C = contourc(Z, lbllev);
+%!  PlotAndLabelContours(C, {"lev", lbllev, "levprop", {"color", "black"}, "lbl", true, "lbldim", [0.1, 0.1], "lblfmt", "%0.0f"});
+%!  close(fig);
