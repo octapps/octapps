@@ -40,3 +40,7 @@ function [threshold, pFA_MPE, pFA_Lower, pFA_Upper, threshold_Lower, threshold_U
   return;
 
 endfunction
+
+%!assert(estimateFAThreshold(0:1000, 0.1), 900)
+%!assert(estimateFAThreshold(0:1000, 0.5), 500)
+%!assert(estimateFAThreshold(0:1000, 0.9), 100)
