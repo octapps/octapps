@@ -67,3 +67,6 @@ function [lX, freqmin, freqmax, freqbins, num_outliers, max_outlier] = EstimateL
  endfor # X = 1:1:numDet
 
 endfunction # EstimateLinePriorsFromNormSFT()
+
+%!test
+%!  disp("no test exists for this function as it requires access to data not included in OctApps");
