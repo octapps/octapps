@@ -40,3 +40,6 @@ function f = isInteractive()
 
 
 endfunction
+
+%!test
+%!  assert(isInteractive());
