@@ -113,3 +113,6 @@ function ret = readSFT(fname)
   ret.freqs = header.f0:dfreq:fE;
 
 end
+
+%!test
+%!  sft = readSFT(fullfile(fileparts(file_in_loadpath("readSFT.m")), "SFT-good"));
