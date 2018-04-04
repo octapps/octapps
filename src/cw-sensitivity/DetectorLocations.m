@@ -84,3 +84,7 @@ function [L, slambda, gamma, zeta] = DetectorLocations(detID)
   gamma = mod(pi/2 - orientation, 2*pi);
 
 endfunction
+
+%!assert(DetectorLocations("H"))
+%!assert(DetectorLocations("L"))
+%!assert(DetectorLocations("V"))
