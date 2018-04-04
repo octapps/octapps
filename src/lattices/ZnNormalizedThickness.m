@@ -26,3 +26,9 @@ function ret = ZnNormalizedThickness ( n )
   return;
 
 endfunction
+
+%!assert(ZnNormalizedThickness(1) > 0)
+%!assert(ZnNormalizedThickness(2) > 0)
+%!assert(ZnNormalizedThickness(3) > 0)
+%!assert(ZnNormalizedThickness(4) > 0)
+%!assert(ZnNormalizedThickness(5) > 0)
