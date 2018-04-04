@@ -148,3 +148,12 @@ function cfg = readConfigFile(file)
   fclose(f);
 
 endfunction
+
+%!test
+%!  inifile = strcat(tempname(tempdir), ".ini");
+%!  inicfg = struct("sec1", struct("key1", 1.23, "key2", "hi"), "sec2", struct("key3", "there"));
+%!  writeConfigFile(inifile, inicfg);
+%!  inicfg2 = readConfigFile(inifile);
+%!  assert(inicfg.sec1.key1, inicfg2.sec1.key1);
+%!  assert(inicfg.sec1.key2, inicfg2.sec1.key2);
+%!  assert(inicfg.sec2.key3, inicfg2.sec2.key3);
