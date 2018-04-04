@@ -402,3 +402,6 @@ function job_file = makeCondorJob(varargin)
   endif
 
 endfunction
+
+%!test
+%!  disp("to test makeCondorJob(), run the makeCondorDAG() test(s)");
