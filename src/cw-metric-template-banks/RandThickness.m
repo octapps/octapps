@@ -26,3 +26,9 @@ function ret = RandThickness ( dim, falseDismissal )
   ret = - log(falseDismissal) * ones ( size(dim) );
 
 endfunction
+
+%!assert(RandThickness(1, 0.05) > 0)
+%!assert(RandThickness(2, 0.05) > 0)
+%!assert(RandThickness(3, 0.05) > 0)
+%!assert(RandThickness(4, 0.05) > 0)
+%!assert(RandThickness(5, 0.05) > 0)
