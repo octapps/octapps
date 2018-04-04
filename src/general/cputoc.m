@@ -32,3 +32,7 @@ function cputoc(name)
   printf("Elapsed CPU time for counter '%s' = %0.3f\n", name, t - t0);
 
 endfunction
+
+%!test
+%!  cputic("__test");
+%!  cputoc("__test");
