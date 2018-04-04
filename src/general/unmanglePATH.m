@@ -45,3 +45,6 @@ function unmanglePATH
   setenv("PATH", newpath);
 
 endfunction
+
+%!test
+%!  unmanglePATH();
