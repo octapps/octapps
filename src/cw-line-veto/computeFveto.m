@@ -36,3 +36,7 @@ function Fveto = computeFveto ( inFstats )
   return;
 
 endfunction
+
+%!assert(computeFveto([10, 6, 5]), 10, 1e-3)
+%!assert(computeFveto([10, 10, 5]), 10, 1e-3)
+%!assert(computeFveto([10, 6, 11]), -1, 1e-3)
