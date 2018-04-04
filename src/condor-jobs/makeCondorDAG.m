@@ -185,3 +185,53 @@ function dag_file = makeCondorDAG(varargin)
   endif
 
 endfunction
+
+%!test
+%!
+%!  oldpwd = pwd;
+%!  jobdir = mkpath(tempname(tempdir));
+%!  unwind_protect
+%!    cd(jobdir);
+%!
+%!    jobname = "test_makeCondorDAG";
+%!    job = makeCondorJob("job_name", jobname, ...
+%!                        "log_dir", pwd,
+%!                        "func_name", "__test_parseOptions", ...
+%!                        "func_nargout", 1, ...
+%!                        "arguments", { ...
+%!                                       "--real-strictpos-scalar", "$(x)", ...
+%!                                       "--integer-vector", [3,9,5], ...
+%!                                       "--string", "Hi there", ...
+%!                                       "--cell", {1,{2,3}}, ...
+%!                                     }, ...
+%!                        "data_files", { ...
+%!                                        fullfile(fileparts(file_in_loadpath("readSFT.m")), "SFT-good") ...
+%!                                      }, ...
+%!                        "extra_condor", { ...
+%!                                          "requirements", "TARGET.has_avx == true", ...
+%!                                        } ...
+%!                       );
+%!    assert(exist("./test_makeCondorDAG.job") == 2);
+%!    assert(exist("./test_makeCondorDAG.sh") == 2);
+%!    assert(exist("./test_makeCondorDAG.in") == 7);
+%!    assert(exist("./test_makeCondorDAG.in/.exec") == 7);
+%!    assert(exist("./test_makeCondorDAG.in/.func") == 7);
+%!    assert(exist("./test_makeCondorDAG.in/SFT-good") == 2);
+%!
+%!    nodes = struct;
+%!    node = struct;
+%!    node.file = job;
+%!    node.vars.x = 1.23;
+%!    nodes(1) = node;
+%!    node.vars.x = 4.56;
+%!    nodes(2) = node;
+%!    makeCondorDAG("dag_name", jobname, "job_nodes", nodes);
+%!    assert(exist("./test_makeCondorDAG.dag") == 2);
+%!    assert(exist("./test_makeCondorDAG_nodes.bin.gz") == 2);
+%!    assert(exist("./test_makeCondorDAG.out") == 7);
+%!    assert(exist("./test_makeCondorDAG.out/00") == 7);
+%!    assert(exist("./test_makeCondorDAG.out/01") == 7);
+%!
+%!  unwind_protect_cleanup
+%!    cd(oldpwd);
+%!  end_unwind_protect
