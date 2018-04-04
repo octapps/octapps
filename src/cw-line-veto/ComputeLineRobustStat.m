@@ -84,3 +84,5 @@ function LRstat = ComputeLineRobustStat ( twoF_multi, twoF_single, Fstar0, oLGX,
  LRstat *= log10(e);
 
 endfunction # ComputeLineRobustStat()
+
+%!assert(ComputeLineRobustStat(10, [6, 5], 0.1, [0.5, 0.5], false), 1.4706, 1e-3)
