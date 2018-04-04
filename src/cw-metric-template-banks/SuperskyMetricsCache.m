@@ -77,3 +77,6 @@ function varargout = SuperskyMetricsCache(action)
   endswitch
 
 endfunction
+
+%!test
+%!  cache_dir = SuperskyMetricsCache();
