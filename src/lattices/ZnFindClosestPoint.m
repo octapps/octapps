@@ -31,3 +31,8 @@ function close = ZnFindClosestPoint ( x )
   return;
 
 endfunction
+
+%!test
+%!  x = rand(3, 100000);
+%!  dx = x - ZnFindClosestPoint(x);
+%!  assert(max(sqrt(dot(dx, dx))) <= ZnCoveringRadius(3));
