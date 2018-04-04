@@ -55,3 +55,5 @@ function rng = CreateRandParam(varargin)
   rng.allconst = (length(rng.rii) == 0);
 
 endfunction
+
+%!assert(isstruct(CreateRandParam([0, 5.5], [2.2, 7])))
