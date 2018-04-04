@@ -93,7 +93,7 @@ function ezmovie(action, varargin)
       assert(isfield(state, "avconv_pid"), "%s: movie generation has not been started", funcName);
 
       ## get temporary file name to print JPEG image to
-      jpgfile = strcat(tempname, ".jpg");
+      jpgfile = strcat(tempname(tempdir), ".jpg");
 
       ## ensure temporary JPEG files get deleted on error
       fjpg = -1;
@@ -144,3 +144,19 @@ function ezmovie(action, varargin)
   endswitch
 
 endfunction
+
+%!test
+%!  if !file_in_path(EXEC_PATH, "avconv")
+%!    disp("skipping test: 'avconv' program not available"); return;
+%!  endif
+%!  graphics_toolkit gnuplot;
+%!  movbname = tempname(tempdir);
+%!  ezmovie("start", "filebasename", movbname, "delay", 0.01, "width", 100, "height", 100);
+%!  fig = figure("visible", "off");
+%!  for i = 1:10
+%!    plot(0:100, mod(i + (0:100), 10));
+%!    ezmovie add;
+%!  endfor
+%!  ezmovie stop;
+%!  close(fig);
+%!  assert(exist(strcat(movbname, ".mp4"), "file"));
