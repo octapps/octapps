@@ -28,3 +28,9 @@ function [ generator, rotator ] = ZnGenerator ( dim )
   return;
 
 endfunction
+
+%!assert(issquare(ZnGenerator(1)))
+%!assert(issquare(ZnGenerator(2)))
+%!assert(issquare(ZnGenerator(3)))
+%!assert(issquare(ZnGenerator(4)))
+%!assert(issquare(ZnGenerator(5)))
