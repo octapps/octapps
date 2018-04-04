@@ -58,3 +58,9 @@ function [ generator, rotator ] = AnGenerator ( dim )
   return;
 
 endfunction
+
+%!assert(issquare(AnsGenerator(1)))
+%!assert(issquare(AnsGenerator(2)))
+%!assert(issquare(AnsGenerator(3)))
+%!assert(issquare(AnsGenerator(4)))
+%!assert(issquare(AnsGenerator(5)))
