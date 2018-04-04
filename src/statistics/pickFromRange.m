@@ -40,3 +40,6 @@ function ret = pickFromRange(range, num)
   ret = minVal + rand(num,1) * ( maxVal - minVal );
 
 endfunction
+
+%!test
+%!  pickFromRange([10,20],5);
