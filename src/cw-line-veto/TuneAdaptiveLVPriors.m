@@ -499,3 +499,6 @@ function write_results_to_file (outfile, frequencies, freqbins, num_outliers, ma
  fclose ( outfile );
 
 endfunction # write_results_to_file()
+
+%!test
+%!  disp("no test exists for this function as it requires access to data not included in OctApps");
