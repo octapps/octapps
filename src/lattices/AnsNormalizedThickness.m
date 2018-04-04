@@ -26,3 +26,9 @@ function ret = AnsNormalizedThickness ( n )
   ret = sqrt( n + 1) .* ( ( n .* ( n + 2 ) ) ./ ( 12 * ( n + 1 ) ) ).^(n/2);
 
 endfunction
+
+%!assert(AnsNormalizedThickness(1) > 0)
+%!assert(AnsNormalizedThickness(2) > 0)
+%!assert(AnsNormalizedThickness(3) > 0)
+%!assert(AnsNormalizedThickness(4) > 0)
+%!assert(AnsNormalizedThickness(5) > 0)
