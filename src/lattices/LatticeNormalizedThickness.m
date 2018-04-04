@@ -42,3 +42,10 @@ function R = LatticeNormalizedThickness ( dim, lattice )
   return;
 
 endfunction
+
+%!assert(LatticeNormalizedThickness(1, "Zn") > 0)
+%!assert(LatticeNormalizedThickness(1, "Ans") > 0)
+%!assert(LatticeNormalizedThickness(2, "Zn") > 0)
+%!assert(LatticeNormalizedThickness(2, "Ans") > 0)
+%!assert(LatticeNormalizedThickness(3, "Zn") > 0)
+%!assert(LatticeNormalizedThickness(3, "Ans") > 0)
