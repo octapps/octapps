@@ -40,3 +40,5 @@ function F = AntennaPattern(a, b, x, y, zeta)
   F = sin(zeta) .* ( dot(a,x,1).*dot(b,y,1) + dot(a,y,1).*dot(b,x,1) );
 
 endfunction
+
+%!assert(AntennaPattern([1,0,0], [0,1,0], [0.5,0.5,0], [0.5,-0.5,0], pi/2), [0,0,0], 1e-3)
