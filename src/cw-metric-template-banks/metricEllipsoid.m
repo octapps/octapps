@@ -109,3 +109,9 @@ function [xx, yy, zz] = unitSphere3D ( Nsteps )
 
   return;
 endfunction
+
+%!test
+%!  [xx, yy, zz] = metricEllipsoid([4,1;1,1], 0.25, 4);
+%!  assert(xx, [0.25, -0.25, 0, 0.25], 1e-3);
+%!  assert(yy, [0.0, 0.5, -0.5, 0.0], 1e-3);
+%!  assert(zz, [0.0, 0.0, 0.0, 0.0], 1e-3);
