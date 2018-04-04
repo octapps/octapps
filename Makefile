@@ -199,7 +199,7 @@ check : all
 	esac; \
 	test=`echo "$*" | $(SED) 's|::|/|g'`; \
 	printf "%-48s: $${cn}" "$${test}"; \
-	env TMPDIR="$${OCTAPPS_TMPDIR}" $(OCTAVE) --eval "assert(length(help('$${test}')) > 0, 'no help message'); test $${test}" 2>&1 | { \
+	env TMPDIR="$${OCTAPPS_TMPDIR}" $(OCTAVE) --eval "crash_dumps_octave_core(0); assert(length(help('$${test}')) > 0, 'no help message'); test $${test}" 2>&1 | { \
 		while read line; do \
 			case "$${line}" in \
 				"error: no help message"*) printf "$${cr}%-48s: NO HELP MESSAGE\n" "$${test}"; exit 1;; \
