@@ -50,3 +50,18 @@ function X = possibilities(x, N)
   endfor
 
 endfunction
+
+%!test
+%!  M1 = [];
+%!  for ii = possibilities(-1:1, 3);
+%!    M1 = [M1, ii];
+%!  endfor
+%!  M2 = [];
+%!  for i = -1:1
+%!    for j = -1:1
+%!      for k = -1:1
+%!        M2 = [M2, [i;j;k]];
+%!      endfor
+%!    endfor
+%!  endfor
+%!  assert(M1, M2);
