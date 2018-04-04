@@ -129,7 +129,6 @@ typedef struct {
   }
 } gsl_qrng;
 
-
 // Gamma functions
 %define gsl_sf_gamma_function(NAME)
 %inline %{
@@ -160,3 +159,22 @@ typedef struct {
 gsl_sf_gamma_function(inc);
 gsl_sf_gamma_function(inc_P);
 gsl_sf_gamma_function(inc_Q);
+
+// Tests
+%header %{
+/*
+%!test
+%!  gsl;
+%!test
+%!  gsl;
+%!  q = new_gsl_qrng ("halton", 3);
+%!  assert(gsl_qrng_get(q), [0.50000; 0.33333; 0.20000], 1e-3);
+%!test
+%!  gsl;
+%!  assert(gsl_sf_gamma_inc(4.5, 0), gamma(4.5), 1e-3);
+%!  assert(gsl_sf_gamma_inc(4.5, 2.2), 10.273, 1e-3);
+%!  assert(gsl_sf_gamma_inc_P(4.5, 2.2), 0.11683, 1e-3);
+%!  assert(gsl_sf_gamma_inc_Q(4.5, 2.2), 1 - 0.11683, 1e-3);
+
+*/
+%}
