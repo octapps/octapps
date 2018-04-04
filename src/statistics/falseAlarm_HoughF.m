@@ -43,3 +43,6 @@ function fAH = falseAlarm_HoughF ( nth, Nseg, Fth )
   fAH = sum ( exp ( logpni ) );
 
 endfunction
+
+%!assert(falseAlarm_HoughF(11, 100, 5.5), 7.5e-05, 1e-3)
+%!assert(falseAlarm_HoughF(18, 100, 5.5), 1.7e-10, 1e-3)
