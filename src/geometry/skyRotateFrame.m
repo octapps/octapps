@@ -55,3 +55,5 @@ function skyOut = skyRotateFrame ( skyIn, angle, axis )
   return;
 
 endfunction
+
+%!assert(skyRotateFrame([0.1, 2.3, 4.5], 1.234, [9.8, 7.6, 5.4]), [3.0863, -1.0902, 3.8518], 1e-3)
