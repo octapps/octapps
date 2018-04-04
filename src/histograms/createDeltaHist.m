@@ -27,3 +27,6 @@ function hgrm = createDeltaHist(x0)
   hgrm = addDataToHist(Hist(1, [x0, x0+eps]), x0);
 
 endfunction
+
+%!test
+%!  createDeltaHist(1.23);
