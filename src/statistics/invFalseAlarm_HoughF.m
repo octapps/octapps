@@ -60,3 +60,6 @@ function [nth, fAH] = invFalseAlarm_HoughF ( fAH0, Nseg, Fth )
   fAH = fAHi(iMin);
 
 endfunction
+
+%!assert(invFalseAlarm_HoughF(1e-4, 100, 5.5), 11)
+%!assert(invFalseAlarm_HoughF(1e-10, 100, 5.5), 18)
