@@ -117,3 +117,21 @@ function [depth, mismatch_hgrm] = WeaveSensDepth(varargin)
   depth = fevalstruct(@SensitivityDepthStackSlide, args);
 
 endfunction
+
+%!test
+%!  try
+%!    lal; lalpulsar;
+%!  catch
+%!    disp("skipping test: LALSuite bindings not available"); return;
+%!  end_try_catch
+%!  results = fitsread(fullfile(fileparts(file_in_loadpath("WeaveReadSetup.m")), "test_result_file.fits"));
+%!  args = struct;
+%!  args.setup_file = fullfile(fileparts(file_in_loadpath("WeaveReadSetup.m")), "test_setup_file.fits");
+%!  args.spindowns = results.primary.header.nspins;
+%!  args.coh_max_mismatch = str2double(results.primary.header.progarg_coh_max_mismatch);
+%!  args.semi_max_mismatch = str2double(results.primary.header.progarg_semi_max_mismatch);
+%!  args.NSFTs = results.primary.header.nsfts;
+%!  args.pFA = 0.01;
+%!  args.semi_ntmpl = results.primary.header.nsemitpl;
+%!  depth = fevalstruct(@WeaveSensDepth, args);
+%!  assert(depth, 29.573, 0.1);
