@@ -40,3 +40,10 @@ function SetTickMarks(dim, nticks)
   set(gca, strcat(dim, "lim"), lim, strcat(dim, "tick"), ticks);
 
 endfunction
+
+%!test
+%!  fig = figure("visible", "off");
+%!  plot(0:100, mod(0:100, 10));
+%!  SetTickMarks("x", 4);
+%!  SetTickMarks("y", 4);
+%!  close(fig);
