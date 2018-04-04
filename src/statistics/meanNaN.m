@@ -37,3 +37,5 @@ function Y = meanNaN(X, dim=[])
   Y = sum(X, dim) ./ N;
 
 endfunction
+
+%!assert(meanNaN([1:5, NaN, 6:10]), mean(1:10))
