@@ -54,3 +54,24 @@ function ret = loadCandidateFile ( fname )
   ret.twoF    = twoF;
 
 endfunction
+
+%!test
+%!  if !file_in_path(EXEC_PATH, "lalapps_ComputeFstatistic_v2")
+%!    disp("skipping test: LALApps programs not available"); return;
+%!  endif
+%!  args = struct;
+%!  args.Alpha = 1.2;
+%!  args.Delta = 3.4;
+%!  args.Freq = 100;
+%!  args.f1dot = -1e-8;
+%!  args.Tsft = 1800;
+%!  args.IFOs = "H1";
+%!  args.injectSqrtSX = 1.0;
+%!  args.timestampsFiles = tempname(tempdir);
+%!  args.outputLoudest = tempname(tempdir);
+%!  fid = fopen(args.timestampsFiles, "w");
+%!  fprintf(fid, "800000000\n800001800\n800003600\n");
+%!  fclose(fid);
+%!  runCode(args, "lalapps_ComputeFstatistic_v2");
+%!  cand_file = loadCandidateFile(args.outputLoudest);
+%!  assert(isstruct(cand_file));
