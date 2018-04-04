@@ -86,10 +86,9 @@ octapps-user-env.sh octapps-user-env.csh : Makefile
 # generate author list, sorted by last name
 all .PHONY: AUTHORS
 AUTHORS:
-	$(making)$(GIT) shortlog -s | $(SORT) -k1,1 -n -r | $(SED) 's/^[^A-Z]*//' > .$@.1; \
-	$(GIT) grep Copyright src/ | $(SED) 's/^.*Copyright ([Cc]) [-0-9, ]*//' | $(TR) ',' '\n' | $(SED) 's/^ *//' | $(SORT) -u | $(SORT) - .$@.1 .$@.1 | $(UNIQ) -u > .$@.2; \
-	cat .$@.1 .$@.2 > $@; \
-	rm -f .$@.*
+	$(making)( $(GIT) shortlog -s | $(SED) 's/^[^A-Z]*//'; $(GIT) grep Copyright src/ | $(SED) 's/^.*Copyright ([Cc]) [-0-9, ]*//' | $(TR) ',' '\n' | $(SED) 's/^ *//' ) | $(SORT) -u > .$@.all; \
+	$(GIT) shortlog -s -e  | $(SORT) -k1,1 -n -r | $(SED) -n 's/^[^A-Z]*//;s/ <[^@]*@[^@]*>$$//p' > $@; \
+	$(SORT) .$@.all $@ $@ | $(UNIQ) -u | $(SED) 's/ \([a-z][a-z]*\) / \1@/;t;s/ \([^ ][^ ]*\)$$/@\1/' | $(SORT) -t @ -k2,2 | $(SED) 's/@/ /g' >> $@
 
 ifneq ($(MKOCTFILE),false)		# build extension modules
 
