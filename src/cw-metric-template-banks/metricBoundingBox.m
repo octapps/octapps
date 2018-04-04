@@ -29,3 +29,5 @@ function bound_box = metricBoundingBox(metric, max_mismatch)
   bound_box = 2 .* diag(DN_metric) .* sqrt(max_mismatch .* diag(inv(D_metric)));
 
 endfunction
+
+%!assert(metricBoundingBox([6,3;3,2], 0.77), [1.4329;2.4819], 1e-3)
