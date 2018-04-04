@@ -44,3 +44,13 @@ function [ gen, rot ] = LatticeGenerator ( dim, lattice )
   return;
 
 endfunction
+
+%!assert(issquare(LatticeGenerator(1, "Zn")))
+%!assert(issquare(LatticeGenerator(1, "An")))
+%!assert(issquare(LatticeGenerator(1, "Ans")))
+%!assert(issquare(LatticeGenerator(2, "Zn")))
+%!assert(issquare(LatticeGenerator(2, "An")))
+%!assert(issquare(LatticeGenerator(2, "Ans")))
+%!assert(issquare(LatticeGenerator(3, "Zn")))
+%!assert(issquare(LatticeGenerator(3, "An")))
+%!assert(issquare(LatticeGenerator(3, "Ans")))
