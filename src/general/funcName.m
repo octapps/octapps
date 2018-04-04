@@ -33,3 +33,7 @@ function name = funcName
   endif
 
 endfunction
+
+%!function fn = __testFuncName()
+%!  assert(funcName(), "__testFuncName")
+%!test __testFuncName()
