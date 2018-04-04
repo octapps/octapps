@@ -22,6 +22,9 @@ function hex = versionstr2hex(str)
   strs = strsplit(str, ".");
   hex = 0;
   for i = 1:length(strs)
-    hex = hex * 256 + fix(str2double(strs{i}));
+    s = fix(str2double(strs{i}));
+    hex = hex * 256 + floor(s / 10) * 16 + rem(s, 10);
   endfor
 endfunction
+
+%!assert(versionstr2hex("2.10.99.3"), 0x02109903)
