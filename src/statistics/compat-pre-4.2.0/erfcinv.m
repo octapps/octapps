@@ -29,3 +29,5 @@
 function y = erfcinv(x)
   y = erfinv( 1 - x );
 endfunction
+
+%!assert(erfcinv(0.22), erfinv(1 - 0.22))
