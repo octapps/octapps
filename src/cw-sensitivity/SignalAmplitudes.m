@@ -44,3 +44,5 @@ function varargout = SignalAmplitudes(emission, cosi)
   endswitch
 
 endfunction
+
+%!assert(SignalAmplitudes("nonax"), 4/25)
