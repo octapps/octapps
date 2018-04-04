@@ -79,3 +79,8 @@ function [xcross, mucross] = metricEllipseCrossSections(x, mu, metric, cross)
   mucross = mucross(xcrossjj);
 
 endfunction
+
+%!test
+%!  [xcross,mucross] = metricEllipseCrossSections([1;2;3], 0.5, [6,4,4;4,4,2;4,2,1], [NA;2;NA]);
+%!  assert(xcross, [1;3], 1e-3);
+%!  assert(mucross, 0.5, 1e-3);
