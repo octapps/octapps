@@ -74,3 +74,12 @@ function varargout = histBins(hgrm, k, varargin)
   endfor
 
 endfunction
+
+%!shared hgrm
+%!  hgrm = restrictHist(addDataToHist(Hist(1, {"lin", "dbin", 0.1}), unifrnd(0, 1, 1e6, 1)));
+%!assert(histBins(hgrm, 1, "lower"),  [-inf, 0:0.1:0.9, inf]', 1e-3)
+%!assert(histBins(hgrm, 1, "centre"), [-inf, 0.05:0.1:0.95, inf]', 1e-3)
+%!assert(histBins(hgrm, 1, "upper"), [-inf, 0.1:0.1:1.0, inf]', 1e-3)
+%!assert(histBins(hgrm, 1, "finite", "lower"),  [0:0.1:0.9]', 1e-3)
+%!assert(histBins(hgrm, 1, "finite", "centre"), [0.05:0.1:0.95]', 1e-3)
+%!assert(histBins(hgrm, 1, "finite", "upper"), [0.1:0.1:1.0]', 1e-3)
