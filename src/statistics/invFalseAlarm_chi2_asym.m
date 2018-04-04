@@ -64,3 +64,5 @@ function lambda = lambdaFunction(x)
   lambda(kk) = 0.5.*((1 - g(kk)).*lambda1(kk) + (1 + g(kk)).*lambda2(kk));
 
 endfunction
+
+%!assert(invFalseAlarm_chi2_asym(logspace(-4, -20, 17), 4), [23.467 28.411 33.557 38.442 43.258 48.051 52.827 57.590 62.341 67.082 71.816 76.539 81.257 85.968 90.675 95.376 100.074], 1e-3)
