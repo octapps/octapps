@@ -124,3 +124,5 @@ function JKS = JKSexpr(expr, i, a0i, b0i, x, y)
     error("%s: invalid JKS expression '%s'", expr);
   endif
 endfunction
+
+%!assert(TimeAvgSqrAntennaPattern([1;0;0], [0;1;0], [0;0.5;0.5], [0;0.5;-0.5], pi/2, inf), 0.03125)
