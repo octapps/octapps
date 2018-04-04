@@ -82,3 +82,10 @@ function mu = momentOfHist(hgrm, sumdims, n, x0 = 0)
   mu ./= norm;
 
 endfunction
+
+%!shared hgrm
+%!  hgrm = createGaussianHist(1.2, 3.4, "binsize", 0.1);
+%!assert(momentOfHist(hgrm, 1, 0), 1.0, 1e-3)
+%!assert(momentOfHist(hgrm, 1, 1), 1.2, 1e-3)
+%!assert(momentOfHist(hgrm, 1, 2, 1.2), 3.4.^2, 1e-3)
+%!assert(momentOfHist(hgrm, 1, 3, 1.2), 0.0, 1e-3)
