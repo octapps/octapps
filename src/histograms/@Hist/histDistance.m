@@ -81,3 +81,9 @@ function KLD = compute_KLD ( P, Q )
   KLD = sum ( KL0(:) );
   return;
 endfunction
+
+%!shared hgrm1, hgrm2
+%!  hgrm1 = createGaussianHist(1.2, 3.4, "binsize", 0.1);
+%!  hgrm2 = createGaussianHist(7.3, 3.4, "binsize", 0.1);
+%!assert(histDistance(hgrm1, hgrm1), 0.00, 1e-3)
+%!assert(histDistance(hgrm1, hgrm2), 1.26, 1e-3)
