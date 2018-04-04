@@ -20,12 +20,18 @@
 %%
 %% Return the number of Voronoi-facets for An* lattice, which corresponds
 %% to the maximal number of facets of an n-dimension parallelohedron (see CS99),
-%% namely 2 ( 2^n - 1 )
+%% namely 2 ( 2^dim - 1 )
 
 function ret = AnsNumVoronoiFacets ( dim )
 
-  ret = 2 * ( 2.^n - 1 );
+  ret = 2 * ( 2.^dim - 1 );
 
   return;
 
 endfunction
+
+%!assert(AnsNumVoronoiFacets(1) > 0)
+%!assert(AnsNumVoronoiFacets(2) > 0)
+%!assert(AnsNumVoronoiFacets(3) > 0)
+%!assert(AnsNumVoronoiFacets(4) > 0)
+%!assert(AnsNumVoronoiFacets(5) > 0)
