@@ -82,3 +82,8 @@ function closest = AnsFindClosestPoint ( x, embedded )
   return;
 
 endfunction
+
+%!test
+%!  x = rand(3, 100000);
+%!  dx = x - AnsFindClosestPoint(x);
+%!  assert(max(sqrt(dot(dx, dx))) <= AnsCoveringRadius(3));
