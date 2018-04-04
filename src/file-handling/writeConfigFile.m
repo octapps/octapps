@@ -103,3 +103,8 @@ function writeConfigFile(file, cfg)
   assert(status == 1, "%s: could not replace '%s' with '%s': %s", funcName, file, new_file, msg);
 
 endfunction
+
+%!test
+%!  inifile = strcat(tempname(tempdir), ".ini");
+%!  inicfg = struct("sec1", struct("key1", 1.23, "key2", "hi"), "sec2", struct("key3", "there"))
+%!  writeConfigFile(inifile, inicfg);
