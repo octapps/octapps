@@ -130,3 +130,8 @@ function Amp = amplitudeVect2Params ( Amu, convention )
   return;
 
 endfunction %% amplitudeVect2Params()
+
+%!shared A0
+%!  A0 = 1e-24 * randn(1, 4);
+%!assert(amplitudeParams2Vect(amplitudeVect2Params(A0, "LIGO")), A0, 1e-3)
+%!assert(amplitudeParams2Vect(amplitudeVect2Params(A0, "MLDC")), A0, 1e-3)
