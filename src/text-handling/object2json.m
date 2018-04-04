@@ -174,3 +174,7 @@ function object=replace_non_JSON_escapes(object)
   % This last one regexp handle any other valid JSON escape sequence
   object=regexprep(object, '(?<!\\)\\(?=(\\\\)*(?!([\"\\\/bfnrt]|([u][0-9A-Fa-f]{4}))+?))', "\\\\");
 endfunction
+
+%!assert(object2json({1.234, 2.345}), '[1.234,2.345]')
+%!assert(object2json({1.234, 2.345, "abcd"}), '[1.234,2.345,"abcd"]')
+%!assert(object2json(struct("abcd", 1.234)), '{"abcd":1.234}')
