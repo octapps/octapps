@@ -63,3 +63,11 @@ function ubins = histBinUnions(varargin)
   endfor
 
 endfunction
+
+%!shared hgrm1, hgrm2, hgrm3
+%!  hgrm1 = restrictHist(addDataToHist(Hist(1, {"lin", "dbin", 0.1}), unifrnd(0, 1, 1e6, 1)));
+%!  hgrm2 = restrictHist(addDataToHist(Hist(1, {"lin", "dbin", 0.1}), unifrnd(1, 2, 1e6, 1)));
+%!  hgrm3 = restrictHist(addDataToHist(Hist(1, {"lin", "dbin", 0.1}), unifrnd(2, 3, 1e6, 1)));
+%!assert(histBinUnions(hgrm1, hgrm2), {[0:0.1:2]}, 1e-3)
+%!assert(histBinUnions(hgrm1, hgrm3), {[0:0.1:1, 2:0.1:3]}, 1e-3)
+%!assert(histBinUnions(hgrm2, hgrm3), {[1:0.1:3]}, 1e-3)
