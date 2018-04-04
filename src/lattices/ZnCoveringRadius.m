@@ -28,3 +28,9 @@ function coveringRadius = ZnCoveringRadius ( dim )
   return;
 
 endfunction
+
+%!assert(ZnCoveringRadius(1) > 0)
+%!assert(ZnCoveringRadius(2) > 0)
+%!assert(ZnCoveringRadius(3) > 0)
+%!assert(ZnCoveringRadius(4) > 0)
+%!assert(ZnCoveringRadius(5) > 0)
