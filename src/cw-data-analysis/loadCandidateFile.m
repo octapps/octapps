@@ -56,7 +56,7 @@ function ret = loadCandidateFile ( fname )
 endfunction
 
 %!test
-%!  if !file_in_path(EXEC_PATH, "lalapps_ComputeFstatistic_v2")
+%!  if isempty(file_in_path(EXEC_PATH, "lalapps_ComputeFstatistic_v2"))
 %!    disp("skipping test: LALApps programs not available"); return;
 %!  endif
 %!  args = struct;

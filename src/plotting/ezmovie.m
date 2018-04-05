@@ -146,7 +146,7 @@ function ezmovie(action, varargin)
 endfunction
 
 %!test
-%!  if !file_in_path(EXEC_PATH, "avconv")
+%!  if isempty(file_in_path(EXEC_PATH, "avconv"))
 %!    disp("skipping test: 'avconv' program not available"); return;
 %!  endif
 %!  graphics_toolkit gnuplot;
