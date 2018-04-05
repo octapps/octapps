@@ -49,7 +49,7 @@ function ezmovie(action, varargin)
       endif
 
       ## check if command 'avconv' from Libav is installed
-      avconv = file_in_path(EXEC_PATH, "avconv");
+      avconv = file_in_path(getenv("PATH"), "avconv");
       if isempty(avconv)
         error("%s: requires 'avconv' to be installed", funcName);
       endif
@@ -146,7 +146,7 @@ function ezmovie(action, varargin)
 endfunction
 
 %!test
-%!  if isempty(file_in_path(EXEC_PATH, "avconv"))
+%!  if isempty(file_in_path(getenv("PATH"), "avconv"))
 %!    disp("skipping test: 'avconv' program not available"); return;
 %!  endif
 %!  graphics_toolkit gnuplot;

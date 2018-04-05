@@ -37,7 +37,7 @@ function version_string = getLalAppsVersionInfo (lalapps_command);
 endfunction # getLalAppsVersionInfo()
 
 %!test
-%!  if isempty(file_in_path(EXEC_PATH, "lalapps_ComputeFstatistic_v2"))
+%!  if isempty(file_in_path(getenv("PATH"), "lalapps_ComputeFstatistic_v2"))
 %!    disp("skipping test: LALApps programs not available"); return;
 %!  endif
 %!  getLalAppsVersionInfo("lalapps_ComputeFstatistic_v2");
