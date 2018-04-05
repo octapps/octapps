@@ -71,6 +71,6 @@ endfunction
 
 %!shared hgrm0
 %!  hgrm0 = Hist(2, {"lin", "dbin", 0.1}, {"lin", "dbin", 0.1});
-%!assert(histRange(addDataToHist(hgrm0, unifrnd(1.2, 9.7, 1000, 2))), [1.2, 9.7; 1.2, 9.7], 0.05)
-%!assert(histRange(addDataToHist(hgrm0, [unifrnd(2.3, 11.3, 1000, 1), unifrnd(67.9, 103.5, 1000, 1)]), 1), [2.3, 11.3], 0.05)
-%!assert(histRange(addDataToHist(hgrm0, [unifrnd(2.3, 11.3, 1000, 1), unifrnd(67.9, 103.5, 1000, 1)]), 2), [67.9, 103.5], 0.05)
+%!assert(histRange(addDataToHist(hgrm0, unifrnd(1.2, 9.7, 1000, 2))), [1.2, 9.7; 1.2, 9.7], 0.2)
+%!assert(histRange(addDataToHist(hgrm0, [unifrnd(2.3, 11.3, 1000, 1), unifrnd(67.9, 103.5, 1000, 1)]), 1), [2.3, 11.3], 0.2)
+%!assert(histRange(addDataToHist(hgrm0, [unifrnd(2.3, 11.3, 1000, 1), unifrnd(67.9, 103.5, 1000, 1)]), 2), [67.9, 103.5], 0.2)
