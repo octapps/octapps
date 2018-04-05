@@ -1,5 +1,5 @@
 ---
-title: 'OctApps: a library of Octave functions for gravitational-wave data analysis'
+title: 'OctApps: a library of Octave functions for continuous gravitational-wave data analysis'
 tags:
   - Octave
   - gravitational waves
