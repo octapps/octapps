@@ -209,19 +209,27 @@ check : all
 	env TMPDIR="$${OCTAPPS_TMPDIR}" $(OCTAVE) --eval "crash_dumps_octave_core(0); assert(length(help('$${test}')) > 0, 'no help message'); test $${test}" 2>&1 | tee "$${OCTAPPS_TEST_LOG}" | { \
 		while read line; do \
 			case "$${line}" in \
-				"error: no help message"*) \
+				"error: no help message"*) action=missinghelp;; \
+				"?????"*) action=missingtest;; \
+				"skip"*) action=skip;; \
+				"PASSES"*) action=pass;; \
+				"!!!!!"*) action=fail;; \
+				*) action=;; \
+			esac; \
+			case "$${action}" in \
+				missinghelp) \
 					printf "$${cr}%-48s: MISSING HELP MESSAGE\n" "$${test}"; \
 					exit 1;; \
-				"?????"*) \
+				missingtest) \
 					printf "$${cr}%-48s: MISSING TEST(S)\n" "$${test}"; \
 					exit 1;; \
-				"skip"*) \
+				skip) \
 					printf "$${cr}%-48s: skipping test(s)\n" "$${test}"; \
 					exit 0;; \
-				"PASSES"*) \
+				pass) \
 					printf "$${cr}%-48s: test(s) passed\n" "$${test}"; \
 					exit 0;; \
-				"!!!!!"*) \
+				fail) \
 					printf "$${cr}%-48s: TEST(S) FAILED\n" "$${test}"; \
 					printf "%-72s\n" "$${test}:" | $(SED) 's/ /-/g;s/:-/: /'; \
 					$(SED) "s|^|$${test}: |" "$${OCTAPPS_TEST_LOG}"; \
