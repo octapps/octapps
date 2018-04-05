@@ -207,11 +207,21 @@ check : all
 	env TMPDIR="$${OCTAPPS_TMPDIR}" $(OCTAVE) --eval "crash_dumps_octave_core(0); assert(length(help('$${test}')) > 0, 'no help message'); test $${test}" 2>&1 | { \
 		while read line; do \
 			case "$${line}" in \
-				"error: no help message"*) printf "$${cr}%-48s: MISSING HELP MESSAGE\n" "$${test}"; exit 1;; \
-				"?????"*) printf "$${cr}%-48s: MISSING TEST(S)\n" "$${test}"; exit 1;; \
-				"skip"*) printf "$${cr}%-48s: skipping test(s)\n" "$${test}"; exit 0;; \
-				"PASSES"*) printf "$${cr}%-48s: test(s) passed\n" "$${test}"; exit 0;; \
-				"!!!!!"*) printf "$${cr}%-48s: TEST(S) FAILED\n" "$${test}"; exit 1;; \
+				"error: no help message"*) \
+					printf "$${cr}%-48s: MISSING HELP MESSAGE\n" "$${test}"; \
+					exit 1;; \
+				"?????"*) \
+					printf "$${cr}%-48s: MISSING TEST(S)\n" "$${test}"; \
+					exit 1;; \
+				"skip"*) \
+					printf "$${cr}%-48s: skipping test(s)\n" "$${test}"; \
+					exit 0;; \
+				"PASSES"*) \
+					printf "$${cr}%-48s: test(s) passed\n" "$${test}"; \
+					exit 0;; \
+				"!!!!!"*) \
+					printf "$${cr}%-48s: TEST(S) FAILED\n" "$${test}"; \
+					exit 1;; \
 			esac; \
 		done; \
 	}
