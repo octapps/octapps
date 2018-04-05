@@ -205,7 +205,8 @@ check : all
 	esac; \
 	test=`echo "$*" | $(SED) 's|::|/|g'`; \
 	printf "%-48s: $${cn}" "$${test}"; \
-	env TMPDIR="$${OCTAPPS_TMPDIR}" $(OCTAVE) --eval "crash_dumps_octave_core(0); assert(length(help('$${test}')) > 0, 'no help message'); test $${test}" 2>&1 | { \
+	OCTAPPS_TEST_LOG="$${OCTAPPS_TMPDIR}/.$*.log"; \
+	env TMPDIR="$${OCTAPPS_TMPDIR}" $(OCTAVE) --eval "crash_dumps_octave_core(0); assert(length(help('$${test}')) > 0, 'no help message'); test $${test}" 2>&1 | tee "$${OCTAPPS_TEST_LOG}" | { \
 		while read line; do \
 			case "$${line}" in \
 				"error: no help message"*) \
@@ -222,6 +223,9 @@ check : all
 					exit 0;; \
 				"!!!!!"*) \
 					printf "$${cr}%-48s: TEST(S) FAILED\n" "$${test}"; \
+					printf "%-72s\n" "$${test}:" | $(SED) 's/ /-/g;s/:-/: /'; \
+					$(SED) "s|^|$${test}: |" "$${OCTAPPS_TEST_LOG}"; \
+					printf "%-72s\n" "$${test}:" | $(SED) 's/ /-/g;s/:-/: /'; \
 					exit 1;; \
 			esac; \
 		done; \
