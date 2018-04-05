@@ -168,6 +168,7 @@ check : all
 		if test -n "$${TESTS}"; then \
 			case " $${TESTS} " in \
 				*" $${testfilename%.*} "*) testfiles="$${testfiles} $${testfilename}";; \
+				*" src/$${testfile} "*) testfiles="$${testfiles} $${testfilename}";; \
 			esac; \
 		elif test -n "$${TESTDIR}"; then \
 			case "src/$${testfiledir}/" in \
