@@ -189,9 +189,10 @@ check : all
 		echo "Running all tests"; \
 	fi; \
 	export OCTAPPS_TMPDIR=`mktemp -d -t octapps-make-check.XXXXXX`; \
-	echo "Created temporary directory $${OCTAPPS_TMPDIR} for test results"; \
+	echo "Created temporary directory $${OCTAPPS_TMPDIR}"; \
 	$(MAKE) `printf "%s.test\n" $${testfiles} | $(SORT)` || exit 1; \
 	rm -rf "$${OCTAPPS_TMPDIR}"; \
+	echo "Removed temporary directory $${OCTAPPS_TMPDIR}"; \
 	echo "=================================================="; \
 	echo "OctApps test suite has passed successfully!"; \
 	echo "=================================================="
