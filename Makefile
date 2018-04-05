@@ -211,7 +211,7 @@ check : all
 			case "$${line}" in \
 				"error: no help message"*) action=missinghelp;; \
 				"?????"*) action=missingtest;; \
-				"skip"*) action=skip;; \
+				"skip"*) if test "x$(NOSKIP)" = x; then action=skip; else action=fail; fi;; \
 				"PASSES"*) action=pass;; \
 				"!!!!!"*) action=fail;; \
 				*) action=;; \
