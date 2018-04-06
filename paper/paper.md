@@ -87,4 +87,4 @@ Documentation of each function is provided through the `help` function in Octave
 ## Acknowledgements
 
 We acknowledge that *OctApps* includes licensed contributions from Zdravko Botev, Juan Pablo Carbajal, Ronaldas Macas, John McNabb, and Daniel de Torre Herrera.
-This paper has document number LIGO-P1800078-v1.
+This paper has document number LIGO-P1800078-v2.
