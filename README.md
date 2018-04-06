@@ -42,6 +42,7 @@ To execute the *OctApps* test suite, consisting of tests embedded in Octave func
 You can also run the test suite for specific functions files:
 
 > make check TESTS=funcName
+
 > make check TESTS=src/general/funcName.m
 
 or specific directories:
