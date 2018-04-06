@@ -48,3 +48,6 @@ You can also run the test suite for specific functions files:
 or specific directories:
 
 > make check TESTDIR=src/general/
+
+The *OctApps* test suite is regularly executed on [Travis CI](https://travis-ci.org/).
+Current build status: [![Build Status](https://travis-ci.org/octapps/octapps.svg?branch=master)](https://travis-ci.org/octapps/octapps).
