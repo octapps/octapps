@@ -80,8 +80,8 @@ In addition, *OctApps* provides various general-purpose functions, which may be 
 - `src/text-handling`: various functions for creating formatted text output.
 - `src/version-handling`: handling of version information, particularly from the [Git](https://git-scm.com/) version control system.
 
-Development of *OctApps* is hosted [here](https://gitlab.aei.uni-hannover.de/octapps/octapps).
-Installation of *OctApps* is described in the [README](https://gitlab.aei.uni-hannover.de/octapps/octapps/blob/master/README.md) file.
+Development of *OctApps* is hosted [here](https://github.com/octapps/octapps).
+Installation of *OctApps* is described in the [README](https://github.com/octapps/octapps/blob/master/README.md) file.
 Documentation of each function is provided through the `help` function in Octave.
 
 ## Acknowledgements

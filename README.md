@@ -7,8 +7,8 @@ Downloading OctApps
 -------------------
 
 *OctApps* is hosted as a [git](https://git-scm.com/) repository.
-See the project [homepage](https://gitlab.aei.uni-hannover.de/octapps/octapps) for instructions for checking out the repository with `git clone`.
-Bugs should be reported on the [issue tracker](https://gitlab.aei.uni-hannover.de/octapps/octapps/issues) and patches submitted via merge requests.
+See the project [homepage](https://github.com/octapps/octapps) for instructions for checking out the repository with `git clone`.
+Bugs should be reported on the [issue tracker](https://github.com/octapps/octapps/issues) and patches submitted via merge requests.
 
 Building and Using OctApps
 --------------------------
