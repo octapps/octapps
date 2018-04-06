@@ -3,34 +3,36 @@ cache: ccache
 
 matrix:
   include:
-    - compiler: gcc
-      os: linux
+    - os: linux
+      compiler: gcc
       sudo: required
       dist: trusty
 
 install:
-  - test "$TRAVIS_OS_NAME" = "linux"
+  - if test "$TRAVIS_OS_NAME" = "linux"; then true
     && sudo rm -rf /etc/apt/sources.list.d/*
     && travis_retry sudo add-apt-repository -y ppa:git-core/ppa
     && travis_retry sudo add-apt-repository -y ppa:kwwette/lalsuite-dev
     && travis_retry curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh > /tmp/script.deb.sh
     && travis_retry sudo bash /tmp/script.deb.sh
     && travis_retry sudo apt-get -qq update
-    && travis_retry sudo apt-get -qq install git-lfs liboctave-dev swig3.0 libgsl0-dev libav-tools lalsuite-dev-deps
-  - test "$TRAVIS_OS_NAME" = "linux"
+    && travis_retry sudo apt-get -qq install git-lfs lalsuite-dev-deps
+    && travis_retry sudo apt-get -qq install liboctave-dev swig3.0 libgsl0-dev libav-tools
+    ; fi
+  - if test "$TRAVIS_OS_NAME" = "linux"; then true
     && ccache -s
     && git clone --depth=50 --branch=master https://git.ligo.org/lscsoft/lalsuite.git /tmp/lalsuite
     && pushd /tmp/lalsuite
     && ./00boot
     && ./configure --enable-cfitsio --enable-swig-octave --disable-swig-python --disable-all-lal --enable-lalframe --enable-lalpulsar --enable-lalapps
-    && make -s -j2
-    && make -s install
-    && source /tmp/lalsuite/_inst/etc/lalsuite-user-env.sh
+    && make -j2
+    && make install
     && popd
+    && source /tmp/lalsuite/_inst/etc/lalsuite-user-env.sh
+    ; fi
 
 script:
   - git log -1
-  - ls -lR
   - make
   - make check NOSKIP=1 TESTS=funcName
     && make check NOSKIP=1 TESTS=src/general/funcName.m
