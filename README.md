@@ -30,7 +30,7 @@ You will also need to re-run `make` after adding any new directories to *OctApps
 
 If you have [SWIG](http://www.swig.org/) installed, running `make` will also build `.oct` modules which are required by some functions.
 You will need to install the development features of Octave, i.e. whichever package provides the command `mkoctfile`, in order to compile `.oct` modules.
-Some functions also require the [LALSuite](https://wiki.ligo.org/DASWG/LALSuite) bindings for Octave; see that project's homepage for build instructions.
+Some functions also require the [LSC Algorithm Library Suite (LALSuite)](https://wiki.ligo.org/DASWG/LALSuite) bindings for Octave; see that project's homepage for build instructions.
 
 Testing OctApps
 ---------------
