@@ -7,6 +7,8 @@ matrix:
       compiler: gcc
       sudo: required
       dist: trusty
+    - os: osx
+      compiler: clang
 
 install:
   - if test "$TRAVIS_OS_NAME" = "linux"; then true
@@ -30,11 +32,17 @@ install:
     && popd
     && source /tmp/lalsuite/_inst/etc/lalsuite-user-env.sh
     ; fi
+  - if test "$TRAVIS_OS_NAME" = "osx"; then true
+    && travis_retry brew update --verbose
+    && travis_retry brew bundle --verbose --file=./Brewfile
+    ; fi
 
 script:
   - git log -1
   - make
-  - make check NOSKIP=1 TESTS=funcName
+  - if test "$TRAVIS_OS_NAME" = "linux"; then true
+    && make check NOSKIP=1 TESTS=funcName
     && make check NOSKIP=1 TESTS=src/general/funcName.m
     && make check NOSKIP=1 TESTDIR=src/general/
     && make -j2 check NOSKIP=1
+    ; fi
