@@ -21,7 +21,11 @@
 #include <set>
 
 #include <octave/oct.h>
+#if OCTAVE_VERSION_HEX >= 0x040200
+#include <octave/interpreter.h>
+#else
 #include <octave/toplev.h>
+#endif
 #include <octave/dynamic-ld.h>
 #include <octave/ov-usr-fcn.h>
 #include <octave/pt-all.h>
@@ -60,7 +64,11 @@ public:
     if (!functions.contains(n)) {
       octave_value v;
       {
+#if OCTAVE_VERSION_HEX >= 0x040200
+        octave::unwind_protect frame;
+#else
         unwind_protect frame;
+#endif
         symbol_table::scope_id curr_scope = symbol_table::current_scope();
         frame.add_fcn(symbol_table::set_scope, curr_scope);
         symbol_table::scope_id fcn_scope = stack.empty() ? curr_scope : stack.back()->scope();
