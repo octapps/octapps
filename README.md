@@ -19,11 +19,11 @@ To use any *OctApps* functions with Octave, first run
 
 to generate the user environment setup scripts, then either add
 
-> . /<YOUR PATH TO>/octapps/octapps-user-env.sh
+> . /YOUR/PATH/TO/octapps/octapps-user-env.sh
 
 to your `~/.profile` file for Bourne shells (e.g. bash), or
 
-> source /<YOUR PATH TO>/octapps/octapps-user-env.csh
+> source /YOUR/PATH/TO/octapps/octapps-user-env.csh
 
 to your `~/.login` file for C shells (e.g. tcsh).
 You will also need to re-run `make` after adding any new directories to *OctApps*.
