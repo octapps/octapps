@@ -15,15 +15,15 @@ Building and Using OctApps
 
 To use any *OctApps* functions with Octave, first run
 
-> $ make
+> make
 
 to generate the user environment setup scripts, then either add
 
-> $ . /<YOUR PATH TO>/octapps/octapps-user-env.sh
+> . /<YOUR PATH TO>/octapps/octapps-user-env.sh
 
 to your `~/.profile` file for Bourne shells (e.g. bash), or
 
-> $ source /<YOUR PATH TO>/octapps/octapps-user-env.csh
+> source /<YOUR PATH TO>/octapps/octapps-user-env.csh
 
 to your `~/.login` file for C shells (e.g. tcsh).
 You will also need to re-run `make` after adding any new directories to *OctApps*.
@@ -37,13 +37,13 @@ Testing OctApps
 
 To execute the *OctApps* test suite, consisting of tests embedded in Octave function files, run
 
-> $ make check
+> make check
 
 You can also run the test suite for specific functions files:
 
-> $ make check TESTS=funcName
-> $ make check TESTS=src/general/funcName.m
+> make check TESTS=funcName
+> make check TESTS=src/general/funcName.m
 
 or specific directories:
 
-> $ make check TESTDIR=src/general/
+> make check TESTDIR=src/general/
