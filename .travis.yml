@@ -41,5 +41,8 @@ script:
     && make
     && echo -en 'travis_fold:end:script.make\r'
   - echo -en 'travis_fold:start:script.make_check\r'
+    && make check NOSKIP=1 TESTS=funcName
+    && make check NOSKIP=1 TESTS=src/general/funcName.m
+    && make check NOSKIP=1 TESTDIR=src/general/
     && make -j2 check NOSKIP=1
     && echo -en 'travis_fold:end:script.make_check\r'
