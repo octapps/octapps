@@ -23,7 +23,7 @@ DIFF := $(call CheckProg, diff)
 FIND := $(call CheckProg, gfind find)
 GIT := $(call CheckProg, git)
 GREP := $(call CheckProg, grep)
-MKOCTFILE := $(call CheckProg, mkoctfile)
+MKOCTFILE := env CC= CXX= $(call CheckProg, mkoctfile)
 OCTAVE := $(call CheckProg, octave) --silent --norc --no-history --no-window-system
 PKGCONFIG := $(call CheckProg, pkg-config)
 SED := $(call CheckProg, gsed sed)
