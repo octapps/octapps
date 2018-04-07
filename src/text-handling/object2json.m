@@ -63,19 +63,19 @@ function json=object2json(object)
       case 'struct'
         fields=fieldnames(object);
         results=cellfun(@object2json,struct2cell(object),"UniformOutput",false);
-        json='{';
+        json="{";
         if(numel(fields)>1)
-          sep=',';
+          sep=",";
         else
-          sep='';
+          sep="";
         endif
         for(tmp=1:numel(fields))
           json=[json,'"',fields{tmp},'":',results{tmp},sep];
           if(tmp>=numel(fields)-1)
-            sep='';
+            sep="";
           endif
         endfor
-        json(end+1)='}';
+        json(end+1)="}";
       case 'cell'
         ## We dereference the cell and use it as a new value
         json=object2json(object{1});
@@ -84,7 +84,7 @@ function json=object2json(object)
           json=num2str(object, 16);
         else
           if(iscomplex(object))
-            json=['{"real":',num2str(real(object), 16),',"imag":',num2str(imag(object), 16),'}'];
+            json=['{"real":',num2str(real(object), 16),',"imag":',num2str(imag(object), 16),"}"];
           endif
         endif
       case 'char'
@@ -100,14 +100,14 @@ function json=object2json(object)
     endswitch
   else
     ## It's a vector so it maps to an array
-    sep='';
+    sep="";
     if(numel(s)>2)
-      json='[';
+      json="[";
       for(tmp=1:s(1))
         json=[json,sep,object2json(reshape(object(tmp,:),s(2:end)))];
-        sep=',';
+        sep=",";
       endfor
-      json(end+1)=']';
+      json(end+1)="]";
     else
       ## We can have three cases here:
       ## Object is a row -> array with all the elements
@@ -123,29 +123,29 @@ function json=object2json(object)
           object=replace_non_JSON_escapes(object);
           json=['"',object,'"'];
         else
-          json='[';
+          json="[";
           for(tmp=1:s(2))
             json=[json,sep,object2json(object(1,tmp))];
-            sep=',';
+            sep=",";
           endfor
-          json(end+1)=']';
+          json(end+1)="]";
         endif
       elseif(s(2)==1)
         ## Object is a column
-        json='[';
+        json="[";
         for(tmp=1:s(1))
-          json=[json,sep,'[',object2json(object(tmp,1)),']'];
-          sep=',';
+          json=[json,sep,"[",object2json(object(tmp,1)),"]"];
+          sep=",";
         endfor
-        json(end+1)=']';
+        json(end+1)="]";
       else
         ## Object is a 2D matrix
-        json='[';
+        json="[";
         for(tmp=1:s(1))
           json=[json,sep,object2json(object(tmp,:))];
-          sep=',';
+          sep=",";
         endfor
-        json(end+1)=']';
+        json(end+1)="]";
       endif
     endif
   endif
