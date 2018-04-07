@@ -60,20 +60,20 @@ function sol = OptimalSolution4StackSlide_v2 ( varargin )
 
   ## parse options
   uvar = parseOptions ( varargin,
-                       {"costFuns", "struct,scalar" },
-                       {"cost0", "real,strictpos,scalar" },
-                       {"TobsMax", "real,strictpos,scalar", [] },
-                       {"TsegMin", "real,strictpos,scalar", [] },
-                       {"TsegMax", "real,strictpos,scalar", [] },
-                       {"stackparamsGuess", "struct" },
-                       {"pFA", "real,strictpos,scalar", 1e-10 },
-                       {"pFD", "real,strictpos,scalar", 0.1 },
-                       {"tol", "real,strictpos,scalar", 1e-2 },
-                       {"maxiter", "integer,strictpos,scalar", 10 },
-                       {"sensApprox", "char", [] },
-                       {"nonlinearMismatch", "logical,scalar", false },
-                       {"debugLevel", "integer,positive,scalar", [] },
-                       []);
+                        {"costFuns", "struct,scalar" },
+                        {"cost0", "real,strictpos,scalar" },
+                        {"TobsMax", "real,strictpos,scalar", [] },
+                        {"TsegMin", "real,strictpos,scalar", [] },
+                        {"TsegMax", "real,strictpos,scalar", [] },
+                        {"stackparamsGuess", "struct" },
+                        {"pFA", "real,strictpos,scalar", 1e-10 },
+                        {"pFD", "real,strictpos,scalar", 0.1 },
+                        {"tol", "real,strictpos,scalar", 1e-2 },
+                        {"maxiter", "integer,strictpos,scalar", 10 },
+                        {"sensApprox", "char", [] },
+                        {"nonlinearMismatch", "logical,scalar", false },
+                        {"debugLevel", "integer,positive,scalar", [] },
+                        []);
   global powerEps; powerEps = 1e-5;     ## value practically considered "zero" for power-law coefficients
   global debugLevel;
   if ( !isempty(uvar.debugLevel) )

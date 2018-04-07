@@ -34,7 +34,7 @@ function [pd, Ns, FDP, fdp_vars, fdp_opts] = SensitivityHoughFstatFDP(pd, Ns, ar
                {"nth", "real,strictpos,matrix", []},
                {"Fth", "real,strictpos,scalar"},
                {"zero", "logical,scalar", false}
-               );
+              );
   fdp_opts.Fth = Fth;
   fdp_opts.zero = zero;
 

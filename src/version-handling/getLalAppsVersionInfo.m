@@ -17,22 +17,22 @@
 
 function version_string = getLalAppsVersionInfo (lalapps_command);
 
- version_string = ["# version info from ", lalapps_command, ":\n"];
+  version_string = ["# version info from ", lalapps_command, ":\n"];
 
- ## get version info from the given lalapps code
- [~, lalapps_version_output] = system ( cstrcat( lalapps_command, " --version" ) );
+  ## get version info from the given lalapps code
+  [~, lalapps_version_output] = system ( cstrcat( lalapps_command, " --version" ) );
 
- ## reformat it: remove trailing whitespaces and newlines, replace '%%' comment markers by '#'
- lalapps_version_output = strsplit(lalapps_version_output,"\n");
- for n=1:1:length(lalapps_version_output)
-  lalapps_version_line = lalapps_version_output{n};
-  if ( length(lalapps_version_line) > 0 )
-   if ( strncmp(lalapps_version_line,"%%", 2) )
-    lalapps_version_line = lalapps_version_line(3:end);
-   endif
-   version_string = [version_string, "# ", strtrim(lalapps_version_line), "\n"];
-  endif
- endfor
+  ## reformat it: remove trailing whitespaces and newlines, replace '%%' comment markers by '#'
+  lalapps_version_output = strsplit(lalapps_version_output,"\n");
+  for n=1:1:length(lalapps_version_output)
+    lalapps_version_line = lalapps_version_output{n};
+    if ( length(lalapps_version_line) > 0 )
+      if ( strncmp(lalapps_version_line,"%%", 2) )
+        lalapps_version_line = lalapps_version_line(3:end);
+      endif
+      version_string = [version_string, "# ", strtrim(lalapps_version_line), "\n"];
+    endif
+  endfor
 
 endfunction ## getLalAppsVersionInfo()
 

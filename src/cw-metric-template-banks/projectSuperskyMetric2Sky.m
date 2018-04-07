@@ -35,17 +35,17 @@ function g_aa = projectSuperskyMetric2Sky ( g_nn, alpha0, delta0 )
   sina = sin(alpha0); cosa = cos(alpha0);
   jak_n_a = [
              - cosd * sina, - sind * cosa;
-               cosd * cosa, - sind * sina;
-                         0,   cosd
-             ];
+             cosd * cosa, - sind * sina;
+             0,   cosd
+  ];
   nfkdot = nDim - 3;
   B_n_k = zeros ( 3, nfkdot );
   B_k_a = zeros(nfkdot, 2);
   C_k_k = eye ( nfkdot, nfkdot);
 
   Jak_n_a = [ jak_n_a,  B_n_k;
-                B_k_a,  C_k_k;
-             ];
+              B_k_a,  C_k_k;
+            ];
   Jak_a_n = Jak_n_a';
 
   g_aa = Jak_a_n * g_nn * Jak_n_a;

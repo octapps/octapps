@@ -16,33 +16,33 @@
 ## MA  02111-1307  USA
 
 function writeCommandLineToFile ( filename, params, scriptname )
- ## writeCommandLineToFile ( filename, params, scriptname )
- ## write an octapps_run commandline as an output file header
- ## 'params' should be prepared by parseOptions() before
- ## NOTE: use save("-append",...) later on to not overwrite this header
+  ## writeCommandLineToFile ( filename, params, scriptname )
+  ## write an octapps_run commandline as an output file header
+  ## 'params' should be prepared by parseOptions() before
+  ## NOTE: use save("-append",...) later on to not overwrite this header
 
- fid = fopen ( filename, "w" );
+  fid = fopen ( filename, "w" );
 
- fprintf ( fid, "%s\n", strftime(save_header_format_string, localtime(time())));
+  fprintf ( fid, "%s\n", strftime(save_header_format_string, localtime(time())));
 
- fprintf ( fid, "# octapps version: %s\n", octapps_gitID().vcsId );
+  fprintf ( fid, "# octapps version: %s\n", octapps_gitID().vcsId );
 
- fprintf ( fid, "# commandline:\n" );
- fprintf ( fid, "# octapps_run %s\n", scriptname );
+  fprintf ( fid, "# commandline:\n" );
+  fprintf ( fid, "# octapps_run %s\n", scriptname );
 
- param_fieldnames = fieldnames(params);
- param_values     = struct2cell(params);
+  param_fieldnames = fieldnames(params);
+  param_values     = struct2cell(params);
 
- for n=1:1:length(param_values)
-  if ( length(param_values{n}) > 0 ) ## variables not set by the user which have the empty string as default will break the reconstructed commandline, ignore them here
-   if ( isnumeric(param_values{n}) || islogical(param_values{n}) ) ## values converted to numeric formats by parseOptions have to be converted back
-    param_values{n} = num2str(param_values{n});
-   endif
-   fprintf ( fid, "# --%s=%s\n", param_fieldnames{n}, param_values{n} );
-  endif
- endfor
+  for n=1:1:length(param_values)
+    if ( length(param_values{n}) > 0 ) ## variables not set by the user which have the empty string as default will break the reconstructed commandline, ignore them here
+      if ( isnumeric(param_values{n}) || islogical(param_values{n}) ) ## values converted to numeric formats by parseOptions have to be converted back
+        param_values{n} = num2str(param_values{n});
+      endif
+      fprintf ( fid, "# --%s=%s\n", param_fieldnames{n}, param_values{n} );
+    endif
+  endfor
 
- fclose ( filename );
+  fclose ( filename );
 
 endfunction ## writeCommandLineToFile()
 

@@ -34,7 +34,7 @@ function [pd, Ns, FDP, fdp_vars, fdp_opts] = SensitivityChiSqrFDP(pd, Ns, args)
                {"sa", "real,strictpos,matrix", []},
                {"dof", "real,strictpos,scalar", 4},
                {"norm", "logical,scalar", false}
-               );
+              );
   fdp_opts.dof = dof;
   fdp_opts.norm = norm;
 

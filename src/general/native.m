@@ -50,7 +50,7 @@ function varargout = native(varargin)
 
     ## try converting to double
     try
-       varargout{i} = double(varargin{i});
+      varargout{i} = double(varargin{i});
       continue
     catch
     end_try_catch

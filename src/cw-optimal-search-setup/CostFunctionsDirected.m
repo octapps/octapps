@@ -333,9 +333,9 @@ function ret = frequencyMetricNat ( sMax, Nseg, Tseg )
 
   ## ----- coherent metric in natural units with refTime = midTime
   g4D = [ 1/3,     0, 1/5,     0 ;
-            0,  4/45,   0,  8/105;
+          0,  4/45,   0,  8/105;
           1/5,     0, 1/7 * ff2^2,      0;
-            0, 8/105,   0, 16/225;
+          0, 8/105,   0, 16/225;
         ];
 
   ## ----- semi-coherent contributions adding onto coherent metric elements
@@ -353,9 +353,9 @@ function ret = frequencyMetricNat ( sMax, Nseg, Tseg )
 
   g4SC = [  0,     0,  d02,  d03;
             0,   d11,  d12,  d13;
-          d02,   d12,  d22,  d23;
-          d03,   d13,  d23,  d33;
-          ];
+            d02,   d12,  d22,  d23;
+            d03,   d13,  d23,  d33;
+         ];
 
   n = 1 + sMax; ## template-bank dimension
   gij = (g4D + g4SC) ( 1:n, 1:n );

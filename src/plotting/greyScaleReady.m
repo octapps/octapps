@@ -98,7 +98,7 @@ function map = greyScaleReady(name, n=64)
   ## generate colour map
   map = makeColourMap(r, g, b, n);
   if reverse
-     map = map(end:-1:1, :);
+    map = map(end:-1:1, :);
   endif
 
 endfunction

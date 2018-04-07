@@ -189,8 +189,8 @@ function [Depth, pd_Depth] = SensitivityDepth(varargin)
   ## probability
   Depth_min = ones(size(Depth));
   pd_Depth_min(ii) = callFDP(Depth_min,ii,
-                           jj,kk,pd,Ns, Tdata,Rsqr_x,Rsqr_w,mism_x, mism_w,
-                           FDP,fdp_vars,fdp_opts);
+                             jj,kk,pd,Ns, Tdata,Rsqr_x,Rsqr_w,mism_x, mism_w,
+                             FDP,fdp_vars,fdp_opts);
   ii0 = (pd_Depth_min <= pd);
 
   ## find Depth_max where the false dismissal probability becomes
@@ -212,8 +212,8 @@ function [Depth, pd_Depth] = SensitivityDepth(varargin)
 
     ## calculate false dismissal probability
     pd_Depth_max(ii) = callFDP(Depth_max,ii,
-                             jj,kk,pd,Ns, Tdata,Rsqr_x,Rsqr_w, mism_x, mism_w,
-                             FDP,fdp_vars,fdp_opts);
+                               jj,kk,pd,Ns, Tdata,Rsqr_x,Rsqr_w, mism_x, mism_w,
+                               FDP,fdp_vars,fdp_opts);
 
     ## determine which Depth to keep calculating for
     ## exit when there are none left
@@ -239,8 +239,8 @@ function [Depth, pd_Depth] = SensitivityDepth(varargin)
 
     ## calculate new false dismissal probability
     pd_Depth(ii) = callFDP(Depth,ii,
-                         jj,kk,pd,Ns, Tdata,Rsqr_x,Rsqr_w, mism_x, mism_w,
-                         FDP,fdp_vars,fdp_opts);
+                           jj,kk,pd,Ns, Tdata,Rsqr_x,Rsqr_w, mism_x, mism_w,
+                           FDP,fdp_vars,fdp_opts);
 
     ## replace bounds with mid-point as required
     iimin = ii & (pd_Depth_min < pd & pd_Depth < pd);
@@ -271,15 +271,15 @@ endfunction
 
 ## call a false dismissal probability calculation equation
 function pd_Depth = callFDP(Depth,ii,
-                          jj,kk,pd,Ns, Tdata,Rsqr_x,Rsqr_w,mism_x, mism_w,
-                          FDP,fdp_vars,fdp_opts)
+                            jj,kk,pd,Ns, Tdata,Rsqr_x,Rsqr_w,mism_x, mism_w,
+                            FDP,fdp_vars,fdp_opts)
   if any(ii)
     for i = 1:length(mism_x)
       ## integrating over the mismatch distributions
       cdfs(:,:,i) = sum((1 -  feval(FDP,pd(ii,jj,kk{i}), Ns{i}(ii,jj,kk{i}),                       ## lower dimensional arrays are copied to the remaining dimensions
-                       (2 / 5 .*sqrt(Tdata{i}(ii,jj,kk{i}) ./Ns{i}(ii,jj,kk{i}))./Depth(ii,jj,kk{i})).^2 .*Rsqr_x(ii,:,kk{i}).*(1 - mism_x{i}(ii,jj,:)), ## might be better to do that before the loop
-                       cellfun(@(x) x{i}(ii,jj,kk{i}),fdp_vars,"UniformOutput",false),
-                       fdp_opts )) .*mism_w{i}(ii,jj,:),3);
+                                    (2 / 5 .*sqrt(Tdata{i}(ii,jj,kk{i}) ./Ns{i}(ii,jj,kk{i}))./Depth(ii,jj,kk{i})).^2 .*Rsqr_x(ii,:,kk{i}).*(1 - mism_x{i}(ii,jj,:)), ## might be better to do that before the loop
+                                    cellfun(@(x) x{i}(ii,jj,kk{i}),fdp_vars,"UniformOutput",false),
+                                    fdp_opts )) .*mism_w{i}(ii,jj,:),3);
     endfor
     ## product of the mismatch integrals, integration over R^2
     pd_Depth = 1 - sum(prod(cdfs,3).* Rsqr_w(ii,:) , 2);
