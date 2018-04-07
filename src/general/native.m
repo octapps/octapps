@@ -37,6 +37,7 @@ function varargout = native(varargin)
         varargout{i} = [];
         continue
       endif
+    catch
     end_try_catch
 
     ## try extracting data from a 'data field'
@@ -44,12 +45,14 @@ function varargout = native(varargin)
       data = varargin{i}.data;
       varargout{i} = reshape(data(:), size(data));
       continue
+    catch
     end_try_catch
 
     ## try converting to double
     try
        varargout{i} = double(varargin{i});
       continue
+    catch
     end_try_catch
 
     ## give up

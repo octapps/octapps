@@ -30,27 +30,35 @@ function IDstring = format_gitID(varargin)
     ## use try instead of isfield(), since SWIG-wrapped types don't support it
     try
       IDstring = strcat(IDstring, sprintf("%sAuthor: %s\n", ID.name, ID.vcsAuthor));
+    catch
     end_try_catch
     try
       IDstring = strcat(IDstring, sprintf("%sBranch: %s\n", ID.name, ID.vcsBranch));
+    catch
     end_try_catch
     try
       IDstring = strcat(IDstring, sprintf("%sCommitter: %s\n", ID.name, ID.vcsCommitter));
+    catch
     end_try_catch
     try
       IDstring = strcat(IDstring, sprintf("%sDate: %s\n", ID.name, ID.vcsDate));
+    catch
     end_try_catch
     try
       IDstring = strcat(IDstring, sprintf("%sID: %s\n", ID.name, ID.vcsId));
+    catch
     end_try_catch
     try
       IDstring = strcat(IDstring, sprintf("%sStatus: %s\n", ID.name, ID.vcsStatus));
+    catch
     end_try_catch
     try
       IDstring = strcat(IDstring, sprintf("%sTag: %s\n", ID.name, ID.vcsTag));
+    catch
     end_try_catch
     try
       IDstring = strcat(IDstring, sprintf("%sVersion: %s\n", ID.name, ID.version));
+    catch
     end_try_catch
 
   endfor
