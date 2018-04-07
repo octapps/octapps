@@ -131,6 +131,7 @@ function mergeCondorResults(varargin)
         try
           node_results = load(node_result_file{1});
           break
+        catch
         end_try_catch
       endif
       if tries < load_retries
@@ -237,6 +238,7 @@ function mergeCondorResults(varargin)
         endif
       endfor
       merged.arguments = sortStructFields(arguments);
+    catch
     end_try_catch
 
     ## flatten merged results into struct array with sorted fields, if possible
@@ -248,6 +250,7 @@ function mergeCondorResults(varargin)
         endfor
       endfor
       merged.results = sortStructFields(results);
+    catch
     end_try_catch
 
     ## add extra data
