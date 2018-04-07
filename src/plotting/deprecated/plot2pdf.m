@@ -29,7 +29,7 @@ function plot2pdf ( bname, print_options=[], latex_preamble=[], nocleanup=false 
 
   curdir = pwd ();
 
-  tmp_bname = "__tmp";	## avoid file-name problems in LaTeX include, rename into '<bname>.pdf' at the end
+  tmp_bname = "__tmp";  ## avoid file-name problems in LaTeX include, rename into '<bname>.pdf' at the end
 
   ## create temporary sudirectory
   tmpdir = tmpnam (".");

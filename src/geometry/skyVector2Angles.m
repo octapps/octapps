@@ -38,10 +38,10 @@ function LongLat = skyVector2Angles ( vSky )
   vSky = vSky ./ normSky;
 
   ## convert back to sky angles 'longitude' and 'latitude'
-  long  = atan2 ( vSky(:,2), vSky(:,1) );	## range = [-pi, pi]
+  long  = atan2 ( vSky(:,2), vSky(:,1) );       ## range = [-pi, pi]
   long ( long < 0 ) += 2 * pi;
 
-  lat = asin ( vSky(:, 3) );	## range is [-pi/2, pi/2]
+  lat = asin ( vSky(:, 3) );    ## range is [-pi/2, pi/2]
   LongLat = [ long, lat ];
 
   return;

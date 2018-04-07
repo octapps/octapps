@@ -37,7 +37,7 @@
 ##   "misHist":         cell array of mismatch histograms, one for every stage, produced using Hist()
 ##   "pFD":             false-dismissal probability = 1 - pDet = 1 - 'confidence'
 ##   "pFA":             false-alarm probability (-ies) *per template* (every row is one trial, every column is for one stage )
-##   "avg2Fth"		ALTERNATIVE to pFA: average-2F threshold (every row is one trial, every column is for one stage )
+##   "avg2Fth"          ALTERNATIVE to pFA: average-2F threshold (every row is one trial, every column is for one stage )
 ##   "detectors":       CSV list of detectors to use ("H1"=Hanford, "L1"=Livingston, "V1"=Virgo, ...)
 ##   "detweights":      detector weights on S_h to use (default: uniform weights)
 ##   "alpha":           source right ascension in radians (default: all-sky)

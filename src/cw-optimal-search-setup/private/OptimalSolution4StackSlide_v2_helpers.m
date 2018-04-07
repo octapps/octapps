@@ -56,7 +56,7 @@ function funs = OptimalSolution4StackSlide_v2_helpers ( costFuns, constraints, p
   funs.solvers = solvers;
 
   funs.L0             = @(sp) ( 1 - sp.misAvg ) .* sp.Tseg .* sp.Nseg.^(1 - 1./(2*funs.w(sp)));
-  funs.costConstraint = @(sp) ( (sp.cost - funs.constraints.cost0)/funs.constraints.cost0);	## Note: keep sign, allows accepting cost < cost0 solutions ...
+  funs.costConstraint = @(sp) ( (sp.cost - funs.constraints.cost0)/funs.constraints.cost0);     ## Note: keep sign, allows accepting cost < cost0 solutions ...
 
   funs.cratio = @(mCoh,mInc,sp) ...
                  (funs.zCoh(sp.Tseg,sp.Nseg*sp.Tseg,mCoh,sp.coefCoh.xi,mInc,sp.coefInc.xi) .* mCoh ./ sp.coefCoh.nDim) ...
@@ -121,7 +121,7 @@ function sol = NONI_unconstrained ( stackparams, funs )
       if ( debugLevel >= 3 ) err, endif
       return;
     end_try_catch
-    logmRange(2) = 0.95 * pole;	## stay below from pole
+    logmRange(2) = 0.95 * pole; ## stay below from pole
   endif ## if denominator has zero
 
   lhs = @(logm) funs.zInc ( Tseg, Tobs, 0, 0, exp(logm), xi ) .* exp(logm) ./ denom(logm);
@@ -202,7 +202,7 @@ function sol = NONI_constrainedTobs ( stackparams, funs, Tobs0 )
       if ( debugLevel >= 3 ) err, endif
       return;
     end_try_catch
-    logmRange(2) = 0.95 * pole;	## stay below from pole
+    logmRange(2) = 0.95 * pole; ## stay below from pole
   endif
   try
     assert ( FCN(logmRange(1)) * FCN(logmRange(2)) < 0, "logmRange [%g, %g] does not bracket coherent mismatch solution for rhs = %g\n", logmRange(1),logmRange(2), rhs);
@@ -221,7 +221,7 @@ function sol = NONI_constrainedTobs ( stackparams, funs, Tobs0 )
   NsegOpt = exp ( logNopt );
   TsegOpt = Tobs0 / NsegOpt;
 
-  if ( (TsegOpt < funs.constraints.TsegMin) && isfield(stackparams, "hitTsegMin") && stackparams.hitTsegMin )	## keeps pushing down->give up
+  if ( (TsegOpt < funs.constraints.TsegMin) && isfield(stackparams, "hitTsegMin") && stackparams.hitTsegMin )   ## keeps pushing down->give up
     DebugPrintf ( 2, "\n%s: TsegOpt = %g d: keeps pushing below TsegMin = %g d ==> giving up!\n", funcName, TsegOpt/DAYS, funs.constraints.TsegMin/DAYS );
     return;
   endif
@@ -265,7 +265,7 @@ function sol = NONI_constrainedTseg ( stackparams, funs, Tseg0 )
       if ( debugLevel >= 3 ) err, endif
       return;
     end_try_catch
-    logmRange(2) = 0.95 * pole;	## stay below from pole
+    logmRange(2) = 0.95 * pole; ## stay below from pole
   endif
   try
     assert ( FCN(logmRange(1)) * FCN(logmRange(2)) < 0, "logmRange [%g, %g] does not bracket mismatch solution for rhs = %g\n", logmRange(1),logmRange(2), rhs);
@@ -450,7 +450,7 @@ function sol = INT_constrainedTobs ( stackparams, funs, Tobs0 )
     NsegOpt = exp ( logN );
     TsegOpt = Tobs0 / NsegOpt;
 
-    if ( (TsegOpt < funs.constraints.TsegMin) && isfield(stackparams, "hitTsegMin") && stackparams.hitTsegMin )	## keeps pushing down->give up
+    if ( (TsegOpt < funs.constraints.TsegMin) && isfield(stackparams, "hitTsegMin") && stackparams.hitTsegMin ) ## keeps pushing down->give up
       DebugPrintf ( 2, "\n%s: TsegOpt = %g d: keeps pushing below TsegMin = %g d ==> giving up!\n", funcName, TsegOpt/DAYS, funs.constraints.TsegMin/DAYS );
       return;
     endif
@@ -586,7 +586,7 @@ function sol = COH_unconstrained ( stackparams, funs )
   Tseg = stackparams.Tseg; Nseg = stackparams.Nseg; Tobs = Nseg * Tseg;
   ## --------------------------------
 
-  rCoh = (nCoh/2) / deltaCoh;	## limit of cr->inf
+  rCoh = (nCoh/2) / deltaCoh;   ## limit of cr->inf
   denom = @(logm) ( 1 - funs.misAvg(Tseg,Tobs,exp(logm), xiCoh, 0, 0 ) );
   FCN = @(logm) funs.zCoh(Tseg,Tobs,exp(logm), xiCoh, 0, 0) .* exp(logm) ./ denom(logm) - rCoh;
   logmRange = log([1e-3, 1e3]);
@@ -602,7 +602,7 @@ function sol = COH_unconstrained ( stackparams, funs )
       if ( debugLevel >= 3 ) err, endif
       return;
     end_try_catch
-    logmRange(2) = 0.95 * pole;	## stay below from pole
+    logmRange(2) = 0.95 * pole; ## stay below from pole
   endif
   try
     assert ( FCN(logmRange(1)) * FCN(logmRange(2)) < 0, "logmRange [%g, %g] does not bracket coherent mismatch solution for rCoh = %g\n", logmRange(1),logmRange(2), rCoh);
@@ -696,10 +696,10 @@ function stackparams = complete_stackparams ( stackparams, funs )
   stackparams.cost = stackparams.coefCoh.cost + stackparams.coefInc.cost;
 
   if ( !isfield ( stackparams, "misAvgLIN" ) || !isfield ( stackparams, "misAvgNLM") || !isfield ( stackparams, "misAvg" ) )
-    if ( stackparams.Nseg == 1 )	## coherent case
+    if ( stackparams.Nseg == 1 )        ## coherent case
       stackparams.misAvgLIN = funs.misAvgLIN ( Tseg, Tobs, stackparams.mCoh, stackparams.coefCoh.xi, 0, 0 );
       stackparams.misAvgNLM = funs.misAvgNLM ( Tseg, Tobs, stackparams.mCoh, stackparams.coefCoh.xi, 0, 0 );
-    elseif ( funs.par.grid_interpolation )	## interpolating StackSlide
+    elseif ( funs.par.grid_interpolation )      ## interpolating StackSlide
       stackparams.misAvgLIN = funs.misAvgLIN ( Tseg, Tobs, stackparams.mCoh, stackparams.coefCoh.xi, stackparams.mInc, stackparams.coefInc.xi );
       stackparams.misAvgNLM = funs.misAvgNLM ( Tseg, Tobs, stackparams.mCoh, stackparams.coefCoh.xi, stackparams.mInc, stackparams.coefInc.xi );
     else ## non-interpolating StackSlide
@@ -791,7 +791,7 @@ function sol = NONI_unconstrained_prev ( stackparams, funs )
       if ( debugLevel >= 3 ) err, endif
       return;
     end_try_catch
-    logmRange(2) = 0.95 * pole;	## stay below from pole
+    logmRange(2) = 0.95 * pole; ## stay below from pole
   endif ## if denominator has zero
 
   lhs = @(logm) funs.zInc ( Tseg, Tobs, 0, 0, exp(logm), xi ) .* exp(logm) ./ denom(logm);

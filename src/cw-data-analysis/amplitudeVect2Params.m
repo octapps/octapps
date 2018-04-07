@@ -113,14 +113,14 @@ function Amp = amplitudeVect2Params ( Amu, convention )
     Amp.Amplitude    = 0.5 * h0;
     Amp.Inclination  = pi - acos(cosi);
 
-    Polarization = mod( pi/2 - psi, pi );		## in [0, pi): inv under += pi
-    InitialPhase = phi0 + pi;			## FIXME: Mystery sign-flip!
+    Polarization = mod( pi/2 - psi, pi );               ## in [0, pi): inv under += pi
+    InitialPhase = phi0 + pi;                   ## FIXME: Mystery sign-flip!
 
     flipInds = find ( Polarization >= pi/2 );
-    Polarization(flipInds) -= pi/2;		## now in [0, pi/2)
+    Polarization(flipInds) -= pi/2;             ## now in [0, pi/2)
     InitialPhase(flipInds) += pi;
 
-    InitialPhase = mod ( InitialPhase, 2*pi );	## in [0, 2pi) inv under += 2pi
+    InitialPhase = mod ( InitialPhase, 2*pi );  ## in [0, 2pi) inv under += 2pi
 
     Amp.Polarization  = Polarization;
     Amp.InitialPhase  = InitialPhase;

@@ -32,7 +32,7 @@
 function skyEqu = skyEcliptic2Equatorial ( skyEcl )
 
   UnitsConstants;
-  skyEqu = skyRotateFrame ( skyEcl, +IEARTH, [ 1; 0; 0] );	## rotation ecliptic->equatorial
+  skyEqu = skyRotateFrame ( skyEcl, +IEARTH, [ 1; 0; 0] );      ## rotation ecliptic->equatorial
   return;
 
 endfunction

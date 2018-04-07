@@ -57,9 +57,9 @@ function [xx, yy, zz] = metricEllipsoid ( gij, mismatch, Nsteps=20, method=1 )
     case 1              ## Cholesky decompose the metric
       R = chol ( gij );
       Rinv = inv ( R );
-    case 2		## Eigenvalue-decompose metric
+    case 2              ## Eigenvalue-decompose metric
       [ev, ew] = eig ( gij );
-      dd = (ev * sqrt(ew))';	## such that gij = trans(d) * d
+      dd = (ev * sqrt(ew))';    ## such that gij = trans(d) * d
       Rinv = inv ( dd );
     otherwise
       error ("Invalid method = %d, supported '1'=Cholesky, '2'=eigenvalues\n", method );
@@ -67,9 +67,9 @@ function [xx, yy, zz] = metricEllipsoid ( gij, mismatch, Nsteps=20, method=1 )
 
   for i = 1:length( xx(:) )
 
-    uui = [ xx(i); yy(i); zz(i) ];	## one point on the 'metric sphere'
+    uui = [ xx(i); yy(i); zz(i) ];      ## one point on the 'metric sphere'
 
-    vvi = Rinv * uui(1:nDim);		## transform this point from sphere onto metric ellipsoid
+    vvi = Rinv * uui(1:nDim);           ## transform this point from sphere onto metric ellipsoid
 
     xx(i) = vvi(1); yy(i) = vvi(2);
     if ( nDim == 3 ) zz(i) = vvi(3); endif

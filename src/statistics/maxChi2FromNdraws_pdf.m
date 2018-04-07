@@ -48,4 +48,4 @@ endfunction
 %! p = maxChi2FromNdraws_pdf ( max2F, 2e7, dof=4 );
 %! dFmax = mean(diff(max2F));
 %! Emax2F = sum ( max2F .* p ) * dFmax;
-%! assert ( Emax2F, 40.901, -1e-3 );	## 1e-3 relative tolerance
+%! assert ( Emax2F, 40.901, -1e-3 );    ## 1e-3 relative tolerance

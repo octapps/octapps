@@ -20,7 +20,7 @@ function rotMatrix = rotationMatrix ( angle, rotAxis )
 
   assert ( isvector ( rotAxis ) && (length(rotAxis) == 3), "%s: rotation Axis must be a 3-vector.\n", funcName );
 
-  u = rotAxis / norm(rotAxis);	## unit vector
+  u = rotAxis / norm(rotAxis);  ## unit vector
   x = u(1); y = u(2); z = u(3);
 
   ## Taken from wikipedia: http://en.wikipedia.org/wiki/Rotation_matrix

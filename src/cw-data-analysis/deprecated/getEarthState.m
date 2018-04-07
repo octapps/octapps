@@ -23,7 +23,7 @@
 
 function ret = getEarthState (ephem, gps)
 
-  tinitE = ephem(1,1);	## start-time of ephemeris-table
+  tinitE = ephem(1,1);  ## start-time of ephemeris-table
   dtEtable = ephem(2,1) - ephem(1,1); ## time-interval of ephemeris-table
 
   t0e = gps - tinitE;

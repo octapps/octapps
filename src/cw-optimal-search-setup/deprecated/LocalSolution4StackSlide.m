@@ -87,9 +87,9 @@ function stackparams = LocalSolution4StackSlide ( coefCoh, coefInc, constraints,
   delta_c = coefCoh.delta;
   kappa_c = coefCoh.kappa;
   n_c     = coefCoh.nDim;
-  eta_c   = 1;	## default value for all 'standard' cases
+  eta_c   = 1;  ## default value for all 'standard' cases
   if ( isfield ( coefCoh, "eta" ) )
-    eta_c = coefCoh.eta;	## ... but we allow user-input to override this
+    eta_c = coefCoh.eta;        ## ... but we allow user-input to override this
   endif
 
   ## incoherent power-law coefficients
@@ -179,18 +179,18 @@ function stackparams = LocalSolution4StackSlide ( coefCoh, coefInc, constraints,
   log_c0_kappa_c     = log ( cost0 / kappa_c );
   termU = @(cr) (mcOpt_fcr(cr))^(-0.5*n_c) * ( 1 + cr^(-1) );
   termL = @(cr) (mfOpt_fcr(cr))^(-0.5*n_f) * ( 1 + cr );
-  misfract_Nseg = @(cr) (termU(cr))^delta_f / (termL(cr))^delta_c;	## main fraction term in Eq.(86)
-  misfract_Tobs = @(cr) (termU(cr))^eps_f   / (termL(cr))^eps_c;	## main fraction term in Eq.(87)
+  misfract_Nseg = @(cr) (termU(cr))^delta_f / (termL(cr))^delta_c;      ## main fraction term in Eq.(86)
+  misfract_Tobs = @(cr) (termU(cr))^eps_f   / (termL(cr))^eps_c;        ## main fraction term in Eq.(87)
   log_cost_fact_Nseg = delta_c * log_c0_kappa_f - delta_f * log_c0_kappa_c;
   log_cost_fact_Tobs = eps_c * log_c0_kappa_f - eps_f * log_c0_kappa_c;
   cost_fact_Nseg     = exp ( log_cost_fact_Nseg );
   cost_fact_Tobs     = exp ( log_cost_fact_Tobs );
-  TobsOpt_fcr = @(cr) ( cost_fact_Tobs * misfract_Tobs(cr) )^Dinv;	## Eq.(87) for Tobs(cr)
-  NsegOpt_fcr = @(cr) ( cost_fact_Nseg * misfract_Nseg(cr) )^Dinv;	## Eq.(86) for Nseg(cr)
+  TobsOpt_fcr = @(cr) ( cost_fact_Tobs * misfract_Tobs(cr) )^Dinv;      ## Eq.(87) for Tobs(cr)
+  NsegOpt_fcr = @(cr) ( cost_fact_Nseg * misfract_Nseg(cr) )^Dinv;      ## Eq.(86) for Nseg(cr)
 
   ## ----- compute optimal solution for different given constraints ----------
   if ( !have_Tobs0 )
-    crOpt = -a_f / a_c;		## Eq.(103): if bounded solution
+    crOpt = -a_f / a_c;         ## Eq.(103): if bounded solution
     if ( crOpt <= 0 )
       stackparams.need_TobsMax = true;
     endif
@@ -251,11 +251,11 @@ endfunction
 %!
 %!  constraints.cost0 = 471.981444 * 86400;
 %!  stackparams = LocalSolution4StackSlide ( coefCoh, coefInc, constraints, w = 1 );
-%!  assert ( stackparams.cr, 1, 1e-6 );			## Eq.(117)
-%!  assert ( stackparams.mCoh, 0.180879057028436, 1e-6 );		## Eq.(118), corrected for xi_c from "Ans(2)" instead of 0.5
-%!  assert ( stackparams.mInc, 0.271318585542655, 1e-6 );		## Eq.(118), corrected for xi_f  from "Ans(3)" instead of 0.5
-%!  assert ( stackparams.Tseg / 86400, 2.4178, 1e-3 );	## corrected result, found in Shaltev thesis, Eq.(4.119), corrected for accurate xi_c, xi_f
-%!  assert ( stackparams.Nseg, 61.7557, 1e-4 );		## corrected result, found in Shaltev thesis, Eq.(4.119), corrected for accurate xi_c, xi_f
+%!  assert ( stackparams.cr, 1, 1e-6 );                 ## Eq.(117)
+%!  assert ( stackparams.mCoh, 0.180879057028436, 1e-6 );               ## Eq.(118), corrected for xi_c from "Ans(2)" instead of 0.5
+%!  assert ( stackparams.mInc, 0.271318585542655, 1e-6 );               ## Eq.(118), corrected for xi_f  from "Ans(3)" instead of 0.5
+%!  assert ( stackparams.Tseg / 86400, 2.4178, 1e-3 );  ## corrected result, found in Shaltev thesis, Eq.(4.119), corrected for accurate xi_c, xi_f
+%!  assert ( stackparams.Nseg, 61.7557, 1e-4 );         ## corrected result, found in Shaltev thesis, Eq.(4.119), corrected for accurate xi_c, xi_f
 
 %!test
 %!  ## check recovery of published results in Prix&Shaltev(2012): V.B: all-sky E@H [S5GC1], TableII

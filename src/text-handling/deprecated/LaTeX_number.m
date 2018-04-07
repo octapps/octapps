@@ -70,7 +70,7 @@ function ret = LaTeX_number ( val, precision = 3, form = "auto" )
       case FORM_E
         expon = floor ( log10 ( this_val ) );
         mant = this_val / 10^expon;
-        if ( abs(mant - 1) < 10^(-precision) )	## don't print redundant '1x10^x', but rather '10^x'
+        if ( abs(mant - 1) < 10^(-precision) )  ## don't print redundant '1x10^x', but rather '10^x'
           ret{i} = sprintf(fmt_e0, expon );
         else
           ret{i} = sprintf(fmt_e, mant, expon );

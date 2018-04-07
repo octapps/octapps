@@ -137,8 +137,8 @@ function results = injectionRecoveryGCT ( varargin )
     tStart = min ( tStart, ts(1,1) );
     tEnd   = max ( tEnd, ts(end,1) );
   endfor
-  Tsft = 1800;	## assumed default
-  inj.refTime = 0.5 * ( tStart + tEnd + Tsft );	## make sure we hit the exact value the GCT code uses to avoid "grid bloat"
+  Tsft = 1800;  ## assumed default
+  inj.refTime = 0.5 * ( tStart + tEnd + Tsft ); ## make sure we hit the exact value the GCT code uses to avoid "grid bloat"
 
   ## ----- figure out maximal SFT bandwidth required -----
   inj_FreqMin = min ( uvar.inj_FreqRange );
@@ -217,14 +217,14 @@ function results = injectionRecoveryGCT ( varargin )
     DebugPrintf ( 1, "Starting trial %04d/%04d:\n", iTrial, uvar.Ntrials );
 
     ## ---------- pick random signal parameters ----------
-    inj.cosi	= unifrnd ( -1, 1 );
-    inj.psi	= unifrnd ( 0, pi );
-    inj.phi0	= unifrnd ( 0, 2 *pi );
+    inj.cosi    = unifrnd ( -1, 1 );
+    inj.psi     = unifrnd ( 0, pi );
+    inj.phi0    = unifrnd ( 0, 2 *pi );
 
     inj.Alpha = unifrnd ( min(uvar.inj_AlphaRange), max(uvar.inj_AlphaRange) * (1 + sign(max(uvar.inj_AlphaRange))*eps) );
     sDeltaRange = sin ( uvar.inj_DeltaRange );
-    inj.Delta	= asin ( unifrnd ( min(sDeltaRange), max(sDeltaRange) * (1 + sign(max(sDeltaRange))*eps) )  );
-    inj.Freq	= unifrnd ( inj_FreqMin, inj_FreqMax * (1 + eps) );   #Freq is alway positive hence no sign()
+    inj.Delta   = asin ( unifrnd ( min(sDeltaRange), max(sDeltaRange) * (1 + sign(max(sDeltaRange))*eps) )  );
+    inj.Freq    = unifrnd ( inj_FreqMin, inj_FreqMax * (1 + eps) );   #Freq is alway positive hence no sign()
     for k = 1 : spindown_order
       inj.fkdot(k)= unifrnd ( min(uvar.inj_fkdotRange(k, :)), max(uvar.inj_fkdotRange(k, :)) * (1 + sign(max(uvar.inj_fkdotRange(k, :)))*eps) );
     endfor
@@ -232,16 +232,16 @@ function results = injectionRecoveryGCT ( varargin )
     ## ---------- run PredictFstat on all segments ==> "perfect match Fstats" ----------
     PFS = struct();
     if ( have_h0 )
-      PFS.h0	= uvar.inj_h0;
+      PFS.h0    = uvar.inj_h0;
     else
-      PFS.h0	= 1;	## rescale to given SNR at the end
+      PFS.h0    = 1;    ## rescale to given SNR at the end
     endif
-    PFS.cosi	= inj.cosi;
-    PFS.psi	= inj.psi;
-    PFS.phi0	= inj.phi0;
-    PFS.Alpha	= inj.Alpha;
-    PFS.Delta	= inj.Delta;
-    PFS.Freq	= inj.Freq;
+    PFS.cosi    = inj.cosi;
+    PFS.psi     = inj.psi;
+    PFS.phi0    = inj.phi0;
+    PFS.Alpha   = inj.Alpha;
+    PFS.Delta   = inj.Delta;
+    PFS.Freq    = inj.Freq;
     PFS.DataFiles = SFTfiles;
     if ( isempty ( uvar.inj_sqrtSX ) )
       PFS.assumeSqrtSX = 1;
@@ -292,23 +292,23 @@ function results = injectionRecoveryGCT ( varargin )
     ## as mentioned above, we don't truncate the search frequency box to the
     ## 'GCT search grid', as we're assuming contiguous WUs above and below this
     ## search frequency range, so there's no "boundary"
-    sch.Freq     = FreqGrid_GCT(iFreq0) - floor(uvar.sch_Nfreq/2) * uvar.dFreq;		## start floor(Nfreq/2) bins below iFreq0 bin
-    sch.FreqBand = (uvar.sch_Nfreq-1) * uvar.dFreq;					## search Nfreq bins total
+    sch.Freq     = FreqGrid_GCT(iFreq0) - floor(uvar.sch_Nfreq/2) * uvar.dFreq;         ## start floor(Nfreq/2) bins below iFreq0 bin
+    sch.FreqBand = (uvar.sch_Nfreq-1) * uvar.dFreq;                                     ## search Nfreq bins total
 
     ## ----- fkdot search range
     for k = 1 : spindown_order
-      inj_fkdotBand_k	= inj_fkdotMax(k) - inj_fkdotMin(k); ## > 0
-      nfkdot_GCT_k	= ceil ( inj_fkdotBand_k / uvar.dfkdot(k) ) + 1;
-      fkdotGrid_GCT_k	= inj_fkdotMin(k) + [ 0 : (nfkdot_GCT_k-1) ] * uvar.dfkdot(k);
+      inj_fkdotBand_k   = inj_fkdotMax(k) - inj_fkdotMin(k); ## > 0
+      nfkdot_GCT_k      = ceil ( inj_fkdotBand_k / uvar.dfkdot(k) ) + 1;
+      fkdotGrid_GCT_k   = inj_fkdotMin(k) + [ 0 : (nfkdot_GCT_k-1) ] * uvar.dfkdot(k);
       [ foo, ifkdot0_k] = min ( abs ( fkdotGrid_GCT_k - inj.fkdot(k) ) );
-      sch.fkdot(k)	= fkdotGrid_GCT_k(ifkdot0_k) - floor(uvar.sch_Nfkdot(k)/2) * uvar.dfkdot(k);	## start floor(Nfkdot/2) bins below ifkdot0
-      sch.fkdotBand(k)	= (uvar.sch_Nfkdot(k)-1) * uvar.dfkdot(k);					## search Nfkdot bins total
+      sch.fkdot(k)      = fkdotGrid_GCT_k(ifkdot0_k) - floor(uvar.sch_Nfkdot(k)/2) * uvar.dfkdot(k);    ## start floor(Nfkdot/2) bins below ifkdot0
+      sch.fkdotBand(k)  = (uvar.sch_Nfkdot(k)-1) * uvar.dfkdot(k);                                      ## search Nfkdot bins total
 
       ## contrary to frequency, we *will* truncate this search box to the GCT search range,
       ## as this is typically represent the 'whole' range of the search, so we simulate 'boundary truncation'
-      sch.fkdot(k)	= max ( [ inj_fkdotMin(k), sch.fkdot(k) ] );
-      fkdotMax_k	= min ( [ inj_fkdotMax(k), sch.fkdot(k)	+ sch.fkdotBand(k) ] );
-      sch.fkdotBand(k)	= fkdotMax_k - sch.fkdot(k);
+      sch.fkdot(k)      = max ( [ inj_fkdotMin(k), sch.fkdot(k) ] );
+      fkdotMax_k        = min ( [ inj_fkdotMax(k), sch.fkdot(k) + sch.fkdotBand(k) ] );
+      sch.fkdotBand(k)  = fkdotMax_k - sch.fkdot(k);
     endfor ## k = 1:spindown_order
 
     ## ----- sky search range: find subset of Nsky 'closest' skygrid points
@@ -322,11 +322,11 @@ function results = injectionRecoveryGCT ( varargin )
     inj_Sky3Ecl = skyEquatorial2Ecliptic ( inj_Sky3 );
     ## neglect ecliptic-z axis and compute Euclidean distances in {x,y}
     offsEcl2 = repmat ( inj_Sky3Ecl([1:2]), [NskyGrid,1]) - skyGrid3Ecl(:,[1:2]);
-    distSqEcl = sumsq ( offsEcl2, 2 );			## list of ecliptic-plane distances
-    [sorted, iDist] = sort ( distSqEcl );		## sort by increasing distanceSq
-    sch.skyPatch = skyGrid ( iDist ( 1:uvar.sch_Nsky ), :);	## search the Nsky 'closest' (in the above sense) sky-grid points
+    distSqEcl = sumsq ( offsEcl2, 2 );                  ## list of ecliptic-plane distances
+    [sorted, iDist] = sort ( distSqEcl );               ## sort by increasing distanceSq
+    sch.skyPatch = skyGrid ( iDist ( 1:uvar.sch_Nsky ), :);     ## search the Nsky 'closest' (in the above sense) sky-grid points
     tmp = sprintf ( "%.16g %.16g; ", sch.skyPatch' );
-    sch.skyPatchString	= sprintf ( "{ %s }", tmp );
+    sch.skyPatchString  = sprintf ( "{ %s }", tmp );
 
     ## ----- total number of fine-grid search templates
     sch.Ntempl_coh = uvar.sch_Nfreq * uvar.sch_Nsky;
@@ -352,45 +352,45 @@ function results = injectionRecoveryGCT ( varargin )
 
     ## ---------- run HierarchSearchGCT box-search around injection ----------
     GCT = struct;
-    GCT.DataFiles1	= SFTfiles;
-    GCT.segmentList	= uvar.segmentList;
-    GCT.refTime		= inj.refTime;
+    GCT.DataFiles1      = SFTfiles;
+    GCT.segmentList     = uvar.segmentList;
+    GCT.refTime         = inj.refTime;
 
     GCT.injectionSources = inj.injectionSources;
 
-    GCT.Freq		= sch.Freq;
-    GCT.FreqBand	= sch.FreqBand;
-    GCT.dFreq		= uvar.dFreq;
+    GCT.Freq            = sch.Freq;
+    GCT.FreqBand        = sch.FreqBand;
+    GCT.dFreq           = uvar.dFreq;
 
     if ( spindown_order >= 1 )
-      GCT.f1dot		= sch.fkdot(1);
-      GCT.f1dotBand	= sch.fkdotBand(1);
-      GCT.df1dot	= uvar.dfkdot(1);
-      GCT.gammaRefine	= uvar.gammaRefine(1);
+      GCT.f1dot         = sch.fkdot(1);
+      GCT.f1dotBand     = sch.fkdotBand(1);
+      GCT.df1dot        = uvar.dfkdot(1);
+      GCT.gammaRefine   = uvar.gammaRefine(1);
     endif
     if ( spindown_order >= 2 )
-      GCT.f2dot		= sch.fkdot(2);
-      GCT.f2dotBand	= sch.fkdotBand(2);
-      GCT.df2dot	= uvar.dfkdot(2);
-      GCT.gamma2Refine	= uvar.gammaRefine(2);
+      GCT.f2dot         = sch.fkdot(2);
+      GCT.f2dotBand     = sch.fkdotBand(2);
+      GCT.df2dot        = uvar.dfkdot(2);
+      GCT.gamma2Refine  = uvar.gammaRefine(2);
     endif
 
-    GCT.gridType1	= 3;
-    GCT.skyGridFile	= sch.skyPatchString;
+    GCT.gridType1       = 3;
+    GCT.skyGridFile     = sch.skyPatchString;
 
-    GCT.peakThrF	= 0.0;
-    GCT.SignalOnly	= SignalOnly;
-    GCT.printCand1	= true;
-    GCT.semiCohToplist	= true;
-    GCT.fnameout	= "GCT.out";
-    GCT.nCand1		= uvar.nCand;	## keep this many candidates in toplist
-    GCT.recalcToplistStats = true;	## re-calculate toplist
+    GCT.peakThrF        = 0.0;
+    GCT.SignalOnly      = SignalOnly;
+    GCT.printCand1      = true;
+    GCT.semiCohToplist  = true;
+    GCT.fnameout        = "GCT.out";
+    GCT.nCand1          = uvar.nCand;   ## keep this many candidates in toplist
+    GCT.recalcToplistStats = true;      ## re-calculate toplist
     if uvar.computeBSGL
-      GCT.SortToplist	= 3;	## sort by 2F and BSGL
+      GCT.SortToplist   = 3;    ## sort by 2F and BSGL
     else
-      GCT.SortToplist	= 0;	## sort by 2F
+      GCT.SortToplist   = 0;    ## sort by 2F
     endif
-    GCT.FstatMethod	= uvar.FstatMethod;
+    GCT.FstatMethod     = uvar.FstatMethod;
     GCT.computeBSGL     = uvar.computeBSGL;
     GCT.Fstar0          = uvar.Fstar0sc; ## old option name as this is using an old GCT version
     if uvar.computeBSGL
@@ -515,7 +515,7 @@ function results = injectionRecoveryGCT ( varargin )
     offsSky = sch.skyPatch - repmat ( [ maxTwoFR.Alpha, maxTwoFR.Delta ], [ uvar.sch_Nsky, 1 ] );
     distSqSky = sumsq ( offsSky, 2 );
     [dummy, iSkyBest] = min ( distSqSky );
-    maxTwoFR.offsBins.skyInd = iSkyBest - 1;	## 'skyPatch' was sorted from 'closest' to 'farthest'
+    maxTwoFR.offsBins.skyInd = iSkyBest - 1;    ## 'skyPatch' was sorted from 'closest' to 'farthest'
 
     gct.args = GCT;
     gct.maxTwoF  = maxTwoF;
@@ -535,9 +535,9 @@ function results = injectionRecoveryGCT ( varargin )
     DebugPrintf ( 1, "done.\n");
 
     ## ---------- run HierarchSearchGCT in perfectly-matched injection point ----------
-    GCTSig = GCT;	## inherit settings
-    GCTSig.Freq		= inj.Freq;
-    GCTSig.FreqBand	= 0;
+    GCTSig = GCT;       ## inherit settings
+    GCTSig.Freq         = inj.Freq;
+    GCTSig.FreqBand     = 0;
     if ( spindown_order >= 1 )
       GCTSig.f1dot       = inj.fkdot(1);
       GCTSig.f1dotBand   = 0;
@@ -551,9 +551,9 @@ function results = injectionRecoveryGCT ( varargin )
       GCTSig.gamma2Refine = 1;
     endif
 
-    GCTSig.skyGridFile	= sprintf ( "{ %.16g %.16g; }", inj.Alpha, inj.Delta );
-    GCTSig.fnameout	= "GCT0.out";
-    GCTSig.nCand1	= 1;	## keep this many candidates in toplist
+    GCTSig.skyGridFile  = sprintf ( "{ %.16g %.16g; }", inj.Alpha, inj.Delta );
+    GCTSig.fnameout     = "GCT0.out";
+    GCTSig.nCand1       = 1;    ## keep this many candidates in toplist
     GCTSig.loudestTwoFPerSeg = false;
 
     runCode ( GCTSig, uvar.GCT_binary, (uvar.debugLevel > 0) );

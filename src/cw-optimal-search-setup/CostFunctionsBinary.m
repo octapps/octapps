@@ -207,7 +207,7 @@ function [Nt, NtSlice, nDim, fMid] = numTemplates ( Nseg, Tseg, misMax, params )
   assert ( err == 0 );
 
   Tspan = Nseg .* Tseg;
-  FreqSlice = 4;	## adapt to dimensionality in freq steps
+  FreqSlice = 4;        ## adapt to dimensionality in freq steps
   numFreqSlices = ceil ( (max(params.freqRange) - min(params.freqRange)) / FreqSlice );
   fbar = linspace ( min(params.freqRange), max(params.freqRange), numFreqSlices + 1 );
 
@@ -239,7 +239,7 @@ function [ Nt, nDim ] = numTemplatesFixedDim ( Nseg, Tseg, misMax, params )
 
   params.OmRange = 2*pi ./ fliplr(params.PeriodRange);
   pSMidFreq = params;
-  pSMidFreq.freqRange = mean(params.freqRange);	## use this 'fiducial' frequency to estimate dimensionality
+  pSMidFreq.freqRange = mean(params.freqRange); ## use this 'fiducial' frequency to estimate dimensionality
   [fbar, Nt_a, Nt_tAsc, Nt_Om, Nt_ecc, Nt_argp] = numTemplatesPerDim ( pSMidFreq, Tspan, misMax );
   assert ( Nt_a > 1 );
   assert ( Nt_tAsc > 1 );

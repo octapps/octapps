@@ -26,13 +26,13 @@ function closest = LatticeFindClosestPoint ( x, lattice )
 
   valid = { "Zn", "An", "Ans" };
 
-  if ( strcmp ( lattice, valid{1}) )		## Zn
+  if ( strcmp ( lattice, valid{1}) )            ## Zn
     closest = ZnFindClosestPoint ( x );
     return;
   elseif ( strcmp ( lattice, valid{2} ) )       ## An
     closest = AnFindClosestPoint ( x );
     return;
-  elseif ( strcmp ( lattice, valid{3} ) )	## An*
+  elseif ( strcmp ( lattice, valid{3} ) )       ## An*
     closest = AnsFindClosestPoint ( x );
     return;
   else

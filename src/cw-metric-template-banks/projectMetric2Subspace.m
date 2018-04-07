@@ -44,7 +44,7 @@ function gProj_ss = projectMetric2Subspace ( g_ij, sSpace )
   n = columns ( g_ij );
 
   nSpace = [1:n];
-  kSpace = setdiff ( nSpace, sSpace );	## coordinates of complementary k-space
+  kSpace = setdiff ( nSpace, sSpace );  ## coordinates of complementary k-space
 
   gkk = g_ij( kSpace, kSpace );
   gks = g_ij( kSpace, sSpace );
@@ -55,7 +55,7 @@ function gProj_ss = projectMetric2Subspace ( g_ij, sSpace )
 
   gProj_ss = gss - gsk * gkInv * gks;
 
-  gProj_ss = 0.5 * ( gProj_ss + gProj_ss' );	## re-symmetrize (may be required due to numerical noise)
+  gProj_ss = 0.5 * ( gProj_ss + gProj_ss' );    ## re-symmetrize (may be required due to numerical noise)
 
   return;
 

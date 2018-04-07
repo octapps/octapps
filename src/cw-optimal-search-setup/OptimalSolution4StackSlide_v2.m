@@ -74,7 +74,7 @@ function sol = OptimalSolution4StackSlide_v2 ( varargin )
                        {"nonlinearMismatch", "logical,scalar", false },
                        {"debugLevel", "integer,positive,scalar", [] },
                        []);
-  global powerEps; powerEps = 1e-5;	## value practically considered "zero" for power-law coefficients
+  global powerEps; powerEps = 1e-5;     ## value practically considered "zero" for power-law coefficients
   global debugLevel;
   if ( !isempty(uvar.debugLevel) )
     debugLevel = uvar.debugLevel;
@@ -204,7 +204,7 @@ function sol = iterateSolver ( solverFun, startGuess, funs, tol, maxiter )
     if ( stackparams.Nseg < funs.constraints.NsegMinSemi )
       DebugPrintf ( 3, "\n%s: Nseg = %g < (NsegMinSemi = %d) --> setting Nseg=1\n", funcName, stackparams.Nseg, funs.constraints.NsegMinSemi );
       stackparams.Nseg = 1;
-      stackparams.hitNsegMinSemi = true;	## flag this to solvers
+      stackparams.hitNsegMinSemi = true;        ## flag this to solvers
     endif
     if ( stackparams.Tseg < funs.constraints.TsegMin )
       DebugPrintf ( 3, "\n%s: Tseg = %g d < (TsegMin = %g d) --> resetting to Tseg=TsegMin\n", funcName, stackparams.Tseg/DAYS, funs.constraints.TsegMin/DAYS );
@@ -287,7 +287,7 @@ function [ passed, msg ] = checkConstraints ( sol, constraints, tol )
   if ( sol.Nseg < 1 )
     outside = bitset ( outside, 4 );
   endif
-  if ( sol.costConstraint > 5 * tol )	## must be consistent with checkConvergence()
+  if ( sol.costConstraint > 5 * tol )   ## must be consistent with checkConvergence()
     outside = bitset ( outside, 5 );
   endif
   if ( sol.L0 <= 0 ) ## only admit solutions for positive objective function
@@ -367,7 +367,7 @@ function conv = checkConvergence ( new_stackparams, prev_stackparams, tol )
 
   endfor
 
-  conv = 0;	## not converged, no cycles detected
+  conv = 0;     ## not converged, no cycles detected
   return;
 
 endfunction ## checkConvergence()
