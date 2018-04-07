@@ -45,7 +45,6 @@ srcfilepath := $(filter-out %/deprecated, $(srcpath))
 srcmfiles := $(wildcard $(srcfilepath:%=%/*.m))
 srccfiles := $(wildcard $(srcfilepath:%=%/*.hpp) $(srcfilepath:%=%/*.cc))
 srctestfiles := $(wildcard $(srcfilepath:%=%/*.m) $(srcfilepath:%=%/@*/*.m) $(srcfilepath:%=%/*.cc) $(srcfilepath:%=%/*.i))
-binpath := $(shell $(FIND) $(srcpath) -type f -perm /ug+x -printf '%h\n' | $(SORT) -u)
 
 # OctApps extension module directory
 octdir := oct/$(version)
@@ -68,6 +67,19 @@ all :
 	echo "to ~/.login for C shells (e.g. tcsh)."; \
 	echo "=================================================="
 
+# generate links in bin/ directory
+all .PHONY : bin
+bin :
+	$(making)mkdir -p $(curdir)/bin; \
+	rm -f $(curdir)/bin/octapps_run; \
+	ln -s $(curdir)/src/command-line/octapps_run $(curdir)/bin/octapps_run; \
+	for octappsrunlink in `$(GREP) -l '\#\# octapps_run_link' $(srcmfiles)`; do \
+		octappsrunfunc=`basename $${octappsrunlink} | $(SED) 's/\.m$$//'`; \
+		octappsrunfile="$(curdir)/bin/$${octappsrunfunc}"; \
+		printf "#!/bin/bash\nexec octapps_run $${octappsrunfunc} \"\$$@\"\n" > $${octappsrunfile}; \
+		chmod +x $${octappsrunfile}; \
+	done
+
 # generate environment scripts
 all .PHONY : octapps-user-env.sh octapps-user-env.csh
 octapps-user-env.sh octapps-user-env.csh : Makefile
@@ -77,7 +89,7 @@ octapps-user-env.sh octapps-user-env.csh : Makefile
 	esac; \
 	cleanpath="$(SED) -e 's/^/:/;s/$$/:/;:A;s/:\([^:]*\)\(:.*\|\):\1:/:\1:\2:/g;s/:::*/:/g;tA;s/^:*//;s/:*$$//'"; \
 	octave_path="$(curdir)/$(octdir):$(curdir)/oct:`echo $(srcpath) | $(SED) 's/  */:/g'`:\$${OCTAVE_PATH}"; \
-	path="$(curdir)/bin:`echo $(binpath): | $(SED) 's/  */:/g;s/:::*/:/g'`\$${PATH}"; \
+	path="$(curdir)/bin:\$${PATH}"; \
 	echo "# source this file to access OctApps" > $@; \
 	echo "test \$${$${empty}OCTAVE_PATH} -eq 0 && $${setenv} OCTAVE_PATH" >>$@; \
 	echo "$${setenv} OCTAVE_PATH$${equals}\`echo $${octave_path} | $${cleanpath}\`" >>$@; \

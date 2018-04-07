@@ -1,5 +1,19 @@
-#!/usr/bin/env octapps_run
+## Copyright (C) 2017 Karl Wette
 ##
+## This program is free software; you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation; either version 3 of the License, or
+## (at your option) any later version.
+##
+## This program is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License
+## along with Octave; see the file COPYING.  If not, see
+## <http://www.gnu.org/licenses/>.
+
 ## Estimate the input SFT band required by 'lalapps_Weave'
 ## Usage:
 ##   [SFT_freq_min, SFT_freq_max] = WeaveInputSFTBand("opt", val, ...)
@@ -32,21 +46,7 @@
 ##   run_med_win:
 ##     Size of running median window used by the F-statistic (default: 101)
 
-## Copyright (C) 2017 Karl Wette
-##
-## This program is free software; you can redistribute it and/or modify
-## it under the terms of the GNU General Public License as published by
-## the Free Software Foundation; either version 3 of the License, or
-## (at your option) any later version.
-##
-## This program is distributed in the hope that it will be useful,
-## but WITHOUT ANY WARRANTY; without even the implied warranty of
-## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-## GNU General Public License for more details.
-##
-## You should have received a copy of the GNU General Public License
-## along with Octave; see the file COPYING.  If not, see
-## <http://www.gnu.org/licenses/>.
+## octapps_run_link
 
 function [SFT_freq_min, SFT_freq_max] = WeaveInputSFTBand(varargin)
 
