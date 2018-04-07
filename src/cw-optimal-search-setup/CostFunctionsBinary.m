@@ -14,14 +14,14 @@
 ## along with Octave; see the file COPYING.  If not, see
 ## <http://www.gnu.org/licenses/>.
 
-## Return computing-cost functions for use in OptimalSolution4StackSlide() to compute
+## Return computing-cost functions for use in OptimalSolution4StackSlide_v2() to compute
 ## optimal StackSlide setup for a binary-CW searches (freq, Period, asini, tAsc, ecc, argp)
 ## assuming the "long segment regime" where Tseg >> P
 ##
 ## Usage:
 ##   cost_funs = CostFunctionsBinary("opt", val, ...)
 ## where
-##   cost_funs = struct of computing-cost functions to pass to OptimalSolution4StackSlide()
+##   cost_funs = struct of computing-cost functions to pass to OptimalSolution4StackSlide_v2()
 ##
 ## Search setup options: (using ScoX1 defaults)
 ##   "freqRange":     [min, max] of search frequency range [100, 300]
