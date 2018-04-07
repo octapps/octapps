@@ -14,7 +14,7 @@
 ## along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn {Function File} @var{path} = mkpath (@var{dirs}, @dots)
+## @deftypefn {Function File} @var{path} = mkpath (@var{dirs}, @dots{})
 ##
 ## Makes the directory path @var{dirs}, including all parent directories.
 ## Returns the final directory in @var{path}.
