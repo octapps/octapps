@@ -15,14 +15,14 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## Return computing-cost functions used by OptimalSolution4StackSlide()
+## Return computing-cost functions used by OptimalSolution4StackSlide_v2()
 ## to compute optimal Einstein@Home search setups for the GCT code.
 ## Used to compute the E@H S5GC1 solution given in Prix&Shaltev,PRD85,
 ## 084010(2012) Table~II.
 ## Usage:
 ##   cost_funs = CostFunctionsEaHGCT("opt", val, ...)
 ## where
-##   cost_funs = struct of computing-cost functions to pass to OptimalSolution4StackSlide()
+##   cost_funs = struct of computing-cost functions to pass to OptimalSolution4StackSlide_v2()
 ## Options:
 ##   "fracSky":       fraction of sky covered by search
 ##   "fmin":          minimum frequency covered by search (in Hz)

@@ -14,7 +14,7 @@
 ## along with Octave; see the file COPYING.  If not, see
 ## <http://www.gnu.org/licenses/>.
 
-## Return computing-cost functions for use in OptimalSolution4StackSlide() to compute
+## Return computing-cost functions for use in OptimalSolution4StackSlide_v2() to compute
 ## optimal StackSlide setup for a directed search (known sky-position, unknown f, fdot, f2dot, ...)
 ##
 ## [Adapted from 'metricComputingCost()' function initially used in S6CasA E@H search setup]
@@ -22,7 +22,7 @@
 ## Usage:
 ##   cost_funs = CostFunctionsDirected("opt", val, ...)
 ## where
-##   cost_funs = struct of computing-cost functions to pass to OptimalSolution4StackSlide()
+##   cost_funs = struct of computing-cost functions to pass to OptimalSolution4StackSlide_v2()
 ##
 ## Search setup options:
 ##   "tau_min":       spindown-age 'tau' in seconds [default: 300 yrs]
