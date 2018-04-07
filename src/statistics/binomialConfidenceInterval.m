@@ -70,7 +70,7 @@ function [fLower, fUpper] = binomialConfidenceInterval ( N, K, confidence )
 
 endfunction
 
-%% ---------- testing and demo functions ----------
+## ---------- testing and demo functions ----------
 %!test
 %!  binomialConfidenceInterval(10, 0, 0.9545);
 %!demo if 1
@@ -105,6 +105,6 @@ endfunction
 %!  subplot(2,3,4); plot_this ( 5000, 4999 );
 %!  subplot(2,3,5); plot_this ( 50000, 25000 );
 %!  subplot(2,3,6); plot_this ( 50000, 10000 );
-%!  % red shows the exact posterior 95.45% confidence intervals
-%!  % magenta shows the Gaussian +-2sigma intervals centered on the expectation value of f
+%!  ## red shows the exact posterior 95.45% confidence intervals
+%!  ## magenta shows the Gaussian +-2sigma intervals centered on the expectation value of f
 %!  endif

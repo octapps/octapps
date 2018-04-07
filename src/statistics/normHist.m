@@ -1,34 +1,34 @@
-%% Copyright (C) 2006 Reinhard Prix
-%%
-%% This program is free software; you can redistribute it and/or modify
-%% it under the terms of the GNU General Public License as published by
-%% the Free Software Foundation; either version 2 of the License, or
-%% (at your option) any later version.
-%%
-%% This program is distributed in the hope that it will be useful,
-%% but WITHOUT ANY WARRANTY; without even the implied warranty of
-%% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-%% GNU General Public License for more details.
-%%
-%% You should have received a copy of the GNU General Public License
-%% along with with program; see the file COPYING. If not, write to the
-%% Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
-%% MA  02111-1307  USA
+## Copyright (C) 2006 Reinhard Prix
+##
+## This program is free software; you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation; either version 2 of the License, or
+## (at your option) any later version.
+##
+## This program is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License
+## along with with program; see the file COPYING. If not, write to the
+## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+## MA  02111-1307  USA
 
-%% [NN, XX] = normHist ( data, bins )
-%%
-%% compute a pdf-normalized histogram (i.e. the *integral* is 1)
-%%
-%% With one vector input argument, plot a histogram of the values with
-%% 10 bins.  The range of the histogram bins is determined by the
-%% range of the data.  With one matrix input argument, plot a
-%% histogram where each bin contains a bar per input column.
-%%
-%% Given a second scalar argument, use that as the number of bins.
-%%
-%% Given a second vector argument, use that as the centers of the
-%% bins, with the width of the bins determined from the adjacent
-%% values in the vector.
+## [NN, XX] = normHist ( data, bins )
+##
+## compute a pdf-normalized histogram (i.e. the *integral* is 1)
+##
+## With one vector input argument, plot a histogram of the values with
+## 10 bins.  The range of the histogram bins is determined by the
+## range of the data.  With one matrix input argument, plot a
+## histogram where each bin contains a bar per input column.
+##
+## Given a second scalar argument, use that as the number of bins.
+##
+## Given a second vector argument, use that as the centers of the
+## bins, with the width of the bins determined from the adjacent
+## values in the vector.
 
 function [NN, XX] = normHist ( data, bins )
 
@@ -38,7 +38,7 @@ function [NN, XX] = normHist ( data, bins )
 
   [NN, XX] = hist ( data, bins, 1 );
 
-  %% normalize as a "pdf", i.e. such that 1 = sum_i NN_i * dXX_i
+  ## normalize as a "pdf", i.e. such that 1 = sum_i NN_i * dXX_i
   if ( isscalar ( bins ) )
     dx = (max(XX) - min(XX)) / bins;
   else

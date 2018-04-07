@@ -122,20 +122,20 @@ endfunction
 
 ## check determinant of GCT metric implementation against expressions by Prix&Shaltev from CostFunctionsEaHGCT()
 %!function ret = jn ( n, x )
-%!  %% spherical bessel function j_n(x), using expression in terms of
-%!  %% ordinary Bessel functions J_n(x) from wikipedia:
-%!  %% http://en.wikipedia.org/wiki/Bessel_function#Spherical_Bessel_functions:_jn.2C_yn
+%!  ## spherical bessel function j_n(x), using expression in terms of
+%!  ## ordinary Bessel functions J_n(x) from wikipedia:
+%!  ## http://en.wikipedia.org/wiki/Bessel_function#Spherical_Bessel_functions:_jn.2C_yn
 %!  ret = sqrt ( pi ./ (2 * x )) .* besselj ( n + 1/2, x );
 
 %!function ret = detg1 ( phi )
-%!  %% explicit expression Eq(57) in Pletsch(2010):
+%!  ## explicit expression Eq(57) in Pletsch(2010):
 %!  ret = 1/135 * ( 1 - 6 * jn(1,phi).^2 - jn(0,phi) .* cos(phi) ) .* ( 1 - 10 * jn(2,phi).^2 - jn(1,phi) .* sin(phi) - jn(0,phi) .* cos(phi) );
-%!  %% missing correction term deduced from maxima-evaluation
+%!  ## missing correction term deduced from maxima-evaluation
 %!  corr = 1/135 * jn(1,phi) .* sin(phi) .* ( 1 - jn(0,phi) .* cos(phi) - 6 * jn(1,phi).^2 );
 %!  ret -= corr;
 
 %!function ret = detg2 ( phi )
-%!  %% derived using Maxima:
+%!  ## derived using Maxima:
 %!  ret = (8.*jn(0,phi).*jn(1,phi).*cos(phi).*sin(phi))/23625+(16.*jn(1,phi).*jn(3,phi).^2.*sin(phi))/3375+(16.*jn(1,phi).^3.*sin(phi))/7875-(8.*jn(1,phi).*sin(phi))/23625+(4.*jn(0,phi).^2.*cos(phi).^2)/23625+(8.*jn(0,phi).*jn(3,phi).^2.*cos(phi))/3375+(8.*jn(0,phi).*jn(2,phi).^2.*cos(phi))/4725+(8.*jn(0,phi).*jn(1,phi).^2.*cos(phi))/7875-(8.*jn(0,phi).*cos(phi))/23625+(16.*jn(2,phi).^2.*jn(3,phi).^2)/675-(8.*jn(3,phi).^2)/3375+(16.*jn(1,phi).^2.*jn(2,phi).^2)/1575-(8.*jn(2,phi).^2)/4725 -(8.*jn(1,phi).^2)/7875+4/23625;
 
 %!test

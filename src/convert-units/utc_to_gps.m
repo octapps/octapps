@@ -39,21 +39,21 @@ function [gps, gpsns] = utc_to_gps(utc)
   for i = 1:length(utc)
     utci = utc{i};
 
-    # parse any fractional part separately and store as nanoseconds
+    ## parse any fractional part separately and store as nanoseconds
     j = find(utci == ".");
     if !isempty(j)
       gpsns(i) = str2double(strcat("0", utci(j:end))) * 1e9;
       utci = utci(1:j-1);
     endif
 
-    # parse UTC string to a date vector
+    ## parse UTC string to a date vector
     if any(utci == "T")
       utcv = datevec(utci, "yyyy-mm-ddTHH:MM:SS");
     else
       utcv = datevec(utci);
     endif
 
-    # convert UTC date vector to a GPS time (integer seconds)
+    ## convert UTC date vector to a GPS time (integer seconds)
     gps(i) = double(XLALUTCToGPS(utcv));
 
   endfor

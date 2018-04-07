@@ -74,7 +74,7 @@ function sol = OptimalSolution4StackSlide_v2 ( varargin )
                        {"nonlinearMismatch", "logical,scalar", false },
                        {"debugLevel", "integer,positive,scalar", [] },
                        []);
-  global powerEps; powerEps = 1e-5;	%% value practically considered "zero" for power-law coefficients
+  global powerEps; powerEps = 1e-5;	## value practically considered "zero" for power-law coefficients
   global debugLevel;
   if ( !isempty(uvar.debugLevel) )
     debugLevel = uvar.debugLevel;
@@ -87,7 +87,7 @@ function sol = OptimalSolution4StackSlide_v2 ( varargin )
   assert( isfield( uvar.costFuns, "lattice" ) );
   assert( isfield( uvar.costFuns, "f" ) && is_function_handle ( uvar.costFuns.f ) );
 
-  %% check and collect all (inequality) constraints
+  ## check and collect all (inequality) constraints
   if ( !isempty(uvar.TsegMin) && !isempty(uvar.TobsMax) )
     assert ( uvar.TsegMin <= uvar.TobsMax );
   endif
@@ -113,7 +113,7 @@ function sol = OptimalSolution4StackSlide_v2 ( varargin )
   DebugPrintf ( 1, "\n" );
 
   i = 0;
-  %% ---------- try all types of constraint combinations ------
+  ## ---------- try all types of constraint combinations ------
   i++;
   trial{i}.solverFun = @(prev, funs) funs.solvers.unconstrained ( prev, funs );
   trial{i}.startGuess = guess;
@@ -169,10 +169,10 @@ function sol = OptimalSolution4StackSlide_v2 ( varargin )
         if ( isempty ( best_solution ) || ( sol_i.L0 > best_solution.L0 ) )
           best_solution = sol_i;
           best_solution.name = trial{i}.name;
-        endif %% if new best solution
-      endif %% if !constraints violated
-    endif %% if solution found
-  endfor %% i : length(trial)
+        endif ## if new best solution
+      endif ## if !constraints violated
+    endif ## if solution found
+  endfor ## i : length(trial)
 
   if ( !isempty ( best_solution  ) )
     DebugPrintf ( 1, "==============================\n");
@@ -188,7 +188,7 @@ function sol = OptimalSolution4StackSlide_v2 ( varargin )
   sol.funs = funs;
   return;
 
-endfunction %% OptimalSolution4StackSlide_v2()
+endfunction ## OptimalSolution4StackSlide_v2()
 
 function sol = iterateSolver ( solverFun, startGuess, funs, tol, maxiter )
   global DAYS = 86400;
@@ -200,28 +200,28 @@ function sol = iterateSolver ( solverFun, startGuess, funs, tol, maxiter )
   stackparams = startGuess;
   while true
 
-    %% ----- saftey valve against (N,Tseg,Tobs)-constraint-violating intermediate solutions that might trip up certain cost function ----------
+    ## ----- saftey valve against (N,Tseg,Tobs)-constraint-violating intermediate solutions that might trip up certain cost function ----------
     if ( stackparams.Nseg < funs.constraints.NsegMinSemi )
       DebugPrintf ( 3, "\n%s: Nseg = %g < (NsegMinSemi = %d) --> setting Nseg=1\n", funcName, stackparams.Nseg, funs.constraints.NsegMinSemi );
       stackparams.Nseg = 1;
-      stackparams.hitNsegMinSemi = true;	%% flag this to solvers
+      stackparams.hitNsegMinSemi = true;	## flag this to solvers
     endif
     if ( stackparams.Tseg < funs.constraints.TsegMin )
       DebugPrintf ( 3, "\n%s: Tseg = %g d < (TsegMin = %g d) --> resetting to Tseg=TsegMin\n", funcName, stackparams.Tseg/DAYS, funs.constraints.TsegMin/DAYS );
       stackparams.Tseg = funs.constraints.TsegMin;
-      stackparams.hitTsegMin = true;    %% flag this to solvers
+      stackparams.hitTsegMin = true;    ## flag this to solvers
     endif
     if ( stackparams.Tseg > funs.constraints.TsegMax )
       DebugPrintf ( 3, "\n%s: Tseg = %g d > (TsegMax = %g d) --> resetting to Tseg=TsegMax\n", funcName, stackparams.Tseg/DAYS, funs.constraints.TsegMax/DAYS );
       stackparams.Tseg = funs.constraints.TsegMax;
-      stackparams.hitTsegMax = true;    %% flag this to solvers
+      stackparams.hitTsegMax = true;    ## flag this to solvers
     endif
     if ( stackparams.Nseg * stackparams.Tseg > funs.constraints.TobsMax )
       DebugPrintf ( 3, "\n%s: Tobs = %g d > (TobsMax = %g d) --> resetting to Tobs=TobsMax\n", funcName, stackparams.Nseg*stackparams.Tseg/DAYS, funs.constraints.TobsMax/DAYS );
       stackparams.Nseg = funs.constraints.TobsMax / stackparams.Tseg;
-      stackparams.hitTobsMax = true;    %% flag this to solvers
+      stackparams.hitTobsMax = true;    ## flag this to solvers
     endif
-    %% --------------------
+    ## --------------------
 
     stackparams = funs.complete_stackparams ( stackparams, funs );
     if ( isempty ( stackparams ) )
@@ -271,7 +271,7 @@ function sol = iterateSolver ( solverFun, startGuess, funs, tol, maxiter )
   sol.iterations = iter;
   return;
 
-endfunction %% iterateSolver()
+endfunction ## iterateSolver()
 
 function [ passed, msg ] = checkConstraints ( sol, constraints, tol )
   outside = 0;
@@ -287,10 +287,10 @@ function [ passed, msg ] = checkConstraints ( sol, constraints, tol )
   if ( sol.Nseg < 1 )
     outside = bitset ( outside, 4 );
   endif
-  if ( sol.costConstraint > 5 * tol )	%% must be consistent with checkConvergence()
+  if ( sol.costConstraint > 5 * tol )	## must be consistent with checkConvergence()
     outside = bitset ( outside, 5 );
   endif
-  if ( sol.L0 <= 0 ) %% only admit solutions for positive objective function
+  if ( sol.L0 <= 0 ) ## only admit solutions for positive objective function
     outside = bitset ( outside, 6 );
   endif
 
@@ -321,7 +321,7 @@ function [ passed, msg ] = checkConstraints ( sol, constraints, tol )
   endif
 
   return;
-endfunction %% checkConstraints()
+endfunction ## checkConstraints()
 
 function conv = checkConvergence ( new_stackparams, prev_stackparams, tol )
 
@@ -367,16 +367,16 @@ function conv = checkConvergence ( new_stackparams, prev_stackparams, tol )
 
   endfor
 
-  conv = 0;	%% not converged, no cycles detected
+  conv = 0;	## not converged, no cycles detected
   return;
 
-endfunction %% checkConvergence()
+endfunction ## checkConvergence()
 
 function relerr = relError ( a, b )
   if ( isna ( a ) && isna ( b ) ) relerr = 0; return; endif
   relerr = abs(a - b) ./ (0.5 * (abs(a) + abs(b)) );
   return;
-endfunction %% relError()
+endfunction ## relError()
 
 %!test
 %!  disp("to test OptimalSolution4StackSlide_v2(), run the CostFunctions...() test(s)");

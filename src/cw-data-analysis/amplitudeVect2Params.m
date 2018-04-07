@@ -1,29 +1,29 @@
-%% Copyright (C) 2007 Reinhard Prix
-%%
-%% This program is free software; you can redistribute it and/or modify
-%% it under the terms of the GNU General Public License as published by
-%% the Free Software Foundation; either version 2 of the License, or
-%% (at your option) any later version.
-%%
-%% This program is distributed in the hope that it will be useful,
-%% but WITHOUT ANY WARRANTY; without even the implied warranty of
-%% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-%% GNU General Public License for more details.
-%%
-%% You should have received a copy of the GNU General Public License
-%% along with with program; see the file COPYING. If not, write to the
-%% Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
-%% MA  02111-1307  USA
+## Copyright (C) 2007 Reinhard Prix
+##
+## This program is free software; you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation; either version 2 of the License, or
+## (at your option) any later version.
+##
+## This program is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License
+## along with with program; see the file COPYING. If not, write to the
+## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+## MA  02111-1307  USA
 
-%% Amp = amplitudeVect2Params ( Amu, convention )
-%%
-%% compute amplitude-vector {A^mu} from (MLDC) amplitudes {Amplitude, Inclination, Polarization, InitialPhase }
-%% Adapted from algorithm in LALEstimatePulsarAmplitudeParams()
-%% Amu is a row-vector for each signal, multiple signals being stored in multiple rows ,
-%% the resulting fields in Amp are also column-vectors for multiple signals
-%% if convention == "LIGO", return {h0,cosi,psi.iota} and {aPlus,aCross},
-%% if convention == "MLDC" return {Amplitude,Inclination,Polarization, InitialPhase} using MLDC conventions
-%% the default = "LIGO" if not specified
+## Amp = amplitudeVect2Params ( Amu, convention )
+##
+## compute amplitude-vector {A^mu} from (MLDC) amplitudes {Amplitude, Inclination, Polarization, InitialPhase }
+## Adapted from algorithm in LALEstimatePulsarAmplitudeParams()
+## Amu is a row-vector for each signal, multiple signals being stored in multiple rows ,
+## the resulting fields in Amp are also column-vectors for multiple signals
+## if convention == "LIGO", return {h0,cosi,psi.iota} and {aPlus,aCross},
+## if convention == "MLDC" return {Amplitude,Inclination,Polarization, InitialPhase} using MLDC conventions
+## the default = "LIGO" if not specified
 
 function Amp = amplitudeVect2Params ( Amu, convention )
 
@@ -66,11 +66,11 @@ function Amp = amplitudeVect2Params ( Amu, convention )
   b2 =   A3 + beta .* A2;
   b3 = - A1 + beta .* A4 ;
 
-  %% compute amplitude params in LIGO conventions first
-  psi  = 0.5 * atan2 ( b1,  b2 );  %% in [-pi/2,pi/2]
-  phi0 =       atan2 ( b2,  b3 );  %% in [-pi, pi]
+  ## compute amplitude params in LIGO conventions first
+  psi  = 0.5 * atan2 ( b1,  b2 );  ## in [-pi/2,pi/2]
+  phi0 =       atan2 ( b2,  b3 );  ## in [-pi, pi]
 
-  %% Fix remaining sign-ambiguity by checking sign of reconstructed A1
+  ## Fix remaining sign-ambiguity by checking sign of reconstructed A1
   A1check = aPlus .* cos(phi0) .* cos(2.0*psi) - aCross .* sin(phi0) .* sin(2*psi);
   indsFlip = find ( A1check .* A1 < 0 );
   phi0(indsFlip) += pi;
@@ -79,9 +79,9 @@ function Amp = amplitudeVect2Params ( Amu, convention )
   cosi = aCross ./ h0;
 
   if ( !isMLDC )
-    %% ---------- Return LSC conventions
+    ## ---------- Return LSC conventions
 
-    %% make unique by fixing the gauge to be psi in [-pi/4, pi/4], phi0 in [0, 2*pi]
+    ## make unique by fixing the gauge to be psi in [-pi/4, pi/4], phi0 in [0, 2*pi]
     while ( !isempty ( (inds = find ( psi > pi/4 )) ) )
       psi(inds) -= pi/2;
       phi0(inds) -= pi;
@@ -105,22 +105,22 @@ function Amp = amplitudeVect2Params ( Amu, convention )
     Amp.aPlus = aPlus;
     Amp.aCross = aCross;
   else
-    %% ---------- Convert LIGO conventions -> MLDC conventions
-    %% in order to get a *unique* result, we need to restrict the gauge
-    %% of {Polarization, InitialPhase} to: InitialPhase in [0, 2pi), and
-    %% Polarization in [0, pi/2 ): this can always be achieved by applying
-    %% the gauge-transformations: (Polarization += pi/2) && (InitialPhase += pi)
+    ## ---------- Convert LIGO conventions -> MLDC conventions
+    ## in order to get a *unique* result, we need to restrict the gauge
+    ## of {Polarization, InitialPhase} to: InitialPhase in [0, 2pi), and
+    ## Polarization in [0, pi/2 ): this can always be achieved by applying
+    ## the gauge-transformations: (Polarization += pi/2) && (InitialPhase += pi)
     Amp.Amplitude    = 0.5 * h0;
     Amp.Inclination  = pi - acos(cosi);
 
-    Polarization = mod( pi/2 - psi, pi );		%% in [0, pi): inv under += pi
-    InitialPhase = phi0 + pi;			%% FIXME: Mystery sign-flip!
+    Polarization = mod( pi/2 - psi, pi );		## in [0, pi): inv under += pi
+    InitialPhase = phi0 + pi;			## FIXME: Mystery sign-flip!
 
     flipInds = find ( Polarization >= pi/2 );
-    Polarization(flipInds) -= pi/2;		%% now in [0, pi/2)
+    Polarization(flipInds) -= pi/2;		## now in [0, pi/2)
     InitialPhase(flipInds) += pi;
 
-    InitialPhase = mod ( InitialPhase, 2*pi );	%% in [0, 2pi) inv under += 2pi
+    InitialPhase = mod ( InitialPhase, 2*pi );	## in [0, 2pi) inv under += 2pi
 
     Amp.Polarization  = Polarization;
     Amp.InitialPhase  = InitialPhase;
@@ -129,7 +129,7 @@ function Amp = amplitudeVect2Params ( Amu, convention )
 
   return;
 
-endfunction %% amplitudeVect2Params()
+endfunction ## amplitudeVect2Params()
 
 %!shared A0
 %!  A0 = 1e-24 * randn(1, 4);

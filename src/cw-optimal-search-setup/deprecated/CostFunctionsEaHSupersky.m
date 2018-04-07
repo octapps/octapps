@@ -325,7 +325,7 @@ endfunction
 %!    disp("skipping test: LALSuite bindings not available"); return;
 %!  end_try_catch
 %!  [cost_funs, params, guess] = CostFunctionsEaHSupersky("S5R5", "debugLevel", 0);
-%!  tol = -1e-2;	%% relative error
+%!  tol = -1e-2;	## relative error
 %!  [costCoh, costInc] = cost_funs.f(guess.Nseg, guess.Tseg, guess.mCoh, guess.mInc);
 %!  assert ( costCoh, guess.costCoh, tol );
 %!  assert ( costInc, guess.costInc, tol );

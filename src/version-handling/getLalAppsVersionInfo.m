@@ -1,28 +1,28 @@
-%% Copyright (C) 2013 David Keitel
-%%
-%% This program is free software; you can redistribute it and/or modify
-%% it under the terms of the GNU General Public License as published by
-%% the Free Software Foundation; either version 2 of the License, or
-%% (at your option) any later version.
-%%
-%% This program is distributed in the hope that it will be useful,
-%% but WITHOUT ANY WARRANTY; without even the implied warranty of
-%% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-%% GNU General Public License for more details.
-%%
-%% You should have received a copy of the GNU General Public License
-%% along with with program; see the file COPYING. If not, write to the
-%% Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
-%% MA  02111-1307  USA
+## Copyright (C) 2013 David Keitel
+##
+## This program is free software; you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation; either version 2 of the License, or
+## (at your option) any later version.
+##
+## This program is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License
+## along with with program; see the file COPYING. If not, write to the
+## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+## MA  02111-1307  USA
 
 function version_string = getLalAppsVersionInfo (lalapps_command);
 
  version_string = ["# version info from ", lalapps_command, ":\n"];
 
- % get version info from the given lalapps code
+ ## get version info from the given lalapps code
  [~, lalapps_version_output] = system ( cstrcat( lalapps_command, " --version" ) );
 
- % reformat it: remove trailing whitespaces and newlines, replace '%%' comment markers by '#'
+ ## reformat it: remove trailing whitespaces and newlines, replace '%%' comment markers by '#'
  lalapps_version_output = strsplit(lalapps_version_output,"\n");
  for n=1:1:length(lalapps_version_output)
   lalapps_version_line = lalapps_version_output{n};
@@ -34,7 +34,7 @@ function version_string = getLalAppsVersionInfo (lalapps_command);
   endif
  endfor
 
-endfunction # getLalAppsVersionInfo()
+endfunction ## getLalAppsVersionInfo()
 
 %!test
 %!  if isempty(file_in_path(getenv("PATH"), "lalapps_ComputeFstatistic_v2"))

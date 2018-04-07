@@ -1,43 +1,43 @@
-%% Copyright (C) 2010 Reinhard Prix
-%%
-%% This program is free software; you can redistribute it and/or modify
-%% it under the terms of the GNU General Public License as published by
-%% the Free Software Foundation; either version 2 of the License, or
-%% (at your option) any later version.
-%%
-%% This program is distributed in the hope that it will be useful,
-%% but WITHOUT ANY WARRANTY; without even the implied warranty of
-%% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-%% GNU General Public License for more details.
-%%
-%% You should have received a copy of the GNU General Public License
-%% along with with program; see the file COPYING. If not, write to the
-%% Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
-%% MA  02111-1307  USA
+## Copyright (C) 2010 Reinhard Prix
+##
+## This program is free software; you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation; either version 2 of the License, or
+## (at your option) any later version.
+##
+## This program is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License
+## along with with program; see the file COPYING. If not, write to the
+## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+## MA  02111-1307  USA
 
-%% plot2pdf ( bname, print_options=[], latex_preamble=[], nocleanup=false )
-%% output the current figure to a pdf file named '<bname>.pdf'
-%%
-%% latex_preamble: allows specifying LaTeX commands to be added before \begin{document},
-%%           this can typically be used to input a LaTeX-defines file for use in the figure
-%%
-%% print_options = a single-option string or cell-array of option-strings to pass to the 'print()' command
-%%
-%% nocleanup = true: don't delete by-products at the end (useful for debugging)
+## plot2pdf ( bname, print_options=[], latex_preamble=[], nocleanup=false )
+## output the current figure to a pdf file named '<bname>.pdf'
+##
+## latex_preamble: allows specifying LaTeX commands to be added before \begin{document},
+##           this can typically be used to input a LaTeX-defines file for use in the figure
+##
+## print_options = a single-option string or cell-array of option-strings to pass to the 'print()' command
+##
+## nocleanup = true: don't delete by-products at the end (useful for debugging)
 
 function plot2pdf ( bname, print_options=[], latex_preamble=[], nocleanup=false )
 
   curdir = pwd ();
 
-  tmp_bname = "__tmp";	%% avoid file-name problems in LaTeX include, rename into '<bname>.pdf' at the end
+  tmp_bname = "__tmp";	## avoid file-name problems in LaTeX include, rename into '<bname>.pdf' at the end
 
-  %% create temporary sudirectory
+  ## create temporary sudirectory
   tmpdir = tmpnam (".");
   [status, msg, msgid] = mkdir (tmpdir);
   if ( status != 1 )
     error ("Failed to open temporary directory '%s': error msg '%s'\n", tmpdir, msg );
   endif
-  %% ... and change into it
+  ## ... and change into it
   chdir (tmpdir );
 
   texname = sprintf ("%s.tex", tmp_bname);
@@ -52,7 +52,7 @@ function plot2pdf ( bname, print_options=[], latex_preamble=[], nocleanup=false 
   cmd = strcat ( cmd, " );" );
   eval ( cmd );
 
-  %% prepare a gnuplot.cfg file containing latex_preamble, if any given
+  ## prepare a gnuplot.cfg file containing latex_preamble, if any given
   if ( !isempty ( latex_preamble )  )
     fid = fopen ("gnuplot.cfg", "wb" );
     if ( fid == -1 ) error ("Failed to open 'gnuplot.cfg' for writing.\n"); endif
@@ -60,7 +60,7 @@ function plot2pdf ( bname, print_options=[], latex_preamble=[], nocleanup=false 
     fclose ( fid );
   endif
 
-  %% turn this tex+eps figure into a pdf endproduct
+  ## turn this tex+eps figure into a pdf endproduct
   dviname = sprintf ("%s.dvi", tmp_bname);
   pdfname = sprintf ("%s/%s.pdf", curdir, bname);
   cmdline = sprintf ("latex %s && dvipdf %s %s\n", texname, dviname, pdfname );
@@ -71,7 +71,7 @@ function plot2pdf ( bname, print_options=[], latex_preamble=[], nocleanup=false 
   endif
 
   chdir(curdir);
-  %% cleanup:
+  ## cleanup:
   if ( !nocleanup )
     cmdline = sprintf ("rm -rf %s", tmpdir );
     [status, out] = system ( cmdline );
@@ -83,4 +83,4 @@ function plot2pdf ( bname, print_options=[], latex_preamble=[], nocleanup=false 
 
   return;
 
-endfunction %% plot2pdf()
+endfunction ## plot2pdf()

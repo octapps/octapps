@@ -31,7 +31,7 @@ function prog = printProgress(prog, varargin)
   ## always print output
   page_screen_output(0, "local");
 
-  # check input
+  ## check input
   narginchk(3, 4);
   if ischar(varargin{1})
     assert(nargin == 4);
@@ -99,7 +99,7 @@ function prog = printProgress(prog, varargin)
     ## work out remaining wall time, assuming all tasks take the same amount of time
     wall_rem = wall * ( (1 / (prog.f_tasks + eps)) - 1 );
 
-    # print progress
+    ## print progress
     printf("%s: %s %0.1f%%, CPU %0.1f%%, %0.0fs elapsed", name, taskstr, 100*prog.f_tasks, 100*cpu_use, wall);
     if prog.f_tasks < 1
       printf(", %0.0fs remain", wall_rem);

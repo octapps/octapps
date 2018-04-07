@@ -80,7 +80,7 @@ endfunction
 %!endfunction
 %!
 %!test
-%!  %% trivial test example first
+%!  ## trivial test example first
 %! tol = 1e-8;
 %!  coef = LocalCostCoefficients ( @testCostFunction, 100, 86400, 0.5 );
 %!  assert ( coef.eta, 2.2, tol);

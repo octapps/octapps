@@ -1,36 +1,36 @@
-%% Copyright (C) 2013 Reinhard Prix
-%%
-%% This program is free software; you can redistribute it and/or modify
-%% it under the terms of the GNU General Public License as published by
-%% the Free Software Foundation; either version 2 of the License, or
-%% (at your option) any later version.
-%%
-%% This program is distributed in the hope that it will be useful,
-%% but WITHOUT ANY WARRANTY; without even the implied warranty of
-%% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-%% GNU General Public License for more details.
-%%
-%% You should have received a copy of the GNU General Public License
-%% along with with program; see the file COPYING. If not, write to the
-%% Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
-%% MA  02111-1307  USA
+## Copyright (C) 2013 Reinhard Prix
+##
+## This program is free software; you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation; either version 2 of the License, or
+## (at your option) any later version.
+##
+## This program is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License
+## along with with program; see the file COPYING. If not, write to the
+## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+## MA  02111-1307  USA
 
 function g_aa = projectSuperskyMetric2Sky ( g_nn, alpha0, delta0 )
-  %% g_aa = projectSuperskyMetric2Sky ( g_nn, alpha0, delta0 )
-  %%
-  %% returns metric in coordinates [a, ...] = [alpha, delta, ... ] at a given
-  %% sky-position 'alpha0,delta0', for the given input 'supersky' metric in coordinates
-  %% [n, ...] = [ nx,ny,nz, ...].
-  %%
-  %% Note: the supersky-coordinates n = [nx,ny,nz] must be the first 3 coordinates of the
-  %% input metric 'g_nn' and the output metric has a = [alpha,delta] as the first 2 coordinates
-  %%
+  ## g_aa = projectSuperskyMetric2Sky ( g_nn, alpha0, delta0 )
+  ##
+  ## returns metric in coordinates [a, ...] = [alpha, delta, ... ] at a given
+  ## sky-position 'alpha0,delta0', for the given input 'supersky' metric in coordinates
+  ## [n, ...] = [ nx,ny,nz, ...].
+  ##
+  ## Note: the supersky-coordinates n = [nx,ny,nz] must be the first 3 coordinates of the
+  ## input metric 'g_nn' and the output metric has a = [alpha,delta] as the first 2 coordinates
+  ##
 
   assert ( issymmetric ( g_nn ) > 0, "Input supersky metric 'g_nn' must be a symmetric square matrix" );
   nDim = columns(g_nn);
   assert ( nDim >= 3, "Input supersky metric must be at least 3x3 (got %dx%d)", nDim, nDim);
 
-  %% jakobian d [n,fkdot] / d [a,fkdot]  (rows n^i, columns a^j}
+  ## jakobian d [n,fkdot] / d [a,fkdot]  (rows n^i, columns a^j}
   sind = sin(delta0); cosd = cos(delta0);
   sina = sin(alpha0); cosa = cos(alpha0);
   jak_n_a = [
@@ -50,14 +50,14 @@ function g_aa = projectSuperskyMetric2Sky ( g_nn, alpha0, delta0 )
 
   g_aa = Jak_a_n * g_nn * Jak_n_a;
 
-  g_aa = 0.5 * ( g_aa + g_aa');	%% re-symmetriz (may be require due to numerical noise)
+  g_aa = 0.5 * ( g_aa + g_aa');	## re-symmetriz (may be require due to numerical noise)
 
   return;
 endfunction
 
 %!test
-%!  %% lalapps_FstatMetric_v2 -o gnn.dat --Alpha=1 --Delta=1 --coords="n3x_equ,n3y_equ,n3z_equ,freq,f1dot,f2dot"
-%!  %% lalapps_FstatMetric_v2 -o gaa.dat --Alpha=1 --Delta=1 --coords="alpha,delta,freq,f1dot,f2dot"
+%!  ## lalapps_FstatMetric_v2 -o gnn.dat --Alpha=1 --Delta=1 --coords="n3x_equ,n3y_equ,n3z_equ,freq,f1dot,f2dot"
+%!  ## lalapps_FstatMetric_v2 -o gaa.dat --Alpha=1 --Delta=1 --coords="alpha,delta,freq,f1dot,f2dot"
 %!  gnn = [
 %!   9.7162064407348633e+04,  1.6162401439666748e+05,  6.9920271533966064e+04,  2.0355045456878051e+07, -1.4588751710937500e+09,  6.5922495973127800e+14;
 %!   1.6162401439666748e+05,  2.6886818181991577e+05,  1.1631187004089355e+05,  3.3860346089623548e+07, -1.2671848879843750e+09,  1.0971813972709620e+15;
@@ -77,5 +77,5 @@ endfunction
 %!
 %!  alpha=1; delta=1;
 %!  gaa2 = projectSuperskyMetric2Sky ( gnn, alpha, delta );
-%!  tol = -1e-8;	%% relative tolerance passes as <0 !
+%!  tol = -1e-8;	## relative tolerance passes as <0 !
 %!  assert ( gaa, gaa2, tol );

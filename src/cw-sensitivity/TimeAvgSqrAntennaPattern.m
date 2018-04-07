@@ -59,12 +59,12 @@ function Fsqr_t = TimeAvgSqrAntennaPattern(a0, b0, x, y, zeta, OmegaT, nmax)
   ## rotationally split components of a0 and b0
   zros = zeros(1, size(a0, 2));
   a0i = b0i = cell(1, 3);
-  a0i{1} = [ a0(1,:); a0(2,:); zros ];    # cross(cross(Omega_c, a0), Omega_c)
-  b0i{1} = [ b0(1,:); b0(2,:); zros ];    # cross(cross(Omega_c, b0), Omega_c)
-  a0i{2} = [ -a0(2,:); a0(1,:); zros ];   # cross(Omega_c, a0)
-  b0i{2} = [ -b0(2,:); b0(1,:); zros ];   # cross(Omega_c, b0)
-  a0i{3} = [ zros; zros; a0(3,:) ];       # dot(Omega_c, a0) Omega_c
-  b0i{3} = [ zros; zros; b0(3,:) ];       # dot(Omega_c, b0) Omega_c
+  a0i{1} = [ a0(1,:); a0(2,:); zros ];    ## cross(cross(Omega_c, a0), Omega_c)
+  b0i{1} = [ b0(1,:); b0(2,:); zros ];    ## cross(cross(Omega_c, b0), Omega_c)
+  a0i{2} = [ -a0(2,:); a0(1,:); zros ];   ## cross(Omega_c, a0)
+  b0i{2} = [ -b0(2,:); b0(1,:); zros ];   ## cross(Omega_c, b0)
+  a0i{3} = [ zros; zros; a0(3,:) ];       ## dot(Omega_c, a0) Omega_c
+  b0i{3} = [ zros; zros; b0(3,:) ];       ## dot(Omega_c, b0) Omega_c
 
   ## "JKS" expressions and sinc coefficients
   C = zeros(nmax+1, size(a0, 2));

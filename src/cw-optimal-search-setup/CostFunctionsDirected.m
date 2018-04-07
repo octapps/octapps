@@ -176,29 +176,29 @@ function bands = templateBankDims ( Nseg, Tseg, mismatch, params )
   tau_n = (n0 -1)*tauNS;
 
   sMax = 3;
-  %% fkMax(k) = kappa(k) * freq
+  ## fkMax(k) = kappa(k) * freq
   kappa(1) = 1  /tau_n;
   kappa(2) = n0 / tau_n^2;
   kappa(3) = n0*(2*n0 - 1) / tau_n^3;
 
-  %% recompute template extents using metric directly
+  ## recompute template extents using metric directly
   for s = 1:sMax
     gij = frequencyMetric ( s, Nseg, Tseg );
     gInv_ss = det ( gij(1:s,1:s) ) / det(gij);
     df(s) = sqrt ( mismatch * gInv_ss );
     fCrit(s) = df(s) / kappa(s);
 
-    if ( fCrit(s) >= params.fmax )	%% no higher orders possible
+    if ( fCrit(s) >= params.fmax )	## no higher orders possible
       break;
     endif
   endfor
 
-  %% sort the transition frequencies 'fcrit' and find all that lie within [fmin, fmax],
-  %% at those frequencies, we have to start a new frequency-band with different sMax maximal spindown orders
+  ## sort the transition frequencies 'fcrit' and find all that lie within [fmin, fmax],
+  ## at those frequencies, we have to start a new frequency-band with different sMax maximal spindown orders
   fCritAll = unique ( fCrit );
-  %% now find all 'pure' frequency-bands we can construct within [fmin, fmax], ie those where no transitions
-  %% happen: these transitions are defined by fCrit as the boundaries. If no fCrit values fall within [fmin, fmax]
-  %% then that whole band is 'pure'
+  ## now find all 'pure' frequency-bands we can construct within [fmin, fmax], ie those where no transitions
+  ## happen: these transitions are defined by fCrit as the boundaries. If no fCrit values fall within [fmin, fmax]
+  ## then that whole band is 'pure'
   fCritInBand = fCritAll ( find ( (fCritAll > params.fmin) & (fCritAll < params.fmax) ) );
   numBands = length ( fCritInBand ) + 1;
 
@@ -215,17 +215,17 @@ function bands = templateBankDims ( Nseg, Tseg, mismatch, params )
 endfunction ## templateBankDims()
 
 function Nt = templateCountReal ( Nseg, Tseg, mismatch, params )
-  %% compute number of templates of for directed search spaces
-  %% for a given frequency band [fmin,fmax], allowing for variable spindown-orders over this band
-  %% for given target- and search parameters, as determined by templateBankDims()
-  %%
-  %% params struct containing input arguments:
-  %% 'fmin':		lower frequency bound
-  %% 'fmax':		upper frequency bound
-  %% 'lattice':		lattice type, currently allowed are {"Ans", "Zn"}
-  %% 'tau_min':		spindown-age 'tau' in seconds
-  %% 'brk_min':		(minimal) braking index used for spindown-bounds
-  %%
+  ## compute number of templates of for directed search spaces
+  ## for a given frequency band [fmin,fmax], allowing for variable spindown-orders over this band
+  ## for given target- and search parameters, as determined by templateBankDims()
+  ##
+  ## params struct containing input arguments:
+  ## 'fmin':		lower frequency bound
+  ## 'fmax':		upper frequency bound
+  ## 'lattice':		lattice type, currently allowed are {"Ans", "Zn"}
+  ## 'tau_min':		spindown-age 'tau' in seconds
+  ## 'brk_min':		(minimal) braking index used for spindown-bounds
+  ##
 
   bands = templateBankDims ( Nseg, Tseg, mismatch, params );
   numBands = size ( bands, 1 );
@@ -245,22 +245,22 @@ function Nt = templateCountReal ( Nseg, Tseg, mismatch, params )
 endfunction ## templateCountReal()
 
 function Nt = templateCountPure ( Nseg, Tseg, mismatch, sMax, params )
-  %% compute number of templates for directed search spaces
-  %% for a "pure" frequency band [fmin,fmax], in the sense that the maximal spindown-order
-  %% 'sMax' over this band is assumed to be fixed.
-  %% use templateCountReal() for the realistic case of variable spindown-order over frequency
-  %%
-  %% extra arguments in 'params' struct:
-  %% 'lattice':		lattice type, currently allowed are {"An*", "Zn"=hypercubic}
-  %% 'fmin':		lower frequency bound
-  %% 'fmax':		upper frequency bound
-  %% 'tau_min':		spindown-age 'tau' in seconds
-  %% 'brk_min':		(minimal) braking index used for spindown-bounds
-  %%
+  ## compute number of templates for directed search spaces
+  ## for a "pure" frequency band [fmin,fmax], in the sense that the maximal spindown-order
+  ## 'sMax' over this band is assumed to be fixed.
+  ## use templateCountReal() for the realistic case of variable spindown-order over frequency
+  ##
+  ## extra arguments in 'params' struct:
+  ## 'lattice':		lattice type, currently allowed are {"An*", "Zn"=hypercubic}
+  ## 'fmin':		lower frequency bound
+  ## 'fmax':		upper frequency bound
+  ## 'tau_min':		spindown-age 'tau' in seconds
+  ## 'brk_min':		(minimal) braking index used for spindown-bounds
+  ##
 
   assert ( isscalar(sMax) && ( sMax == round(sMax)), "Invalid non-integer scalar 'sMax'\n");
 
-  nDim = 1 + sMax;	%% template-bank dimension
+  nDim = 1 + sMax;	## template-bank dimension
 
   switch ( params.lattice )
     case "Ans"
@@ -280,13 +280,13 @@ function Nt = templateCountPure ( Nseg, Tseg, mismatch, sMax, params )
 endfunction
 
 function gss = frequencyMetric ( sMax, Nseg, Tseg )
-  %% compute metric g_{ss'} in frequency-space: f^{(s)}(tRef), in SI units
-  %%
-  %% input arguments:
-  %% 'sMax':		maximal spindown-order, so the metric dimension is nDim = sMax + 1
-  %%
-  %% Default reference time is the mean segment mid-time over all segments.
-  %%
+  ## compute metric g_{ss'} in frequency-space: f^{(s)}(tRef), in SI units
+  ##
+  ## input arguments:
+  ## 'sMax':		maximal spindown-order, so the metric dimension is nDim = sMax + 1
+  ##
+  ## Default reference time is the mean segment mid-time over all segments.
+  ##
 
   gssnat = frequencyMetricNat ( sMax, Nseg, Tseg );
 
@@ -300,21 +300,21 @@ function gss = frequencyMetric ( sMax, Nseg, Tseg )
 endfunction ## frequencyMetric()
 
 function ret = frequencyMetricNat ( sMax, Nseg, Tseg )
-  %% compute metric g_{ss'} in frequency-space: f^{(s)}(tRef),
-  %% in natural units om^{(s)} = 2pi f^{(s)}/(s+1)! (Tseg/2)^(s+1),
-  %% where Tseg is the segment length
-  %%
-  %%  input arguments:
-  %% 'sMax':		maximal spindown-order, so the metric dimension is nDim = sMax + 1
-  %%
-  %% Default reference time is the mean segment mid-time over all segments.
-  %%
+  ## compute metric g_{ss'} in frequency-space: f^{(s)}(tRef),
+  ## in natural units om^{(s)} = 2pi f^{(s)}/(s+1)! (Tseg/2)^(s+1),
+  ## where Tseg is the segment length
+  ##
+  ##  input arguments:
+  ## 'sMax':		maximal spindown-order, so the metric dimension is nDim = sMax + 1
+  ##
+  ## Default reference time is the mean segment mid-time over all segments.
+  ##
 
-  %% ----- check input consistency
+  ## ----- check input consistency
   assert ( isscalar(sMax) && ( sMax == round(sMax)), "Invalid non-integer scalar 'sMax'\n");
   assert ( ( sMax >= 0) && (sMax <= 3), "The maximal spindown-order 'sMax'=%d must be in the range {0,..,3}!", sMax );
 
-  if ( (Nseg > 1) && (Nseg < 2) )	%% avoid negative determinants that happen for N in (1,2)
+  if ( (Nseg > 1) && (Nseg < 2) )	## avoid negative determinants that happen for N in (1,2)
     Nseg = 2;
   endif
 
@@ -323,22 +323,22 @@ function ret = frequencyMetricNat ( sMax, Nseg, Tseg )
   D6 = D2 * ( 3*Nseg^4 - 18*Nseg^2 + 31 ) / 7;
   D = [ 0, D2, 0, D4, 0, D6 ];
 
-  %% HACK required to correctly describe GCT-code behaviour: need finer coherent-grid in f2dot by factor of "finef2"
+  ## HACK required to correctly describe GCT-code behaviour: need finer coherent-grid in f2dot by factor of "finef2"
   global finef2 = 1;	## default=1 but won't change if set in global context already
-  %% ----- use this only for coherent metrics ----------
+  ## ----- use this only for coherent metrics ----------
   ff2 = 1;
   if ( Nseg == 1 )
     ff2 = finef2;
   endif
 
-  %% ----- coherent metric in natural units with refTime = midTime
+  ## ----- coherent metric in natural units with refTime = midTime
   g4D = [ 1/3,     0, 1/5,     0 ;
             0,  4/45,   0,  8/105;
           1/5,     0, 1/7 * ff2^2,      0;
             0, 8/105,   0, 16/225;
         ];
 
-  %% ----- semi-coherent contributions adding onto coherent metric elements
+  ## ----- semi-coherent contributions adding onto coherent metric elements
   d11 = (4/3) * D(2);
   d22 = 3 * D(4) + 2 * D(2);
   d33 = (16/3) * D(6) + (48/5) * D(4) + (16/5) * D(2);
@@ -357,10 +357,10 @@ function ret = frequencyMetricNat ( sMax, Nseg, Tseg )
           d03,   d13,  d23,  d33;
           ];
 
-  n = 1 + sMax;	%% template-bank dimension
+  n = 1 + sMax;	## template-bank dimension
   gij = (g4D + g4SC) ( 1:n, 1:n );
 
-  %% enforce strict symmetric matrix (compensate roundoff troubles...)
+  ## enforce strict symmetric matrix (compensate roundoff troubles...)
   ret = 0.5 * ( gij + gij' );
 
   return;
@@ -368,21 +368,21 @@ function ret = frequencyMetricNat ( sMax, Nseg, Tseg )
 endfunction ## frequencyMetricNat()
 
 function ret = invNatUnit (sMax, Tseg)
-  %% metric conversion factor of dimension n= 1 + sMax
-  %% from natural units back into 'physical' units
+  ## metric conversion factor of dimension n= 1 + sMax
+  ## from natural units back into 'physical' units
   n = 1 + sMax;
 
   ret = (2*pi) * (Tseg/2).^n ./ factorial(n);
 
   return;
-endfunction %% invNatUnit()
+endfunction ## invNatUnit()
 
 function vol = coordinateVolume ( sMax, params )
-  %% compute the coordinate template-bank volume (in SI units) for a directed-search space
-  %% of maximal spindown-order 'sMax', spindown-age 'tau', and a frequency-range [fmin, fmax],
-  %% using either params.boundaryType:
-  %% "EaHCasA": search space construction used in the E@H search 'S6CasA' ('square in {fdot,f2dot}, grows with f)
-  %% "S5CasA": Karl's S5 search space construction used in first CasA search ('fdot=fdot(f), f2dot=f2dot(f,f1dot)')
+  ## compute the coordinate template-bank volume (in SI units) for a directed-search space
+  ## of maximal spindown-order 'sMax', spindown-age 'tau', and a frequency-range [fmin, fmax],
+  ## using either params.boundaryType:
+  ## "EaHCasA": search space construction used in the E@H search 'S6CasA' ('square in {fdot,f2dot}, grows with f)
+  ## "S5CasA": Karl's S5 search space construction used in first CasA search ('fdot=fdot(f), f2dot=f2dot(f,f1dot)')
 
   sMaxMax = 3;
   assert ( sMax <= sMaxMax, "Maximal spindown-order currently limited to sMax <= %d\n", sMaxMax );

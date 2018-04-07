@@ -44,12 +44,12 @@ function stackparams = LocalSolution4Fstat ( coefCoh, cost0 )
   assert ( isfield(coefCoh, "kappa" ) );
   assert ( isfield(coefCoh, "nDim" ) );
 
-  %% useful shortcuts
+  ## useful shortcuts
   deltac = coefCoh.delta;
   kappac = coefCoh.kappa;
   nc     = coefCoh.nDim;
 
-  xi     = meanOfHist( LatticeMismatchHist( round(nc), coefCoh.lattice ) ); %% factor linking average and maximal mismatch for selected lattice
+  xi     = meanOfHist( LatticeMismatchHist( round(nc), coefCoh.lattice ) ); ## factor linking average and maximal mismatch for selected lattice
 
   mcOpt   = ( xi * ( 1 + 2 * deltac / nc ))^(-1);			## Eq.(69)
   TobsOpt = ( cost0 / kappac )^(1/deltac) * mcOpt^(nc/(2*deltac));	## Eq.(70)
@@ -65,7 +65,7 @@ function stackparams = LocalSolution4Fstat ( coefCoh, cost0 )
 endfunction
 
 %!test
-%!  %% check recovery of published results in Prix&Shaltev(2012)
+%!  ## check recovery of published results in Prix&Shaltev(2012)
 %!  coefCoh.delta = 7; coefCoh.nDim = 3; coefCoh.lattice = "Ans";
 %!  coefCoh.kappa = 2.83216623e-36;
 %!  cost0 = 471.981444 * 86400;

@@ -82,7 +82,7 @@ function [Depth, pd_Depth] = SensitivityDepth(varargin)
       error("Sizes of Tdata and Ns are not compatible\n");
     endif
   end_try_catch
-  ##transform Ns, Tdata and sa into a cell array
+  ## transform Ns, Tdata and sa into a cell array
   Ns = num2cell(Ns,1);
   Tdata = num2cell(Tdata,1);
   fdp_vars{1} = num2cell(fdp_vars{1},1);
@@ -94,7 +94,7 @@ function [Depth, pd_Depth] = SensitivityDepth(varargin)
   Rsqr_px = histProbs(Rsqr);
   [Rsqr_x, Rsqr_dx] = histBins(Rsqr, 1, "centre", "width");
 
-  ## check histogram bins are positive and contain no infinities                  # add for mismatch
+  ## check histogram bins are positive and contain no infinities                  ## add for mismatch
   if min(histRange(Rsqr)) < 0
     error("%s: R^2 histogram bins must be positive", funcName);
   endif
@@ -275,7 +275,7 @@ function pd_Depth = callFDP(Depth,ii,
                           FDP,fdp_vars,fdp_opts)
   if any(ii)
     for i = 1:length(mism_x)
-      ##integrating over the mismatch distributions
+      ## integrating over the mismatch distributions
       cdfs(:,:,i) = sum((1 -  feval(FDP,pd(ii,jj,kk{i}), Ns{i}(ii,jj,kk{i}),                       ## lower dimensional arrays are copied to the remaining dimensions
                        (2 / 5 .*sqrt(Tdata{i}(ii,jj,kk{i}) ./Ns{i}(ii,jj,kk{i}))./Depth(ii,jj,kk{i})).^2 .*Rsqr_x(ii,:,kk{i}).*(1 - mism_x{i}(ii,jj,:)), ## might be better to do that before the loop
                        cellfun(@(x) x{i}(ii,jj,kk{i}),fdp_vars,"UniformOutput",false),

@@ -132,12 +132,12 @@ endfunction
 
 ## check refinement of GCT metric implementation against expressions by Prix&Shaltev from CostFunctionsEaHGCT()
 %!function ret = refinement ( s, Nseg )
-%!  gam1 = sqrt ( 5 * Nseg.^2 - 4 );	%% Eq.(77) in Pletsch(2010)
+%!  gam1 = sqrt ( 5 * Nseg.^2 - 4 );	## Eq.(77) in Pletsch(2010)
 %!  switch ( s )
 %!    case 1
 %!      ret = gam1;
 %!    case 2
-%!      ret = gam1 .* sqrt ( (35 * Nseg.^4 - 175 * Nseg.^2  + 143)/3 );%% Eq.(96) in Pletsch(2010), 'fixed' to give gam(1)=1
+%!      ret = gam1 .* sqrt ( (35 * Nseg.^4 - 175 * Nseg.^2  + 143)/3 ); ## Eq.(96) in Pletsch(2010), 'fixed' to give gam(1)=1
 %!    otherwise
 %!      error ("Invalid value of s: '%f' given, allowed are {1,2}\n", s );
 %!  endswitch
