@@ -15,29 +15,45 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## Usage: pdf = binomialRatePDF ( f, N, K )
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{pdf} = binomialRatePDF ( @var{f}, @var{N}, @var{K} )
 ##
-## Return the posterior pdf(f|N,K) for the true 'rate' f given a drawing
-## experiment with K "successful" results out of N trials, assuming a
-## uniform prior on f in [0,1], which yields
-## pdf(f|N,K) = (N+1)!/(K! (N-K)!) * f^K * (1-f)^(N-K)
+## Return the posterior pdf(@var{f}|@var{N},@var{K}) for the true 'rate' @var{f} given a drawing
+## experiment with @var{K} "successful" results out of @var{N} trials, assuming a
+## uniform prior on @var{f} in [0,1], which yields
+##
+## pdf(@var{f}|@var{N},@var{K}) = (@var{N}+1)!/(@var{K}! (@var{N}-@var{K})!) * @var{f}^@var{K} * (1-@var{f})^(@var{N}-@var{K})
+##
 ## This expression would be numerically overflowing very
-## easily when N,K>>1, and so we use the fact that
-## K!(N-K)!/(N+1)! = beta(K+1,N-K+1)
+## easily when @var{N},@var{K}>>1, and so we use the fact that
+##
+## K!(@var{N}-@var{K})!/(@var{N}+1)! = beta(@var{K}+1,@var{N}-@var{K}+1)
+##
 ## and the numerically robust octave-function betaln()=ln(beta()):
-## ln pdf(f|N,K) = -betaln(K+1,N-K+1) + K ln(f) + (N-K) ln(1-f)
+##
+## ln pdf(@var{f}|@var{N},@var{K}) = -betaln(@var{K}+1,@var{N}-@var{K}+1) + @var{K} ln(@var{f}) + (@var{N}-@var{K}) ln(1-@var{f})
 ##
 ## Some useful properties of this posterior PDF are:
-## the maximum-posterior estimate (MPE) for the rate f is
-## fMPE = K/N,
+## @itemize
+## @item
+## the maximum-posterior estimate (MPE) for the rate @var{f} is
+## fMPE = @var{K}/@var{N},
+##
+## @item
 ## the expectation is
-## fE = E[f|N,K] = (K+1)/(N+2)
+## fE = E[@var{f}|@var{N},@var{K}] = (@var{K}+1)/(@var{N}+2)
+##
+## @item
 ## and the variance
-## var[f] = (K+1)*(N-K+1)/( (N+3)*(N+2)^2)
-##        = Ef * (1-Ef) / (N+3)
-## which in the large-N limit leads to
+## var[@var{f}] = (@var{K}+1)*(@var{N}-@var{K}+1)/( (@var{N}+3)*(@var{N}+2)^2)
+## = Ef * (1-Ef) / (@var{N}+3)
+## which in the large-@var{N} limit leads to
 ## fE ~ fMPE,
-## var[f] ~ 1/N * fMPE * (1 - fMPE)
+## var[@var{f}] ~ 1/@var{N} * fMPE * (1 - fMPE)
+## @end itemize
+##
+## @end deftypefn
+
 function pdf = binomialRatePDF ( f, N, K )
 
   [errorcode, fi, Ni, Ki] = common_size ( f, N, K );

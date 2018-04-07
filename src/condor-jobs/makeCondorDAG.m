@@ -15,19 +15,49 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{dag_file} = makeCondorDAG(@var{opt}, @var{val}, @dots{})
+##
 ## Set up a Condor DAG for running Condor jobs.
-## Usage:
-##   dag_file = makeCondorDAG("opt", val, ...)
-## where
-##   dag_file = name of Condor DAG submit file
-## Options:
-##   "dag_name":        name of Condor DAG, used to name DAG submit file
-##   "job_nodes":       struct array of job nodes, which has the following fields:
-##                      * "file": name of Condor submit file for this job
-##                      * "vars": struct of variable substitutions to make
-##                      * "child": array indexing child job nodes for this node
-##   "retries":         how man times to retry Condor jobs (default: 0)
-##   "sub_dags":        split DAG into this many subfiles (default: 1)
+##
+## @heading Arguments
+##
+## @table @var
+## @item dag_file
+## name of Condor DAG submit file
+##
+## @end table
+##
+## @heading Options
+##
+## @table @code
+## @item dag_name
+## name of Condor DAG, used to name DAG submit file
+##
+## @item job_nodes
+## struct array of job nodes, which has the following fields:
+##
+## @table @code
+## @item file
+## name of Condor submit file for this job
+##
+## @item vars
+## struct of variable substitutions to make
+##
+## @item child
+## array indexing child job nodes for this node
+##
+## @end table
+##
+## @item retries
+## how man times to retry Condor jobs (default: 0)
+##
+## @item sub_dags
+## split DAG into this many subfiles (default: 1)
+##
+## @end table
+##
+## @end deftypefn
 
 function dag_file = makeCondorDAG(varargin)
 

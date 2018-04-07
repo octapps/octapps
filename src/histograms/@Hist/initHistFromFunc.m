@@ -13,13 +13,27 @@
 ## You should have received a copy of the GNU General Public License
 ## along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{hgrm} = initHistFromFunc(@var{hgrm}, @var{F}, [@var{xl_1}, @var{xh_1}], ..., [@var{xl_dim}, @var{xh_dim}])
+##
 ## Initialise a histogram directly from a given function.
-## Usage:
-##   hgrm = initHistFromFunc(hgrm, F, [xl_1, xh_1], ..., [xl_dim, xh_dim])
-## where:
-##   hgrm         = histogram object
-##   F            = function used to initialise histogram
-##   [xl_k, xh_k] = range in dimension 'k' to evaluate 'F' over
+##
+## @heading Arguments
+##
+## @table @var
+## @item hgrm
+## histogram object
+##
+## @item F
+## function used to initialise histogram
+##
+## @item xl_k
+## @itemx xh_k
+## range in dimension 'k' to evaluate @var{F} over
+##
+## @end table
+##
+## @end deftypefn
 
 function hgrm = initHistFromFunc(hgrm, F, varargin)
 

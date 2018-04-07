@@ -15,13 +15,19 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} [@var{fDEst}, @var{dfDEst}] = estimateFalseDismissal ( @var{fA}, @var{stat_0}, @var{stat_s} )
+##
+## @strong{DEPRECATED: use @command{estimateRateFromSamples()} or @command{estimateROC()} instead}
+##
+## function to estimate false-dismissals plus Jackknife error-estimates for given false-alarms
+## and samples of the statistic in no-signal case (@var{stat_0}) and in case of signal+noise (@var{stat_s})
+##
+## new version 2011/01: for N<100 samples, just calculate fDest without errors; for N>100, but not multiple, truncate to closest multiple
+##
+## @end deftypefn
+
 function [fDEst, dfDEst] = estimateFalseDismissal ( fA, stat_0, stat_s )
-  ## DEPRECATED: use estimateRateFromSamples() or estimateROC() instead
-  ##
-  ## Usage: [fDEst, dfDEst] = estimateFalseDismissal ( fA, stat_0, stat_s )
-  ## function to estimate false-dismissals plus Jackknife error-estimates for given false-alarms
-  ## and samples of the statistic in no-signal case (stat_0) and in case of signal+noise (stat_s)
-  ## new version 2011/01: for N<100 samples, just calculate fDest without errors; for N>100, but not multiple, truncate to closest multiple
 
   warning ( "DEPRECATED: use estimateRateFromSamples() or estimateROC() instead\n");
 

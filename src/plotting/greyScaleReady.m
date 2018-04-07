@@ -14,25 +14,40 @@
 ## along with Octave; see the file COPYING.  If not, see
 ## <http://www.gnu.org/licenses/>.
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{map} = greyScaleReady(@var{name}, [@var{n} = 64])
+##
 ## Generate colour maps where the "luma" (brightness) decreases
-## linearly as a function of colour map index; these maps should
+## linearly as a function of colour @var{map} index; these maps should
 ## therefore be printable in grey-scale. Light-to-dark colour maps
-## range from white to the first colour of "name", via the second
-## colour of "name"; dark-to-light colour maps reverse this order.
-##   map  = greyScaleReady("name", [n=64])
-## where
-##   map  = colour map
-##   name = one of:
-##            light-to-dark colour maps:
-##              blue-cyan      blue-magenta
-##              green-cyan     green-yellow
-##              red-magenta    red-yellow
-##            dark-to-light colour maps:
-##              cyan-blue      cyan-green
-##              magenta-blue   magenta-red
-##              yellow-green   yellow-red
-
-##   n    = number of colour map entries
+## range from white to the first colour of "@var{name}", via the second
+## colour of "@var{name}"; dark-to-light colour maps reverse this order.
+##
+## @heading Arguments
+##
+## @table @var
+## @item map
+## colour map
+##
+## @item name
+## one of:
+## @table @asis
+## @item light-to-dark colour maps
+## @code{blue-cyan}, @code{blue-magenta}, @code{green-cyan},
+## @code{green-yellow}, @code{red-magenta}, @code{red-yellow}
+##
+## @item dark-to-light colour maps
+## @code{cyan-blue}, @code{cyan-green}, @code{magenta-blue},
+## @code{magenta-red}, @code{yellow-green}, @code{yellow-red}
+##
+## @end table
+##
+## @item n
+## number of colour map entries
+##
+## @end table
+##
+## @end deftypefn
 
 function map = greyScaleReady(name, n=64)
 

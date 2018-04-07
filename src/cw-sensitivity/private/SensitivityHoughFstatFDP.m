@@ -15,14 +15,10 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## Helper function for SensitivitySNR:
-## Calculate the false dismissal probability of the F-statistic,
-## summed using the Hough method
-## Options:
-##   "paNt" = false alarm probability per template
-##   "nth"  = number count false alarm threshold
-##   "Fth"  = F-statistic threshold per segment
-##   "zero" = use zeroth-order approximation (default: false)
+## Helper function for SensitivityDepth()
+##
+## Calculate the false dismissal probability of the F-statistic, summed using
+## the Hough method
 
 function [pd, Ns, FDP, fdp_vars, fdp_opts] = SensitivityHoughFstatFDP(pd, Ns, args)
 

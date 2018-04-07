@@ -15,11 +15,16 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{ret} = GetNormSFTPowerFiles ( @var{varargin} )
+##
+## function to produce files of normalized SFT power over a large set of frequency bands (input sft files) for a single IFO
+## command-line parameters can be taken from parseOptions call below
+## example call: octapps_run GetNormSFTPowerFiles --sftdir=sfts --sft_filenamebit=S6GC1 --IFO=h1 --freqmin=50.5
+##
+## @end deftypefn
+
 function ret = GetNormSFTPowerFiles ( varargin )
-  ## ret = GetNormSFTPowerFiles ( varargin )
-  ## function to produce files of normalized SFT power over a large set of frequency bands (input sft files) for a single IFO
-  ## command-line parameters can be taken from parseOptions call below
-  ## example call: octapps_run GetNormSFTPowerFiles --sftdir=sfts --sft_filenamebit=S6GC1 --IFO=h1 --freqmin=50.5
 
   ## read in and check input parameters
   params_init = parseOptions(varargin,

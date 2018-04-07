@@ -14,6 +14,8 @@
 ## along with Octave; see the file COPYING.  If not, see
 ## <http://www.gnu.org/licenses/>.
 
+## Helper function for OptimalSolution4StackSlide_v2()
+
 function funs = OptimalSolution4StackSlide_v2_helpers ( costFuns, constraints, pFA = 1e-10, pFD = 0.1, nonlinearMismatch = false, sensApprox = [] )
 
   funs = struct();

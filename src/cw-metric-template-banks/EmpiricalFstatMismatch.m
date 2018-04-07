@@ -13,23 +13,47 @@
 ## You should have received a copy of the GNU General Public License
 ## along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{mtwoF} = EmpiricalFstatMismatch(@var{Tcoh}, @var{Tsemi}, @var{mcoh}, @var{msemi})
+## @deftypefnx {Function File} [@var{mtwoF}, @var{stwoF}] = EmpiricalFstatMismatch(@var{Tcoh}, @var{Tsemi}, @var{mcoh}, @var{msemi}, @var{scoh}, @var{ssemi})
+##
 ## Compute an empirical fit, derived from numerical simulations,
 ## to the F-statistic mismatch as a function of the coherent and
 ## semicoherent time-spans and metric mismatches.
-## Usage:
-##   mtwoF          = EmpiricalFstatMismatch(Tcoh, Tsemi, mcoh, msemi)
-##   [mtwoF, stwoF] = EmpiricalFstatMismatch(Tcoh, Tsemi, mcoh, msemi, scoh, ssemi)
-## where
-##   mtwoF          = mean F-statistic mismatch
-##   stwoF          = standard deviation of F-statistic mismatch
-##   Tcoh           = coherent segment time-span, in seconds
-##   Tsemi          = semicoherent search time-span, in seconds
-##   mcoh           = mean coherent metric mismatch
-##   msemi          = mean semicoherent metric mismatch
-##   scoh           = standard deviation of coherent metric mismatch
-##   ssemi          = standard deviation of semicoherent metric mismatch
+##
+## @heading Arguments
+##
+## @table @var
+## @item mtwoF
+## mean F-statistic mismatch
+##
+## @item stwoF
+## standard deviation of F-statistic mismatch
+##
+## @item Tcoh
+## coherent segment time-span, in seconds
+##
+## @item Tsemi
+## semicoherent search time-span, in seconds
+##
+## @item mcoh
+## mean coherent metric mismatch
+##
+## @item msemi
+## mean semicoherent metric mismatch
+##
+## @item scoh
+## standard deviation of coherent metric mismatch
+##
+## @item ssemi
+## standard deviation of semicoherent metric mismatch
+##
+## @end table
+##
 ## Input variables may also be vectors.
-## Note that a non-interpolating search implies 'mcoh = 0'.
+## Note that a non-interpolating search implies @var{mcoh} = 0.
+##
+## @end deftypefn
 
 function [mtwoF, stwoF] = EmpiricalFstatMismatch(Tcoh, Tsemi, mcoh, msemi, scoh=0, ssemi=0)
 

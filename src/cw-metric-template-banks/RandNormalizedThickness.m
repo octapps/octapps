@@ -15,11 +15,16 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## ret = RandNormalizedThickness ( dim, falseDismissal )
-## [can handle vector input in 'dim']
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{ret} = RandNormalizedThickness ( @var{dim}, @var{falseDismissal} )
 ##
 ## Return the normalized thickness of an 'dim'-dimensional random-template
 ## grid with given falseDismissal probability
+##
+## @heading Note
+## can handle vector input in @var{dim}
+##
+## @end deftypefn
 
 function ret = RandNormalizedThickness ( dim, falseDismissal )
   ## compute the normalized thickness, i.e. number of templates per

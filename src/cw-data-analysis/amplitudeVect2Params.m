@@ -15,15 +15,26 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## Amp = amplitudeVect2Params ( Amu, convention )
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{Amp} = amplitudeVect2Params ( @var{Amu}, @var{convention} )
 ##
-## compute amplitude-vector {A^mu} from (MLDC) amplitudes {Amplitude, Inclination, Polarization, InitialPhase }
-## Adapted from algorithm in LALEstimatePulsarAmplitudeParams()
+## compute amplitude-vector @{A^mu@} from (MLDC) amplitudes @{Amplitude, Inclination, Polarization, InitialPhase @}
+##
 ## Amu is a row-vector for each signal, multiple signals being stored in multiple rows ,
 ## the resulting fields in Amp are also column-vectors for multiple signals
-## if convention == "LIGO", return {h0,cosi,psi.iota} and {aPlus,aCross},
-## if convention == "MLDC" return {Amplitude,Inclination,Polarization, InitialPhase} using MLDC conventions
+## @itemize
+## @item
+## if convention == "LIGO", return @{h0,cosi,psi.iota@} and @{aPlus,aCross@},
+## @item
+## if convention == "MLDC" return @{Amplitude,Inclination,Polarization, InitialPhase@} using MLDC conventions
+## @item
 ## the default = "LIGO" if not specified
+## @end itemize
+##
+## @heading Note
+## Adapted from algorithm in @command{LALEstimatePulsarAmplitudeParams()}
+##
+## @end deftypefn
 
 function Amp = amplitudeVect2Params ( Amu, convention )
 

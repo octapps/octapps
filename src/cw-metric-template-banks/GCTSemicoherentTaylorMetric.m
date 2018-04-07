@@ -14,21 +14,46 @@
 ## along with Octave; see the file COPYING.  If not, see
 ## <http://www.gnu.org/licenses/>.
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} g = GCTSemicoherentTaylorMetric(@var{opt}, @var{val}, @dots{})
+##
 ## Computes the semicoherent global correlation transform metric, as
 ## given in Pletsch, PRD 82 042002 (2010), which Taylor-expands the
 ## Earth's orbital motion.
-## Syntax:
-##   g = GCTSemicoherentTaylorMetric("opt", val, ...)
-## where:
-##   g = semicoherent GCT metric using Taylor-expanded phase model
-## Options:
-##   "smax":    number of spindowns (up to second spindown)
-##   "tj_list": list of values of tj, the mid-point of the coherent
-##              time span of each segment
-##   "t0":      value of t0, an overall reference time
-##   "T":       value of T, the coherent time span
-##   "Omega":   value of Omega, the Earth's angular rotation frequency
-##              (default: 2*pi / (sidereal day in seconds)
+##
+## @heading Arguments
+##
+## @table @var
+## @item g
+## semicoherent GCT metric using Taylor-expanded phase model
+##
+## @end table
+##
+## @heading Options
+##
+## @heading Options
+##
+## @table @code
+## @item smax
+## number of spindowns (up to second spindown)
+##
+## @item tj_list
+## list of values of tj, the mid-point of the coherent
+## time span of each segment
+##
+## @item t0
+## value of t0, an overall reference time
+##
+## @item T
+## value of T, the coherent time span
+##
+## @item Omega
+## value of Omega, the Earth's angular rotation frequency
+## [default: 2*pi / (sidereal day in seconds)]
+##
+## @end table
+##
+## @end deftypefn
 
 function g = GCTSemicoherentTaylorMetric(varargin)
 

@@ -15,14 +15,31 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{F} = AntennaPattern(@var{a}, @var{b}, @var{x}, @var{y}, @var{zeta})
+##
 ## Calculate the antenna pattern of an interferometer
-## Syntax:
-##   F = AntennaPattern(a, b, x, y, zeta)
-## where:
-##   F    = antenna pattern
-##   a,b  = detector null vectors in equatorial coordinates
-##   x,y  = polarisation null vectors in equatorial coordinates
-##   zeta = angle between interferometer arms in radians
+##
+## @heading Arguments
+##
+## @table @var
+## @item F
+## antenna pattern
+##
+## @item a
+## @itemx b
+## detector null vectors in equatorial coordinates
+##
+## @item x
+## @itemx y
+## polarisation null vectors in equatorial coordinates
+##
+## @item zeta
+## angle between interferometer arms in radians
+##
+## @end table
+##
+## @end deftypefn
 
 function F = AntennaPattern(a, b, x, y, zeta)
 

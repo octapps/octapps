@@ -14,8 +14,14 @@
 ## along with Octave; see the file COPYING.  If not, see
 ## <http://www.gnu.org/licenses/>.
 
-## computes the rotation matrix for an *active* rotation by 'angle' around
-## the axis 'rotAxis' (3d vector)
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{rotMatrix} = rotationMatrix ( @var{angle}, @var{rotAxis} )
+##
+## computes the rotation matrix for an *active* rotation by @var{angle} around
+## the axis @var{rotAxis} (3d vector)
+##
+## @end deftypefn
+
 function rotMatrix = rotationMatrix ( angle, rotAxis )
 
   assert ( isvector ( rotAxis ) && (length(rotAxis) == 3), "%s: rotation Axis must be a 3-vector.\n", funcName );

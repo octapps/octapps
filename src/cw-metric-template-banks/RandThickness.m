@@ -15,11 +15,16 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## ret = RandThickness ( dim, falseDismissal )
-## [can handle vector input in 'dim']
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{ret} = RandThickness ( @var{dim}, @var{falseDismissal} )
 ##
-## Return the thickness of an 'dim'-dimensional random-template
-## grid with given falseDismissal probability
+## Return the thickness of an @var{dim}-dimensional random-template
+## grid with given @var{falseDismissal} probability
+##
+## @heading Note
+## can handle vector input in @var{dim}
+##
+## @end deftypefn
 
 function ret = RandThickness ( dim, falseDismissal )
 

@@ -15,13 +15,26 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{cdf} = cumulativeDistOfHist(@var{hgrm}, @var{x}, [@var{k} = 1])
+##
 ## Evaluate the cumulative distribution function (c.d.f) of a histogram.
-## Syntax:
-##   cdf = cumulativeDistOfHist(hgrm, x, [k = 1])
-## where:
-##   hgrm = histogram object
-##   x    = argument to the c.d.f.
-##   k    = dimension over which to evaluate the c.d.f.
+##
+## @heading Arguments
+##
+## @table @var
+## @item hgrm
+## histogram object
+##
+## @item x
+## argument to the c.d.f.
+##
+## @item k
+## dimension over which to evaluate the c.d.f.
+##
+## @end table
+##
+## @end deftypefn
 
 function cdf = cumulativeDistOfHist(hgrm, x, k = 1)
 

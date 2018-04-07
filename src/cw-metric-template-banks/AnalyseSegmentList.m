@@ -13,16 +13,31 @@
 ## You should have received a copy of the GNU General Public License
 ## along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} AnalyseSegmentList(@var{segment_list_2col})
+## @deftypefnx {Function File} AnalyseSegmentList(@var{segment_list_4col}, @var{Ndet}, @var{Tsft}=1800)
+## @deftypefnx {Function File} @var{props} = AnalyseSegmentList(@dots{})
+##
 ## Analyse a segment list and print/return various properties.
-## Usage:
-##   AnalyseSegmentList(segment_list_2col)
-##   AnalyseSegmentList(segment_list_4col, Ndet, Tsft=1800)
-##   props = AnalyseSegmentList(...)
-## where:
-##   segment_list_2col = 2-column segment list: [start_times, end_times]
-##   segment_list_4col = 4-column segment list: [start_times, end_times, (unused), num_SFTs]
-##   Ndet              = number of detectors
-##   Tspan             = SFT time-span in seconds
+##
+## @heading Arguments
+##
+## @table @var
+## @item segment_list_2col
+## 2-column segment list: [@code{start_times}, @code{end_times}]
+##
+## @item segment_list_4col
+## 4-column segment list: [@code{start_times}, @code{end_times}, @strong{unused}, @code{num_SFTs}]
+##
+## @item Ndet
+## number of detectors
+##
+## @item Tspan
+## SFT time-span in seconds
+##
+## @end table
+##
+## @end deftypefn
 
 function props = AnalyseSegmentList(segment_list, Ndet, Tsft=1800)
 

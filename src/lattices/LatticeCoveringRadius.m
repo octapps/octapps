@@ -15,11 +15,16 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## R = LatticeCoveringRadius ( dim, lattice )
-## [can handle vector input in 'dim']
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{R} = LatticeCoveringRadius ( @var{dim}, @var{lattice} )
 ##
 ## return the covering radius for the given lattice
-## lattice is one of the strings { "Zn", "An", "Ans" }
+## lattice is one of the strings @{@code{Zn}, @code{An}, @code{Ans}@}
+##
+## @heading Note
+## can handle vector input in @var{dim}
+##
+## @end deftypefn
 
 function R = LatticeCoveringRadius ( dim, lattice )
 

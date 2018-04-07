@@ -15,22 +15,30 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## Usage: w = SensitivityScalingDeviationN ( pFA, pFD, Nseg, approx = "" )
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{w} = SensitivityScalingDeviationN ( @var{pFA}, @var{pFD}, @var{Nseg}, @var{approx} = "" )
 ##
-## Compute the deviation parameter 'w' of the local StackSlide-sensitivity power-law scaling
+## Compute the deviation parameter @var{w} of the local StackSlide-sensitivity power-law scaling
 ## coefficient from the weak-signal limit (where w=1).
 ## In the Gaussian weak-signal limit ("WSG"), the critical non-centrality RHO^2 scales exactly as
 ## RHO^2 ~ N^(1/2), and threshold signal-strength hth therefore scales as ~ N^(-1/4).
 ##
 ## In general the N-scaling deviates from this, and we can locally describe it as a power-law
-## of the form RHO^2 ~ N^(1/(2w), and hth ~ N^(-1/(4w)), respectively, where 'w' quantifies
+## of the form RHO^2 ~ N^(1/(2w), and hth ~ N^(-1/(4w)), respectively, where @var{w} quantifies
 ## the devation from the WSG-scaling.
 ##
-## 'approx' == "":      use full chi^2_(4*Nseg) distribution
-## 'approx' == "Gauss": use the Gaussian (N>>1) approximation
-## 'approx' == "WSG":   return w=1 for the "weak-signal Gaussian" case
+## @itemize
+## @item @code{approx} == "":
+## use full chi^2_(4*@var{Nseg}) distribution
+## @item @code{approx} == "Gauss":
+## use the Gaussian (N>>1) approximation
+## @item @code{approx} == "WSG":
+## return w=1 for the "weak-signal Gaussian" case
+## @end itemize
 ##
-## 'Nseg' is allowed to be a vector, in which case the return w is also a vector.
+## @var{Nseg} is allowed to be a vector, in which case the return w is also a vector.
+##
+## @end deftypefn
 
 function w = SensitivityScalingDeviationN ( pFA, pFD, Nseg, approx = [] )
 

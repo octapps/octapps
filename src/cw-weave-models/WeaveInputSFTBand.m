@@ -14,37 +14,75 @@
 ## along with Octave; see the file COPYING.  If not, see
 ## <http://www.gnu.org/licenses/>.
 
-## Estimate the input SFT band required by 'lalapps_Weave'
-## Usage:
-##   [SFT_freq_min, SFT_freq_max] = WeaveInputSFTBand("opt", val, ...)
-## where:
-##   SFT_freq_min/max:
-##     Minimum/maximum SFT frequency range
-## Options:
-##   EITHER:
-##     setup_file:
-##       Weave setup file
-##   OR:
-##     segment_list:
-##       Segment list
-##     ref_time:
-##       GPS reference time
-##   EITHER:
-##     result_file:
-##       Weave result file
-##   OR:
-##     freq_min/max:
-##       Minimum/maximum frequency range
-##     f1dot_min/max:
-##       Minimum/maximum 1st spindown
-##     f2dot_min/max:
-##       Minimum/maximum 2nd spindown (optional)
-##   TSFT:
-##     Length of an SFT (default: 1800s)
-##   Dterms:
-##     Number of Dirichlet terms used by the F-statistic (default: 8)
-##   run_med_win:
-##     Size of running median window used by the F-statistic (default: 101)
+## -*- texinfo -*-
+## @deftypefn  {Function File} [@var{SFT_freq_min}, @var{SFT_freq_max}] = WeaveInputSFTBand(@var{opt}, @var{val}, @dots{})
+##
+## Estimate the input SFT band required by @command{lalapps_Weave}
+##
+## @heading Arguments
+##
+## @table @var
+## @item SFT_freq_min/max
+## Minimum/maximum SFT frequency range
+##
+## @end table
+##
+## @heading Options
+##
+## @table @code
+## @item @strong{EITHER}
+## @table @code
+##
+## @item setup_file
+## Weave setup file
+##
+## @end table
+##
+## @item @strong{OR}
+## @table @code
+##
+## @item segment_list
+## Segment list
+##
+## @item ref_time
+## GPS reference time
+##
+## @end table
+##
+## @item @strong{EITHER}
+## @table @code
+##
+## @item result_file
+## Weave result file
+##
+## @end table
+##
+## @item @strong{OR}
+## @table @code
+##
+## @item freq_min/max
+## Minimum/maximum frequency range
+##
+## @item f1dot_min/max
+## Minimum/maximum 1st spindown
+##
+## @item f2dot_min/max
+## Minimum/maximum 2nd spindown (optional)
+##
+## @end table
+##
+## @item TSFT
+## Length of an SFT (default: 1800s)
+##
+## @item Dterms
+## Number of Dirichlet terms used by the F-statistic (default: 8)
+##
+## @item run_med_win
+## Size of running median window used by the F-statistic (default: 101)
+##
+## @end table
+##
+## @end deftypefn
 
 ## octapps_run_link
 

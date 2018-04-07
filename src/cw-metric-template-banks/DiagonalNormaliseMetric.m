@@ -15,14 +15,28 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} [@var{metric}, @var{dnorm}, @var{invdnorm}] = DiagonalNormaliseMetric(@var{metric}, [@code{tolerant}])
+##
 ## Diagonally normalise a metric.
-## Usage:
-##   [metric, dnorm, invdnorm] = DiagonalNormaliseMetric(metric, ["tolerant"])
-## where:
-##   metric   = metric
-##   dnorm    = diagonal normalisation coefficients
-##   invdnorm = inverse of diagonal normalisation coefficients
-## If "tolerant" option is given, tolerate zero or negative diagonal elements.
+##
+## @heading Arguments
+##
+## @table @var
+## @item metric
+## metric
+##
+## @item dnorm
+## diagonal normalisation coefficients
+##
+## @item invdnorm
+## inverse of diagonal normalisation coefficients
+##
+## @end table
+##
+## If @code{tolerant} option is given, tolerate zero or negative diagonal elements.
+##
+## @end deftypefn
 
 function [metric, dnorm, invdnorm] = DiagonalNormaliseMetric(metric, tolerant="")
 

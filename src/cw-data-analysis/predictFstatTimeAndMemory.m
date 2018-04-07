@@ -14,66 +14,140 @@
 ## along with Octave; see the file COPYING.  If not, see
 ## <http://www.gnu.org/licenses/>.
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} [@var{resampInfo}, @var{demodInfo}] = predictFstatTimeAndMemory ( @var{varargin} )
+##
+## Predict @strong{single-segment} F-statistic computation time per frequency bin per detector (@code{tauF_core} and @code{tauF_buffer})
+## and corresponding memory requirements (@code{MBWorkspace}, @code{MBDataPerDetSeg}) for both @emph{Resampling} and @emph{Demod} Fstat methods.
+##
+## See the F-stat timing notes at https://dcc.ligo.org/LIGO-T1600531-v4 for a detailed description of the F-statistic timing model
+## and notation.
+##
+## @heading Note
+##
+## The estimate is for @strong{one} coherent segment of length @code{Tcoh}, while@code{Tspan} is only used to correctly deal with the GCT code's handling of multi-segment searches, which
+## can affect timing and memory requirements for each segment. In the case of @emph{Weave}, however, use Tspan = Tcoh [default].
+##
+## @heading Input parameters
+##
+## @table @code
+## @item Tcoh
+## coherent segment length
+##
+## @item Tspan
+## total data time-span [Default: Tcoh].
+## @strong{Note}: this is used to estimate the total memory in the case of the GCT search code,
+## which load the full frequency band of data over all segments. In the case of the
+## Weave code, the SFT frequency band is computed for each segment separately, so
+## in this case one should use @code{Tspan}==@code{Tcoh} to correctly estimate the timing and memory!
+##
+## @item Freq0
+## start search frequency
+##
+## @item FreqBand
+## search frequency band
+##
+## @item dFreq
+## search frequency spacing
+##
+## @end table
+##
+## @heading Optional arguments
+##
+## @table @code
+## @item f1dot0
+## @itemx f1dotBand
+## first-order spindown range [f1dot0, f1dot0+f1dotBand]  [Default: 0]
+##
+## @item f2dot0
+## @itemx f2dotBand
+## 2nd-order spindown range [f2dot0,f2dot0+f2dotBand]    [Default: 0]
+##
+## @item Dterms
+## number of @emph{Dterms} used in sinc-interpolation  [Default: 8]
+##
+## @item Nsft
+## number of SFTs (for single segment, single detector) [Default: Nsft=Tcoh/Tsft]
+##
+## @item Tsft
+## SFT length [Default: 1800]
+##
+## @item refTimeShift
+## offset of reference time from starttime, measured in units of @var{Tspan}, ie @var{refTimeShift} = (@var{refTime} - @var{startTime})/@var{Tspan} [Default: 0.5]
+##
+## @item binaryMaxAsini
+## Maximum projected semi-major axis a*sini/c (= 0 for isolated sources) [Default: 0]
+##
+## @item binaryMinPeriod
+## Minimum orbital period (s); must be 0 for isolated signals [Default: 0]
+##
+## @item binaryMaxEcc
+## Maximal binary eccentricity: must be 0 for isolated signals [Default: 0]
+##
+## @item resampFFTPowerOf2
+## enforce FFT length to be a power of two (by rounding up) [Default: true]
+##
+## @end table
+##
+## @heading Resampling timing model coefficients
+##
+## @table @code
+## @item tau0_Fbin
+## Resampling timing coefficient for contributions scaling with output frequency bins NFbin
+##
+## @item tau0_FFT
+## Resampling timing coefficient for FFT performance. Can be 2-element vector [@var{t1}, @var{t2}]: use @var{t1} if log2(NsampFFT) <= 18, @var{t2} otherwise
+##
+## @item tau0_spin
+## Resampling timing coefficient for applying spin-down corrections
+##
+## @item tau0_bary
+## Resampling timing coefficient (buffered) barycentering (contributes to tauF_buffer)
+##
+## @end table
+##
+## @heading Demod timing model coefficients
+##
+## @table @code
+## @item tau0_coreLD
+## Demod timing coefficient for core F-stat time
+##
+## @item tau0_bufferLD
+## Demod timing coefficient for computation of buffered quantities
+##
+## @end table
+##
+## @heading Return values
+##
+## Two structs @var{resampInfo} and @var{demodInfo} with fields:
+##
+## @table @code
+## @item tauF_core
+## Fstat time per frequency bin per detector excluding time to compute buffered quantities (eg barycentering) [in seconds]
+##
+## @item tauF_buffer
+## Fstat time per frequency bin per detector for computing all the buffered quantities once [in seconds]
+## The effective F-stat time per frequency bin per detector is therefore
+## tauF_eff = tauF_core + b * tauF_buffer, where b = 1/N_@{f1,f2,...@} is the fraction of calls to @command{XLALComputeFstat()} where the buffer can be re-used
+##
+## @item l2NsampFFT
+## @strong{resamp only} log_2(NsampFFT) where NsampFFT is the number of FFT samples
+##
+## @item MBWorkspace
+## @strong{resamp only} memory for (possibly shared) workspace [in MBytes]
+##
+## @item MBDataPerDetSeg
+## memory to hold all data @strong{per detector}, @strong{per-segment} (original+buffered) [in MBytes]
+## ie total data memory would be
+## @verbatim
+##   memData[all] = Nseg * Ndet * memDataPerDetSeg
+## @end verbatim
+##
+## @end table
+##
+## @end deftypefn
+
 function [resampInfo, demodInfo] = predictFstatTimeAndMemory ( varargin )
-  ## [resampInfo, demodInfo] = predictFstatTimeAndMemory ( varargin )
-  ##
-  ## predict *single-segment* F-statistic computation time per frequency bin per detector ('tauF_core' and 'tauF_buffer')
-  ## and corresponding memory requirements ('MBWorkspace', 'MBDataPerDetSeg') for both 'Resampling' and 'Demod' Fstat methods.
-  ##
-  ## See the F-stat timing notes at https://dcc.ligo.org/LIGO-T1600531-v4 for a detailed description of the F-statistic timing model
-  ## and notation.
-  ##
-  ## NOTE: The estimate is for *one* coherent segment of length 'Tcoh', while
-  ## 'Tspan' is only used to correctly deal with the GCT code's handling of multi-segment searches, which
-  ## can affect timing and memory requirements for each segment. In the case of 'Weave', however, use Tspan = Tcoh [default].
-  ##
-  ## ----- Input parameters:
-  ## "Tcoh":            coherent segment length
-  ## "Tspan":           total data time-span [Default: Tcoh]
-  ##                    NOTE: this is used to estimate the total memory in the case of the GCT search code,
-  ##                    which load the full frequency band of data over all segments. In the case of the
-  ##                    Weave code, the SFT frequency band is computed for each segment separately, so
-  ##                    in this case one should use Tspan==Tcoh to correctly estimate the timing and memory!
-  ##
-  ## "Freq0":           start search frequency
-  ## "FreqBand":        search frequency band
-  ## "dFreq":           search frequency spacing
-  ##
-  ## -- Optional arguments --
-  ## "f1dot0","f1dotBand": first-order spindown range [f1dot0, f1dot0+f1dotBand]  [Default: 0]
-  ## "f2dot0","f2dotBand": 2nd-order spindown range [f2dot0,f2dot0+f2dotBand]    [Default: 0]
-  ## "Dterms":          number of 'Dterms' used in sinc-interpolation  [Default: 8]
-  ## "Nsft":            number of SFTs (for single segment, single detector) [Default: Nsft=Tcoh/Tsft]
-  ## "Tsft":            SFT length [Default: 1800]
-  ## "refTimeShift":    offset of reference time from starttime, measured in units of Tspan, ie refTimeShift = (refTime - startTime)/Tspan [Default: 0.5]
-  ## "binaryMaxAsini":  Maximum projected semi-major axis a*sini/c (= 0 for isolated sources) [Default: 0]
-  ## "binaryMinPeriod": Minimum orbital period (s); must be 0 for isolated signals [Default: 0]
-  ## "binaryMaxEcc":    Maximal binary eccentricity: must be 0 for isolated signals [Default: 0]
-  ## "resampFFTPowerOf2": enforce FFT length to be a power of two (by rounding up) [Default: true]
-  ##
-  ## ---------- Resampling timing model coefficients ----------
-  ## "tau0_Fbin":       Resampling timing coefficient for contributions scaling with output frequency bins NFbin
-  ## "tau0_FFT":        Resampling timing coefficient for FFT performance. Can be 2-element vector [t1, t2]: use t1 if log2(NsampFFT) <= 18, t2 otherwise
-  ## "tau0_spin":       Resampling timing coefficient for applying spin-down corrections
-  ## "tau0_bary":       Resampling timing coefficient (buffered) barycentering (contributes to tauF_buffer)
-  ##
-  ## ---------- Demod timing model coefficients ----------
-  ## "tau0_coreLD":    Demod timing coefficient for core F-stat time
-  ## "tau0_bufferLD":  Demod timing coefficient for computation of buffered quantities
-  ##
-  ## ----- Return values
-  ## two structs 'resampInfo' and 'demodInfo' with fields:
-  ##    tauF_core:     Fstat time per frequency bin per detector excluding time to compute buffered quantities (eg barycentering) [in seconds]
-  ##    tauF_buffer:   Fstat time per frequency bin per detector for computing all the buffered quantities once [in seconds]
-  ##
-  ##                   The effective F-stat time per frequency bin per detector is therefore
-  ##                   tauF_eff = tauF_core + b * tauF_buffer, where b = 1/N_{f1,f2,...} is the fraction of calls to XLALComputeFstat() where the buffer can be re-used
-  ##
-  ##    l2NsampFFT:    [resamp only] log_2(NsampFFT) where NsampFFT is the number of FFT samples
-  ##    MBWorkspace:   [resamp only]  memory for (possibly shared) workspace [in MBytes]
-  ##    MBDataPerDetSeg:memory to hold all data *per detector*, *per-segment* (original+buffered) [in MBytes]
-  ##                    ie total data memory would be memData[all] = Nseg * Ndet * memDataPerDetSeg
-  ##
 
   ## parse options
   uvar = parseOptions ( varargin,

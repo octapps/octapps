@@ -15,14 +15,17 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## [ generator, rotator ] = AnsGenerator ( dim )
+## -*- texinfo -*-
+## @deftypefn  {Function File} [ @var{generator}, @var{rotator} ] = AnsGenerator ( @var{dim} )
 ##
 ## return an nxn full-rank generating matrix for an An* lattice,
-## based on the (n+1)xn generator of Chap.4, Eq.(76) in Conway&Sloane(1999),
+## based on the (n+1)xn @var{generator} of Chap.4, Eq.(76) in Conway&Sloane(1999),
 ##
-## also returns a rotation-matrix that takes the nxn generator back to the
+## also returns a rotation-matrix that takes the nxn @var{generator} back to the
 ## (n+1)x n dimensional representation of the lattice space in n+1 dimensions.
-## This is simply obtained by QR-decomposition of the (n+1)xn generator.
+## This is simply obtained by QR-decomposition of the (n+1)xn @var{generator}.
+##
+## @end deftypefn
 
 function [ generator, rotator ] = AnsGenerator ( dim )
 

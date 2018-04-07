@@ -15,7 +15,7 @@
 ## <http://www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn {Function File} {@var{IDstring} =} format_gitID(@var{ID}, @dots{})
+## @deftypefn {Function File} @var{IDstring} = format_gitID(@var{ID}, @dots{})
 ##
 ## Formats a git version information string from the git ID structs @var{ID}.
 ## SWIG-wrapped LAL VCSInfo structs and octapps_gitID() structs are supported.

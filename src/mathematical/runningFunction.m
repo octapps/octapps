@@ -14,14 +14,33 @@
 ## along with Octave; see the file COPYING.  If not, see
 ## <http://www.gnu.org/licenses/>.
 
-## Compute the function 'F' over a running window of 'n' values of each 'x'.
-## Usage:
-##   [y1, y2, ...] = runningFunction(F, n, x1, x2, ...)
-## where:
-##   F           = Running window function
-##   n           = Running window size
-##   x1, x2, ... = Input data
-##   y1, y2, ... = Output data, e.g. y1 = [F(x1(1:n)), F(x1(2:n+1)), ...]
+## -*- texinfo -*-
+## @deftypefn  {Function File} [@var{y1}, @var{y2}, @dots{}] = runningFunction(@var{F}, @var{n}, @var{x1}, @var{x2}, @dots{})
+##
+## Compute the function @var{F} over a running window of @var{n} values of each 'x'.
+##
+## @heading Arguments
+##
+## @table @var
+## @item F
+## Running window function
+##
+## @item n
+## Running window size
+##
+## @item x1
+## @itemx x2
+## @itemx @dots{}
+## Input data
+##
+## @item y1
+## @itemx y2
+## @itemx @dots{}
+## Output data, e.g. @var{y1} = [@var{F}(@var{x1}(1:@var{n})), @var{F}(@var{x1}(2:@var{n}+1)), @dots{}]
+##
+## @end table
+##
+## @end deftypefn
 
 function varargout = runningFunction(F, n, varargin)
 

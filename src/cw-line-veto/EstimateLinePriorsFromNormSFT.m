@@ -15,11 +15,16 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} [@var{lX}, @var{freqmin}, @var{freqmax}, @var{freqbins}, @var{num_outliers}, @var{max_outlier}] = EstimateLinePriorsFromNormSFT ( @var{psdfiles}, @var{thresh}, @var{LVlmin}, @var{LVlmax} )
+##
+## function to estimate line priors from normalized SFT power values in files computed by @command{lalapps_ComputePSD}
+## psdfiles must be a cell array of existing files of length numDet
+## thresh must be a numDet*T matrix, where T is an arbitrary number of thresh values per IFO, so that lX will be returned as a numDet*T matrix also
+##
+## @end deftypefn
+
 function [lX, freqmin, freqmax, freqbins, num_outliers, max_outlier] = EstimateLinePriorsFromNormSFT ( psdfiles, thresh, LVlmin, LVlmax )
-  ## [lX, freqmin, freqmax, freqbins, num_outliers, max_outlier] = EstimateLinePriorsFromNormSFT ( psdfiles, thresh, LVlmin, LVlmax )
-  ## function to estimate line priors from normalized SFT power values in files computed by lalapps_ComputePSD
-  ## psdfiles must be a cell array of existing files of length numDet
-  ## thresh must be a numDet*T matrix, where T is an arbitrary number of thresh values per IFO, so that lX will be returned as a numDet*T matrix also
 
   numDet = length(psdfiles);
   if ( length(thresh(:,1)) != numDet )

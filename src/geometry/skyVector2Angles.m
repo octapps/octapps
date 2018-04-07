@@ -14,17 +14,20 @@
 ## along with Octave; see the file COPYING.  If not, see
 ## <http://www.gnu.org/licenses/>.
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{LongLat} = skyVector2Angles ( @var{vSky} )
+##
 ## Convert a sky-position given in terms of a 3-vector into 'longitude' and 'latitude'
 ## angles in the same reference frame (ie either in equatorial or ecliptic system).
 ##
-## Usage:
-##   LongLat = skyVector2Angles ( vSky )
-##
-## input vSky must be a N x 3 vector (N>=1), returns matrix
+## input @var{vSky} must be a N x 3 vector (N>=1), returns matrix
 ## of the form [ longitude, latitude ] with column-vectors
 ## longitude in [0, 2pi] and latitude in [-pi, pi]
 ##
-## Note: the input vector doesn't need to be normalized
+## @heading Note
+##
+## the input vector doesn't need to be normalized
+## @end deftypefn
 
 function LongLat = skyVector2Angles ( vSky )
 

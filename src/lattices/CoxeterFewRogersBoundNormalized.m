@@ -15,11 +15,16 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## ret = CoxeterFewRogersBoundNormalized ( n )
-## [can handle vector input]
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{ret} = CoxeterFewRogersBoundNormalized ( @var{n} )
 ##
 ## returns Coxter-Few-Rogers bound on normalized thickness in dimension n
 ## taken from Conway&Sloane (1999), Chap.2, Eq.(17)
+##
+## @heading Note
+## can handle vector input
+##
+## @end deftypefn
 
 function ret = CoxeterFewRogersBoundNormalized ( n )
 

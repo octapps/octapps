@@ -14,25 +14,50 @@
 ## along with Octave; see the file COPYING.  If not, see
 ## <http://www.gnu.org/licenses/>.
 
-## Build a TeX table from a cell array specification.
-## Usage:
-##   tex = buildTeXTable(spec, "opt", val, ...)
-## where
-##   tex    = TeX table as a string
-##   spec   = table specification
-## Options:
-##   "numfmt":     num2TeX() format for formatting numbers [default: "g"]
-##   "tblwidth":   TeX command specifying table width [optional]
-##   "fillcols":   space-filling columns: "first", "all", "byrow" or "none" [default]
-##   "fillcolrow": which row to use when setting space-filling columns with "byrow"
-##   "defcolsep":  default non-space-filling column separation [default: 1]
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{tex} = buildTeXTable(@var{spec}, @var{opt}, @var{val}, @dots{})
 ##
-## The table specification 'spec' is a 1-D cell array of rows, the elements of
+## Build a TeX table from a cell array specification.
+##
+## @heading Arguments
+##
+## @table @var
+## @item tex
+## TeX table as a string
+##
+## @item spec
+## table specification
+##
+## @end table
+##
+## @heading Options
+##
+## @table @code
+## @item numfmt
+## num2TeX() format for formatting numbers [default: "g"]
+##
+## @item tblwidth
+## TeX command specifying table width [optional]
+##
+## @item fillcols
+## space-filling columns: "first", "all", "byrow" or "none" [default]
+##
+## @item fillcolrow
+## which row to use when setting space-filling columns with "byrow"
+##
+## @item defcolsep
+## default non-space-filling column separation [default: 1]
+##
+## @end table
+##
+## The table specification @var{spec} is a 1-D cell array of rows, the elements of
 ## which are 1-D cell arrays of columns. Further nesting of cell arrays may be
 ## used to set up elements which span multiple columns. TeX numbers containing
 ## periods are split into 2 columns to align numbers at the period.
 ##
-## Run "demo buildTeXTable" for some examples.
+## Run @code{demo buildTeXTable} for some examples.
+##
+## @end deftypefn
 
 function tex = buildTeXTable(spec, varargin)
 

@@ -15,38 +15,109 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} [@var{metric}, @var{coordIDs}] = ComputeDopplerMetric(@var{opt}, @var{val}, @dots{})
+##
 ## Create various Doppler phase- and Fstat metrics.
-## Usage:
-##   [metric, coordIDs] = ComputeDopplerMetric("opt", val, ...)
-## where:
-##   metric   = Doppler metric, with struct-elements (depending on metric_type)
-##                metric.g_ij: phase metric
-##                metric.gF_ij: full F-stat metric
-##                metric.gFav_ij: averaged F-stat metric
-##   coordIDs = coordinate IDs of the chosen coordinates
-## Options:
-##   "coords"          : comma-separated list of coordinates:
-##                         "alpha_delta": physical sky coordinates
-##                         "ssky_equ": super-sky in equatorial coordinates
-##                         "ssky_ecl": super-sky in ecliptic coordinates
-##                         "spin_equ": spin sky in x-y equatorial coordinates
-##                         "orbit_ecl": orbit sky in x-y-z ecliptic coordinates
-##                         "freq": frequency in SI units
-##                         "fdots": frequency spindowns in SI units
-##                         "gct_nu": GCT frequency/spindowns in SI units
-##                         "gct_nx_ny_equ": GCT constrained equatorial sky coordinates
-##   "spindowns"       : number of spindown coordinates: 0=none, 1=1st spindown, 2=1st+2nd spindown, etc.
-##   "segment_list"    : list of segments [start_time, end_time; start_time, end_time; ...] in GPS seconds
-##   "ref_time"        : reference time in GPS seconds [default: mean of segment list start/end times]
-##   "detectors"       : comma-separated list of detector names
-##   "ephemerides"     : Earth/Sun ephemerides from loadEphemerides()
-##   "fiducial_freq"   : fiducial frequency for sky-position coordinates
-##   "det_motion"      : which detector motion to use (default: spin+orbit)
-##   "alpha"           : for physical sky coordinates, right ascension to compute metric at
-##   "delta"           : for physical sky coordinates, declination to compute metric at
-##   "metric_type"     : compute either phase metric ("phase"), F-stat metric ("Fstat"), or both ("all")
-##   "cosi"            : cos(iota) signal parameter for full F-stat metric (gF_ij)
-##   "psi"             : polarization angle signal parameter for full F-stat metric (gF_ij)
+##
+## @heading Arguments
+##
+## @table @var
+## @item metric
+## Doppler metric, with struct-elements (depending on metric_type):
+##
+## @table @var
+## @item metric.g_ij
+## phase metric
+##
+## @item metric.gF_ij
+## full F-stat metric
+##
+## @item metric.gFav_ij
+## averaged F-stat metric
+##
+## @end table
+##
+## @item coordIDs
+## coordinate IDs of the chosen coordinates
+##
+## @end table
+##
+## @heading Options
+##
+## @table @code
+## @item coords
+## comma-separated list of coordinates:
+##
+## @table @code
+## @item alpha_delta
+## physical sky coordinates
+##
+## @item ssky_equ
+## super-sky in equatorial coordinates
+##
+## @item ssky_ecl
+## super-sky in ecliptic coordinates
+##
+## @item spin_equ
+## spin sky in x-y equatorial coordinates
+##
+## @item orbit_ecl
+## orbit sky in x-y-z ecliptic coordinates
+##
+## @item freq
+## frequency in SI units
+##
+## @item fdots
+## frequency spindowns in SI units
+##
+## @item gct_nu
+## GCT frequency/spindowns in SI units
+##
+## @item gct_nx_ny_equ
+## GCT constrained equatorial sky coordinates
+##
+## @end table
+##
+## @item spindowns
+## number of spindown coordinates: 0=none, 1=1st spindown, 2=1st+2nd spindown, etc.
+##
+## @item segment_list
+## list of segments [start_time, end_time; start_time, end_time; @dots{}] in GPS seconds
+##
+## @item ref_time
+## reference time in GPS seconds [default: mean of segment list start/end times]
+##
+## @item detectors
+## comma-separated list of detector names
+##
+## @item ephemerides
+## Earth/Sun ephemerides from @command{loadEphemerides()}
+##
+## @item fiducial_freq
+## fiducial frequency for sky-position coordinates
+##
+## @item det_motion
+## which detector motion to use (default: spin+orbit)
+##
+## @item alpha
+## for physical sky coordinates, right ascension to compute metric at
+##
+## @item delta
+## for physical sky coordinates, declination to compute metric at
+##
+## @item metric_type
+## compute either phase metric (@code{phase}), F-stat metric (@var{Fstat}), or both (@var{all})
+##
+## @item cosi
+## cos(iota) signal parameter for full F-stat metric (gF_ij)
+##
+## @item psi
+## polarization angle signal parameter for full F-stat metric (gF_ij)
+##
+## @end table
+##
+## @end deftypefn
 
 function [metric, coordIDs] = ComputeDopplerMetric(varargin)
 

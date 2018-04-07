@@ -15,13 +15,18 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## ret = rngmed(data,window)
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{ret} = rngmed(@var{data}, @var{window})
 ##
 ## return a 'smoothed' vector using a
-## running-median of the given window-size.
-## output-vector has same number of entries, with window/2 bins
+## running-median of the given @var{window}-size.
+## output-vector has same number of entries, with @var{window}/2 bins
 ## at the borders filled with identical values
-## NOTE: this is the most 'naive' implementation, not optimized at all!
+##
+## @heading Note
+##
+## this is the most 'naive' implementation, not optimized at all!
+## @end deftypefn
 
 function ret = rngmed ( data, window )
   ret = data;

@@ -15,11 +15,14 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## ret = pickFromRange(range, [num])
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{ret} = pickFromRange(@var{range}, [@var{num}])
 ##
 ## function to return a number of random-values (specified by the optional
-## argument 'num', default is 1. Return is a column-vector) from within 'range',
+## argument @var{num}, default is 1. Return is a column-vector) from within 'range',
 ## which can be a single number, or a vector with [min, max] entries
+##
+## @end deftypefn
 
 function ret = pickFromRange(range, num)
   if ( !exist("num") )

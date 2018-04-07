@@ -14,13 +14,24 @@
 ## along with Octave; see the file COPYING.  If not, see
 ## <http://www.gnu.org/licenses/>.
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{hgrm} = contractHist(@var{hgrm}, @var{newdims})
+##
 ## Contract a histogram by summing counts over dimensions.
-## Syntax:
-##   hgrm = contractHist(hgrm, newdims)
-## where:
-##   hgrm    = histogram object
-##   newdims = dimensions that will remain after contraction;
-##             counts in other dimensions will be summed.
+##
+## @heading Arguments
+##
+## @table @var
+## @item hgrm
+## histogram object
+##
+## @item newdims
+## dimensions that will remain after contraction;
+## counts in other dimensions will be summed.
+##
+## @end table
+##
+## @end deftypefn
 
 function hgrm = contractHist(hgrm, newdims)
 

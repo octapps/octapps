@@ -15,20 +15,36 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{cache_dir} = @command{SuperskyMetricsCache()}
+## @deftypefnx {Function File} SuperskyMetricsCache @samp{action}
+##
 ## Manage cache of computed supersky metrics
-## Usage:
-##   cache_dir = SuperskyMetricsCache()
-##   SuperskyMetricsCache <action>
-## where
-##   cache_dir:
-##     location of cache directory
-##   <action>: one of
-##     install:
-##       Install the precomputed cache from the OctApps repository
-##     clear:
-##       Clear the cache
-##     copytorepo:
-##       Copy the current cache to the OctApps repository
+##
+## @heading Arguments
+##
+## @table @asis
+## @item @var{cache_dir}
+## location of cache directory
+##
+## @item @samp{action}
+## one of
+##   @table @code
+##
+##   @item install
+##   Install the precomputed cache from the OctApps repository
+##
+##   @item clear
+##   Clear the cache
+##
+##   @item copytorepo
+##   Copy the current cache to the OctApps repository
+##
+##   @end table
+##
+## @end table
+##
+## @end deftypefn
 
 function varargout = SuperskyMetricsCache(action)
 

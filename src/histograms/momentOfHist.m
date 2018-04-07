@@ -15,19 +15,38 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{mu} = momentOfHist(@var{hgrm}, @var{sumdims}, @var{n}, [@var{x0} = 0])
+##
 ## Computes the moments of a histogram:
-##   mu = integral over x{sumdims=sd} of
-##          p(x{sd(1)},...,x{sd(end)}) * (x{sd(1)}-x0{sd(1)})^n{sd(1)} * ...
-##            * (x{sd(end)}-x0{sd(end)})^n{sd(end)} dx{sd(1)} ... dx{sd(end)}
 ## Only moments for finite bins are returned.
-## Syntax:
-##   mu = momentOfHist(hgrm, sumdims, n, [x0 = 0])
-## where:
-##   hgrm    = histogram object
-##   sumdims = dimensions to be summed over
-##   n       = moment orders in each summed dimension
-##   x0      = bin offsets, must either be a scalar or match the sizes
-##             of the histogram dimensions *not* being summed over
+##
+## @heading Arguments
+##
+## @table @var
+## @item mu
+## integral over x@{sumdims=sd@} of
+## p(x@{sd(1)@},...,x@{sd(end)@})
+## * (x@{sd(1)@}-@var{x0}@{sd(1)@})^@var{n}@{sd(1)@}
+## * @dots{}
+## * (x@{sd(end)@}-@var{x0}@{sd(end)@})^@var{n}@{sd(end)@} dx@{sd(1)@} ... dx@{sd(end)@}
+##
+## @item hgrm
+## histogram object
+##
+## @item sumdims
+## dimensions to be summed over
+##
+## @item n
+## moment orders in each summed dimension
+##
+## @item x0
+## bin offsets, must either be a scalar or match the sizes
+## of the histogram dimensions *not* being summed over
+##
+## @end table
+##
+## @end deftypefn
 
 function mu = momentOfHist(hgrm, sumdims, n, x0 = 0)
 

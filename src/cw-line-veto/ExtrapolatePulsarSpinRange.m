@@ -15,12 +15,19 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} [@var{fkdot_epoch1}, @var{fkdotband_epoch1}] = ExtrapolatePulsarSpinRange ( @var{epoch0}, @var{epoch1}, @var{fkdot_epoch0}, @var{fkdotband_epoch0}, @var{numSpins} )
+##
+## function to translate spin-values \f$\f^@{(l)@}\f$ and bands from epoch0 to epoch1
+## based on LALSuite programs/functions HierarchSearchGCT and LALExtrapolatePulsarSpinRange
+##
+## @heading Note
+##
+## different index conventions between lalapps and octave - (k) here corresponds to [k-1] in LALExtrapolatePulsarSpinRange, i.e. fkdot(1)=fkdot[0]=freq, fkdot(2)=fkdot(1)=f1dot, ...
+##
+## @end deftypefn
+
 function [fkdot_epoch1, fkdotband_epoch1] = ExtrapolatePulsarSpinRange ( epoch0, epoch1, fkdot_epoch0, fkdotband_epoch0, numSpins )
-  ## [fkdot_epoch1, fkdotband_epoch1] = ExtrapolatePulsarSpinRange ( epoch0, epoch1, fkdot_epoch0, fkdotband_epoch0, numSpins )
-  ## function to translate spin-values \f$\f^{(l)}\f$ and bands from epoch0 to epoch1
-  ## based on LALSuite programs/functions HierarchSearchGCT and LALExtrapolatePulsarSpinRange
-  ## NOTE: different index conventions between lalapps and octave - (k) here corresponds to [k-1] in LALExtrapolatePulsarSpinRange,
-  ##       i.e. fkdot(1)=fkdot[0]=freq, fkdot(2)=fkdot(1)=f1dot, ...
 
   dtau = epoch1 - epoch0;
 

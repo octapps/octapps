@@ -15,14 +15,17 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{p} = maxStatFromNdraws_pdf( @var{x}, @var{Ndraws}, @var{statHgrm} )
+##
+## Probability density (pdf) for the maximum out of @var{Ndraws} independent draws from an
+## arbitrary statistic, defined via its empirical probability density @var{statHgrm} as a histogram object.
+##
+## Return p(@var{x}): pdf over (vector of) max(Statistic) statistics values @var{x}'
+##
+## @end deftypefn
+
 function p = maxStatFromNdraws_pdf( x, Ndraws, statHgrm )
-  ## p = maxStatFromNdraws_pdf( x, Ndraws, statHgrm )
-  ##
-  ## Probability density (pdf) for the maximum out of Ndraws independent draws from an
-  ## arbitrary statistic, defined via its empirical probability density 'statHgrm' as a histogram object.
-  ##
-  ## Return p(x): pdf over (vector of) max(Statistic) statistics values 'x'
-  ##
 
   assert ( isscalar ( Ndraws ) );
   assert ( isa(statHgrm, "Hist"));

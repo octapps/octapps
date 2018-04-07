@@ -15,11 +15,14 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{f} = isInteractive()
+##
 ## Returns whether the calling Octave script is being run from
 ## an interactive session, as opposed to from the command line.
 ## If calling function is not a script, return empty.
-## Syntax:
-##   f = isInteractive()
+##
+## @end deftypefn
 
 function f = isInteractive()
 

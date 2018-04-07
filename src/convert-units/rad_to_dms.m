@@ -15,10 +15,14 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} [@var{sig}, @var{degs}, @var{mins}, @var{secs}] = rad_to_dms ( @var{rads} )
+##
+## convert radians 'rads' into degrees "<sig>degs:minutes:secs", where <sig> is either +1 or -1
+##
+## @end deftypefn
+
 function [sig, degs, mins, secs] = rad_to_dms ( rads )
-  ## [sig, degs, mins, secs] = rad_to_dms ( rads )
-  ##
-  ## convert radians 'rads' into degrees "<sig>degs:minutes:secs", where <sig> is either +1 or -1
 
   sig = sign ( rads );
 

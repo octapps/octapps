@@ -15,13 +15,18 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{ret} = EstimateLinePriors ( @var{varargin} )
+##
+## Script to estimate oLGX priors from some SFTs
+## based on compute_lX_from_SFTs from LineVetoBstat repository, but with simpler SFTs and timestamps handling
+## this is different from TuneAdaptiveLVPriors which is more EatH-centric, assuming a given run setup
+## command-line parameters can be taken from parseOptions call below
+## example call: octapps_run EstimateLinePriors --SFTs=h1*
+##
+## @end deftypefn
+
 function ret = EstimateLinePriors ( varargin )
-  ## ret = EstimateLinePriors ( varargin )
-  ## Script to estimate oLGX priors from some SFTs
-  ## based on compute_lX_from_SFTs from LineVetoBstat repository, but with simpler SFTs and timestamps handling
-  ## this is different from TuneAdaptiveLVPriors which is more EatH-centric, assuming a given run setup
-  ## command-line parameters can be taken from parseOptions call below
-  ## example call: octapps_run EstimateLinePriors --SFTs=h1*
 
   ## read in and check input parameters
   params_init = parseOptions(varargin,

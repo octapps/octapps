@@ -14,13 +14,18 @@
 ## along with Octave; see the file COPYING.  If not, see
 ## <http://www.gnu.org/licenses/>.
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} [@var{minCoverFreq}, @var{maxCoverFreq}] = CWSignalCoveringBand  ( @var{fkdot_starttime}, @var{fkdotband_starttime}, @var{fkdot_endtime}, @var{fkdotband_endtime} )
+##
+## based on @command{XLALCWSignalCoveringBand()} by K. Wette, R. Prix
+## Determines a frequency band which covers the frequency evolution of a band of CW signals between two GPS times.
+## The calculation accounts for the spin evolution of the signals, and the maximum possible Dopper modulation due to detector motion.
+## binary orbital motion, which is supported by @command{XLALCWSignalCoveringBand()}, is dropped here.
+## contrary to XLALCWSignalCoveringBand, fkdot and fkdotband must be pre-extrapolated to starttime, endtime
+##
+## @end deftypefn
+
 function [minCoverFreq, maxCoverFreq] = CWSignalCoveringBand  ( fkdot_starttime, fkdotband_starttime, fkdot_endtime, fkdotband_endtime )
-  ## [minCoverFreq, maxCoverFreq] = CWSignalCoveringBand  ( fkdot_starttime, fkdotband_starttime, fkdot_endtime, fkdotband_endtime )
-  ## based on XLALCWSignalCoveringBand() by K. Wette, R. Prix
-  ## Determines a frequency band which covers the frequency evolution of a band of CW signals between two GPS times.
-  ## The calculation accounts for the spin evolution of the signals, and the maximum possible Dopper modulation due to detector motion.
-  ## binary orbital motion, which is supported by XLALCWSignalCoveringBand(), is dropped here.
-  ## contrary to XLALCWSignalCoveringBand, fkdot and fkdotband must be pre-extrapolated to starttime, endtime
 
   ## Determine the minimum and maximum frequencies covered
   minCoverFreq = min( fkdot_starttime(1), fkdot_endtime(1) );

@@ -15,18 +15,22 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## function [xx, yy, zz] = metricEllipsoid ( gij, mismatch, Nsteps=20, method=1 )
+## -*- texinfo -*-
+## @deftypefn  {Function File} function [@var{xx}, @var{yy}, @var{zz}] = metricEllipsoid ( @var{gij}, @var{mismatch}, @var{Nsteps}=20, @var{method}=1 )
 ##
-## return a metric iso-mismatch ellipsoid for given metric 'gij' and mismatch, using
-## 'Nsteps' points per surface direction.
-## The function can generate both 2D or 3D ellipses, depending on the input dimension of 'gij'.
-## using either method=1: Cholesky, or method=2: Eigenvectors
+## return a metric iso-@var{mismatch} ellipsoid for given metric @var{gij} and @var{mismatch}, using
+## '@var{Nsteps} points per surface direction.
+## The function can generate both 2D or 3D ellipses, depending on the input dimension of @var{gij}.
+## using either @var{method}=1: Cholesky, or @var{method}=2: Eigenvectors
 ##
-## The output in the 3D case is a meshgrid, which can be plotted using mesh(), surface(), ...
+## The output in the 3D case is a meshgrid, which can be plotted using @command{mesh()}, @command{surface()}, ...
 ##
-## The output in the 2D case lies in the x-y plane, zz is returned as zeros
+## The output in the 2D case lies in the x-y plane, @var{zz} is returned as zeros
 ##
-## Note: this function agrees with and supercedes the older calcMetric2DEllipse() and plotMetricEllipse()
+## @heading Note
+##
+## this function agrees with and supercedes the older @command{calcMetric2DEllipse()} and @command{plotMetricEllipse()}
+## @end deftypefn
 
 function [xx, yy, zz] = metricEllipsoid ( gij, mismatch, Nsteps=20, method=1 )
   dimgij = size(gij);

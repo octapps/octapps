@@ -14,13 +14,26 @@
 ## along with Octave; see the file COPYING.  If not, see
 ## <http://www.gnu.org/licenses/>.
 
-## Visualise a colour map.
-## Usage:
-##   lum = plotColourMap(map, [name])
-## where
-##   map  = colour map
-##   name = optional colour map name
-##   lum  = luma of colour map
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{lum} = plotColourMap(@var{map}, [@var{name}])
+##
+## Visualise a colour @var{map}.
+##
+## @heading Arguments
+##
+## @table @var
+## @item map
+## colour map
+##
+## @item name
+## optional colour @var{map} name
+##
+## @item lum
+## luma of colour map
+##
+## @end table
+##
+## @end deftypefn
 
 function plotColourMap(map, name="")
 

@@ -14,12 +14,23 @@
 ## along with Octave; see the file COPYING.  If not, see
 ## <http://www.gnu.org/licenses/>.
 
-## Read a .ini style configuration file into a struct.
-## Usage:
-##   cfg  = readConfigFile(file)
-## where
-##   cfg  = configuration file contents
-##   file = configuration file
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{cfg} = readConfigFile(@var{file})
+##
+## Read a .ini style configuration @var{file} into a struct.
+##
+## @heading Arguments
+##
+## @table @var
+## @item cfg
+## configuration @var{file} contents
+##
+## @item file
+## configuration file
+##
+## @end table
+##
+## @end deftypefn
 
 function cfg = readConfigFile(file)
 

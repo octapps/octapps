@@ -15,27 +15,33 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## ret = readSFT(fname)
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{ret} = readSFT(@var{fname})
 ##
 ## read a given SFT-file and return its meta-info (header) and data as a struct:
-## ret = {version; epoch; Tsft; f0; Band; SFTdata }
+## ret = @{version; epoch; Tsft; f0; Band; SFTdata @}
 ##
-## C-type: of v1 SFTs:
+## @heading C-type of SFTs
+##
+## @verbatim
 ## typedef struct tagSFTHeader {
-## REAL8  version;              /* SFT version-number (currently only 1.0 allowed )*/
-## INT4   gpsSeconds;           /* gps start-time */
-## INT4   gpsNanoSeconds;
-## REAL8  timeBase;             /* length of data-stretch in seconds */
-## INT4   fminBinIndex; /* first frequency-index contained in SFT */
-## INT4   length;               /* number of frequency bins */
+##    REAL8  version;              /* SFT version-number (currently only 1.0 allowed )*/
+##    INT4   gpsSeconds;           /* gps start-time */
+##    INT4   gpsNanoSeconds;
+##    REAL8  timeBase;             /* length of data-stretch in seconds */
+##    INT4   fminBinIndex;         /* first frequency-index contained in SFT */
+##    INT4   length;               /* number of frequency bins */
 ##
-## /* v2-specific part: */
-## INT8 crc64;          /* 64 bits */
-## CHAR detector[2];
-## CHAR padding[2];
-## INT comment_length;
+##    /* v2-specific part: */
+##    INT8 crc64;                  /* 64 bits */
+##    CHAR detector[2];
+##    CHAR padding[2];
+##    INT comment_length;
 ## } SFTHeader;
 ## CHAR[comment_length] comment;
+## @end verbatim
+##
+## @end deftypefn
 
 function ret = readSFT(fname)
 

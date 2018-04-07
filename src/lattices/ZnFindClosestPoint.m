@@ -15,11 +15,16 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## close = ZnFindClosestPoint ( x)
-## [can handle vector input]
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{close} = ZnFindClosestPoint ( @var{x})
 ##
-## return the closest point of the (hypercubic) Zn-lattice to the given point x in R^n
+## return the closest point of the (hypercubic) Zn-lattice to the given point @var{x} in R^n
 ## based on Chap.20.2 in Conway&Sloane (1999). This is the most trivial case.
+##
+## @heading Note
+## can handle vector input
+##
+## @end deftypefn
 
 function close = ZnFindClosestPoint ( x )
 

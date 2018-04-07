@@ -15,24 +15,66 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{metrics} = ComputeSuperskyMetrics(@var{opt}, @var{val}, @dots{})
+##
 ## Create the supersky parameter-space metrics.
-## Usage:
-##   metrics = ComputeSuperskyMetrics("opt", val, ...)
-## where 'metrics' is a struct containing the following fields:
-##   coh_rssky_metric   = coherent reduced supersky metric for each segment
-##   coh_rssky_transf   = coherent reduced supersky metric coordinate transform data for each segment
-##   semi_rssky_metric  = semicoherent reduced supersky metric
-##   semi_rssky_transf  = semicoherent reduced supersky metric coordinate transform data
-## Options:
-##   "spindowns"        : number of spindown coordinates: 0=none, 1=1st spindown, 2=1st+2nd spindown, etc.
-##   "segment_list"     : list of segments [start_time, end_time; start_time, end_time; ...] in GPS seconds
-##   "ref_time"         : reference time in GPS seconds [default: mean of segment list start/end times]
-##   "fiducial_freq"    : fiducial frequency for sky-position coordinates [required]
-##   "detectors"        : comma-separated list of detector names [required]
-##   "detector_weights" : vector of weights used to combine single-detector metrics [default: unit weights]
-##   "detector_motion"  : which detector motion to use [default: spin+orbit]
-##   "ephemerides"      : Earth/Sun ephemerides [default: load from loadEphemerides()]
-##   "use_cache"        : use cache of previously-computed metrics [default: true]
+##
+## @heading Arguments
+## @table @var
+## @item metrics
+## a struct containing the following fields:
+##
+## @table @code
+## @item coh_rssky_metric
+## coherent reduced supersky metric for each segment
+##
+## @item coh_rssky_transf
+## coherent reduced supersky metric coordinate transform data for each segment
+##
+## @item semi_rssky_metric
+## semicoherent reduced supersky metric
+##
+## @item semi_rssky_transf
+## semicoherent reduced supersky metric coordinate transform data
+##
+## @end table
+##
+## @end table
+##
+## @heading Options
+##
+## @table @code
+## @item spindowns
+## number of spindown coordinates: 0=none, 1=1st spindown, 2=1st+2nd spindown, etc.
+##
+## @item segment_list
+## list of segments [start_time, end_time; start_time, end_time; ...] in GPS seconds
+##
+## @item ref_time
+## reference time in GPS seconds [default: mean of segment list start/end times]
+##
+## @item fiducial_freq
+## fiducial frequency for sky-position coordinates [required]
+##
+## @item detectors
+## comma-separated list of detector names [required]
+##
+## @item detector_weights
+## vector of weights used to combine single-detector metrics [default: unit weights]
+##
+## @item detector_motion
+## which detector motion to use [default: spin+orbit]
+##
+## @item ephemerides
+## Earth/Sun ephemerides [default: load from @command{loadEphemerides()}]
+##
+## @item use_cache
+## use cache of previously-computed metrics [default: true]
+##
+## @end table
+##
+## @end deftypefn
 
 function metrics = ComputeSuperskyMetrics(varargin)
 

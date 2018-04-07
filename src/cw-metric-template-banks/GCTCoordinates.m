@@ -14,22 +14,53 @@
 ## along with Octave; see the file COPYING.  If not, see
 ## <http://www.gnu.org/licenses/>.
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{gctco} = GCTCoherentMetric(@code{togct}, @var{phyco}, @var{opt}, @var{val}, @dots{})
+## @deftypefnx {Function File} @var{phyco} = GCTCoherentMetric(@code{tophy}, @var{gctco}, @var{opt}, @var{val}, @dots{})
+##
 ## Computes the coherent global correlation coordinates, as
 ## given in Pletsch, PRD 82 042002 (2010)
-## Syntax:
-##   gctco        = GCTCoherentMetric("togct", phyco, "opt", val, ...)
-##   phyco        = GCTCoherentMetric("tophy", gctco, "opt", val, ...)
-## where:
-##   phyco        = matrix of physical coordinates: [alpha; delta; freq; f1dot; ...]
-##   gctco        = matrix of GCT coordinates; order matches that of GCTCoherentMetric()
-## Options:
-##   "t0":          value of t0, an overall reference time
-##   "T":           value of T, the coherent time span
-##   "detector":    detector name, e.g. H1
-##   "fmax":        maximum frequency to assume when converting sky coordinates
-##   "sgndelta":    sign of declination when converting to physical coordinates [default: 1]
-##   "ephemerides": Earth/Sun ephemerides from loadEphemerides()
-##   "ptolemaic":   use Ptolemaic orbital motion
+##
+## @heading Arguments
+##
+## @table @var
+## @item phyco
+## matrix of physical coordinates: [alpha; delta; freq; f1dot; @var{...}]
+##
+## @item gctco
+## matrix of GCT coordinates; order matches that of @command{GCTCoherentMetric()}
+##
+## @end table
+##
+## @heading Options
+##
+## @heading Options
+##
+## @table @code
+## @item t0
+## value of @var{t0}, an overall reference time
+##
+## @item T
+## value of @var{T}, the coherent time span
+##
+## @item detector
+## @var{detector} name, e.g. H1
+##
+## @item fmax
+## maximum frequency to assume when converting sky coordinates
+##
+## @item sgndelta
+## sign of declination when converting to physical coordinates [default: 1]
+##
+## @item ephemerides
+## Earth/Sun @var{ephemerides} from @command{loadEphemerides()}
+##
+## @item ptolemaic
+## use Ptolemaic orbital motion
+##
+## @end table
+##
+## @end deftypefn
 
 function outco = GCTCoordinates(mode, inco, varargin)
 

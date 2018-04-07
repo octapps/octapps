@@ -14,9 +14,12 @@
 ## along with Octave; see the file COPYING.  If not, see
 ## <http://www.gnu.org/licenses/>.
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} octapps_build @samp{optional make arguments}
+##
 ## Runs the top-level OctApps Makefile, to e.g. build extensions.
-## Usage:
-##   octapps_build <optional make arguments>
+##
+## @end deftypefn
 
 function octapps_build(varargin)
   rootdir = fullfile(fileparts(mfilename("fullpath")), "..", "..");

@@ -15,11 +15,14 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## ret = randSignalParams( ranges, [numSignals] )
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{ret} = randSignalParams( @var{ranges}, [@var{numSignals}] )
 ##
 ## generate random-parameters for 'numSignals' (default=1, returns a colunm-vector)
 ## signals within given ranges and return the signal-parameters in a struct
 ## sigparams = [h0, cosi, psi, phi0, alpha, delta, f, f1dot, f2dot, f3dot]
+##
+## @end deftypefn
 
 function ret = randSignalParams(ranges, numSignals)
   ## generate corresponding random-values

@@ -14,9 +14,12 @@
 ## along with Octave; see the file COPYING.  If not, see
 ## <http://www.gnu.org/licenses/>.
 
-## Compute the metric ellipse bounding box, given a metric and max. mismatch
-## Usage:
-##   bound_box = metricBoundingBox(metric, max_mismatch)
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{bound_box} = metricBoundingBox(@var{metric}, @var{max_mismatch})
+##
+## Compute the @var{metric} ellipse bounding box, given a @var{metric} and @var{max_mismatch}.
+##
+## @end deftypefn
 
 function bound_box = metricBoundingBox(metric, max_mismatch)
 

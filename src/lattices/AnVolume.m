@@ -15,12 +15,17 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## vol = AnVolume ( dim )
-## [can handle vector input]
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{vol} = AnVolume ( @var{dim} )
 ##
 ## Return the "lattice-volume" (i.e. the volume of an elementary lattice-cell)
-## for an An lattice in 'dim' dimensions.
+## for an An lattice in @var{dim} dimensions.
 ## This is referring to the lattice-definition used by AnGenerator.m,
+##
+## @heading Note
+## can handle vector input
+##
+## @end deftypefn
 
 function vol = AnVolume ( dim )
 

@@ -15,18 +15,23 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## Usage: [fMPE, fE, fLower, fUpper] = estimateRateFromSamples ( DATA, threshold, confidence )
+## -*- texinfo -*-
+## @deftypefn  {Function File} [@var{fMPE}, @var{fE}, @var{fLower}, @var{fUpper}] = estimateRateFromSamples ( @var{DATA}, @var{threshold}, @var{confidence} )
 ##
-## Compute maximum-posterior rate estimate fMPE and confidence-interval [fLower, fUpper].
+## Compute maximum-posterior rate estimate @var{fMPE} and @var{confidence}-interval [@var{fLower}, @var{fUpper}].
 ##
 ## This is a simple helper function:
-## estimate the 'rate' f of threshold-crossings from the samples DATA, namely via
-## K = length( DATA > threshold ), N = length(DATA)
-## The maximum-posteror estimate is fMPE=K/N,
-## and the confidence interval [fLower, fUpper] is given by binomialConfidenceInterval(N,K,confidence)
+## estimate the 'rate' f of @var{threshold}-crossings from the samples @var{DATA}, namely via
+## K = length( @var{DATA} > @var{threshold} ), N = length(@var{DATA})
+## The maximum-posteror estimate is @var{fMPE} = K/N,
+## and the @var{confidence} interval [@var{fLower}, @var{fUpper}] is given by binomialConfidenceInterval(N,K,@var{confidence})
 ##
-## Note: threshold is allowed to be a vector, returns corresponding rate vectors
+## @heading Note
 ##
+## @var{threshold} is allowed to be a vector, returns corresponding rate vectors
+##
+## @end deftypefn
+
 function [fMPE, fLower, fUpper] = estimateRateFromSamples ( DATA, threshold, confidence=0.95 )
 
   assert ( isscalar(confidence) );

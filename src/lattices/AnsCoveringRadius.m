@@ -15,12 +15,17 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## coveringRadius = AnsCoveringRadius ( dim )
-## [can handle vector input]
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{coveringRadius} = AnsCoveringRadius ( @var{dim} )
 ##
 ## Return covering-radius for An* lattice in n dimensions
 ## referring to lattice-definition corresponding to the generator
 ## returned by getAnsLatticeGenerator.m, i.e. Chap.4, Eq.(76) in Conway&Sloane(1999):
+##
+## @heading Note
+## can handle vector input
+##
+## @end deftypefn
 
 function coveringRadius = AnsCoveringRadius ( dim )
 

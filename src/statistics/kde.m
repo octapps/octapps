@@ -1,4 +1,5 @@
-## Copyright (c) 2007, Zdravko Botev
+## Copyright (c) 2018 Karl Wette (reformatted documentation)
+## Copyright (c) 2007 Zdravko Botev
 ## All rights reserved.
 ##
 ## Redistribution and use in source and binary forms, with or without
@@ -27,41 +28,71 @@
 ## downloaded 26 Oct 2010 from: http://www.mathworks.com/matlabcentral/fileexchange/14043
 ##
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} [@var{bandwidth}, @var{density}, @var{xmesh}] = kde ( @var{data}, @var{n}, @var{MIN}, @var{MAX} )
+##
+## Reliable and extremely fast kernel @var{density} estimator for one-dimensional @var{data};
+## Gaussian kernel is assumed and the @var{bandwidth} is chosen automatically;
+## Unlike many other implementations, this one is immune to problems
+## caused by multimodal densities with widely separated modes (see example). The
+## estimation does not deteriorate for multimodal densities, because we never assume
+## a parametric model for the @var{data}.
+##
+## @heading Inputs
+##
+## @table @var
+## @item data
+## a vector of @var{data} from which the @var{density} estimate is constructed;
+##
+## @item n
+## the number of mesh points used in the uniform discretization of the
+## interval [@var{MIN}, @var{MAX}]; @var{n} has to be a power of two; if @var{n} is not a power of two, then
+## @var{n} is rounded up to the next power of two, i.e., @var{n} is set to @var{n} = 2^ceil(log2(@var{n}));
+## the default value of @var{n} is @var{n} = 2^12;
+##
+## @item MIN
+## @itemx MAX
+## defines the interval [@var{MIN},@var{MAX}] on which the @var{density}
+## estimate is constructed; the default values of @var{MIN} and @var{MAX} are:
+## @var{MIN} = min(@var{data})-Range/10 and @var{MAX} = max(@var{data})+Range/10,
+## where Range=max(@var{data})-min(@var{data});
+##
+## @end table
+##
+## @heading Outputs
+##
+## @table @var
+## @item bandwidth
+## the optimal @var{bandwidth} (Gaussian kernel assumed);
+##
+## @item density
+## column vector of length @var{n} with the values of the density
+## estimate at the grid points;
+##
+## @item xmesh
+## the grid over which the @var{density} estimate is computed;
+## if no output is requested, then the code automatically plots a graph of
+## the @var{density} estimate.
+##
+## @end table
+##
+## @heading Reference
+## Please cite in your work:
+## @indentedblock
+## Z. I. Botev, J. F. Grotowski and D. P. Kroese
+## "Kernel Density Estimation Via Diffusion", Annals of Statistics, 2010, to appear
+## [Download from: http://www.maths.uq.edu.au/~kroese/ps/AOS799.pdf]
+## @end indentedblock
+##
+## @heading Example
+## @verbatim
+## data=[randn(100,1);randn(100,1)*2+35 ;randn(100,1)+55];
+## kde(data,2^14,min(data)-5,max(data)+5);
+## @end verbatim
+##
+## @end deftypefn
+
 function [bandwidth,density,xmesh]=kde(data,n,MIN,MAX)
-  ## [bandwidth, density, xmesh] = kde ( data, n, MIN, MAX )
-  ##
-  ## Reliable and extremely fast kernel density estimator for one-dimensional data;
-  ##        Gaussian kernel is assumed and the bandwidth is chosen automatically;
-  ##        Unlike many other implementations, this one is immune to problems
-  ##        caused by multimodal densities with widely separated modes (see example). The
-  ##        estimation does not deteriorate for multimodal densities, because we never assume
-  ##        a parametric model for the data.
-  ##
-  ## INPUTS:
-  ##       data  - a vector of data from which the density estimate is constructed;
-  ##          n  - the number of mesh points used in the uniform discretization of the
-  ##               interval [MIN, MAX]; n has to be a power of two; if n is not a power of two, then
-  ##               n is rounded up to the next power of two, i.e., n is set to n=2^ceil(log2(n));
-  ##               the default value of n is n=2^12;
-  ##   MIN, MAX  - defines the interval [MIN,MAX] on which the density estimate is constructed;
-  ##               the default values of MIN and MAX are:
-  ##               MIN=min(data)-Range/10 and MAX=max(data)+Range/10, where Range=max(data)-min(data);
-  ## OUTPUTS:
-  ##   bandwidth - the optimal bandwidth (Gaussian kernel assumed);
-  ##     density - column vector of length 'n' with the values of the density
-  ##               estimate at the grid points;
-  ##       xmesh - the grid over which the density estimate is computed;
-  ##             - If no output is requested, then the code automatically plots a graph of
-  ##               the density estimate.
-  ## Reference: (please cite in your work)
-  ## Z. I. Botev, J. F. Grotowski and D. P. Kroese
-  ## "Kernel Density Estimation Via Diffusion", Annals of Statistics, 2010, to appear
-  ## [Download from: http://www.maths.uq.edu.au/~kroese/ps/AOS799.pdf]
-  ##
-  ##
-  ##  Example:
-  ##           data=[randn(100,1);randn(100,1)*2+35 ;randn(100,1)+55];
-  ##              kde(data,2^14,min(data)-5,max(data)+5);
 
   ##  Notes:   If you have a more reliable and accurate one-dimensional kernel density
   ##           estimation software, please email me at botev@maths.uq.edu.au

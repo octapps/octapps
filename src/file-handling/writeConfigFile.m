@@ -14,12 +14,23 @@
 ## along with Octave; see the file COPYING.  If not, see
 ## <http://www.gnu.org/licenses/>.
 
-## Write a .ini style configuration file from a struct.
-## Usage:
-##   writeConfigFile(file, cfg)
-## where
-##   file = configuration file
-##   cfg  = configuration file contents
+## -*- texinfo -*-
+## @deftypefn  {Function File} writeConfigFile(@var{file}, @var{cfg})
+##
+## Write a .ini style configuration @var{file} from a struct.
+##
+## @heading Arguments
+##
+## @table @var
+## @item file
+## configuration file
+##
+## @item cfg
+## configuration @var{file} contents
+##
+## @end table
+##
+## @end deftypefn
 
 function writeConfigFile(file, cfg)
 

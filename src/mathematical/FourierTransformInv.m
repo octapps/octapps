@@ -15,15 +15,18 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## timeSeries = FourierTransformInv ( fk, xk, oversampleby )
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{timeSeries} = FourierTransformInv ( @var{fk}, @var{xk}, @var{oversampleby} )
 ##
 ## Computes inverse Fourier-transform of input frequency-series with
-## frequency steps fk and data-points xk. This function complies with
+## frequency steps @var{fk} and data-points @var{xk}. This function complies with
 ## the LSC convention for inverse Fourier-transforms, i.e.
-## xi(t) = df * sum_{k=0}^{n-1} x_k * e^{2pi i f_k t}
+## xi(t) = df * sum_@{k=0@}^@{n-1@} x_k * e^@{2pi i f_k t@}
 ##
-## The optional argument 'oversampleby' specifies an INTEGER
+## The optional argument @var{oversampleby} specifies an INTEGER
 ## factor to oversample the FFT by
+##
+## @end deftypefn
 
 function timeSeries = FourierTransformInv ( fk, xk, oversampleby = 1 )
 

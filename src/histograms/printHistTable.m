@@ -15,14 +15,31 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} printHistTable(@var{hgrm}, @var{opt}, @var{val}, @dots{})
+##
 ## Print the contents of a histogram object as an ASCII table.
-## Syntax:
-##   printHistTable(hgrm, "opt", val, ...)
-## where:
-##   hgrm  = histogram object
-## and options are:
-##   "dbins": width of bins to use in each dimension
-##   "pth":   threshold to apply before printing
+##
+## @heading Arguments
+##
+## @table @var
+## @item hgrm
+## histogram object
+##
+## @end table
+##
+## @heading and options are
+##
+## @table @var
+## @item dbins
+## width of bins to use in each dimension
+##
+## @item pth
+## threshold to apply before printing
+##
+## @end table
+##
+## @end deftypefn
 
 function printHistTable(hgrm, varargin)
 

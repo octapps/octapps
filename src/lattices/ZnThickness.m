@@ -15,10 +15,15 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## ret = ZnThickness ( n )
-## [can handle vector input]
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{ret} = ZnThickness ( @var{n} )
 ##
-## normalized thickness of hypercubic grid in n dimensions
+## normalized thickness of hypercubic grid in @var{n} dimensions
+##
+## @heading Note
+## can handle vector input
+##
+## @end deftypefn
 
 function ret = ZnThickness ( n )
 

@@ -14,17 +14,25 @@
 ## along with Octave; see the file COPYING.  If not, see
 ## <http://www.gnu.org/licenses/>.
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{prog} = printProgress(@dots{})
+##
 ## Prints a progress message at decreasing intervals, displaying
 ## the number of tasks completed, CPU usage, time elasped/remaining
-## Usage:
-##   prog = [];
-##   for i = 1:5000
-##     for j = 1:5
-##       doSomeTask(i, j, ...);
-##       prog = printProgress(prog, "inner loop", [i, j], [5000, 5]);
-##     endfor
-##     prog = printProgress(prog, [i, j], [5000, 5]);
+##
+## @heading Example
+## @verbatim
+## prog = [];
+## for i = 1:5000
+##   for j = 1:5
+##     doSomeTask(i, j, ...);
+##     prog = printProgress(prog, "inner loop", [i, j], [5000, 5]);
 ##   endfor
+##   prog = printProgress(prog, [i, j], [5000, 5]);
+## endfor
+## @end verbatim
+##
+## @end deftypefn
 
 function prog = printProgress(prog, varargin)
 

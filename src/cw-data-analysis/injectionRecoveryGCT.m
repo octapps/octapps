@@ -17,40 +17,102 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-function results = injectionRecoveryGCT ( varargin )
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{results} = injectionRecoveryGCT ( @var{opt}, @var{val}, @dots{} )
+##
+## Perform signal injection and (area-search) recovery using @command{HierarchSearchGCT}
+##
+## @heading Arguments
+##
+## @table @var
+## @item results
+## structure containing various histograms of measured statistics and mismatches from the injection+recovery runs, and
+##
+## @end table
+##
+## @heading Options
+##
+## @table @code
+## @item Ntrials
+## (optional) number of repeated injection+recovery trials to perform [default: 1]
+##
+## @item timestampsFiles
+## CSV list of SFT timestamp filenames
+##
+## @item IFOs
+## CSV list of IFO names (eg "H1,L1,...")
+##
+## @item segmentList
+## filename of segment list (containing lines of the form "startGPS endGPS\n")
+##
+## @item inj_sqrtSX
+## injections: (optional) CSV list of per-detector noise-floor sqrt(PSD) to generate
+##
+## @item inj_h0
+## injections: signal amplitude 'h0' of signals
+##
+## @item inj_SNR
+## injections: alternative: signal-to-noise ratio 'SNR' of signals
+##
+## @item inj_AlphaRange
+## injections: range of sky-position alpha to (isotropically) draw from [default: [0, 2pi]]
+##
+## @item inj_DeltaRange
+## injections: range of sky-position delta to (isotropically) draw from [default: [-pi/2, pi/2]]
+##
+## @item inj_FreqRange
+## injections: range of signal frequencies to draw from
+##
+## @item inj_fkdotRange
+## injections: [numSpindowns x 2] ranges of spindown-values to draw from [default: []]
+##
+## @item dFreq
+## search: frequency resolution
+##
+## @item dfkdot
+## search: numSpindowns vector of spindown resolutions to use in search
+##
+## @item gammaRefine
+## search: numSpindowns vector of 'gammeRefine[s]' refinement factors to use
+##
+## @item skyGridFile
+## search: sky-grid file to use
+##
+## @item sch_Nsky
+## search-box: number of nearest-neighbor skygrid points to use around injection
+##
+## @item sch_Nfreq
+## search-box: number of frequency bins to use around injection frequency
+##
+## @item sch_Nfkdot
+## search-box: number of spindown-bins to use around injection spindown-value
+##
+## @item FstatMethod
+## search: F-statistic method to use: "DemodBest", "ResampBest", ...
+##
+## @item computeBSGL
+## search: additionally compute and histogram B_S/GL statistic values
+##
+## @item Fstar0
+## search: BSGL parameter 'Fstar0sc'
+##
+## @item nCand
+## search: number of toplist candidates to keep
+##
+## @item GCT_binary
+## which GCT executable to use for searching
+##
+## @item debugLevel
+## control debug-output level
+##
+## @item cleanup
+## boolean: remove intermediate output files at the end or not
+##
+## @end table
+##
+## @end deftypefn
 
-  ## Perform signal injection and (area-search) recovery using HierarchSearchGCT
-  ## Usage:
-  ##   results = injectionRecoveryGCT ( varargin )
-  ## where:
-  ##   results = structure containing various histograms of measured statistics and mismatches from the injection+recovery runs, and
-  ## input arguments 'varagin' of the form ("variable1", value1, "variable2", value2, ...) with allowed options:
-  ##
-  ## "Ntrials":            (optional) number of repeated injection+recovery trials to perform [default: 1]
-  ## "timestampsFiles":    CSV list of SFT timestamp filenames
-  ## "IFOs":               CSV list of IFO names (eg "H1,L1,...")
-  ## "segmentList":        filename of segment list (containing lines of the form "startGPS endGPS\n")
-  ## "inj_sqrtSX":         injections: (optional) CSV list of per-detector noise-floor sqrt(PSD) to generate
-  ## "inj_h0":             injections: signal amplitude 'h0' of signals
-  ## "inj_SNR":            injections: alternative: signal-to-noise ratio 'SNR' of signals
-  ## "inj_AlphaRange":     injections: range of sky-position alpha to (isotropically) draw from [default: [0, 2pi]]
-  ## "inj_DeltaRange":     injections: range of sky-position delta to (isotropically) draw from [default: [-pi/2, pi/2]]
-  ## "inj_FreqRange":      injections: range of signal frequencies to draw from
-  ## "inj_fkdotRange":     injections: [numSpindowns x 2] ranges of spindown-values to draw from [default: []]
-  ## "dFreq":              search: frequency resolution
-  ## "dfkdot":             search: numSpindowns vector of spindown resolutions to use in search
-  ## "gammaRefine":        search: numSpindowns vector of 'gammeRefine[s]' refinement factors to use
-  ## "skyGridFile":        search: sky-grid file to use
-  ## "sch_Nsky":           search-box: number of nearest-neighbor skygrid points to use around injection
-  ## "sch_Nfreq":          search-box: number of frequency bins to use around injection frequency
-  ## "sch_Nfkdot":         search-box: number of spindown-bins to use around injection spindown-value
-  ## "FstatMethod":        search: F-statistic method to use: "DemodBest", "ResampBest", ...
-  ## "computeBSGL":        search: additionally compute and histogram B_S/GL statistic values
-  ## "Fstar0":             search: BSGL parameter 'Fstar0sc'
-  ## "nCand":              search: number of toplist candidates to keep
-  ## "GCT_binary":         which GCT executable to use for searching
-  ## "debugLevel":         control debug-output level
-  ## "cleanup":            boolean: remove intermediate output files at the end or not
+function results = injectionRecoveryGCT ( varargin )
 
   ## parse options
   uvar = parseOptions ( varargin,

@@ -15,13 +15,26 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} q.f. = quantileFuncOfHist(@var{hgrm}, @var{p}, [@var{k} = 1])
+##
 ## Evaluate the quantile function (q.f.) of a histogram.
-## Syntax:
-##   q.f. = quantileFuncOfHist(hgrm, p, [k = 1])
-## where:
-##   hgrm = histogram object
-##   p    = quantile probability, in the range [0, 1]
-##   k    = dimension over which to evaluate the q.f.
+##
+## @heading Arguments
+##
+## @table @var
+## @item hgrm
+## histogram object
+##
+## @item p
+## quantile probability, in the range [0, 1]
+##
+## @item k
+## dimension over which to evaluate the q.f.
+##
+## @end table
+##
+## @end deftypefn
 
 function qf = quantileFuncOfHist(hgrm, p, k = 1)
 

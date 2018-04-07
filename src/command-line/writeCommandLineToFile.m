@@ -15,11 +15,18 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} writeCommandLineToFile ( @var{filename}, @var{params}, @var{scriptname} )
+##
+## write an octapps_run commandline as an output file header
+## 'params' should be prepared by @command{parseOptions()} before
+##
+## @heading Note
+##
+## use @code{save("-append",...)} later on to not overwrite this header
+## @end deftypefn
+
 function writeCommandLineToFile ( filename, params, scriptname )
-  ## writeCommandLineToFile ( filename, params, scriptname )
-  ## write an octapps_run commandline as an output file header
-  ## 'params' should be prepared by parseOptions() before
-  ## NOTE: use save("-append",...) later on to not overwrite this header
 
   fid = fopen ( filename, "w" );
 

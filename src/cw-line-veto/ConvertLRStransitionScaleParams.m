@@ -15,19 +15,24 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{outvalue} = ConvertLRStransitionScaleParams ( @var{outname}, @var{inname}, @var{invalue}, @var{Nseg} )
+##
+## function to convert between various parametrisations of the line-robust statistic transition scale
+## reference: Keitel, Prix, Papa, Leaci, Siddiq, PRD 89(6):064023 (2014)
+##
+## outname/inname can be any of:
+## "Fstar0" as defined in Eq. (38), not to be confused with the semicoherent Fstar0hat
+## "Fstar0hat" as defined in Eq. (57)
+## "pFAstar0" as defined in Eq. (67)
+## "cstar" as defined in Eq. (11)
+## "LVrho" (deprecated) as defined in footnote 1 (p4)
+##
+## Nseg is optional and will be assumed 1 by default
+##
+## @end deftypefn
+
 function outvalue = ConvertLRStransitionScaleParams ( outname, inname, invalue, Nseg=1 )
-  ## outvalue = ConvertLRStransitionScaleParams ( outname, inname, invalue, Nseg )
-  ## function to convert between various parametrisations of the line-robust statistic transition scale
-  ## reference: Keitel, Prix, Papa, Leaci, Siddiq, PRD 89(6):064023 (2014)
-  ##
-  ## outname/inname can be any of:
-  ## "Fstar0" as defined in Eq. (38), not to be confused with the semicoherent Fstar0hat
-  ## "Fstar0hat" as defined in Eq. (57)
-  ## "pFAstar0" as defined in Eq. (67)
-  ## "cstar" as defined in Eq. (11)
-  ## "LVrho" (deprecated) as defined in footnote 1 (p4)
-  ##
-  ## Nseg is optional and will be assumed 1 by default
 
   supported_params = {"Fstar0","Fstar0hat","pFAstar0","cstar","LVrho"};
 

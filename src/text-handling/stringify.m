@@ -15,7 +15,7 @@
 ## <http://www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn {Function File} {@var{s} =} stringify(@var{x})
+## @deftypefn {Function File} @var{s} = stringify(@var{x})
 ##
 ## Convert an Octave value @var{x} into a string expression, which can be re-used
 ## as input, i.e. @code{eval(stringify(@var{x}))} should re-create @var{x}.

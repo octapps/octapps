@@ -14,16 +14,18 @@
 ## along with Octave; see the file COPYING.  If not, see
 ## <http://www.gnu.org/licenses/>.
 
-## Convert a sky-position given in terms of 'longitude' and 'latitude'
-## angles into a unit vector vn = [nx, ny, nz] in the same reference frame
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{vn} = skyAngles2Vector ( [@var{longitude}, @var{latitude}] )
+##
+## Convert a sky-position given in terms of @var{longitude} and @var{latitude}'
+## angles into a unit vector @code{vn = [nx, ny, nz]} in the same reference frame
 ## (ie either in equatorial or ecliptic system).
 ##
-## Usage:
-##   vn = skyAngles2Vector ( [longitude, latitude] )
-##
-## inputs {longitude, latitude} are allowed to be vectors, ie the input
+## inputs @{longitude, @var{latitude}@} are allowed to be vectors, ie the input
 ## LongLat must be of size N x 2.
-## returns unit-vector vn = [ nx, ny, nz ] of column-vectors nx,ny,nz
+## returns unit-vector @code{vn = [ nx, ny, nz ]} of column-vectors nx,ny,nz
+##
+## @end deftypefn
 
 function vn = skyAngles2Vector ( LongLat )
 

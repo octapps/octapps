@@ -15,12 +15,23 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## Returns the total number of counts in a histogram object.
-## Syntax:
-##   total = histTotalCount(hgrm)
-## where:
-##   hgrm  = histogram object
-##   total = total number of counts
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{total} = histTotalCount(@var{hgrm})
+##
+## Returns the @var{total} number of counts in a histogram object.
+##
+## @heading Arguments
+##
+## @table @var
+## @item hgrm
+## histogram object
+##
+## @item total
+## @var{total} number of counts
+##
+## @end table
+##
+## @end deftypefn
 
 function total = histTotalCount(hgrm)
 

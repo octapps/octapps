@@ -14,9 +14,12 @@
 ## along with Octave; see the file COPYING.  If not, see
 ## <http://www.gnu.org/licenses/>.
 
-## Replicate x over dimensions dims, so that its final size is siz.
-## Usage:
-##   x = replOver(x, dims, siz)
+## -*- texinfo -*-
+## @deftypefn  {Function File} x = replOver(@var{x}, @var{dims}, @var{siz})
+##
+## Replicate @var{x} over dimensions @var{dims}, so that its final size is @var{siz}.
+##
+## @end deftypefn
 
 function x = replOver(x, dims, siz)
 

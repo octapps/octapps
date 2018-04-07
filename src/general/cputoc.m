@@ -14,9 +14,12 @@
 ## along with Octave; see the file COPYING.  If not, see
 ## <http://www.gnu.org/licenses/>.
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} cputoc(@code{name});
+##
 ## Prints the elapsed CPU time since a named CPU time counter was set.
-## Syntax:
-##   cputoc("name");
+##
+## @end deftypefn
 
 function cputoc(name)
 

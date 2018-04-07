@@ -15,16 +15,19 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## fAH = falseAlarm_HoughF ( nth, Nseg, Fth )
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{fAH} = falseAlarm_HoughF ( @var{nth}, @var{Nseg}, @var{Fth} )
 ##
-## compute Hough-on-Fstat false-alarm probability fAH for given number of segments Nseg,
-## a threshold on segment-crossings nth, and an F-statistic threshold per segment Fth.
-## A false-alarm is defined as n >= nth segments crossing the threshold Fth in the
+## compute Hough-on-Fstat false-alarm probability fAH for given number of segments @var{Nseg},
+## a threshold on segment-crossings @var{nth}, and an F-statistic threshold per segment @var{Fth}.
+## A false-alarm is defined as n >= @var{nth} segments crossing the threshold @var{Fth} in the
 ## absence of a signal
 ##
-## NOTE: all arguments need to be scalars, use arrayfun() or cellfun() to iterate this
-## over vectors of arguments
+## @heading Note
 ##
+## all arguments need to be scalars, use @command{arrayfun()} or @command{cellfun()} to iterate thisover vectors of arguments
+##
+## @end deftypefn
 
 function fAH = falseAlarm_HoughF ( nth, Nseg, Fth )
   fn = "falseAlarm_HoughF()";

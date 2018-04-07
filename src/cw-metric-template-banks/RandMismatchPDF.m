@@ -15,11 +15,16 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## ret = RandMismatchPDF ( mt, dim, falseDismissal )
-## [can handle vector input in 'mis']
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{ret} = RandMismatchPDF ( @var{mt}, @var{dim}, @var{falseDismissal} )
 ##
 ## Return the mismatch probability density of "relative effective mismatch"
 ## mt = m/meff of a random-template bank with given false-dismissal probability
+##
+## @heading Note
+## can handle vector input in 'mis'
+##
+## @end deftypefn
 
 function ret = RandMismatchPDF ( mt, dim, falseDismissal )
 

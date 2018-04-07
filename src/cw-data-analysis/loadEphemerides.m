@@ -14,14 +14,33 @@
 ## along with Octave; see the file COPYING.  If not, see
 ## <http://www.gnu.org/licenses/>.
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{ephemerides} = loadEphemerides(@var{opt}, @var{val}, @dots{})
+##
 ## Load Earth and Sun ephemerides from LALPulsar.
-## Syntax:
-##   ephemerides = loadEphemerides("opt", val, ...)
-## where:
-##   ephemerides = structure containing ephemerides
-## Options:
-##   "earth_file": Earth ephemerides file (default: earth00-19-DE405.dat.gz)
-##   "sun_file": Sun ephemerides file (default: sun00-19-DE405.dat.gz)
+##
+## @heading Arguments
+##
+## @table @var
+## @item ephemerides
+## structure containing ephemerides
+##
+## @end table
+##
+## @heading Options
+##
+## @heading Options
+##
+## @table @code
+## @item earth_file
+## Earth ephemerides file (default: @file{earth00-19-DE405.dat.gz})
+##
+## @item sun_file
+## Sun ephemerides file (default: @file{sun00-19-DE405.dat.gz})
+##
+## @end table
+##
+## @end deftypefn
 
 function ephemerides = loadEphemerides(varargin)
 

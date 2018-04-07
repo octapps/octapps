@@ -15,21 +15,36 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{setup} = WeaveReadSetup ( @var{setup_file} )
+##
+## Returns pre-parsed setup file as a struct with additional fields:
+##
+## @table @samp
+## @item segment_list
+## Nx2 array of segment GPS [ start-times ; end-times ]
+## @item segment_props
+## pre-parsed segment properties returned by @command{AnalyseSegmentList()}
+## @item Nsegments
+## number of segments
+## @item Ndetectors
+## number of detectors
+## @item detectors
+## cell-array of detector-names
+## @item ref_time
+## reference GPS time
+## @item start_time
+## first segment start time
+## @item coh_Tspan
+## average segment length (=coherent length)
+## @item semi_Tspan
+## total time-span of segment list
+##
+## @end table
+##
+## @end deftypefn
+
 function setup = WeaveReadSetup ( setup_file )
-  ## setup = WeaveReadSetup ( setup_file )
-  ##
-  ## returns pre-parsed setup file as a struct with additional fields:
-  ##
-  ## segment_list:   Nx2 array of segment GPS [ start-times ; end-times ]
-  ## segment_props:  pre-parsed segment properties returned by AnalyseSegmentList()
-  ## Nsegments:      number of segments
-  ## Ndetectors:     number of detectors
-  ## detectors:      cell-array of detector-names
-  ## ref_time:       reference GPS time
-  ## start_time:     first segment start time
-  ## coh_Tspan:      average segment length (=coherent length)
-  ## semi_Tspan:     total time-span of segment list
-  ##
 
   setup = fitsread(setup_file);
   assert(isfield(setup, "segments"));

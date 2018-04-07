@@ -13,27 +13,58 @@
 ## You should have received a copy of the GNU General Public License
 ## along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-## Estimate the F-statistic mismatch distribution of 'lalapps_Weave'.
-## Usage:
-##   hgrm = WeaveFstatMismatch("opt", val, ...)
-## Options:
-##   EITHER:
-##     setup_file:  Weave setup file
-##   OR:
-##     coh_Tspan:   time span of coherent segments
-##     semi_Tspan:  total time span of semicoherent search
-##   sky:
-##     Whether to include search over sky parameters (default: true)
-##   spindowns:
-##     Number of spindown parameters being searched
-##   lattice:
-##     Type of lattice used by search (default: Ans)
-##   coh_max_mismatch,semi_max_mismatch:
-##     Maximum coherent and semicoherent mismatches; for a single-
-##     segment or non-interpolating search, set coh_max_mismatch=0
-## Outputs:
-##   hgrm:
-##     Histogram of F-statistic mismatch distribution
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{hgrm} = WeaveFstatMismatch(@var{opt}, @var{val}, @dots{})
+##
+## Estimate the F-statistic mismatch distribution of @command{lalapps_Weave}.
+##
+## @heading Options
+##
+## @table @code
+## @item @strong{EITHER}
+## @table @code
+##
+## @item setup_file
+## Weave setup file
+##
+## @end table
+##
+## @item @strong{OR}
+## @table @code
+##
+## @item coh_Tspan
+## time span of coherent segments
+##
+## @item semi_Tspan
+## total time span of semicoherent search
+##
+## @end table
+##
+## @item sky
+## Whether to include search over @var{sky} parameters (default: true)
+##
+## @item spindowns
+## Number of spindown parameters being searched
+##
+## @item lattice
+## Type of @var{lattice} used by search (default: Ans)
+##
+## @item coh_max_mismatch
+## @itemx semi_max_mismatch
+## Maximum coherent and semicoherent mismatches; for a single-
+## segment or non-interpolating search, set @var{coh_max_mismatch}=0
+##
+## @end table
+##
+## @heading Outputs
+##
+## @table @var
+## @item hgrm
+## Histogram of F-statistic mismatch distribution
+##
+## @end table
+##
+## @end deftypefn
 
 ## octapps_run_link
 

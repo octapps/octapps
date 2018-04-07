@@ -14,49 +14,93 @@
 ## along with Octave; see the file COPYING.  If not, see
 ## <http://www.gnu.org/licenses/>.
 
-## Cost function for 'lalapps_Weave' for use with OptimalSolution4StackSlide_v2
-## Usage:
-##   cost_funs = CostFunctionsWeave("opt", val, ...)
-## where:
-##   cost_funs = cost functions struct
-## Options:
-##   EITHER:
-##     setup_file:
-##       Weave setup file
-##   OR:
-##     detectors:
-##       Comma-separated list of detectors
-##     ref_time:
-##       GPS reference time
-##     start_time:
-##       GPS start time
-##     semi_Tspan:
-##       Total time span of semicoherent search
-##   EITHER:
-##     result_file:
-##       Weave result file
-##   OR:
-##     freq_min/max:
-##       Minimum/maximum frequency range
-##     f1dot_min/max:
-##       Minimum/maximum 1st spindown
-##     f2dot_min/max:
-##       Minimum/maximum 2nd spindown (optional)
-##     NSFTs:
-##       total number of SFTs
-##     Fmethod:
-##       F-statistic method used by search
-##   stats
-##     Comma-separated list of statistics being computed
-##   lattice:
-##     Type of lattice to use (default: Ans)
-##   grid_interpolation:
-##     If true, compute cost of interpolating search (i.e. semicoherent
-##       grid interpolates results on coherent grids)
-##     If false, compute cost of noninterpolating search (i.e. identical
-##       coherent and semicoherent grids)
-##   TSFT:
-##     Length of an SFT (default: 1800s)
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{cost_funs} = CostFunctionsWeave(@var{opt}, @var{val}, @dots{})
+##
+## Cost function for @command{lalapps_Weave} for use with OptimalSolution4StackSlide_v2
+##
+## @heading Arguments
+##
+## @table @var
+## @item cost_funs
+## cost functions struct
+##
+## @end table
+##
+## @heading Options
+##
+## @table @code
+## @item @strong{EITHER}
+## @table @code
+##
+## @item setup_file
+## Weave setup file
+##
+## @end table
+##
+## @item @strong{OR}
+## @table @code
+##
+## @item detectors
+## Comma-separated list of detectors
+##
+## @item ref_time
+## GPS reference time
+##
+## @item start_time
+## GPS start time
+##
+## @item semi_Tspan
+## Total time span of semicoherent search
+##
+## @end table
+##
+## @item @strong{EITHER}
+## @table @code
+##
+## @item result_file
+## Weave result file
+##
+## @end table
+##
+## @item @strong{OR}
+## @table @code
+##
+## @item freq_min/max
+## Minimum/maximum frequency range
+##
+## @item f1dot_min/max
+## Minimum/maximum 1st spindown
+##
+## @item f2dot_min/max
+## Minimum/maximum 2nd spindown (optional)
+##
+## @item NSFTs
+## total number of SFTs
+##
+## @item Fmethod
+## F-statistic method used by search
+##
+## @end table
+##
+## @item stats
+## Comma-separated list of statistics being computed
+##
+## @item lattice
+## Type of @var{lattice} to use (default: Ans)
+##
+## @item grid_interpolation
+## If true, compute cost of interpolating search (i.e. semicoherent
+## grid interpolates results on coherent grids)
+## If false, compute cost of noninterpolating search (i.e. identical
+## coherent and semicoherent grids)
+##
+## @item TSFT
+## Length of an SFT (default: 1800s)
+##
+## @end table
+##
+## @end deftypefn
 
 function cost_funs = CostFunctionsWeave(varargin)
 

@@ -13,14 +13,27 @@
 ## You should have received a copy of the GNU General Public License
 ## along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{thgrm} = thresholdHist(@var{hgrm}, @var{pth})
+##
 ## Set a threshold on the histogram probability of each bin; bins with
 ## probability below the threshold have their count set to zero.
-## Usage:
-##   thgrm = thresholdHist(hgrm, pth)
-## where:
-##   thgrm = thresholded histogram object
-##   hgrm  = original histogram object
-##   pth   = probability threshold
+##
+## @heading Arguments
+##
+## @table @var
+## @item thgrm
+## thresholded histogram object
+##
+## @item hgrm
+## original histogram object
+##
+## @item pth
+## probability threshold
+##
+## @end table
+##
+## @end deftypefn
 
 function hgrm = thresholdHist(hgrm, pth)
 

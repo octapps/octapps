@@ -15,46 +15,127 @@
 ## along with Octave; see the file COPYING.  If not, see
 ## <http://www.gnu.org/licenses/>.
 
-## Perform full software injections in generated SFTs using LALPulsar functions.
-##   [results, multiSFTs, multiTser] = DoFstatInjections("opt", val, ...)
+## -*- texinfo -*-
+## @deftypefn  {Function File} [@var{results}, @var{multiSFTs}, @var{multiTser}] = DoFstatInjections(@var{opt}, @var{val}, @dots{})
 ##
-## where:
-##   result    = results structure
-##   multiSFTs = multi-vector of SFTs containing simulated signal
-##   multiTser = multi-time series vector containing simulated signal
-## Options (starred options are returned in results):
-##   ref_time: reference time in GPS seconds
-##   start_time: start time in GPS seconds (default: ref_time - 0.5*time_span)
-##   time_span: observation time-span in seconds
-##   detectors: comma-separated list of detector names
-##   det_sqrt_PSD: sqrt(single-sided noise PSD) to assume for each detector
-##   ephemerides: Earth/Sun ephemerides from loadEphemerides()
-##   sft_time_span: SFT time-span in seconds (default: 1800)
-##   sft_overlap: SFT overlap in seconds (default: 0)
-##   sft_noise_window: number of bins used when estimating SFT noise (default: 50)
-##   inj_sqrt_PSD: inject Gaussian random noise with sqrt(single-sided noise PSD) for each detector
-##  *inj_h0: injected h0 strain amplitude (default: 1.0)
-##  *inj_cosi: injected cosine of inclination angle (default: random)
-##  *inj_psi: injected polarisation angle (default: random)
-##  *inj_phi0: injected initial phase (default: random)
-##  *inj_alpha: injected right ascension (default: random)
-##  *inj_delta: injected declination (default: random)
-##  *inj_fndot: injected frequency/spindowns (default: 100 Hz)
-##  *sch_alpha: searched right ascension (default: same as injected)
-##  *sch_delta: searched declination (default: same as injected)
-##  *sch_fndot: searched frequency/spindowns (default: same as injected)
-##  OrbitParams: option that needs to be set to 'true' to be able to specify the orbital parameters (default: false)
-##  *inj_orbitasini: injected orbital projected semi-major axis (normalised by the speed of light) in seconds (default: random)
-##  *inj_orbitEcc: injected orbital eccentricity (default: random)
-##  *inj_orbitTpSSB: injected (SSB) time of periapsis passage (in seconds) (default: random)
-##  *inj_orbitPeriod: injected orbital period (seconds) (default: random)
-##  *inj_orbitArgp: injected argument of periapsis (radians) (default: random)
-##  *sch_orbitasini: searched orbital projected semi-major axis (normalised by the speed of light) in seconds (default: same as injected)
-##  *sch_orbitEcc: searched orbital eccentricity (default: same as injected)
-##  *sch_orbitTpSSB: searched (SSB) time of periapsis passage (in seconds) (default: same as injected)
-##  *sch_orbitPeriod: searched orbital period (seconds) (default: same as injected)
-##  *sch_orbitArgp: searched argument of periapsis (radians) (default: same as injected)
-##  Dterms: number of Dirichlet terms to use in ComputeFstat() (default: number used by optimised hotloops)
+## Perform full software injections in generated SFTs using LALPulsar functions.
+##
+## @heading Arguments
+##
+## @table @var
+## @item result
+## results structure
+##
+## @item multiSFTs
+## multi-vector of SFTs containing simulated signal
+##
+## @item multiTser
+## multi-time series vector containing simulated signal
+##
+## @end table
+##
+## @heading Options (starred options are returned in results)
+##
+## @table @code
+## @item ref_time
+## reference time in GPS seconds
+##
+## @item start_time
+## start time in GPS seconds (default: ref_time - 0.5*time_span)
+##
+## @item time_span
+## observation time-span in seconds
+##
+## @item detectors
+## comma-separated list of detector names
+##
+## @item det_sqrt_PSD
+## sqrt(single-sided noise PSD) to assume for each detector
+##
+## @item ephemerides
+## Earth/Sun ephemerides from @command{loadEphemerides()}
+##
+## @item sft_time_span
+## SFT time-span in seconds (default: 1800)
+##
+## @item sft_overlap
+## SFT overlap in seconds (default: 0)
+##
+## @item sft_noise_window
+## number of bins used when estimating SFT noise (default: 50)
+##
+## @item inj_sqrt_PSD
+## inject Gaussian random noise with sqrt(single-sided noise PSD) for each detector
+##
+## @item *inj_h0
+## injected h0 strain amplitude (default: 1.0)
+##
+## @item *inj_cosi
+## injected cosine of inclination angle (default: random)
+##
+## @item *inj_psi
+## injected polarisation angle (default: random)
+##
+## @item *inj_phi0
+## injected initial phase (default: random)
+##
+## @item *inj_alpha
+## injected right ascension (default: random)
+##
+## @item *inj_delta
+## injected declination (default: random)
+##
+## @item *inj_fndot
+## injected frequency/spindowns (default: 100 Hz)
+##
+## @item *sch_alpha
+## searched right ascension (default: same as injected)
+##
+## @item *sch_delta
+## searched declination (default: same as injected)
+##
+## @item *sch_fndot
+## searched frequency/spindowns (default: same as injected)
+##
+## @item OrbitParams
+## option that needs to be set to 'true' to be able to specify the orbital parameters (default: false)
+##
+## @item *inj_orbitasini
+## injected orbital projected semi-major axis (normalised by the speed of light) in seconds (default: random)
+##
+## @item *inj_orbitEcc
+## injected orbital eccentricity (default: random)
+##
+## @item *inj_orbitTpSSB
+## injected (SSB) time of periapsis passage (in seconds) (default: random)
+##
+## @item *inj_orbitPeriod
+## injected orbital period (seconds) (default: random)
+##
+## @item *inj_orbitArgp
+## injected argument of periapsis (radians) (default: random)
+##
+## @item *sch_orbitasini
+## searched orbital projected semi-major axis (normalised by the speed of light) in seconds (default: same as injected)
+##
+## @item *sch_orbitEcc
+## searched orbital eccentricity (default: same as injected)
+##
+## @item *sch_orbitTpSSB
+## searched (SSB) time of periapsis passage (in seconds) (default: same as injected)
+##
+## @item *sch_orbitPeriod
+## searched orbital period (seconds) (default: same as injected)
+##
+## @item *sch_orbitArgp
+## searched argument of periapsis (radians) (default: same as injected)
+##
+## @item Dterms
+## number of Dirichlet terms to use in @command{ComputeFstat()} (default: number used by optimised hotloops)
+##
+## @end table
+##
+## @end deftypefn
 
 function [results, multiSFTs, multiTser] = DoFstatInjections(varargin)
 

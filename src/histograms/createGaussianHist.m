@@ -16,17 +16,37 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## Creates a histogram representing a Gaussian PDF with given mean and standard deviation
-## Usage:
-##   hgrm = createGaussianHist("opt", val, ...)
-## where:
-##   hgrm = Gaussian PDF histogram
-## Options are:
-##   "mean":     mean of the Gaussian distribution
-##   "std":      standard deviation
-##   "binsize":  histogram bin-size (default = "std" / 10)
-##   "domain":   constrain all samples to lie within this interval [min(domain), max(domain)]
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{hgrm} = createGaussianHist(@var{opt}, @var{val}, @dots{})
 ##
+## Creates a histogram representing a Gaussian PDF with given @var{mean} and standard deviation
+##
+## @heading Arguments
+##
+## @table @var
+## @item hgrm
+## Gaussian PDF histogram
+##
+## @end table
+##
+## @heading Options
+## @table @code
+## @item mean
+## @var{mean} of the Gaussian distribution
+##
+## @item std
+## standard deviation
+##
+## @item binsize
+## histogram bin-size (default = "@var{std}" / 10)
+##
+## @item domain
+## constrain all samples to lie within this interval [min(@var{domain}), max(@var{domain})]
+##
+## @end table
+##
+## @end deftypefn
+
 function hgrm = createGaussianHist ( varargin )
 
   ## parse optional keywords

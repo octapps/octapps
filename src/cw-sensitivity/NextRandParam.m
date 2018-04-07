@@ -15,13 +15,26 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} [@var{v}, @var{v}, @dots{}] = NextRandParam(@var{rng}, @var{N})
+##
 ## Generates values for random parameters, given a generator
-## Syntax:
-##   [v, v, ...] = NextRandParam(rng, N)
-## where
-##   rng = random parameter generator
-##   N   = number of values to generate
-##   v   = values of random parameter
+##
+## @heading Arguments
+##
+## @table @var
+## @item rng
+## random parameter generator
+##
+## @item N
+## number of values to generate
+##
+## @item v
+## values of random parameter
+##
+## @end table
+##
+## @end deftypefn
 
 function varargout = NextRandParam(rng, N)
 

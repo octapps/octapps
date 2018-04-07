@@ -16,42 +16,98 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## Usage: stackparams = OptimalSolution4StackSlide_v2 ( "option", val, "option", val, ... )
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{stackparams} = OptimalSolution4StackSlide_v2 ( @code{option}, @var{val}, @code{option}, @var{val}, @dots{} )
 ##
-## Computes a *self-consistent* solution for (locally-)optimal StackSlide parameters,
-## given computing cost-functions (coherent and incoherent) and constraints (cost0, TobsMax, TsegMax ...)
+## Computes a *self-consistent* solution for (locally-)optimal StackSlide
+## parameters, given computing cost-functions (coherent and incoherent) and
+## constraints (@code{cost0}, @code{TobsMax}, @code{TsegMax} @dots{})
 ##
-## The available options are:
+## @heading Options
 ##
-## "costFuns":          structure containing parameters and cost-function handle
-##    "grid_interpolation" : boolean flag about whether to use coherent-grid interpolation or not
-##    "lattice"            : string specifying the template-bank lattice to use
-##    "fun"                : cost-function handle, of the form [ costCoh, costInc ] = fun(Nseg, Tseg, mCoh, mInc)
-##                           where the cost function must accept vector-arguments (of equal length or scalar)
+## @table @code
+## @item costFuns
+## structure containing parameters and cost-function handle
 ##
-## "cost0":             total computing cost (in CPU seconds),
+##   @table @code
+##   @item grid_interpolation
+##   boolean flag about whether to use coherent-grid interpolation or not
 ##
-## You can optionally provide the following additional constraints:
-## "TobsMax":           maximal total observation time
-## "TsegMin":           minimal segment length
-## "TsegMax":           maximal segment length
+##   @item lattice
+##   string specifying the template-bank @var{lattice} to use
 ##
-## "stackparamsGuess"   initial "guess" for solution, must contain fields {Nseg, Tseg, mCoh, mInc }
+##   @item fun
+##   cost-function handle, of the form [ costCoh, costInc ] = @var{fun}(Nseg, Tseg, mCoh, mInc)
+##   where the cost function must accept vector-arguments (of equal length or scalar)
 ##
-## "pFA"                false-alarm probability at which to optimize sensitivity [1e-10]
-## "pFD"                false-dismissal probability (=1-detection-probability) [0.1]
+##   @end table
 ##
-## "tol"                tolerance on the obtained relative difference of the solution, required for convergence [1e-2]
-## "maxiter"            maximal allowed number of iterations [10]
+## @item cost0
+## total computing cost (in CPU seconds),
 ##
-## "sensApprox":        sensitivity approximation to use in SensitivityScalingDeviationN() [default: none] {[], "none", "Gauss", "WSG}
-## "nonlinearMismatch" use empirical nonlinear mismatch relation instead of linear <mis> = xi * m
+## @end table
 ##
-## "debugLevel"         [optional] control level of debug output
+## You can optionally provide the following additional constraints
 ##
-## The return structure 'sol' has fields {Nseg, Tseg, m }
-## where Nseg is the optimal (fractional!) number of segments, Tseg is the optimal segment length (in seconds)
-## m is the optimal grid mismatch
+## @table @code
+## @item TobsMax
+## maximal total observation time
+##
+## @item TsegMin
+## minimal segment length
+##
+## @item TsegMax
+## maximal segment length
+##
+## @item stackparamsGuess
+## initial "guess" for solution, must contain fields @{Nseg, Tseg, mCoh, mInc @}
+##
+## @item pFA
+## false-alarm probability at which to optimize sensitivity [1e-10]
+##
+## @item pFD
+## false-dismissal probability (=1-detection-probability) [0.1]
+##
+## @item tol
+## tolerance on the obtained relative difference of the solution, required for convergence [1e-2]
+##
+## @item maxiter
+## maximal allowed number of iterations [10]
+##
+## @item sensApprox
+## sensitivity approximation to use in @command{SensitivityScalingDeviationN()}, one of:
+##   @itemize
+##   @item @code{[]}
+##   @item @code{none} [default]
+##   @item @code{Gauss}
+##   @item @code{WSG}
+##   @end itemize
+##
+## @item nonlinearMismatch
+## use empirical nonlinear mismatch relation instead of linear @samp{mis} = xi * m
+##
+## @item debugLevel
+## [optional] control level of debug output
+##
+## @end table
+##
+## @heading Output
+##
+## The return structure 'sol' has fields @{@code{Nseg}, @code{Tseg}, @code{m}@} where
+##
+## @table @code
+## @item Nseg
+## the optimal (fractional!) number of segments
+##
+## @item Tseg
+## the optimal segment length (in seconds)
+##
+## @item m
+## the optimal grid mismatch
+##
+## @end table
+##
+## @end deftypefn
 
 function sol = OptimalSolution4StackSlide_v2 ( varargin )
 

@@ -17,14 +17,27 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{p} = ChiSquare_pdf(@var{x}, @var{k}, @var{lambda})
+##
 ## Compute the probability density function of the
 ## non-central chi^2 distribution.
-## Syntax:
-##   p  = ChiSquare_pdf(x, k, lambda)
-## where:
-##   x      = value of the non-central chi^2 variable
-##   k      = number of degrees of freedom
-##   lambda = non-centrality parameter
+##
+## @heading Arguments
+##
+## @table @var
+## @item x
+## value of the non-central chi^2 variable
+##
+## @item k
+## number of degrees of freedom
+##
+## @item lambda
+## non-centrality parameter
+##
+## @end table
+##
+## @end deftypefn
 
 function p = ChiSquare_pdf(x, k, lambda=0)
 

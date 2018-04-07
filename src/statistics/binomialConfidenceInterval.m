@@ -15,23 +15,28 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## Usage: [fLower, fUpper] = binomialConfidenceInterval ( N, K, confidence )
+## -*- texinfo -*-
+## @deftypefn  {Function File} [@var{fLower}, @var{fUpper}] = binomialConfidenceInterval ( @var{N}, @var{K}, @var{confidence} )
 ##
-## Compute the posterior confidence interval [fLower, fUpper] for the true rate f
-## given a drawing experiment with K "successful" results out of N trials.
-## The confidence interval satisfies
-## confidence = int_{fLower}^{fUpper} pdf(f|N,K) df,
-## where pdf(f|N,K) is the posterior pdf for the rate f, which
-## is computed using the function binomialRatePDF(f,N,K).
+## Compute the posterior @var{confidence} interval [@var{fLower}, @var{fUpper}] for the true rate f
+## given a drawing experiment with @var{K} "successful" results out of @var{N} trials.
+## The @var{confidence} interval satisfies
+## confidence = int_@{fLower@}^@{fUpper@} pdf(f|@var{N},@var{K}) df,
+## where pdf(f|@var{N},@var{K}) is the posterior pdf for the rate f, which
+## is computed using the function binomialRatePDF(f,@var{N},@var{K}).
 ##
-## The confidence-interval is constructed with iso-probability endpoints
+## The @var{confidence}-interval is constructed with iso-probability endpoints
 ## (if possible), namely
-## P(fLower) = P(fUpper), which is guaranteed to bracket the maximum of the pdf.
-## In the special cases where K=0 or K=N, we return the "single-sided" intervals
-## [0,fUpper] or [fLower,1], respectively.
+## P(@var{fLower}) = P(@var{fUpper}), which is guaranteed to bracket the maximum of the pdf.
+## In the special cases where @var{K} = 0 or @var{K} = @var{N}, we return the "single-sided" intervals
+## [0,@var{fUpper}] or [@var{fLower},1], respectively.
 ##
-## NOTE: all inputs must be scalars! 'confidence' must be in (0,1)
+## @heading Note
 ##
+## all inputs must be scalars! @var{confidence} must be in (0,1)
+##
+## @end deftypefn
+
 function [fLower, fUpper] = binomialConfidenceInterval ( N, K, confidence )
 
   ## check input santity

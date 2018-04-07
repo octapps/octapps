@@ -15,7 +15,9 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## define common units and physical constants
+## -*- texinfo -*-
+##
+## Define common units and physical constants
 
 ## 1 erg = 1 g cm^2 / s^2
 ## 1 Joule = 1e7 ergs

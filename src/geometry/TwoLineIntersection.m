@@ -15,12 +15,15 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} [@var{ua}, @var{ub}] = TwoLineIntersection(@var{p1a}, @var{p2a}, @var{p1b}, @var{p2b})
+##
 ## Returns the intersection of two lines defined by the locus of points
-##   pa = p1a + ua*(p2a - p1a)
-##   pb = p1b + ub*(p2b - p1b)
-## i.e. the values of ua and ub such that pa == pb.
-## Syntax:
-##   [ua, ub] = TwoLineIntersection(p1a, p2a, p1b, p2b)
+## pa = @var{p1a} + @var{ua}*(@var{p2a} - @var{p1a}) and
+## pb = @var{p1b} + @var{ub}*(@var{p2b} - @var{p1b})
+## i.e. the values of @var{ua} and @var{ub} such that pa == pb.
+##
+## @end deftypefn
 
 function [ua, ub] = TwoLineIntersection(p1a, p2a, p1b, p2b)
 

@@ -15,25 +15,33 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## Usage: [coefCoh, coefInc] = LocalCostCoefficients_v2 ( cost_fun, Nseg, Tseg, mCoh, mInc )
+## -*- texinfo -*-
+## @deftypefn  {Function File} [@var{coefCoh}, @var{coefInc}] = LocalCostCoefficients_v2 ( @var{cost_fun}, @var{Nseg}, @var{Tseg}, @var{mCoh}, @var{mInc} )
 ##
 ## Compute local power-law coefficients fit to given computing-cost function
-## 'cost_fun' at StackSlide parameters 'Nseg' and 'Tseg = Tobs/Nseg', and
-## mismatch parameters 'mCoh' and 'mInc'.
+## @var{cost_fun} at StackSlide parameters @var{Nseg} and @var{Tseg} = Tobs/@var{Nseg}, and
+## mismatch parameters @var{mCoh} and @var{mInc}.
 ##
-## The computing-cost struct 'costFuns' must be of the form
-## "lattice"           : string defining template-bank lattice
-## "grid_interpolation": boolean switch whether coherent grids are interpolated
-## "f"                 : cost function of the form '[costCoh, costInc] = f(Nseg, Tseg, mCoh, mInc)'
-##                       and allow for vector inputs in all four input arguments.
+## The computing-cost struct @var{cost_fun} must be of the form
+## @table @code
+## @item lattice
+## string defining template-bank lattice
+## @item grid_interpolation
+## boolean switch whether coherent grids are interpolated
+## @item f
+## cost function of the form '[costCoh, costInc] = f(@var{Nseg}, @var{Tseg}, @var{mCoh}, @var{mInc})'
+## @end table
+## and allow for vector inputs in all four input arguments.
 ##
-## Return structures 'coefCoh' and 'coefInc' have fields {delta, eta, kappa, nDim, cost }
+## Return structures @var{coefCoh} and @var{coefInc} have fields @{delta, eta, kappa, nDim, cost @}
 ## corresponding to the local power-law fit of computing cost
-## cost = kappa *  mis^{-nDim/2} * Nseg^eta * Tseg^delta
+## cost = kappa *  mis^@{-nDim/2@} * @var{Nseg}^eta * @var{Tseg}^delta
 ## according to Eq.(61, 62,63, 64)
 ##
-## [Equation numbers refer to Prix&Shaltev, PRD85, 084010 (2012)]
+## @heading Note
+## Equation numbers refer to Prix&Shaltev, PRD85, 084010 (2012)
 ##
+## @end deftypefn
 
 function [ coefCoh, coefInc ] = LocalCostCoefficients_v2 ( costFuns, Nseg, Tseg, mCoh=0.5, mInc = 0.5 )
 

@@ -15,30 +15,62 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{sensDepth} = SensitivityDepthHoughF(@var{opt}, @var{val}, @dots{})
+##
 ## Estimate Hough-on-Fstat sensitivity depth, defined as
 ##
-## sensDepth = sqrt(Sdata)/h0,
+## @var{sensDepth} = sqrt(@var{Sdata})/@var{h0},
 ##
-## where 'Sdata' is an estimate of the noise PSD over all the data used
-## (which should be computed as the harmonic mean over all the SFTs from
-## all detectors), and 'h0' is the smallest detectable GW amplitude at the
-## given false-alarm (pFA) and false-dismissal probability (pFD)
+## where
 ##
-## Usage:
-##   sensDepth = SensitivityDepthHoughF("opt", val, ...)
-## Options are:
-##   "Nseg":            number of Hough segments
-##   "Tdata":           total amount of data used, in seconds
-##                      (Note: Tdata = Nsft * Tsft, where 'Nsft' is the total number of
-##                      SFTs of length 'Tsft' used in the search, from all detectors)
-##   "misHist":         mismatch histogram, produced using Hist()
-##   "pFD":             false-dismissal probability = 1 - pDet
-##   "pFA":             false-alarm probability (-ies) *per template* (can be a vector)
-##   "Fth":             F-stat threshold (on F, not 2F!) in each segment for "pixel" selection
-##   "detectors":       CSV list of detectors to use ("H1"=Hanford, "L1"=Livingston, "V1"=Virgo, ...)
-##   "detweights":      detector weights on S_h to use (default: uniform weights)
-##   "alpha":           source right ascension in radians (default: all-sky)
-##   "delta":           source declination (default: all-sky)
+## @table @var
+## @item Sdata
+## an estimate of the noise PSD over all the data used (which should be computed
+## as the harmonic mean over all the SFTs from all @var{detectors})
+## @item h0
+## the smallest detectable GW amplitude at the given false-alarm (@var{pFA}) and
+## false-dismissal probability (@var{pFD})
+## @end table
+##
+## @heading Options
+##
+## @table @code
+## @item Nseg
+## number of Hough segments
+##
+## @item Tdata
+## total amount of data used, in seconds
+## (Note: @var{Tdata} = @var{Nsft} * @var{Tsft}, where @var{Nsft} is the total number of
+## SFTs of length @var{Tsft} used in the search, from all @var{detectors})
+##
+## @item misHist
+## mismatch histogram, produced using @command{Hist()}
+##
+## @item pFD
+## false-dismissal probability = 1 - pDet
+##
+## @item pFA
+## false-alarm probability (-ies) *per template* (can be a vector)
+##
+## @item Fth
+## F-stat threshold (on F, not 2F!) in each segment for "pixel" selection
+##
+## @item detectors
+## CSV list of @var{detectors} to use ("H1"=Hanford, "L1"=Livingston, "V1"=Virgo, @var{...})
+##
+## @item detweights
+## detector weights on S_h to use (default: uniform weights)
+##
+## @item alpha
+## source right ascension in radians (default: all-sky)
+##
+## @item delta
+## source declination (default: all-sky)
+##
+## @end table
+##
+## @end deftypefn
 
 function sensDepth = SensitivityDepthHoughF ( varargin )
 

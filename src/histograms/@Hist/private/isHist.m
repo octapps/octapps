@@ -15,6 +15,8 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
+## Helper function for isHist()
+
 function ishgrm = isHist(hgrm)
 
   ## Check whether the input argument is an internally consistent histogram object

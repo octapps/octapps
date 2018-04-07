@@ -15,11 +15,21 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{ret} = TuneAdaptiveLVPriors ( @var{varargin} )
+##
+## function to count outliers in SFT power statistic over a large set of frequency bands (input sft files) and derive LV priors from that
+## command-line parameters can be taken from parseOptions call below
+##
+## @heading Example
+##
+## @verbatim
+## octapps_run TuneAdaptiveLVPriors --sftdir=sfts --sft_filenamebit=S6GC1 --freqmin=50 --freqmax=50.5
+## @end verbatim
+##
+## @end deftypefn
+
 function ret = TuneAdaptiveLVPriors ( varargin )
-  ## ret = TuneAdaptiveLVPriors ( varargin )
-  ## function to count outliers in SFT power statistic over a large set of frequency bands (input sft files) and derive LV priors from that
-  ## command-line parameters can be taken from parseOptions call below
-  ## example call: octapps_run TuneAdaptiveLVPriors --sftdir=sfts --sft_filenamebit=S6GC1 --freqmin=50 --freqmax=50.5
 
   ## read in and check input parameters
   params_init = parseOptions(varargin,

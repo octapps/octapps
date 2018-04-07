@@ -15,13 +15,16 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## [ convention, numSignals ] = checkAmplitudeParams ( Amp )
+## -*- texinfo -*-
+## @deftypefn  {Function File} [ @var{convention}, @var{numSignals} ] = checkAmplitudeParams ( @var{Amp} )
 ##
 ## check syntactic correctness of amplitude-parameter struct,
 ## and determine its convention: "LIGO" || "MLDC", depending
-## on whether fields {Amplitude, Inclination, Polarization, InitialPhase},
-## or {h0, cosi, psi, phi0} are present.
+## on whether fields @{Amplitude, Inclination, Polarization, InitialPhase@},
+## or @{h0, cosi, psi, phi0@} are present.
 ## The presence of both types of fields is an error.
+##
+## @end deftypefn
 
 function [ convention, numSignals ] = checkAmplitudeParams ( Amp )
 

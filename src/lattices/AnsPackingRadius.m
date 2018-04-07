@@ -15,13 +15,18 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## packingRadius = AnsPackingRadius ( dim )
-## [can handle vector input]
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{packingRadius} = AnsPackingRadius ( @var{dim} )
 ##
 ## Return the packing-radius for An* lattice in n dimensions,
 ## from Chap.4, Eq.(79) in Conway&Sloane(1999)
 ## referring to lattice-definition corresponding to the generator
-## returned by AnsLatticeGenerator.m, i.e. Chap.4, Eq.(76) of CS99
+## returned by @command{AnsLatticeGenerator()}, i.e. Chap.4, Eq.(76) of CS99
+##
+## @heading Note
+## can handle vector input
+##
+## @end deftypefn
 
 function packingRadius = AnsPackingRadius ( dim )
 

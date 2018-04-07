@@ -15,9 +15,12 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{name} = funcName()
+##
 ## Returns the name of the currently executing function.
-## Syntax:
-##   name = funcName
+##
+## @end deftypefn
 
 function name = funcName
 
