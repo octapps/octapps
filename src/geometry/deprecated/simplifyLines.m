@@ -26,20 +26,20 @@
 
 ## Contains code from 'simplifypolyline.m' from 'geometry' package v1.5.0:
 ##
-%% Copyright (c) 2012 Juan Pablo Carbajal
-%%
-%%    This program is free software: you can redistribute it and/or modify
-%%    it under the terms of the GNU General Public License as published by
-%%    the Free Software Foundation, either version 3 of the License, or
-%%    any later version.
-%%
-%%    This program is distributed in the hope that it will be useful,
-%%    but WITHOUT ANY WARRANTY; without even the implied warranty of
-%%    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-%%    GNU General Public License for more details.
-%%
-%%    You should have received a copy of the GNU General Public License
-%%    along with this program. If not, see <http://www.gnu.org/licenses/>.
+## Copyright (c) 2012 Juan Pablo Carbajal
+##
+##    This program is free software: you can redistribute it and/or modify
+##    it under the terms of the GNU General Public License as published by
+##    the Free Software Foundation, either version 3 of the License, or
+##    any later version.
+##
+##    This program is distributed in the hope that it will be useful,
+##    but WITHOUT ANY WARRANTY; without even the implied warranty of
+##    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##    GNU General Public License for more details.
+##
+##    You should have received a copy of the GNU General Public License
+##    along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 function [X, Y] = simplifyLines(x, y, Nmax)
 
@@ -86,16 +86,16 @@ endfunction
 
 function [dist ii] = maxdistance (p, idx)
 
-  %% Separate the groups of points according to the edge they can divide.
+  ## Separate the groups of points according to the edge they can divide.
   func = @(x,y) x:y;
   idxc   = arrayfun (func, idx(1:end-1), idx(2:end), "UniformOutput",false);
   points = cellfun (@(x)p(x,:), idxc, "UniformOutput",false);
 
-  %% Build the edges
+  ## Build the edges
   edges = [p(idx(1:end-1),:) p(idx(2:end),:)];
   edges = mat2cell (edges, ones(1,size(edges,1)), 4)';
 
-  %% Calculate distance between the points and the corresponding edge
+  ## Calculate distance between the points and the corresponding edge
   [dist ii] = cellfun(@dd, points,edges,idxc);
 
 endfunction

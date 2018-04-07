@@ -43,7 +43,7 @@ function skyOut = skyRotateFrame ( skyIn, angle, axis )
   endif
   rotM = rotationMatrix ( angle, axis );	## rotation matrix in-->out
   vnOut = rotM * vnIn';
-  vnOut = vnOut';	%% return in N x 3 format
+  vnOut = vnOut';	## return in N x 3 format
 
   ## return in same 'coordinates' as input: sky-vector or sky-angles
   if ( haveAngles )

@@ -196,18 +196,18 @@ function [costCoh, costInc] = cost_wparams ( Nseg, Tseg, mCoh, mInc, params )
 
 endfunction ## cost_wparams()
 
-%% ------------------------------------------------------------
+## ------------------------------------------------------------
 function [Nt, NtSlice, nDim, fMid] = numTemplates ( Nseg, Tseg, misMax, params )
-  %% 'adaptive' template counts, allowing for variable number of dimensions as a function of frequency,
-  %% by summing fixed-dimension template counts over 'numFreqSlices' slices in frequency
-  %%
-  %% returns a cell-arrarys of {NtSlice, nDim} over all frequency slices with mid-frequencies fMid
+  ## 'adaptive' template counts, allowing for variable number of dimensions as a function of frequency,
+  ## by summing fixed-dimension template counts over 'numFreqSlices' slices in frequency
+  ##
+  ## returns a cell-arrarys of {NtSlice, nDim} over all frequency slices with mid-frequencies fMid
 
   [err, Nseg, Tseg, misMax] = common_size( Nseg, Tseg, misMax );
   assert ( err == 0 );
 
   Tspan = Nseg .* Tseg;
-  FreqSlice = 4;	%% adapt to dimensionality in freq steps
+  FreqSlice = 4;	## adapt to dimensionality in freq steps
   numFreqSlices = ceil ( (max(params.freqRange) - min(params.freqRange)) / FreqSlice );
   fbar = linspace ( min(params.freqRange), max(params.freqRange), numFreqSlices + 1 );
 
@@ -226,11 +226,11 @@ function [Nt, NtSlice, nDim, fMid] = numTemplates ( Nseg, Tseg, misMax, params )
 endfunction
 
 function [ Nt, nDim ] = numTemplatesFixedDim ( Nseg, Tseg, misMax, params )
-  %% compute 'continuous' template count, assuming a template bank with fixed number of
-  %% dimensions over all the parameter space (estimated at the mean frequency given)
-  %%
-  %% Note: currently assuming a 'ScoX1-like' parameter space, where only 'Om' and {ecc,argp}
-  %% can be either resolved or unresolved, while asini and tAsc are assumed to be always resolved.
+  ## compute 'continuous' template count, assuming a template bank with fixed number of
+  ## dimensions over all the parameter space (estimated at the mean frequency given)
+  ##
+  ## Note: currently assuming a 'ScoX1-like' parameter space, where only 'Om' and {ecc,argp}
+  ## can be either resolved or unresolved, while asini and tAsc are assumed to be always resolved.
 
   [err, Nseg, Tseg, misMax] = common_size( Nseg, Tseg, misMax );
   assert ( err == 0 );
@@ -239,7 +239,7 @@ function [ Nt, nDim ] = numTemplatesFixedDim ( Nseg, Tseg, misMax, params )
 
   params.OmRange = 2*pi ./ fliplr(params.PeriodRange);
   pSMidFreq = params;
-  pSMidFreq.freqRange = mean(params.freqRange);	%% use this 'fiducial' frequency to estimate dimensionality
+  pSMidFreq.freqRange = mean(params.freqRange);	## use this 'fiducial' frequency to estimate dimensionality
   [fbar, Nt_a, Nt_tAsc, Nt_Om, Nt_ecc, Nt_argp] = numTemplatesPerDim ( pSMidFreq, Tspan, misMax );
   assert ( Nt_a > 1 );
   assert ( Nt_tAsc > 1 );
@@ -255,7 +255,7 @@ function [ Nt, nDim ] = numTemplatesFixedDim ( Nseg, Tseg, misMax, params )
   thick3 = LatticeNormalizedThickness ( 3, params.lattice );
 
   Om0 = mean(params.OmRange);
-  %% ----- 6D template counts
+  ## ----- 6D template counts
   Nt(ii6d) = (thick6 * pi^6 / (360*sqrt(2))) * Nseg(ii6d) .* Tseg(ii6d).^2 .* misMax(ii6d).^(-3) ...
              * MaxMin(params.freqRange, 6) ...
              * MaxMin(params.asiniRange, 5) ...
@@ -291,16 +291,16 @@ function [ Nt, nDim ] = numTemplatesFixedDim ( Nseg, Tseg, misMax, params )
 endfunction
 
 function [fbar, Nt_a, Nt_tAsc, Nt_Om, Nt_ecc, Nt_argp] = numTemplatesPerDim ( paramSpace, Tspan, misMax = 0.1, numFreqSlices = 100 )
-  %% [freq, Nt_a, Nt_tAsc, Nt_Om, Nt_ecc, Nt_argp] = numTemplatesPerDim ( paramSpace, Tspan, misMax = 0.1, numFreqSlices = 100 )
+  ## [freq, Nt_a, Nt_tAsc, Nt_Om, Nt_ecc, Nt_argp] = numTemplatesPerDim ( paramSpace, Tspan, misMax = 0.1, numFreqSlices = 100 )
 
-  %% astrophysical parameters-space extents
+  ## astrophysical parameters-space extents
   Da    = MaxMin ( paramSpace.asiniRange, 1 );
   DtAsc = MaxMin ( paramSpace.tAscRange, 1);
   DOm   = MaxMin ( paramSpace.OmRange, 1);
   Decc  = MaxMin ( paramSpace.eccRange, 1);
   Dargp = MaxMin ( paramSpace.argpRange, 1);
 
-  %% metric extents for max-mismatch
+  ## metric extents for max-mismatch
   [fbar, d_a, d_tAsc, d_Om, d_ecc, d_argp] = metricBinarySpacings ( paramSpace, Tspan, misMax, numFreqSlices );
 
   Nt_a    = Da ./ d_a;
@@ -313,9 +313,9 @@ function [fbar, Nt_a, Nt_tAsc, Nt_Om, Nt_ecc, Nt_argp] = numTemplatesPerDim ( pa
 endfunction
 
 function [fbar, d_a, d_tAsc, d_Om, d_ecc, d_argp] = metricBinarySpacings ( paramSpace, Tspan, misMax, numFreqSlices = 100 )
-  %% [fbar, d_a, d_tAsc, d_Om, d_ecc, d_argp] = metricBinarySpacings ( paramSpace, Tspan, misMax )
+  ## [fbar, d_a, d_tAsc, d_Om, d_ecc, d_argp] = metricBinarySpacings ( paramSpace, Tspan, misMax )
 
-  %% estimate number of templates at 'average' location, should yield best estimate for total number of templates
+  ## estimate number of templates at 'average' location, should yield best estimate for total number of templates
   asini = mean(paramSpace.asiniRange);
   Om = mean(paramSpace.OmRange);
   ecc = mean(paramSpace.eccRange);
@@ -338,7 +338,7 @@ function [fbar, d_a, d_tAsc, d_Om, d_ecc, d_argp] = metricBinarySpacings ( param
 endfunction
 
 function [g_aa, g_tata, g_OmOm, g_ee, g_ww] = binaryMetricLS ( Tspan, fbar, asini, Om, ecc )
-  %%  [g_aa, g_tata, g_OmOm, g_ee, g_ww] = binaryMetricLS ( Tspan, fbar, asini, Om, ecc )
+  ##  [g_aa, g_tata, g_OmOm, g_ee, g_ww] = binaryMetricLS ( Tspan, fbar, asini, Om, ecc )
 
   [err, Tspan, fbar, asini, Om] = common_size( Tspan, fbar, asini, Om );
   assert ( err == 0 );
@@ -354,8 +354,8 @@ function [g_aa, g_tata, g_OmOm, g_ee, g_ww] = binaryMetricLS ( Tspan, fbar, asin
 endfunction
 
 function res = MaxMin ( range, pow )
-  %% res = MaxMin ( range, pow )
-  %% returns max(range)^pow - min(range)^pow;
+  ## res = MaxMin ( range, pow )
+  ## returns max(range)^pow - min(range)^pow;
   res = max(range).^pow - min(range).^pow;
   return;
 endfunction

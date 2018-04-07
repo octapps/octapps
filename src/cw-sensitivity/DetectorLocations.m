@@ -41,31 +41,31 @@ function [L, slambda, gamma, zeta] = DetectorLocations(detID)
   ##   lalsuite/lal/src/tools/LALDetectors.h
   switch detID
 
-    case "H"      # LIGO Hanford
+    case "H"      ## LIGO Hanford
       Xarm        = 5.65487724844;
       Yarm        = 4.08408092164;
       longitude   = -2.08405676917;
       latitude    =  0.81079526383;
 
-    case "L"      # LIGO Livingston
+    case "L"      ## LIGO Livingston
       Xarm        = 4.40317772346;
       Yarm        = 2.83238139666;
       longitude   = -1.58430937078;
       latitude    =  0.53342313506;
 
-    case "V"      # VIRGO
+    case "V"      ## VIRGO
       Xarm        = 0.33916285222;
       Yarm        = 5.05155183261;
       longitude   = 0.18333805213;
       latitude    = 0.76151183984;
 
-    case "G"      # GEO
+    case "G"      ## GEO
       Xarm        = 1.19360100484;
       Yarm        = 5.83039279401;
       longitude   = 0.17116780435;
       latitude    = 0.91184982752;
 
-    case "K"      # KAGRA
+    case "K"      ## KAGRA
       Xarm        = 1.054113;
       Yarm        = -0.5166798;
       longitude   = 2.396441015;

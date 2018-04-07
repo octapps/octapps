@@ -39,14 +39,14 @@ function funs = OptimalSolution4StackSlide_v2_helpers ( costFuns, constraints, p
   funs.zInc      = @(Tseg,Tobs,mCoh,xiCoh,mInc,xiInc) ( funs.misAvg (Tseg, Tobs, mCoh, xiCoh, mInc + funs.par.small_m, xiInc ) - funs.misAvg (Tseg, Tobs, mCoh, xiCoh, mInc, xiInc ) ) / funs.par.small_m;
 
   if ( ! funs.par.grid_interpolation )
-    %% ---------- NON-Interpolating (NONI) case ----------
+    ## ---------- NON-Interpolating (NONI) case ----------
     funs.cost                   = @(sp) costFuns.f( sp.Nseg, sp.Tseg, [], sp.mInc );
     solvers.unconstrained       = @(stackparams,funs)             NONI_unconstrained ( stackparams, funs );
     solvers.constrainedTobs     = @(stackparams,funs,Tobs0)       NONI_constrainedTobs ( stackparams, funs, Tobs0 );
     solvers.constrainedTseg     = @(stackparams,funs,Tseg0)       NONI_constrainedTseg ( stackparams, funs, Tseg0 );
     solvers.constrainedTobsTseg = @(stackparams,funs,Tobs0,Tseg0) NONI_constrainedTobsTseg ( stackparams, funs, Tobs0, Tseg0 );
   else
-    %% ---------- Interpolating (INT) case ----------
+    ## ---------- Interpolating (INT) case ----------
     funs.cost                   = @(sp) costFuns.f( sp.Nseg, sp.Tseg, sp.mCoh, sp.mInc );
     solvers.unconstrained       = @(stackparams,funs)             INT_unconstrained ( stackparams, funs );
     solvers.constrainedTobs     = @(stackparams,funs,Tobs0)       INT_constrainedTobs ( stackparams, funs, Tobs0 );
@@ -68,22 +68,22 @@ function funs = OptimalSolution4StackSlide_v2_helpers ( costFuns, constraints, p
 
   return;
 
-endfunction %% OptimalSolution4StackSlide_v2_helpers()
+endfunction ## OptimalSolution4StackSlide_v2_helpers()
 
-%% ==================== NON-Interpolating solvers ====================
+## ==================== NON-Interpolating solvers ====================
 
 function sol = NONI_unconstrained ( stackparams, funs )
   global debugLevel; global powerEps;
   sol = [];
-  %% ----- local shortcuts ----------
+  ## ----- local shortcuts ----------
   coef = stackparams.coefInc;
   delta = coef.delta; eta = coef.eta; eps = coef.eps; a = coef.a; n = coef.nDim; k = coef.kappa; xi = coef.xi;
   w = stackparams.w;
   cost0 = funs.constraints.cost0;
   Tseg = stackparams.Tseg; Nseg = stackparams.Nseg; Tobs = Nseg * Tseg;
-  %% --------------------------------
+  ## --------------------------------
 
-  %% check if an unconstrained solution is even deemed possible at all: did we hit one of the 'hard' boundaries?
+  ## check if an unconstrained solution is even deemed possible at all: did we hit one of the 'hard' boundaries?
   if ( isfield(stackparams, "hitNsegMinSemi") && stackparams.hitNsegMinSemi && (a < -powerEps) )
     DebugPrintf ( 2, "\n%s: Hit NsegMinSemi at a = %g < 0 ==> computing coherent unconstrained solution!\n", funcName, a );
     sol = COH_unconstrained ( stackparams, funs );
@@ -103,14 +103,14 @@ function sol = NONI_unconstrained ( stackparams, funs )
     endif
   endif
 
-  %% ==================== Step 1: solve for optimal mismatch ====================
+  ## ==================== Step 1: solve for optimal mismatch ====================
 
-  %% ---------- Step 1a: check denominator zero and truncate range if required
+  ## ---------- Step 1a: check denominator zero and truncate range if required
   denom = @(logm) ( 1 - funs.misAvg ( Tseg, Tobs, 0, 0, exp(logm), xi ) );
   logmRange = log([1e-3, 1e3]);
-  %% first check if denominator has a zero in this range
+  ## first check if denominator has a zero in this range
   if ( denom(logmRange(1)) * denom(logmRange(2)) < 0 )
-    %% if yes: find it, and truncate range
+    ## if yes: find it, and truncate range
     try
       [pole, residual, INFO, OUTPUT] = fzero ( denom, logmRange );
       assert( INFO == 1, ...
@@ -121,12 +121,12 @@ function sol = NONI_unconstrained ( stackparams, funs )
       if ( debugLevel >= 3 ) err, endif
       return;
     end_try_catch
-    logmRange(2) = 0.95 * pole;	%% stay below from pole
-  endif %% if denominator has zero
+    logmRange(2) = 0.95 * pole;	## stay below from pole
+  endif ## if denominator has zero
 
   lhs = @(logm) funs.zInc ( Tseg, Tobs, 0, 0, exp(logm), xi ) .* exp(logm) ./ denom(logm);
 
-  %% ---------- Step 1b: solve for mInc using Eqs. obtained from (d_m L=0 and d_N L=0) and (d_m L=0 and d_Tseg L=0) *averaged* (agree when a=0)
+  ## ---------- Step 1b: solve for mInc using Eqs. obtained from (d_m L=0 and d_N L=0) and (d_m L=0 and d_Tseg L=0) *averaged* (agree when a=0)
   rhs_Nseg  = (n / (2 * eta)) * ( 1 - 1/(2*w) );
   rhs_Tseg  = n / (2 * delta );
   rhs = 0.5 * ( rhs_Nseg + rhs_Tseg );
@@ -144,18 +144,18 @@ function sol = NONI_unconstrained ( stackparams, funs )
     return;
   end_try_catch
 
-  %% if |a| ~ 0, we're done here
+  ## if |a| ~ 0, we're done here
   if ( abs(a) <= powerEps )
     DebugPrintf ( 3, "%s: |%a| ~ 0 ==> {Nseg = %g,Tseg = %g d} assumed optimal\n", funcName, a, stackparams.Nseg, stackparams.Tseg );
     sol = struct ( "Nseg", stackparams.Nseg, "Tseg", stackparams.Tseg, "mCoh", mOpt, "mInc", mOpt );
     return;
   endif
 
-  %% ========== Step 2: devise a step in {Tseg,Nseg} in the 'right direction', proportional to |a| to ensure convergence ==========
-  %% a > 0: decrease Tseg, if a < 0: increase Tseg, 'proportional' to 'a' for convergence
-  %% use '-atan(a)' in [-pi/2,pi/2] in order to control the stepsize-scale
+  ## ========== Step 2: devise a step in {Tseg,Nseg} in the 'right direction', proportional to |a| to ensure convergence ==========
+  ## a > 0: decrease Tseg, if a < 0: increase Tseg, 'proportional' to 'a' for convergence
+  ## use '-atan(a)' in [-pi/2,pi/2] in order to control the stepsize-scale
   TsegNew = stackparams.Tseg * ( 1 - atan ( a ) / pi );
-  %% compute C0-consistent Nseg from this:
+  ## compute C0-consistent Nseg from this:
   logN = 1/eta * ( log(cost0/k) + n/2 * log(mOpt) - delta * log(TsegNew) );
   NsegNew = exp ( logN );
 
@@ -163,35 +163,35 @@ function sol = NONI_unconstrained ( stackparams, funs )
 
   return;
 
-endfunction %% NONI_unconstrained()
+endfunction ## NONI_unconstrained()
 
 function sol = NONI_constrainedTobs ( stackparams, funs, Tobs0 )
   global powerEps; global debugLevel; global DAYS;
   sol = [];
 
-  %% ----- local shortcuts ----------
+  ## ----- local shortcuts ----------
   coef = stackparams.coefInc;
   w = stackparams.w;
   delta = coef.delta; eta = coef.eta; eps = coef.eps; a = coef.a; n = coef.nDim; k = coef.kappa; xi = coef.xi;
   cost0 = funs.constraints.cost0;
   Tseg = stackparams.Tseg; Nseg = stackparams.Nseg; Tobs = Nseg * Tseg;
-  %% --------------------------------
+  ## --------------------------------
 
   if ( eps < powerEps )
-    %% ----- "eps < 0": solve for Tobs-constrained *coherent* solution
+    ## ----- "eps < 0": solve for Tobs-constrained *coherent* solution
     DebugPrintf ( 2, "\n%s: eps = %g <~ 0: calling COH_constrainedTobs()\n", funcName, eps );
     sol = COH_constrainedTobs ( stackparams, funs, Tobs0 );
     return;
   endif
 
-  %% ----- eps > 0: solve for Tobs-constrained *semi-coherent* solution
+  ## ----- eps > 0: solve for Tobs-constrained *semi-coherent* solution
   rhs = n / (4 * w * eps );
   denom = @(logm) ( 1 - funs.misAvg ( Tseg, Tobs, 0, 0, exp(logm), xi ) );
   FCN   = @(logm) funs.zInc ( Tseg, Tobs, 0, 0, exp(logm), xi ) .* exp(logm) ./ denom(logm) - rhs;
   logmRange = log([1e-3, 1e3]);
-  %% first check if denominator has a zero in this range
+  ## first check if denominator has a zero in this range
   if ( denom(logmRange(1)) * denom(logmRange(2)) < 0 )
-    %% if yes: find it, and truncate range
+    ## if yes: find it, and truncate range
     try
       [pole, residual, INFO, OUTPUT] = fzero ( denom, logmRange );
       assert( INFO == 1, ...
@@ -202,7 +202,7 @@ function sol = NONI_constrainedTobs ( stackparams, funs, Tobs0 )
       if ( debugLevel >= 3 ) err, endif
       return;
     end_try_catch
-    logmRange(2) = 0.95 * pole;	%% stay below from pole
+    logmRange(2) = 0.95 * pole;	## stay below from pole
   endif
   try
     assert ( FCN(logmRange(1)) * FCN(logmRange(2)) < 0, "logmRange [%g, %g] does not bracket coherent mismatch solution for rhs = %g\n", logmRange(1),logmRange(2), rhs);
@@ -221,11 +221,11 @@ function sol = NONI_constrainedTobs ( stackparams, funs, Tobs0 )
   NsegOpt = exp ( logNopt );
   TsegOpt = Tobs0 / NsegOpt;
 
-  if ( (TsegOpt < funs.constraints.TsegMin) && isfield(stackparams, "hitTsegMin") && stackparams.hitTsegMin )	%% keeps pushing down->give up
+  if ( (TsegOpt < funs.constraints.TsegMin) && isfield(stackparams, "hitTsegMin") && stackparams.hitTsegMin )	## keeps pushing down->give up
     DebugPrintf ( 2, "\n%s: TsegOpt = %g d: keeps pushing below TsegMin = %g d ==> giving up!\n", funcName, TsegOpt/DAYS, funs.constraints.TsegMin/DAYS );
     return;
   endif
-  if ( (TsegOpt > funs.constraints.TsegMax) && isfield(stackparams, "hitTsegMax") && stackparams.hitTsegMax ) %% keeps pushing up->give up
+  if ( (TsegOpt > funs.constraints.TsegMax) && isfield(stackparams, "hitTsegMax") && stackparams.hitTsegMax ) ## keeps pushing up->give up
     DebugPrintf ( 2, "\n%s: TsegOpt = %g d: keeps pushing above TsegMax = %g d ==> giving up!\n", funcName, TsegOpt/DAYS, funs.constraints.TsegMax/DAYS );
     return;
   endif
@@ -233,28 +233,28 @@ function sol = NONI_constrainedTobs ( stackparams, funs, Tobs0 )
   sol = struct ( "Nseg", NsegOpt, "Tseg", TsegOpt, "mCoh", mOpt, "mInc", mOpt );
 
   return;
-endfunction %% NONI_constrainedTobs()
+endfunction ## NONI_constrainedTobs()
 
 function sol = NONI_constrainedTseg ( stackparams, funs, Tseg0 )
   global debugLevel; global DAYS;
   sol = [];
 
-  %% ----- local shortcuts ----------
+  ## ----- local shortcuts ----------
   cost0 = funs.constraints.cost0;
   coef = stackparams.coefInc;
   delta = coef.delta; eta = coef.eta; n = coef.nDim; k = coef.kappa; xi = coef.xi;
   w = stackparams.w = funs.w ( stackparams );
   Tseg = stackparams.Tseg; Nseg = stackparams.Nseg; Tobs = Nseg * Tseg;
-  %% --------------------------------
+  ## --------------------------------
 
-  %% ----- solve for optimal mismatch ----------
+  ## ----- solve for optimal mismatch ----------
   rhs = (n / (2 * eta )) * ( 1 - 1/(2*w) );
   denom = @(logm) ( 1 - funs.misAvg ( Tseg, Tobs, 0, 0, exp(logm), xi ) );
   FCN   = @(logm) funs.zInc ( Tseg, Tobs, 0, 0, exp(logm), xi ) .* exp(logm) ./ denom(logm) - rhs;
   logmRange = log([1e-3, 1e3]);
-  %% first check if denominator has a zero in this range
+  ## first check if denominator has a zero in this range
   if ( denom(logmRange(1)) * denom(logmRange(2)) < 0 )
-    %% if yes: find it, and truncate range
+    ## if yes: find it, and truncate range
     try
       [pole, residual, INFO, OUTPUT] = fzero ( denom, logmRange );
       assert( INFO == 1, ...
@@ -265,7 +265,7 @@ function sol = NONI_constrainedTseg ( stackparams, funs, Tseg0 )
       if ( debugLevel >= 3 ) err, endif
       return;
     end_try_catch
-    logmRange(2) = 0.95 * pole;	%% stay below from pole
+    logmRange(2) = 0.95 * pole;	## stay below from pole
   endif
   try
     assert ( FCN(logmRange(1)) * FCN(logmRange(2)) < 0, "logmRange [%g, %g] does not bracket mismatch solution for rhs = %g\n", logmRange(1),logmRange(2), rhs);
@@ -298,7 +298,7 @@ function sol = NONI_constrainedTseg ( stackparams, funs, Tseg0 )
   sol = struct ( "Nseg", NsegOpt, "Tseg", Tseg0, "mCoh", mOpt, "mInc", mOpt );
 
   return;
-endfunction %% NONI_constrainedTseg()
+endfunction ## NONI_constrainedTseg()
 
 function sol = NONI_constrainedTobsTseg ( stackparams, funs, Tobs0, Tseg0 )
   global debugLevel;
@@ -318,14 +318,14 @@ function sol = NONI_constrainedTobsTseg ( stackparams, funs, Tobs0, Tseg0 )
   sol = struct ( "Nseg", Nseg0, "Tseg", Tseg0, "mCoh", mOpt, "mInc", mOpt );
 
   return;
-endfunction %% NONI_constrainedTobsTseg()
+endfunction ## NONI_constrainedTobsTseg()
 
-%% ==================== Interpolating solvers ====================
+## ==================== Interpolating solvers ====================
 function sol = INT_unconstrained ( stackparams, funs )
   global debugLevel; global powerEps;
 
   sol = [];
-  %% ----- local shortcuts ----------
+  ## ----- local shortcuts ----------
   coefCoh = stackparams.coefCoh;
   coefInc = stackparams.coefInc;
   deltaCoh = coefCoh.delta; etaCoh = coefCoh.eta; epsCoh = coefCoh.eps; aCoh = coefCoh.a; nCoh = coefCoh.nDim; kCoh = coefCoh.kappa; xiCoh = coefCoh.xi;
@@ -333,11 +333,11 @@ function sol = INT_unconstrained ( stackparams, funs )
   cost0 = funs.constraints.cost0;
   D = deltaCoh * etaInc - deltaInc * etaCoh;
   Tseg = stackparams.Tseg; Nseg = stackparams.Nseg; Tobs = Nseg * Tseg;
-  %% --------------------------------
+  ## --------------------------------
 
   if ( aCoh * aInc < 0 )
     assert ( abs(D) > powerEps, "D = 0 but (aCoh * aInc < 0) is contradictory!\n");
-    %% ----- unconstrained semi-coherent solution exists
+    ## ----- unconstrained semi-coherent solution exists
     crOpt = - aInc / aCoh;
     rCoh = (nCoh/2) * ( crOpt / ( crOpt * deltaCoh + deltaInc ) );
     rInc = (nInc/2) * ( 1     / ( crOpt * deltaCoh + deltaInc ) );
@@ -348,7 +348,7 @@ function sol = INT_unconstrained ( stackparams, funs )
     solLin = log ( [ rCoh / ( 1 + rCoh + rInc ) / xi0, rInc / ( 1 + rCoh + rInc ) / xi0 ] );
     try
       DebugPrintf ( 4, "\n");
-      opts = optimset ( "Display", "iter", "OutputFcn", @DebugPrintFsolve ); %% , "AutoScaling", "on" );
+      opts = optimset ( "Display", "iter", "OutputFcn", @DebugPrintFsolve ); ## , "AutoScaling", "on" );
       [X, FVEC, INFO, OUTPUT, FJAC] = fsolve ( FCN, solLin, opts );
       assert ( INFO == 1, "%s: fsolve() failed to find {mCoh,mInc}(cratio). INFO = %d\n", funcName(), INFO );
       mCohOpt = exp(X(1));
@@ -370,13 +370,13 @@ function sol = INT_unconstrained ( stackparams, funs )
     sol = struct ( "Nseg", NsegOpt, "Tseg", TsegOpt, "mCoh", mCohOpt, "mInc", mIncOpt );
 
   elseif ( (aCoh < -powerEps) && (aInc < -powerEps) )
-    %% ----- means {decrease N, increase Tseg, decrease Tobs} --> solve for unconstrained coherent solution
+    ## ----- means {decrease N, increase Tseg, decrease Tobs} --> solve for unconstrained coherent solution
     DebugPrintStackparams ( 3, stackparams ); DebugPrintf ( 3, "\n");
     DebugPrintf ( 2, "\n%s: aCoh = %g <~ 0 && aInc = %g <~0: calling COH_unconstrained()\n", funcName, aCoh, aInc );
     sol = COH_unconstrained ( stackparams, funs );
 
   elseif ( (aCoh > powerEps) && (aInc > powerEps) )
-    %% ----- means {increase T, decrease Tseg, increase N} --> need at least TobsMax constraint
+    ## ----- means {increase T, decrease Tseg, increase N} --> need at least TobsMax constraint
     DebugPrintStackparams ( 3, stackparams ); DebugPrintf ( 3, "\n");
     DebugPrintf ( 2, "\n%s: aCoh = %g > 0 && aInc = %g > 0: no unconstrained solution possible.", funcName, aCoh, aInc );
     sol = [];
@@ -387,13 +387,13 @@ function sol = INT_unconstrained ( stackparams, funs )
   endif
 
   return;
-endfunction %% INT_unconstrained()
+endfunction ## INT_unconstrained()
 
 function sol = INT_constrainedTobs ( stackparams, funs, Tobs0 )
   global powerEps; global debugLevel; global DAYS;
   sol = [];
 
-  %% ----- local shortcuts ----------
+  ## ----- local shortcuts ----------
   coefCoh = stackparams.coefCoh;
   coefInc = stackparams.coefInc;
   w = stackparams.w;
@@ -402,17 +402,17 @@ function sol = INT_constrainedTobs ( stackparams, funs, Tobs0 )
   D = deltaCoh * etaInc - deltaInc * etaCoh;
   cost0 = funs.constraints.cost0;
   Tseg = stackparams.Tseg; Nseg = stackparams.Nseg; Tobs = Nseg * Tseg;
-  %% --------------------------------
+  ## --------------------------------
 
   if ( abs(epsCoh) < powerEps && abs(epsInc) < powerEps )
-    %% ----- solve for Tobs-constrained *coherent* solution
+    ## ----- solve for Tobs-constrained *coherent* solution
     DebugPrintStackparams ( 3, stackparams ); DebugPrintf ( 3, "\n");
     DebugPrintf ( 2, "\n%s: epsCoh = %g <~ 0 && epsInc = %g <~0: calling COH_constrainedTobs().\n", funcName, epsCoh, epsInc );
     sol = COH_constrainedTobs ( stackparams, funs, Tobs0 );
     return;
 
   else
-    %% ----- solve for Tobs-constrained *semi-coherent* solution
+    ## ----- solve for Tobs-constrained *semi-coherent* solution
     cr       = @(mCoh,mInc) funs.cratio ( mCoh, mInc, stackparams );
     eq_Tobs  = @(mCoh,mInc) ...
                - D * log(Tobs0) ...
@@ -428,7 +428,7 @@ function sol = INT_constrainedTobs ( stackparams, funs, Tobs0 )
     guess = log ( [ 0.5, 0.5 ] );
     try
       DebugPrintf ( 4, "\n");
-      opts = optimset ( "Display", "iter", "OutputFcn", @DebugPrintFsolve ); %%, "AutoScaling", "on" );
+      opts = optimset ( "Display", "iter", "OutputFcn", @DebugPrintFsolve ); ## , "AutoScaling", "on" );
       [X, FVEC, INFO, OUTPUT, FJAC] = fsolve ( FCN, guess, opts );
       assert ( INFO == 1, "%s: fsolve() failed to find {mCoh,mInc} at fixed Tobs0. INFO = %d\n", funcName(), INFO );
       mCohOpt = exp(X(1));
@@ -450,11 +450,11 @@ function sol = INT_constrainedTobs ( stackparams, funs, Tobs0 )
     NsegOpt = exp ( logN );
     TsegOpt = Tobs0 / NsegOpt;
 
-    if ( (TsegOpt < funs.constraints.TsegMin) && isfield(stackparams, "hitTsegMin") && stackparams.hitTsegMin )	%% keeps pushing down->give up
+    if ( (TsegOpt < funs.constraints.TsegMin) && isfield(stackparams, "hitTsegMin") && stackparams.hitTsegMin )	## keeps pushing down->give up
       DebugPrintf ( 2, "\n%s: TsegOpt = %g d: keeps pushing below TsegMin = %g d ==> giving up!\n", funcName, TsegOpt/DAYS, funs.constraints.TsegMin/DAYS );
       return;
     endif
-    if ( (TsegOpt > funs.constraints.TsegMax) && isfield(stackparams, "hitTsegMax") && stackparams.hitTsegMax ) %% keeps pushing up->give up
+    if ( (TsegOpt > funs.constraints.TsegMax) && isfield(stackparams, "hitTsegMax") && stackparams.hitTsegMax ) ## keeps pushing up->give up
       DebugPrintf ( 2, "\n%s: TsegOpt = %g d: keeps pushing above TsegMax = %g ==> giving up!\n", funcName, TsegOpt/DAYS, funs.constraints.TsegMax/DAYS );
       return;
     endif
@@ -463,13 +463,13 @@ function sol = INT_constrainedTobs ( stackparams, funs, Tobs0 )
   endif
 
   return;
-endfunction %% INT_constrainedTobs()
+endfunction ## INT_constrainedTobs()
 
 function sol = INT_constrainedTseg ( stackparams, funs, Tseg0 )
   global debugLevel; global DAYS;
 
   sol = [];
-  %% ----- local shortcuts ----------
+  ## ----- local shortcuts ----------
   coefCoh = stackparams.coefCoh;
   coefInc = stackparams.coefInc;
   w = stackparams.w;
@@ -478,7 +478,7 @@ function sol = INT_constrainedTseg ( stackparams, funs, Tseg0 )
   D = deltaCoh * etaInc - deltaInc * etaCoh;
   cost0 = funs.constraints.cost0;
   Tseg = stackparams.Tseg; Nseg = stackparams.Nseg; Tobs = Nseg * Tseg;
-  %% --------------------------------
+  ## --------------------------------
   cr       = @(mCoh,mInc) funs.cratio ( mCoh, mInc, stackparams );
   eq_Tseg  = @(mCoh,mInc) ...
              - D * log(Tseg0) ...
@@ -494,7 +494,7 @@ function sol = INT_constrainedTseg ( stackparams, funs, Tseg0 )
   guess = log ( [ 0.5, 0.5 ] );
   try
     DebugPrintf ( 4, "\n");
-    opts = optimset ( "Display", "iter", "OutputFcn", @DebugPrintFsolve ); %% , "AutoScaling", "on" );
+    opts = optimset ( "Display", "iter", "OutputFcn", @DebugPrintFsolve ); ## , "AutoScaling", "on" );
     [X, FVEC, INFO, OUTPUT, FJAC] = fsolve ( FCN, guess, opts );
     assert ( INFO == 1, "%s: fsolve() failed to find {mCoh,mInc} at fixed Tseg0. INFO = %d\n", funcName(), INFO );
     mCohOpt = exp(X(1));
@@ -522,14 +522,14 @@ function sol = INT_constrainedTseg ( stackparams, funs, Tseg0 )
   sol = struct ( "Nseg", NsegOpt, "Tseg", TsegOpt, "mCoh", mCohOpt, "mInc", mIncOpt );
 
   return;
-endfunction %% INT_constrainedTseg()
+endfunction ## INT_constrainedTseg()
 
 function sol = INT_constrainedTobsTseg ( stackparams, funs, Tobs0, Tseg0 )
   global debugLevel;
   assert ( Tseg0 <= Tobs0 );
 
   sol = [];
-  %% ----- local shortcuts ----------
+  ## ----- local shortcuts ----------
   coefCoh = stackparams.coefCoh;
   coefInc = stackparams.coefInc;
   w = stackparams.w;
@@ -538,7 +538,7 @@ function sol = INT_constrainedTobsTseg ( stackparams, funs, Tobs0, Tseg0 )
   D = deltaCoh * etaInc - deltaInc * etaCoh;
   cost0 = funs.constraints.cost0;
   Tseg = stackparams.Tseg; Nseg = stackparams.Nseg; Tobs = Nseg * Tseg;
-  %% --------------------------------
+  ## --------------------------------
   Nseg0 = Tobs0 / Tseg0;
   cr    = @(mCoh,mInc) funs.cratio ( mCoh, mInc, stackparams );
 
@@ -556,7 +556,7 @@ function sol = INT_constrainedTobsTseg ( stackparams, funs, Tobs0, Tseg0 )
   guess = log ( [ 0.5, 0.5 ] );
   try
     DebugPrintf ( 4, "\n");
-    opts = optimset ( "Display", "iter", "OutputFcn", @DebugPrintFsolve); %% , "AutoScaling", "on" );
+    opts = optimset ( "Display", "iter", "OutputFcn", @DebugPrintFsolve); ## , "AutoScaling", "on" );
     [X, FVEC, INFO, OUTPUT, FJAC] = fsolve ( FCN, guess, opts );
     assert ( INFO == 1, "%s: fsolve() failed to find {mCoh,mInc} at fixed Tseg0+Tobs0. INFO = %d\n", funcName(), INFO );
     mCohOpt = exp(X(1));
@@ -572,27 +572,27 @@ function sol = INT_constrainedTobsTseg ( stackparams, funs, Tobs0, Tseg0 )
   sol = struct ( "Nseg", NsegOpt, "Tseg", TsegOpt, "mCoh", mCohOpt, "mInc", mIncOpt );
 
   return;
-endfunction %% INT_constrainedTobsTseg()
+endfunction ## INT_constrainedTobsTseg()
 
-%% ==================== fully COHERENT solvers ====================
+## ==================== fully COHERENT solvers ====================
 function sol = COH_unconstrained ( stackparams, funs )
   global debugLevel;
 
   sol = [];
-  %% ----- local shortcuts ----------
+  ## ----- local shortcuts ----------
   coef = stackparams.coefCoh;
   deltaCoh = coef.delta; etaCoh = coef.eta; epsCoh = coef.eps; aCoh = coef.a; nCoh = coef.nDim; kCoh = coef.kappa; xiCoh = coef.xi;
   cost0 = funs.constraints.cost0;
   Tseg = stackparams.Tseg; Nseg = stackparams.Nseg; Tobs = Nseg * Tseg;
-  %% --------------------------------
+  ## --------------------------------
 
-  rCoh = (nCoh/2) / deltaCoh;	%% limit of cr->inf
+  rCoh = (nCoh/2) / deltaCoh;	## limit of cr->inf
   denom = @(logm) ( 1 - funs.misAvg(Tseg,Tobs,exp(logm), xiCoh, 0, 0 ) );
   FCN = @(logm) funs.zCoh(Tseg,Tobs,exp(logm), xiCoh, 0, 0) .* exp(logm) ./ denom(logm) - rCoh;
   logmRange = log([1e-3, 1e3]);
-  %% first check if denominator has a zero in this range
+  ## first check if denominator has a zero in this range
   if ( denom(logmRange(1)) * denom(logmRange(2)) < 0 )
-    %% if yes: find it, and truncate range
+    ## if yes: find it, and truncate range
     try
       [pole, residual, INFO, OUTPUT] = fzero ( denom, logmRange );
       assert( INFO == 1, ...
@@ -602,7 +602,7 @@ function sol = COH_unconstrained ( stackparams, funs )
       if ( debugLevel >= 3 ) err, endif
       return;
     end_try_catch
-    logmRange(2) = 0.95 * pole;	%% stay below from pole
+    logmRange(2) = 0.95 * pole;	## stay below from pole
   endif
   try
     assert ( FCN(logmRange(1)) * FCN(logmRange(2)) < 0, "logmRange [%g, %g] does not bracket coherent mismatch solution for rCoh = %g\n", logmRange(1),logmRange(2), rCoh);
@@ -621,17 +621,17 @@ function sol = COH_unconstrained ( stackparams, funs )
   sol = struct ( "Nseg", 1, "Tseg", TsegOpt, "mCoh", mCohOpt, "mInc", mCohOpt );
   return;
 
-endfunction %% COH_unconstrained()
+endfunction ## COH_unconstrained()
 
 function sol = COH_constrainedTobs ( stackparams, funs, Tobs0 )
   sol = [];
-  %% ----- local shortcuts ----------
+  ## ----- local shortcuts ----------
   coef = stackparams.coefCoh;
   w = stackparams.w;
   deltaCoh = coef.delta; etaCoh = coef.eta; epsCoh = coef.eps; aCoh = coef.a; nCoh = coef.nDim; kCoh = coef.kappa; xiCoh = coef.xi;
   cost0 = funs.constraints.cost0;
   Tseg = stackparams.Tseg; Nseg = stackparams.Nseg; Tobs = Nseg * Tseg;
-  %% --------------------------------
+  ## --------------------------------
 
   log_mCoh = 2/nCoh * ( log(kCoh/cost0) + deltaCoh * log(Tobs0) );
   mCohOpt = exp ( log_mCoh );
@@ -639,16 +639,16 @@ function sol = COH_constrainedTobs ( stackparams, funs, Tobs0 )
   sol = struct ( "Nseg", 1, "Tseg", Tobs0, "mCoh", mCohOpt, "mInc", mCohOpt );
   return;
 
-endfunction %% COH_constrainedTobs()
+endfunction ## COH_constrainedTobs()
 
-%% ----------------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------------------------------------
 
 function stackparams = complete_stackparams ( stackparams, funs )
-  %% stackparams = complete_stackparams ( stackparams, funs )
-  %% fill in a number of useful 'derived' stack parameter coefficients
+  ## stackparams = complete_stackparams ( stackparams, funs )
+  ## fill in a number of useful 'derived' stack parameter coefficients
   global debugLevel;
 
-  %% backwards-compatilibity fix: allow 'mc' 'mf' in lieu of 'mCoh', 'mInc'
+  ## backwards-compatilibity fix: allow 'mc' 'mf' in lieu of 'mCoh', 'mInc'
   if ( !isfield ( stackparams, "mCoh" ) && isfield ( stackparams, "mc" ) )
     warning ("Found no mismatch field 'mCoh' but obsolete 'mc' instead ... using this for now\n");
     stackparams.mCoh = stackparams.mc;
@@ -657,11 +657,11 @@ function stackparams = complete_stackparams ( stackparams, funs )
     warning ("Found no mismatch field 'mInc' but obsolete 'mf' instead ... using this for now\n");
     stackparams.mInc = stackparams.mf;
   endif
-  %% ----- end compatibility fix ----------
+  ## ----- end compatibility fix ----------
 
-  %% ----- local shortcuts ----------
+  ## ----- local shortcuts ----------
   Tseg = stackparams.Tseg; Nseg = stackparams.Nseg; Tobs = Nseg * Tseg;
-  %% --------------------------------
+  ## --------------------------------
 
   if ( !isfield ( stackparams, "w" ) )
     stackparams.w = funs.w ( stackparams );
@@ -671,7 +671,7 @@ function stackparams = complete_stackparams ( stackparams, funs )
   stackparams.Tobs = Tobs;
 
   if ( !isfield ( stackparams, "coefCoh" ) || !isfield ( stackparams, "coefInc" ) )
-    %% ---------- coherent- and incoherent cost coefficients ----------
+    ## ---------- coherent- and incoherent cost coefficients ----------
     try
       [ stackparams.coefCoh, stackparams.coefInc ] = funs.local_cost_coefs ( funs.costFuns, stackparams );
     catch err
@@ -696,13 +696,13 @@ function stackparams = complete_stackparams ( stackparams, funs )
   stackparams.cost = stackparams.coefCoh.cost + stackparams.coefInc.cost;
 
   if ( !isfield ( stackparams, "misAvgLIN" ) || !isfield ( stackparams, "misAvgNLM") || !isfield ( stackparams, "misAvg" ) )
-    if ( stackparams.Nseg == 1 )	%% coherent case
+    if ( stackparams.Nseg == 1 )	## coherent case
       stackparams.misAvgLIN = funs.misAvgLIN ( Tseg, Tobs, stackparams.mCoh, stackparams.coefCoh.xi, 0, 0 );
       stackparams.misAvgNLM = funs.misAvgNLM ( Tseg, Tobs, stackparams.mCoh, stackparams.coefCoh.xi, 0, 0 );
-    elseif ( funs.par.grid_interpolation )	%% interpolating StackSlide
+    elseif ( funs.par.grid_interpolation )	## interpolating StackSlide
       stackparams.misAvgLIN = funs.misAvgLIN ( Tseg, Tobs, stackparams.mCoh, stackparams.coefCoh.xi, stackparams.mInc, stackparams.coefInc.xi );
       stackparams.misAvgNLM = funs.misAvgNLM ( Tseg, Tobs, stackparams.mCoh, stackparams.coefCoh.xi, stackparams.mInc, stackparams.coefInc.xi );
-    else %% non-interpolating StackSlide
+    else ## non-interpolating StackSlide
       stackparams.misAvgLIN = funs.misAvgLIN ( Tseg, Tobs, 0, 0, stackparams.mInc, stackparams.coefInc.xi );
       stackparams.misAvgNLM = funs.misAvgNLM ( Tseg, Tobs, 0, 0, stackparams.mInc, stackparams.coefInc.xi );
     endif
@@ -723,9 +723,9 @@ function stackparams = complete_stackparams ( stackparams, funs )
 
   return;
 
-endfunction %% complete_stackparams()
+endfunction ## complete_stackparams()
 
-%% -------------------- debug output functions --------------------
+## -------------------- debug output functions --------------------
 function stop = DebugPrintFsolve ( v, optimValues, state )
   stop = false;
 
@@ -740,19 +740,19 @@ function stop = DebugPrintFsolve ( v, optimValues, state )
   return;
 endfunction
 
-%% ---------- kept for temporary reference
+## ---------- kept for temporary reference
 function sol = NONI_unconstrained_prev ( stackparams, funs )
   global debugLevel; global powerEps;
   sol = [];
-  %% ----- local shortcuts ----------
+  ## ----- local shortcuts ----------
   coef = stackparams.coefInc;
   delta = coef.delta; eta = coef.eta; eps = coef.eps; a = coef.a; n = coef.nDim; k = coef.kappa; xi = coef.xi;
   w = stackparams.w;
   cost0 = funs.constraints.cost0;
   Tseg = stackparams.Tseg; Nseg = stackparams.Nseg; Tobs = Nseg * Tseg;
-  %% --------------------------------
+  ## --------------------------------
 
-  %% check if an unconstrained solution is even deemed possible at all: did we hit one of the 'hard' boundaries?
+  ## check if an unconstrained solution is even deemed possible at all: did we hit one of the 'hard' boundaries?
   if ( isfield(stackparams, "hitNsegMinSemi") && stackparams.hitNsegMinSemi && (a < -powerEps) )
     DebugPrintf ( 2, "\n%s: Hit NsegMinSemi at a = %g < 0 ==> computing coherent unconstrained solution!\n", funcName, a );
     sol = COH_unconstrained ( stackparams, funs );
@@ -773,14 +773,14 @@ function sol = NONI_unconstrained_prev ( stackparams, funs )
 
   endif
 
-  %% ==================== Step 1: solve for optimal mismatch ====================
+  ## ==================== Step 1: solve for optimal mismatch ====================
 
-  %% ---------- Step 1a: check denominator zero and truncate range if required
+  ## ---------- Step 1a: check denominator zero and truncate range if required
   denom = @(logm) ( 1 - funs.misAvg ( Tseg, Tobs, 0, 0, exp(logm), xi ) );
   logmRange = log([1e-3, 1e3]);
-  %% first check if denominator has a zero in this range
+  ## first check if denominator has a zero in this range
   if ( denom(logmRange(1)) * denom(logmRange(2)) < 0 )
-    %% if yes: find it, and truncate range
+    ## if yes: find it, and truncate range
     try
       [pole, residual, INFO, OUTPUT] = fzero ( denom, logmRange );
       assert( INFO == 1, ...
@@ -791,12 +791,12 @@ function sol = NONI_unconstrained_prev ( stackparams, funs )
       if ( debugLevel >= 3 ) err, endif
       return;
     end_try_catch
-    logmRange(2) = 0.95 * pole;	%% stay below from pole
-  endif %% if denominator has zero
+    logmRange(2) = 0.95 * pole;	## stay below from pole
+  endif ## if denominator has zero
 
   lhs = @(logm) funs.zInc ( Tseg, Tobs, 0, 0, exp(logm), xi ) .* exp(logm) ./ denom(logm);
 
-  %% ---------- Step 1b: solve for mInc using Eq. obtained from (d_m L=0 and d_N L=0)
+  ## ---------- Step 1b: solve for mInc using Eq. obtained from (d_m L=0 and d_N L=0)
   rhs_Nseg  = (n / (2 * eta)) * ( 1 - 1/(2*w) );
   FCN_Nseg = @(logm) lhs(logm) - rhs_Nseg;
   try
@@ -812,14 +812,14 @@ function sol = NONI_unconstrained_prev ( stackparams, funs )
     return;
   end_try_catch
 
-  %% if |a| ~ 0, we're done here
+  ## if |a| ~ 0, we're done here
   if ( abs(a) <= powerEps )
     DebugPrintf ( 3, "%s: |%a| ~ 0 ==> {Nseg = %g,Tseg = %g d} assumed optimal\n", funcName, a, stackparams.Nseg, stackparams.Tseg );
     sol = struct ( "Nseg", stackparams.Nseg, "Tseg", stackparams.Tseg, "mCoh", mNseg, "mInc", mNseg );
     return;
   endif
 
-  %% ---------- otherwise: Step 1c: re-solve for mInc using Eq. obtained from (d_m L=0 and d_Tseg L=0)
+  ## ---------- otherwise: Step 1c: re-solve for mInc using Eq. obtained from (d_m L=0 and d_Tseg L=0)
   rhs_Tseg = n / (2 * delta );
   FCN_Tseg = @(logm) lhs(logm) - rhs_Tseg;
   try
@@ -835,14 +835,14 @@ function sol = NONI_unconstrained_prev ( stackparams, funs )
     return;
   end_try_catch
 
-  %% we now have two mismatches, which will agree only if |a|~0, so for continuing we'll simply average them
+  ## we now have two mismatches, which will agree only if |a|~0, so for continuing we'll simply average them
   mNew = 0.5 * (mNseg + mTseg);
 
-  %% ========== Step 2: devise a step in {Tseg,Nseg} in the 'right direction', proportional to |a| to ensure convergence ==========
-  %% a > 0: decrease Tseg, if a < 0: increase Tseg, 'proportional' to 'a' for convergence
-  %% use '-atan(a)' in [-pi/2,pi/2] in order to control the stepsize-scale
+  ## ========== Step 2: devise a step in {Tseg,Nseg} in the 'right direction', proportional to |a| to ensure convergence ==========
+  ## a > 0: decrease Tseg, if a < 0: increase Tseg, 'proportional' to 'a' for convergence
+  ## use '-atan(a)' in [-pi/2,pi/2] in order to control the stepsize-scale
   TsegNew = stackparams.Tseg * ( 1 - atan ( a ) / pi );
-  %% compute C0-consistent Nseg from this:
+  ## compute C0-consistent Nseg from this:
   logN = 1/eta * ( log(cost0/k) + n/2 * log(mNew) - delta * log(TsegNew) );
   NsegNew = exp ( logN );
 
@@ -850,4 +850,4 @@ function sol = NONI_unconstrained_prev ( stackparams, funs )
 
   return;
 
-endfunction %% NONI_unconstrained_prev()
+endfunction ## NONI_unconstrained_prev()

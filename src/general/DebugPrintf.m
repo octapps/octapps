@@ -22,7 +22,7 @@ function DebugPrintf ( level, varargin )
     fprintf ( stderr, varargin{:} );
   endif
   return;
-endfunction %% DebugPrintf()
+endfunction ## DebugPrintf()
 
 %!test
 %!  global debugLevel;

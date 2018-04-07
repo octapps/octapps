@@ -39,7 +39,7 @@ endfunction
 
 %!test
 %! LongLatEqu = [ 1.5, -0.5; 2.6, 0.7 ];
-%! LongLatEclCheck = [ 1.469781, -0.907669; 2.385547, 0.449178 ];	%% converted using frostydrew.org/utilities.dc/convert/tool-eq_coordinates/
+%! LongLatEclCheck = [ 1.469781, -0.907669; 2.385547, 0.449178 ];	## converted using frostydrew.org/utilities.dc/convert/tool-eq_coordinates/
 %! LongLatEcl = skyEquatorial2Ecliptic ( LongLatEqu );
 %! err = max ( abs ( LongLatEcl - LongLatEclCheck )(:) );
 %! assert ( err < 1e-5 );

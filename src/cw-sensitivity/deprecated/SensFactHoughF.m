@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 function sensDepth = SensFactHoughF ( varargin )
-  %% DEPRECATED name: use 'SensitivityDepthHoughF()' instead!
+  ## DEPRECATED name: use 'SensitivityDepthHoughF()' instead!
 
   warning ("DEPRECATED name: use 'SensitivityDepthHoughF()' instead of 'SensFactHoughF()'!\n");
   sensDepth = SensitivityDepthHoughF ( varargin{:} );

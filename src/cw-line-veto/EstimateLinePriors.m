@@ -1,44 +1,44 @@
-%% Copyright (C) 2013 David Keitel
-%%
-%% This program is free software; you can redistribute it and/or modify
-%% it under the terms of the GNU General Public License as published by
-%% the Free Software Foundation; either version 2 of the License, or
-%% (at your option) any later version.
-%%
-%% This program is distributed in the hope that it will be useful,
-%% but WITHOUT ANY WARRANTY; without even the implied warranty of
-%% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-%% GNU General Public License for more details.
-%%
-%% You should have received a copy of the GNU General Public License
-%% along with with program; see the file COPYING. If not, write to the
-%% Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
-%% MA  02111-1307  USA
+## Copyright (C) 2013 David Keitel
+##
+## This program is free software; you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation; either version 2 of the License, or
+## (at your option) any later version.
+##
+## This program is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License
+## along with with program; see the file COPYING. If not, write to the
+## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+## MA  02111-1307  USA
 
 function ret = EstimateLinePriors ( varargin )
- %% ret = EstimateLinePriors ( varargin )
- %% Script to estimate oLGX priors from some SFTs
- %% based on compute_lX_from_SFTs from LineVetoBstat repository, but with simpler SFTs and timestamps handling
- %% this is different from TuneAdaptiveLVPriors which is more EatH-centric, assuming a given run setup
- %% command-line parameters can be taken from parseOptions call below
- %% example call: octapps_run EstimateLinePriors --SFTs=h1*
+ ## ret = EstimateLinePriors ( varargin )
+ ## Script to estimate oLGX priors from some SFTs
+ ## based on compute_lX_from_SFTs from LineVetoBstat repository, but with simpler SFTs and timestamps handling
+ ## this is different from TuneAdaptiveLVPriors which is more EatH-centric, assuming a given run setup
+ ## command-line parameters can be taken from parseOptions call below
+ ## example call: octapps_run EstimateLinePriors --SFTs=h1*
 
- % read in and check input parameters
+ ## read in and check input parameters
  params_init = parseOptions(varargin,
- # required arguments
+ ## required arguments
                      {"IFOs",            "char", "H1,L1"},
                      {"SFTs",            "char"},
-                     {"psdfiles",        "char", ""}, # comma-separated list of output files
- # options for ComputePSD
+                     {"psdfiles",        "char", ""}, ## comma-separated list of output files
+ ## options for ComputePSD
                      {"rngmedbins",      "numeric,scalar,positive", 101},
                      {"PSDmthopSFTs",    "numeric,scalar,strictpos", 4},
                      {"PSDmthopIFOs",    "numeric,scalar,strictpos", 4},
                      {"nSFTmthopSFTs",   "numeric,scalar,strictpos", 1},
                      {"nSFTmthopIFOs",   "numeric,scalar,strictpos", 8},
- # basic frequency band options
+ ## basic frequency band options
                      {"freq",            "numeric,scalar", -1},
                      {"freqband",        "numeric,scalar", -1},
- # options to predict a HSGCT-equivalent band
+ ## options to predict a HSGCT-equivalent band
                      {"getgctband",      "bool,scalar", false},
                      {"dfreq",           "numeric,scalar,positive", 0},
                      {"f1dot",           "numeric,scalar", 0},
@@ -48,30 +48,30 @@ function ret = EstimateLinePriors ( varargin )
                      {"f2dotband",       "numeric,scalar,positive", 0},
                      {"df2dot",          "numeric,scalar,positive", 0},
                      {"Dterms",          "numeric,scalar,strictpos", 8},
- # timestamps options (needed both for PSD over right SFTs and fA->thresh conversion)
+ ## timestamps options (needed both for PSD over right SFTs and fA->thresh conversion)
                      {"Tsft",            "numeric,scalar,strictpos", 1800},
                      {"startTime",       "numeric,scalar", -1},
                      {"duration",        "numeric,scalar,positive", 0},
                      {"timestampsfiles", "char", ""},
                      {"segmentsfile",    "char", ""},
- # directly line-prior related options
+ ## directly line-prior related options
                      {"SFTpower_thresh", "char", ""},
                      {"SFTpower_fA",     "char", ""},
-                     {"oLGXmin",         "numeric,scalar,positive", 0.001}, # enforces lower cutoff; negative value will be used to determine from numfreqbins
-                     {"oLGXmax",         "numeric,scalar,positive", 1000}, # enforces upper cutoff; negative value will be used to determine from numfreqbins
- # misc options
+                     {"oLGXmin",         "numeric,scalar,positive", 0.001}, ## enforces lower cutoff; negative value will be used to determine from numfreqbins
+                     {"oLGXmax",         "numeric,scalar,positive", 1000}, ## enforces upper cutoff; negative value will be used to determine from numfreqbins
+ ## misc options
                      {"debug",           "bool,scalar", false},
                      {"cleanup",         "bool,scalar", false},
                      {"lalpath",         "char", ""}
                 );
- params_init = check_input_parameters ( params_init ); # this already processes some of the input params
+ params_init = check_input_parameters ( params_init ); ## this already processes some of the input params
 
  if ( params_init.debug )
   printf("Running from directory '%s'. LAL path is '%s'. Local octave version is '%s'. Input parameters are:\n", pwd, params_init.lalpath, version);
   params_init
  endif
 
- % set up timestamps, if requested
+ ## set up timestamps, if requested
  timestamps.Tsft            = params_init.Tsft;
  timestamps.timestampsfiles = [];
  if ( ( params_init.startTime >= 0 ) && ( params_init.duration > 0 ) )
@@ -102,7 +102,7 @@ function ret = EstimateLinePriors ( varargin )
   timestamps.midTime = timestamps.startTime + 0.5*timestamps.duration;
  endif
 
- % set common ComputePSD parameters
+ ## set common ComputePSD parameters
  ComputePSD      = [params_init.lalpath, "lalapps_ComputePSD"];
  params_psd.blocksRngMed     = params_init.rngmedbins;
  params_psd.PSDmthopSFTs     = params_init.PSDmthopSFTs;
@@ -111,12 +111,12 @@ function ret = EstimateLinePriors ( varargin )
  params_psd.nSFTmthopIFOs    = params_init.nSFTmthopIFOs;
  params_psd.outputNormSFT    = true;
  if ( params_init.debug )
-  params_psd.LAL_DEBUG_LEVEL = "MSGLVL2"; # errors and warnings
+  params_psd.LAL_DEBUG_LEVEL = "MSGLVL2"; ## errors and warnings
  else
   params_psd.LAL_DEBUG_LEVEL = 0;
  endif
 
- if ( params_init.getgctband ) # predict the SFT readin band that HSGCT needs for the given parameter space
+ if ( params_init.getgctband ) ## predict the SFT readin band that HSGCT needs for the given parameter space
   deltaFsft = 1.0/timestamps.Tsft;
   if ( params_init.debug )
    printf("Predicting HSGCT data read-in frequency band...\n");
@@ -125,7 +125,7 @@ function ret = EstimateLinePriors ( varargin )
   if ( params_init.debug )
    printf("...obtained gct_freq_min=%.16f, gct_freq_band=%.16f\n", gct_freq_min, gct_freq_band);
   endif
-  rngmedwing          = fix(params_init.rngmedbins/2 + 1) * deltaFsft; # as in lalapps_HierarchSearchGCT and lalapps_ComputePSD, this will be applied to both sides, leading to 1 extra bin in effect
+  rngmedwing          = fix(params_init.rngmedbins/2 + 1) * deltaFsft; ## as in lalapps_HierarchSearchGCT and lalapps_ComputePSD, this will be applied to both sides, leading to 1 extra bin in effect
   params_psd.Freq     = gct_freq_min  + rngmedwing - params_init.Dterms * deltaFsft;
   params_psd.FreqBand = gct_freq_band + 2.0 * ( -rngmedwing + params_init.Dterms * deltaFsft );
  elseif ( ( params_init.freq != -1 ) && ( params_init.freqband != -1 ) )
@@ -136,7 +136,7 @@ function ret = EstimateLinePriors ( varargin )
   printf("Total frequency range for PSD estimation: Freq=%.16f, FreqBand=%.16f\n", params_psd.Freq, params_psd.FreqBand);
  endif
 
- # for each IFO, compute the PSD and normSFT files
+ ## for each IFO, compute the PSD and normSFT files
  for X = 1:1:params_init.numDet
   params_psd.inputData       = params_init.SFTs{X};
   params_psd.outputPSD       = params_init.psdfiles{X};
@@ -146,9 +146,9 @@ function ret = EstimateLinePriors ( varargin )
    params_psd.timeStampsFile = timestamps.timestampsfiles;
   endif
   runCode ( params_psd, ComputePSD );
- endfor #  X = 1:1:params_init.numDet
+ endfor ##  X = 1:1:params_init.numDet
 
- if ( !isempty(params_init.SFTpower_fA) ) # get number of SFT bins needed to convert from fA to thresh
+ if ( !isempty(params_init.SFTpower_fA) ) ## get number of SFT bins needed to convert from fA to thresh
 
   if ( params_init.debug )
    printf("Converting fA to thresh...\n");
@@ -162,11 +162,11 @@ function ret = EstimateLinePriors ( varargin )
    else
     num_SFTs = length(load(timestamps.timestampsfiles));
    endif
-  else # !isempty(timestamps.timestampsfiles)
+  else ## !isempty(timestamps.timestampsfiles)
    for X=1:1:params_init.numDet
     num_SFTs(X) = GetNumSFTsFromFile ( params_init.SFTs{X} );
    endfor
-  endif # ?isempty(timestamps.timestampsfiles)
+  endif ## ?isempty(timestamps.timestampsfiles)
 
   if ( length(num_SFTs) > 1 )
    for X=1:1:params_init.numDet
@@ -176,13 +176,13 @@ function ret = EstimateLinePriors ( varargin )
    for n=1:1:length(params_init.SFTpower_fA)
     thresh(:,n) = ComputeSFTPowerThresholdFromFA ( params_init.SFTpower_fA, num_SFTs ) * ones(params_init.numDet,1);
    endfor
-  endif # length(num_SFTs) > 1
+  endif ## length(num_SFTs) > 1
 
- else # isempty(params_init.SFTpower_fA)
+ else ## isempty(params_init.SFTpower_fA)
 
   thresh = params_init.SFTpower_thresh;
 
- endif # ?isempty(params_init.SFTpower_fA)
+ endif ## ?isempty(params_init.SFTpower_fA)
 
  if ( params_init.debug )
   printf("Estimating oLGX priors from normalized SFT power...\n");
@@ -210,7 +210,7 @@ function ret = EstimateLinePriors ( varargin )
   printf("\n");
  endif
 
- % Clean up temporary files
+ ## Clean up temporary files
  if ( params_init.cleanup )
   if ( params_init.debug )
    printf("Cleaning up temporary PSD files...\n");
@@ -222,13 +222,13 @@ function ret = EstimateLinePriors ( varargin )
 
  ret = 1;
 
-endfunction # EstimateLinePriors()
+endfunction ## EstimateLinePriors()
 
-%%%%%%%%%%%%%% AUXILIARY FUNCTIONS %%%%%%%%%%%%%
+############## AUXILIARY FUNCTIONS #############
 
 function params_init = check_input_parameters ( params_init )
- %% params_init = check_input_parameters ( params_init )
- %% function to parse argument list into variables and check consistency
+ ## params_init = check_input_parameters ( params_init )
+ ## function to parse argument list into variables and check consistency
 
  params_init.IFOs   = strsplit(params_init.IFOs,",");
  params_init.numDet = length(params_init.IFOs);
@@ -250,7 +250,7 @@ function params_init = check_input_parameters ( params_init )
   endfor
  endif
 
- % basic frequency band options
+ ## basic frequency band options
 
  if ( ( params_init.freq < 0.0 ) && ( params_init.freq != -1 ) )
   error("Invalid input parameter (freq): %f is negative and not -1 (use full band).", params_init.freq)
@@ -260,7 +260,7 @@ function params_init = check_input_parameters ( params_init )
   error("Invalid input parameter (freqband): %f is neither -1 nor >= 0.", params_init.freqband);
  endif
 
- % timestamps options (needed both for PSD over right SFTs and fA->thresh conversion)
+ ## timestamps options (needed both for PSD over right SFTs and fA->thresh conversion)
 
  if ( !isempty(params_init.segmentsfile) && !exist(params_init.segmentsfile,"file") )
   error("Invalid input parameter (segmentsfile): %s is not an existing file.", params_init.segmentsfile);
@@ -275,16 +275,16 @@ function params_init = check_input_parameters ( params_init )
    params_init.timestampsfiles = [];
    for X=1:1:length(tssplit)
     params_init.timestampsfiles{X} = tssplit{X};
-    if ( !strcmp(params_init.timestampsfiles{X},"none") && !exist(params_init.timestampsfiles{X},"file") ) # no cross-check with starttime here
+    if ( !strcmp(params_init.timestampsfiles{X},"none") && !exist(params_init.timestampsfiles{X},"file") ) ## no cross-check with starttime here
      error("Invalid input parameter (timestampsfiles): entry %d of %d in comma-separated list is '%s' which is neither 'none' nor an existing file.", X, length(tssplit), params_init.timestampsfiles{X});
     endif
-   endfor # X=1:1:length(tssplit)
-  elseif ( !exist(params_init.timestampsfiles,"file") ) #  length(tssplit) <= 1
+   endfor ## X=1:1:length(tssplit)
+  elseif ( !exist(params_init.timestampsfiles,"file") ) ##  length(tssplit) <= 1
    error("Invalid input parameter (timestampsfiles): '%s' is neither 'none' nor an existing file.", params_init.timestampsfiles);
-  endif # length(tssplit) > 1
- endif # !strcmp(params_init.timestampsfiles,"none")
+  endif ## length(tssplit) > 1
+ endif ## !strcmp(params_init.timestampsfiles,"none")
 
- % directly line-prior related options
+ ## directly line-prior related options
 
  if ( !isempty(params_init.SFTpower_thresh) )
   vectsplit = strsplit(params_init.SFTpower_thresh,";");
@@ -304,9 +304,9 @@ function params_init = check_input_parameters ( params_init )
       error("Invalid input parameter (SFTpower_thresh): value %d of %d in comma-separated list is '%d' which is negative (;-separated group %d/%d).", X, length(vectsplit2), vectsplit2{X}, n, length(vectsplit));
      endif
     endif
-   endfor # X=1:1:length(vectsplit2)
-  endfor # n=1:1:length(vectsplit)
- endif # ength(params_init.SFTpower_thresh) > 0
+   endfor ## X=1:1:length(vectsplit2)
+  endfor ## n=1:1:length(vectsplit)
+ endif ## ength(params_init.SFTpower_thresh) > 0
 
  if ( !isempty(params_init.SFTpower_fA) )
   vectsplit = strsplit(params_init.SFTpower_fA,",");
@@ -322,7 +322,7 @@ function params_init = check_input_parameters ( params_init )
     endif
    endif
   endfor
- endif # !isempty(params_init.SFTpower_fA)
+ endif ## !isempty(params_init.SFTpower_fA)
 
  if ( isempty(params_init.SFTpower_thresh) && isempty(params_init.SFTpower_fA) )
   error("Incompatible input parameters: need either SFTpower_thresh or SFTpower_fA.");
@@ -332,13 +332,13 @@ function params_init = check_input_parameters ( params_init )
   error("Incompatible input parameters: can't have both SFTpower_thresh and SFTpower_fA.")
  endif
 
- % misc options
+ ## misc options
 
  if ( !isempty(params_init.lalpath) && !isdir(params_init.lalpath) )
   error("Invalid input parameter (lalpath): %s is not a valid directory.", params_init.lalpath);
  endif
 
-endfunction # EstimateLinePriors()
+endfunction ## EstimateLinePriors()
 
 %!test
 %!  disp("no test exists for this function as it requires access to data not included in OctApps");

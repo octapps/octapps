@@ -15,7 +15,7 @@
 ## <http://www.gnu.org/licenses/>.
 
 function varargin = struct2varargin ( in_struct )
-  %% varagin = struct2varagin ( in_struct )
+  ## varagin = struct2varagin ( in_struct )
   assert ( isstruct ( in_struct ) );
 
   names = fieldnames ( in_struct );

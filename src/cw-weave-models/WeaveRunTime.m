@@ -91,25 +91,25 @@ function [times, maxmem, tau] = WeaveRunTime(varargin)
   times = maxmem = tau = struct;
 
   ## fundamental timing constants
-  tau.iter_psemi                          = 1.36256e-10; # mean
-  tau.query_psemi_pseg                    = 8.55514e-11; # mean
-  tau.semiseg_sum2f_psemi_psegm           = 7.33955e-10; # mean
-  tau.semi_mean2f_psemi                   = 8.28286e-10; # mean
-  tau.output_psemi_ptopl                  = 7.91060e-10; # mean
-  tau.semiseg_max2f_psemi_psegm           = 1.16579e-09; # mean
-  tau.semiseg_max2f_det_psemi_psegm       = 1.12084e-09; # mean
-  tau.semiseg_sum2f_det_psemi_psegm       = 6.85809e-10; # mean
-  tau.semi_log10bsgl_psemi                = 9.89425e-09; # mean
-  tau.semi_log10bsgltl_psemi              = 1.77331e-08; # mean
-  tau.semi_log10btsgltl_psemi             = 1.79320e-08; # mean
-  demod_fstat_tau0_coreld                 = 5.05010e-08; # mean
-  demod_fstat_tau0_bufferld               = 8.61947e-07; # mean
-  resamp_fstat_tau0_fbin                  = 6.97346e-08; # mean
-  resamp_fstat_tau0_spin                  = 6.41612e-08; # mean
-  resamp_fstat_tau0_fft_le18              = 2.51857e-10; # mean
-  resamp_fstat_tau0_fft_gt18              = 4.50738e-10; # mean
-  resamp_fstat_tau0_bary                  = 4.18658e-07; # mean
-  fstat_b                                 = 5.35952e-01; # mean
+  tau.iter_psemi                          = 1.36256e-10; ## mean
+  tau.query_psemi_pseg                    = 8.55514e-11; ## mean
+  tau.semiseg_sum2f_psemi_psegm           = 7.33955e-10; ## mean
+  tau.semi_mean2f_psemi                   = 8.28286e-10; ## mean
+  tau.output_psemi_ptopl                  = 7.91060e-10; ## mean
+  tau.semiseg_max2f_psemi_psegm           = 1.16579e-09; ## mean
+  tau.semiseg_max2f_det_psemi_psegm       = 1.12084e-09; ## mean
+  tau.semiseg_sum2f_det_psemi_psegm       = 6.85809e-10; ## mean
+  tau.semi_log10bsgl_psemi                = 9.89425e-09; ## mean
+  tau.semi_log10bsgltl_psemi              = 1.77331e-08; ## mean
+  tau.semi_log10btsgltl_psemi             = 1.79320e-08; ## mean
+  demod_fstat_tau0_coreld                 = 5.05010e-08; ## mean
+  demod_fstat_tau0_bufferld               = 8.61947e-07; ## mean
+  resamp_fstat_tau0_fbin                  = 6.97346e-08; ## mean
+  resamp_fstat_tau0_spin                  = 6.41612e-08; ## mean
+  resamp_fstat_tau0_fft_le18              = 2.51857e-10; ## mean
+  resamp_fstat_tau0_fft_gt18              = 4.50738e-10; ## mean
+  resamp_fstat_tau0_bary                  = 4.18658e-07; ## mean
+  fstat_b                                 = 5.35952e-01; ## mean
 
   ## if given, load setup file and extract various parameters
   if !isempty(setup_file)

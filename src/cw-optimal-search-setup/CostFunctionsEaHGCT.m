@@ -64,33 +64,33 @@ function cost_funs = CostFunctionsEaHGCT(varargin)
 endfunction
 
 function ret = jn ( n, x )
-  %% spherical bessel function j_n(x), using expression in terms of
-  %% ordinary Bessel functions J_n(x) from wikipedia:
-  %% http://en.wikipedia.org/wiki/Bessel_function#Spherical_Bessel_functions:_jn.2C_yn
+  ## spherical bessel function j_n(x), using expression in terms of
+  ## ordinary Bessel functions J_n(x) from wikipedia:
+  ## http://en.wikipedia.org/wiki/Bessel_function#Spherical_Bessel_functions:_jn.2C_yn
   ret = sqrt ( pi ./ (2 * x )) .* besselj ( n + 1/2, x );
 endfunction ## jn()
 
 function ret = detg1 ( phi )
-  %% explicit expression Eq(57) in Pletsch(2010):
+  ## explicit expression Eq(57) in Pletsch(2010):
   ret = 1/135 * ( 1 - 6 * jn(1,phi).^2 - jn(0,phi) .* cos(phi) ) .* ( 1 - 10 * jn(2,phi).^2 - jn(1,phi) .* sin(phi) - jn(0,phi) .* cos(phi) );
-  %% missing correction term deduced from maxima-evaluation
+  ## missing correction term deduced from maxima-evaluation
   corr = 1/135 * jn(1,phi) .* sin(phi) .* ( 1 - jn(0,phi) .* cos(phi) - 6 * jn(1,phi).^2 );
   ret -= corr;
 endfunction ## detg1()
 
 function ret = detg2 ( phi )
-  %% derived using Maxima:
+  ## derived using Maxima:
   ret = (8.*jn(0,phi).*jn(1,phi).*cos(phi).*sin(phi))/23625+(16.*jn(1,phi).*jn(3,phi).^2.*sin(phi))/3375+(16.*jn(1,phi).^3.*sin(phi))/7875-(8.*jn(1,phi).*sin(phi))/23625+(4.*jn(0,phi).^2.*cos(phi).^2)/23625+(8.*jn(0,phi).*jn(3,phi).^2.*cos(phi))/3375+(8.*jn(0,phi).*jn(2,phi).^2.*cos(phi))/4725+(8.*jn(0,phi).*jn(1,phi).^2.*cos(phi))/7875-(8.*jn(0,phi).*cos(phi))/23625+(16.*jn(2,phi).^2.*jn(3,phi).^2)/675-(8.*jn(3,phi).^2)/3375+(16.*jn(1,phi).^2.*jn(2,phi).^2)/1575-(8.*jn(2,phi).^2)/4725 -(8.*jn(1,phi).^2)/7875+4/23625;
 endfunction ## detg2()
 
 function ret = refinement ( s, Nseg )
 
-  gam1 = sqrt ( 5 * Nseg.^2 - 4 );	%% Eq.(77) in Pletsch(2010)
+  gam1 = sqrt ( 5 * Nseg.^2 - 4 );	## Eq.(77) in Pletsch(2010)
   switch ( s )
     case 1
       ret = gam1;
     case 2
-      ret = gam1 .* sqrt ( (35 * Nseg.^4 - 175 * Nseg.^2  + 143)/3 );%% Eq.(96) in Pletsch(2010), 'fixed' to give gam(1)=1
+      ret = gam1 .* sqrt ( (35 * Nseg.^4 - 175 * Nseg.^2  + 143)/3 );## Eq.(96) in Pletsch(2010), 'fixed' to give gam(1)=1
     otherwise
       error ("Invalid value of s: '%f' given, allowed are {1,2}\n", s );
   endswitch
@@ -102,18 +102,18 @@ endfunction ## refinement()
 function ret = func_Nt_given_s ( s, Nseg, Tseg, mis, params )
   ## number of templates Nt for given search-parameters {Nseg, Tseg, mis} and spindown-order 's'
   ## using Eqs.(56) and (82) in Pletsch(2010)
-  C_SI          = 299792458;		%% Speed of light in vacuo, m s^-1
-  DAYSID_SI	= 86164.09053;		%% Mean sidereal day, s
-  REARTH_SI	= 6.378140e6;		%% Earth equatorial radius, m
+  C_SI          = 299792458;		## Speed of light in vacuo, m s^-1
+  DAYSID_SI	= 86164.09053;		## Mean sidereal day, s
+  REARTH_SI	= 6.378140e6;		## Earth equatorial radius, m
   OmE = 2*pi / DAYSID_SI;
   tauE = REARTH_SI / C_SI;
 
-  n = 3 + s;	%% 2 x sky + 1 x Freq + s x spindowns
+  n = 3 + s;	## 2 x sky + 1 x Freq + s x spindowns
 
   rho0 = LatticeNormalizedThickness ( n, params.lattice ) * mis^(-n/2);
-  phi = OmE .* Tseg / 2;	%%  Eq.(49) in Pletsch(2010)
+  phi = OmE .* Tseg / 2;	##  Eq.(49) in Pletsch(2010)
 
-  fracSky = params.fracSky;	%% WU covers only a fraction of the sky
+  fracSky = params.fracSky;	## WU covers only a fraction of the sky
   fmin = params.fmin;
   fmax = params.fmax;
   tau_min = params.tau_min;
@@ -121,7 +121,7 @@ function ret = func_Nt_given_s ( s, Nseg, Tseg, mis, params )
   switch ( s )
 
       case 1
-        %% Eq.(56) in Pletsch(2010)
+        ## Eq.(56) in Pletsch(2010)
         prefact = rho0 * pi^5 * tauE^2 / (2 * tau_min ) * ( fmax^4 - fmin^4 );
         Ntc     = fracSky * prefact * sqrt(detg1(phi)) .* Tseg.^3;
 
@@ -153,7 +153,7 @@ function [Nt, s] = func_Nt ( Nseg, Tseg, mis, params )
 
   return;
 
-endfunction # func_Nt()
+endfunction ## func_Nt()
 
 function [costCoh, costInc] = cost_wparams ( Nseg, Tseg, mCoh, mInc, params )
 

@@ -1,41 +1,41 @@
-%% Copyright (C) 2006 Reinhard Prix
-%%
-%% This program is free software; you can redistribute it and/or modify
-%% it under the terms of the GNU General Public License as published by
-%% the Free Software Foundation; either version 2 of the License, or
-%% (at your option) any later version.
-%%
-%% This program is distributed in the hope that it will be useful,
-%% but WITHOUT ANY WARRANTY; without even the implied warranty of
-%% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-%% GNU General Public License for more details.
-%%
-%% You should have received a copy of the GNU General Public License
-%% along with with program; see the file COPYING. If not, write to the
-%% Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
-%% MA  02111-1307  USA
+## Copyright (C) 2006 Reinhard Prix
+##
+## This program is free software; you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation; either version 2 of the License, or
+## (at your option) any later version.
+##
+## This program is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License
+## along with with program; see the file COPYING. If not, write to the
+## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+## MA  02111-1307  USA
 
-%% ret = readSFT(fname)
-%%
-%% read a given SFT-file and return its meta-info (header) and data as a struct:
-%% ret = {version; epoch; Tsft; f0; Band; SFTdata }
-%%
-%% C-type: of v1 SFTs:
-%% typedef struct tagSFTHeader {
-%% REAL8  version;		/* SFT version-number (currently only 1.0 allowed )*/
-%% INT4   gpsSeconds;		/* gps start-time */
-%% INT4   gpsNanoSeconds;
-%% REAL8  timeBase;		/* length of data-stretch in seconds */
-%% INT4   fminBinIndex;	/* first frequency-index contained in SFT */
-%% INT4   length;               /* number of frequency bins */
-%%
-%% /* v2-specific part: */
-%% INT8 crc64;		/* 64 bits */
-%% CHAR detector[2];
-%% CHAR padding[2];
-%% INT comment_length;
-%% } SFTHeader;
-%% CHAR[comment_length] comment;
+## ret = readSFT(fname)
+##
+## read a given SFT-file and return its meta-info (header) and data as a struct:
+## ret = {version; epoch; Tsft; f0; Band; SFTdata }
+##
+## C-type: of v1 SFTs:
+## typedef struct tagSFTHeader {
+## REAL8  version;		/* SFT version-number (currently only 1.0 allowed )*/
+## INT4   gpsSeconds;		/* gps start-time */
+## INT4   gpsNanoSeconds;
+## REAL8  timeBase;		/* length of data-stretch in seconds */
+## INT4   fminBinIndex;	/* first frequency-index contained in SFT */
+## INT4   length;               /* number of frequency bins */
+##
+## /* v2-specific part: */
+## INT8 crc64;		/* 64 bits */
+## CHAR detector[2];
+## CHAR padding[2];
+## INT comment_length;
+## } SFTHeader;
+## CHAR[comment_length] comment;
 
 function ret = readSFT(fname)
 
@@ -83,7 +83,7 @@ function ret = readSFT(fname)
     [ comment, count ] = fread ( fid, commentLen, 'uchar' );
     if ( count ~= commentLen ) error ('Error reading comment-string from SFTv2-file ''%s''', fname); end
     header.comment = char ( comment' );
-  end %% if version 2
+  end ## if version 2
 
   dfreq = 1.0 / header.Tsft;
   header.f0 = fminBinIndex * dfreq;
@@ -95,7 +95,7 @@ function ret = readSFT(fname)
   end
   fclose(fid);
 
-  %% SFT normalization
+  ## SFT normalization
   dt = header.Tsft / (2 * SFTlen );
   if ( header.version == 1.0 )
     rawdata = rawdata * dt;
@@ -104,7 +104,7 @@ function ret = readSFT(fname)
   ret.header = header;
   ret.SFTdata = rawdata';
 
-  %% now estimate psd of SFT-data
+  ## now estimate psd of SFT-data
   periodo = sqrt ( ret.SFTdata(:,1).^2 + ret.SFTdata(:,2).^2 );
 
   ret.psd = sqrt(2 * dfreq) * periodo;

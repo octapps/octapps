@@ -25,7 +25,7 @@ function LVstat = ComputeLineVeto ( twoF_multi, twoF_single, rho, lX, useAllTerm
  ## implementation here is optimized to avoid underflows ("logsumexp formula")
  ## should be compatible with implementation in lalapps/GCT/LineVeto.c
 
- # check for consistent vector/matrix lengths
+ ## check for consistent vector/matrix lengths
  numcands = length(twoF_multi);
  numdets  = length(twoF_single(1,:));
  if ( length(twoF_single(:,1)) != numcands )
@@ -35,7 +35,7 @@ function LVstat = ComputeLineVeto ( twoF_multi, twoF_single, rho, lX, useAllTerm
   error(["Invalid input - number of detectors does not match between twoF_single (", int2str(numdets), " columns) and lX (", int2str(length(lX)), " elements)."]);
  endif
 
- # special treatment for additional denominator term 'rho^4/70'  - octave seems to work fine with log(0)=-inf
+ ## special treatment for additional denominator term 'rho^4/70'  - octave seems to work fine with log(0)=-inf
  if ( rho < 0.0 )
   error("Invalid input - prior parameter rho must be >=0.\n")
  else
@@ -43,7 +43,7 @@ function LVstat = ComputeLineVeto ( twoF_multi, twoF_single, rho, lX, useAllTerm
   denomterms = logRhoTerm*ones(numcands,1);
  endif
 
- # log the lX priors - octave seems to work fine with log(0)=-inf
+ ## log the lX priors - octave seems to work fine with log(0)=-inf
  for X = 1:1:numdets
   if ( lX(X) < 0.0 )
    error("Invalid input - prior parameter lX must be >=0.\n")
@@ -52,16 +52,16 @@ function LVstat = ComputeLineVeto ( twoF_multi, twoF_single, rho, lX, useAllTerm
   endif
  endfor
 
- maxInSum = max( denomterms, [], 2 ); # column vector of the maximum from each row
+ maxInSum = max( denomterms, [], 2 ); ## column vector of the maximum from each row
 
- LVstat = 0.5 * twoF_multi - maxInSum; # dominant term to LV-statistic
+ LVstat = 0.5 * twoF_multi - maxInSum; ## dominant term to LV-statistic
 
- if ( useAllTerms == 1 ) # optionally add logsumexp term (possibly negligible in many cases)
+ if ( useAllTerms == 1 ) ## optionally add logsumexp term (possibly negligible in many cases)
   extraSum = zeros(numcands,1);
   for X = 1:1:length(denomterms(1,:))
    extraSum += exp ( denomterms(:,X) - maxInSum );
   endfor
   LVstat -= log( extraSum );
- endif # useAllTerms?
+ endif ## useAllTerms?
 
-endfunction # ComputeLineVeto()
+endfunction ## ComputeLineVeto()

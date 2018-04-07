@@ -21,7 +21,7 @@ function ret = GetNormSFTPowerFiles ( varargin )
  ## command-line parameters can be taken from parseOptions call below
  ## example call: octapps_run GetNormSFTPowerFiles --sftdir=sfts --sft_filenamebit=S6GC1 --IFO=h1 --freqmin=50.5
 
- # read in and check input parameters
+ ## read in and check input parameters
  params_init = parseOptions(varargin,
                      {"sftdir", "char"},
                      {"sft_filenamebit", "char", ""},
@@ -30,15 +30,15 @@ function ret = GetNormSFTPowerFiles ( varargin )
                      {"IFO", "char"},
                      {"timestampsfile", "char", ""},
                      {"freqmin", "numeric,scalar"},
-                     {"freqmax", "numeric,scalar", 0}, # default: set to freqmin+freqstep
+                     {"freqmax", "numeric,scalar", 0}, ## default: set to freqmin+freqstep
                      {"freqstep", "numeric,scalar", 0.05},
                      {"workingdir", "char", "."},
                      {"lalpath", "char", ""},
                      {"outfile", "char", "normSFTpower.dat"},
                      {"rngmedbins", "numeric,scalar", 101},
                      {"outfile_detail", "char", ""},
-                     {"SFTpower_thresh", "numeric,scalar", 0}, # only needed for outfile_detail
-                     {"SFTpower_fA", "numeric,scalar", 0}, # only needed for outfile_detail
+                     {"SFTpower_thresh", "numeric,scalar", 0}, ## only needed for outfile_detail
+                     {"SFTpower_fA", "numeric,scalar", 0}, ## only needed for outfile_detail
                      {"debug", "numeric,scalar", 0},
                      {"cleanup", "numeric,scalar", 1}
                 );
@@ -46,7 +46,7 @@ function ret = GetNormSFTPowerFiles ( varargin )
  if ( length(params_init.outfile_detail) > 0 )
   writeCommandLineToFile ( params_init.outfile_detail, params_init, mfilename );
  endif
- params_init = check_input_parameters ( params_init ); # this already processes some of the input params, so have to do output before
+ params_init = check_input_parameters ( params_init ); ## this already processes some of the input params, so have to do output before
 
  format long;
  global SMALL_EPS = 1.0e-6;
@@ -56,9 +56,9 @@ function ret = GetNormSFTPowerFiles ( varargin )
   params_init
  endif
 
- # save resuls to file as an ascii matrix with custom header
+ ## save resuls to file as an ascii matrix with custom header
  lalapps_version_string = getLalAppsVersionInfo ([params_init.lalpath, "lalapps_ComputePSD"]);
- fid = fopen ( params_init.outfile, "a" ); # append mode (commandline has already been written into this file)
+ fid = fopen ( params_init.outfile, "a" ); ## append mode (commandline has already been written into this file)
  fprintf ( fid, lalapps_version_string );
  fprintf ( fid, "# startfreq is in first line\n" );
  fprintf ( fid, "%.6f\n", params_init.freqmin );
@@ -67,7 +67,7 @@ function ret = GetNormSFTPowerFiles ( varargin )
   formatstring_body = write_header_to_details_file (params_init.outfile_detail, lalapps_version_string );
  endif
 
- # prepare PSD code and parameters
+ ## prepare PSD code and parameters
  ComputePSD      = [params_init.lalpath, "lalapps_ComputePSD"];
 
  params_psd.outputNormSFT = 1;
@@ -78,19 +78,19 @@ function ret = GetNormSFTPowerFiles ( varargin )
  endif
  thresh = params_init.SFTpower_thresh;
 
- # count necessary freqbands and sfts; last band might be smaller if freqmax-freqmin is not an integer multiple of freqstep
+ ## count necessary freqbands and sfts; last band might be smaller if freqmax-freqmin is not an integer multiple of freqstep
  num_freqsteps = floor ( ( params_init.freqmax - params_init.freqmin ) / params_init.freqstep + SMALL_EPS );
  if ( params_init.freqmin + num_freqsteps*params_init.freqstep < params_init.freqmax )
   num_freqsteps++;
  endif
 
- # prepare output structs and counting variables
+ ## prepare output structs and counting variables
  normSFTpower     = [];
  thresh_crossings = [];
  frequencies      = [];
  curr_step        = 0;
 
- # prepare temporary directory, if it does not exist yet
+ ## prepare temporary directory, if it does not exist yet
  if ( isdir ( params_init.workingdir ) )
    temp_working_dir = 0;
  else
@@ -102,35 +102,35 @@ function ret = GetNormSFTPowerFiles ( varargin )
   temp_working_dir = 1;
  endif
 
- # main loop over freqbands - break when params_run.FreqMax reached
+ ## main loop over freqbands - break when params_run.FreqMax reached
  while ( curr_step < num_freqsteps )
 
   curr_step++;
   curr_freq = params_init.freqmin + (curr_step-1)*params_init.freqstep;
   curr_band = params_init.freqstep;
-  if ( curr_step == num_freqsteps ) # at upper end, might need a smaller band if freqmax-freqmin is not an integer multiple of freqstep
+  if ( curr_step == num_freqsteps ) ## at upper end, might need a smaller band if freqmax-freqmin is not an integer multiple of freqstep
    curr_band = params_init.freqmax - curr_freq;
   endif
-  if ( curr_step > 1 ) # if doing multiple steps, avoid duplicating the boundary bin frequencies
+  if ( curr_step > 1 ) ## if doing multiple steps, avoid duplicating the boundary bin frequencies
    curr_freq +=  1.01*params_init.sft_dfreq;
    curr_band -=  params_init.sft_dfreq;
   endif
 
   printf("Frequency band %d/%d: processing [%f,%f] Hz...\n", curr_step, num_freqsteps, curr_freq, curr_freq+curr_band );
 
-  # get the correct sft range, adding running median sideband
+  ## get the correct sft range, adding running median sideband
   [sftstartfreq, num_sfts_to_load] = get_sft_range ( params_init, curr_freq, curr_band );
 
-  # find all required sfts
+  ## find all required sfts
   [sfts, firstsft] = get_EatH_sft_paths ( params_init.sftdir, params_init.sft_filenamebit, params_init.sft_width, sftstartfreq, num_sfts_to_load, params_init.IFO );
 
   if ( ( curr_step == 1 ) && ( params_init.SFTpower_fA > 0 ) )
    printf("First band, converting SFTpower_fA=%g to SFTpower_thresh", params_init.SFTpower_fA);
-   if ( length(params_init.timestampsfile) > 0 ) # get number of SFTs from timestamps
+   if ( length(params_init.timestampsfile) > 0 ) ## get number of SFTs from timestamps
     printf(" using num_SFTs from timestamps files...\n");
     timestamps = load(params_init.timestampsfile);
     num_SFTs = length(timestamps);
-   else # get number of SFT bins needed to convert from fA to thresh
+   else ## get number of SFT bins needed to convert from fA to thresh
     printf(" using num_SFTs from input SFTs...\n");
     printf("Getting num_SFTs from input file '%s' ...\n", firstsft);
     num_SFTs = GetNumSFTsFromFile ( firstsft );
@@ -139,7 +139,7 @@ function ret = GetNormSFTPowerFiles ( varargin )
    printf("num_SFTs=%d, threshold=%f\n", num_SFTs, thresh);
   endif
 
-  # get PSD and normalized SFT power
+  ## get PSD and normalized SFT power
   params_psd.Freq           = curr_freq;
   params_psd.FreqBand       = curr_band;
   params_psd.inputData      = sfts;
@@ -147,7 +147,7 @@ function ret = GetNormSFTPowerFiles ( varargin )
   runCode ( params_psd, ComputePSD );
   psd = load(params_psd.outputPSD);
 
-  # get the results
+  ## get the results
   normSFTpower = cat(1,normSFTpower,psd(:,3));
   if ( params_init.output_detail == 1 )
    frequencies = cat(1,frequencies,psd(:,1));
@@ -157,22 +157,22 @@ function ret = GetNormSFTPowerFiles ( varargin )
    [err, msg] = unlink (params_psd.outputPSD);
   endif
 
-  # write results from this band and clear memory
-  fid = fopen ( params_init.outfile, "a" ); # append mode (header has already been written into this file)
+  ## write results from this band and clear memory
+  fid = fopen ( params_init.outfile, "a" ); ## append mode (header has already been written into this file)
   fprintf ( fid, "%f\n", normSFTpower );
   fclose ( params_init.outfile );
   if ( params_init.output_detail == 1 )
-   fid = fopen ( params_init.outfile_detail, "a" ); # append mode (header has already been written into this file)
-   fprintf ( fid, formatstring_body, [frequencies, normSFTpower, thresh_crossings]' ); # fprintf prints matrices/vectors in column-major order, so have to cat and transpose here
+   fid = fopen ( params_init.outfile_detail, "a" ); ## append mode (header has already been written into this file)
+   fprintf ( fid, formatstring_body, [frequencies, normSFTpower, thresh_crossings]' ); ## fprintf prints matrices/vectors in column-major order, so have to cat and transpose here
    fclose ( params_init.outfile_detail );
    thresh_crossings = [];
    frequencies      = [];
   endif
   normSFTpower     = [];
 
- endwhile # main loop over freqbands
+ endwhile ## main loop over freqbands
 
- # if we created a temporary working directory, remove it again
+ ## if we created a temporary working directory, remove it again
  if ( ( params_init.cleanup == 1 ) && ( temp_working_dir == 1 ) )
   [status, msg, msgid] = rmdir ( params_init.workingdir );
   if ( status != 1 )
@@ -182,7 +182,7 @@ function ret = GetNormSFTPowerFiles ( varargin )
 
  ret = 1;
 
-endfunction # GetNormSFTPowerFiles()
+endfunction ## GetNormSFTPowerFiles()
 
 ############## AUXILIARY FUNCTIONS #############
 
@@ -230,7 +230,7 @@ function [params_init] = check_input_parameters ( params_init )
   error(["Invalid input parameter (timestampsfile): ", params_init.timestampsfile, " is neither 'none' nor an existing file."]);
  endif
 
- if ( length(params_init.outfile_detail) > 0 ) # set bool variable to avoid checking length every time
+ if ( length(params_init.outfile_detail) > 0 ) ## set bool variable to avoid checking length every time
   params_init.output_detail = 1;
  else
   params_init.output_detail = 0;
@@ -252,45 +252,45 @@ function [params_init] = check_input_parameters ( params_init )
   error(["Invalid input parameter (cleanup): ", int2str(params_init.cleanup), " is neither 0 or 1."])
  endif
 
-endfunction # check_input_parameters()
+endfunction ## check_input_parameters()
 
 function [sftstartfreq, num_sfts_to_load] = get_sft_range ( params_init, startfreq, freqband )
  ## [sftstartfreq, num_sfts_to_load] = get_sft_range ( params_init, startfreq, freqband )
  ## function to compute the necessary SFT start frequency and the number of (contiguous) SFTs starting from there
 
- sftstartfreq = floor(20*startfreq)/20; # round down to get SFT file containing the startfreq
+ sftstartfreq = floor(20*startfreq)/20; ## round down to get SFT file containing the startfreq
  num_sfts_to_load = ceil ( freqband / params_init.sft_width );
  rngmed_wing = fix(params_init.rngmedbins/2 + 1) * params_init.sft_dfreq;
 
- # load more SFTs if below the lower boundary
+ ## load more SFTs if below the lower boundary
  while ( startfreq - rngmed_wing < sftstartfreq + params_init.sft_dfreq )
   sftstartfreq -= params_init.sft_width;
   num_sfts_to_load++;
  endwhile
 
- # load more SFTs if above the upper boundary
+ ## load more SFTs if above the upper boundary
  while ( startfreq + freqband + rngmed_wing >= sftstartfreq + num_sfts_to_load*params_init.sft_width - params_init.sft_dfreq )
   num_sfts_to_load++;
  endwhile
 
-endfunction # get_sft_range()
+endfunction ## get_sft_range()
 
 function formatstring_body = write_header_to_details_file ( outfile_detail, lalapps_version_string )
  ## formatstring_body = write_header_to_details_file ( outfile_detail, lalapps_version_string )
  ## prepare file for detailed results with aligned column headings
  ## also produce the body formatstring for the main output with correct alignment
 
- fid = fopen ( outfile_detail, "a" ); # append mode (commandline has already been written into this file)
+ fid = fopen ( outfile_detail, "a" ); ## append mode (commandline has already been written into this file)
 
  fprintf ( fid, lalapps_version_string );
 
- # set up labels and widths
+ ## set up labels and widths
  formatstring_body = "";
  columnlabels = {"freq","normSFTpower",">thresh?"};
- columnwidths = [11,11,1]; # 4+6+1 for floats, 1 for int
+ columnwidths = [11,11,1]; ## 4+6+1 for floats, 1 for int
  formatstring_body = "%%%d.6f %%%d.6f %%%dd\n";
 
- # write the column headings line with alignment
+ ## write the column headings line with alignment
  fprintf ( fid, "# columns:\n" );
  formatstring_header = "#";
  for n = 1:1:length(columnlabels)
@@ -301,14 +301,14 @@ function formatstring_body = write_header_to_details_file ( outfile_detail, lala
  formatstring_header = [formatstring_header, "\n"];
  fprintf ( fid, formatstring_header, columnlabels{:} );
 
- # prepare body format with alignment
- columnwidths(1) += 2; # now need to pad for leading "# " in heading also
- formatstring_body = sprintf(formatstring_body, columnwidths); # pad to standard width
+ ## prepare body format with alignment
+ columnwidths(1) += 2; ## now need to pad for leading "# " in heading also
+ formatstring_body = sprintf(formatstring_body, columnwidths); ## pad to standard width
 
- # done
+ ## done
  fclose ( outfile_detail );
 
-endfunction # write_header_to_details_file()
+endfunction ## write_header_to_details_file()
 
 %!test
 %!  disp("no test exists for this function as it requires access to data not included in OctApps");

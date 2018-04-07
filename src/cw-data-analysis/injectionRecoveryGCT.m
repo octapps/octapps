@@ -1,56 +1,56 @@
-%% Copyright (C) 2017 Christoph Dreissigacker
-%% Copyright (C) 2016 Reinhard Prix
-%% Copyright (C) 2012 Karl Wette
-%%
-%% This program is free software; you can redistribute it and/or modify
-%% it under the terms of the GNU General Public License as published by
-%% the Free Software Foundation; either version 2 of the License, or
-%% (at your option) any later version.
-%%
-%% This program is distributed in the hope that it will be useful,
-%% but WITHOUT ANY WARRANTY; without even the implied warranty of
-%% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-%% GNU General Public License for more details.
-%%
-%% You should have received a copy of the GNU General Public License
-%% along with with program; see the file COPYING. If not, write to the
-%% Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
-%% MA  02111-1307  USA
+## Copyright (C) 2017 Christoph Dreissigacker
+## Copyright (C) 2016 Reinhard Prix
+## Copyright (C) 2012 Karl Wette
+##
+## This program is free software; you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation; either version 2 of the License, or
+## (at your option) any later version.
+##
+## This program is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License
+## along with with program; see the file COPYING. If not, write to the
+## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+## MA  02111-1307  USA
 
 function results = injectionRecoveryGCT ( varargin )
 
-% Perform signal injection and (area-search) recovery using HierarchSearchGCT
-% Usage:
-%   results = injectionRecoveryGCT ( varargin )
-% where:
-%   results = structure containing various histograms of measured statistics and mismatches from the injection+recovery runs, and
-% input arguments 'varagin' of the form ("variable1", value1, "variable2", value2, ...) with allowed options:
-%
-% "Ntrials":            (optional) number of repeated injection+recovery trials to perform [default: 1]
-% "timestampsFiles":    CSV list of SFT timestamp filenames
-% "IFOs":               CSV list of IFO names (eg "H1,L1,...")
-% "segmentList":        filename of segment list (containing lines of the form "startGPS endGPS\n")
-% "inj_sqrtSX":         injections: (optional) CSV list of per-detector noise-floor sqrt(PSD) to generate
-% "inj_h0":             injections: signal amplitude 'h0' of signals
-% "inj_SNR":            injections: alternative: signal-to-noise ratio 'SNR' of signals
-% "inj_AlphaRange":     injections: range of sky-position alpha to (isotropically) draw from [default: [0, 2pi]]
-% "inj_DeltaRange":     injections: range of sky-position delta to (isotropically) draw from [default: [-pi/2, pi/2]]
-% "inj_FreqRange":      injections: range of signal frequencies to draw from
-% "inj_fkdotRange":     injections: [numSpindowns x 2] ranges of spindown-values to draw from [default: []]
-% "dFreq":              search: frequency resolution
-% "dfkdot":             search: numSpindowns vector of spindown resolutions to use in search
-% "gammaRefine":        search: numSpindowns vector of 'gammeRefine[s]' refinement factors to use
-% "skyGridFile":        search: sky-grid file to use
-% "sch_Nsky":           search-box: number of nearest-neighbor skygrid points to use around injection
-% "sch_Nfreq":          search-box: number of frequency bins to use around injection frequency
-% "sch_Nfkdot":         search-box: number of spindown-bins to use around injection spindown-value
-% "FstatMethod":        search: F-statistic method to use: "DemodBest", "ResampBest", ...
-% "computeBSGL":        search: additionally compute and histogram B_S/GL statistic values
-% "Fstar0":             search: BSGL parameter 'Fstar0sc'
-% "nCand":              search: number of toplist candidates to keep
-% "GCT_binary":         which GCT executable to use for searching
-% "debugLevel":         control debug-output level
-% "cleanup":            boolean: remove intermediate output files at the end or not
+## Perform signal injection and (area-search) recovery using HierarchSearchGCT
+## Usage:
+##   results = injectionRecoveryGCT ( varargin )
+## where:
+##   results = structure containing various histograms of measured statistics and mismatches from the injection+recovery runs, and
+## input arguments 'varagin' of the form ("variable1", value1, "variable2", value2, ...) with allowed options:
+##
+## "Ntrials":            (optional) number of repeated injection+recovery trials to perform [default: 1]
+## "timestampsFiles":    CSV list of SFT timestamp filenames
+## "IFOs":               CSV list of IFO names (eg "H1,L1,...")
+## "segmentList":        filename of segment list (containing lines of the form "startGPS endGPS\n")
+## "inj_sqrtSX":         injections: (optional) CSV list of per-detector noise-floor sqrt(PSD) to generate
+## "inj_h0":             injections: signal amplitude 'h0' of signals
+## "inj_SNR":            injections: alternative: signal-to-noise ratio 'SNR' of signals
+## "inj_AlphaRange":     injections: range of sky-position alpha to (isotropically) draw from [default: [0, 2pi]]
+## "inj_DeltaRange":     injections: range of sky-position delta to (isotropically) draw from [default: [-pi/2, pi/2]]
+## "inj_FreqRange":      injections: range of signal frequencies to draw from
+## "inj_fkdotRange":     injections: [numSpindowns x 2] ranges of spindown-values to draw from [default: []]
+## "dFreq":              search: frequency resolution
+## "dfkdot":             search: numSpindowns vector of spindown resolutions to use in search
+## "gammaRefine":        search: numSpindowns vector of 'gammeRefine[s]' refinement factors to use
+## "skyGridFile":        search: sky-grid file to use
+## "sch_Nsky":           search-box: number of nearest-neighbor skygrid points to use around injection
+## "sch_Nfreq":          search-box: number of frequency bins to use around injection frequency
+## "sch_Nfkdot":         search-box: number of spindown-bins to use around injection spindown-value
+## "FstatMethod":        search: F-statistic method to use: "DemodBest", "ResampBest", ...
+## "computeBSGL":        search: additionally compute and histogram B_S/GL statistic values
+## "Fstar0":             search: BSGL parameter 'Fstar0sc'
+## "nCand":              search: number of toplist candidates to keep
+## "GCT_binary":         which GCT executable to use for searching
+## "debugLevel":         control debug-output level
+## "cleanup":            boolean: remove intermediate output files at the end or not
 
   ## parse options
   uvar = parseOptions ( varargin,
@@ -130,15 +130,15 @@ function results = injectionRecoveryGCT ( varargin )
   tSegStart = segs(:,1);
   tSegEnd   = segs(:,2);
   Tobs = tSegEnd(end) - tSegStart(1);
-  %% figure out GCT reftime from actual timestamps
+  ## figure out GCT reftime from actual timestamps
   tStart = inf; tEnd = 0;
   for i = 1 : length ( timestampsFiles )
     ts = load ( timestampsFiles{i} );
     tStart = min ( tStart, ts(1,1) );
     tEnd   = max ( tEnd, ts(end,1) );
   endfor
-  Tsft = 1800;	%% assumed default
-  inj.refTime = 0.5 * ( tStart + tEnd + Tsft );	%% make sure we hit the exact value the GCT code uses to avoid "grid bloat"
+  Tsft = 1800;	## assumed default
+  inj.refTime = 0.5 * ( tStart + tEnd + Tsft );	## make sure we hit the exact value the GCT code uses to avoid "grid bloat"
 
   ## ----- figure out maximal SFT bandwidth required -----
   inj_FreqMin = min ( uvar.inj_FreqRange );
@@ -234,7 +234,7 @@ function results = injectionRecoveryGCT ( varargin )
     if ( have_h0 )
       PFS.h0	= uvar.inj_h0;
     else
-      PFS.h0	= 1;	%% rescale to given SNR at the end
+      PFS.h0	= 1;	## rescale to given SNR at the end
     endif
     PFS.cosi	= inj.cosi;
     PFS.psi	= inj.psi;
@@ -254,9 +254,9 @@ function results = injectionRecoveryGCT ( varargin )
       PFS.maxStartTime = tSegEnd ( l );
       out = runCode ( PFS, "lalapps_PredictFstat", (uvar.debugLevel > 0) );
       pfs.twoFl(l) = str2num ( out );
-    endfor %% l = 1:Nseg
+    endfor ## l = 1:Nseg
 
-    %% for fixed-SNR injections: determine correct h0 and rescale PFS values accordingly
+    ## for fixed-SNR injections: determine correct h0 and rescale PFS values accordingly
     if ( have_SNR )
       avg2F = mean ( pfs.twoFl );
       SNR1 = sqrt(avg2F - 4);
@@ -274,7 +274,7 @@ function results = injectionRecoveryGCT ( varargin )
     trials{iTrial}.pfs = pfs;
     hists.avgPFS  = addDataToHist ( hists.avgPFS, pfs.twoF );
 
-    %% prepare injection sources
+    ## prepare injection sources
     inj.injectionSources = sprintf ( "{h0 = %g; cosi = %g; psi = %g; phi0 = %g; Alpha = %.16g; Delta = %.16g; Freq = %.16g; refTime = %.16g",
                                      inj.h0, inj.cosi, inj.psi, inj.phi0, inj.Alpha, inj.Delta, inj.Freq, inj.refTime );
     for k = 1 : spindown_order
@@ -285,33 +285,33 @@ function results = injectionRecoveryGCT ( varargin )
 
     ## ---------- determine GCT search box on injection +- Nbins ----------
     DebugPrintf ( 1, "Determine GCT search box ... ");
-    %% ----- Freq search range
+    ## ----- Freq search range
     nFreq_GCT = ceil ( inj_FreqBand / uvar.dFreq );
     FreqGrid_GCT = inj_FreqMin + [0 : (nFreq_GCT-1) ] * uvar.dFreq;
     [ dummy, iFreq0 ] = min ( abs ( FreqGrid_GCT - inj.Freq ) );
-    %% as mentioned above, we don't truncate the search frequency box to the
-    %% 'GCT search grid', as we're assuming contiguous WUs above and below this
-    %% search frequency range, so there's no "boundary"
-    sch.Freq     = FreqGrid_GCT(iFreq0) - floor(uvar.sch_Nfreq/2) * uvar.dFreq;		%% start floor(Nfreq/2) bins below iFreq0 bin
-    sch.FreqBand = (uvar.sch_Nfreq-1) * uvar.dFreq;					%% search Nfreq bins total
+    ## as mentioned above, we don't truncate the search frequency box to the
+    ## 'GCT search grid', as we're assuming contiguous WUs above and below this
+    ## search frequency range, so there's no "boundary"
+    sch.Freq     = FreqGrid_GCT(iFreq0) - floor(uvar.sch_Nfreq/2) * uvar.dFreq;		## start floor(Nfreq/2) bins below iFreq0 bin
+    sch.FreqBand = (uvar.sch_Nfreq-1) * uvar.dFreq;					## search Nfreq bins total
 
-    %% ----- fkdot search range
+    ## ----- fkdot search range
     for k = 1 : spindown_order
       inj_fkdotBand_k	= inj_fkdotMax(k) - inj_fkdotMin(k); ## > 0
       nfkdot_GCT_k	= ceil ( inj_fkdotBand_k / uvar.dfkdot(k) ) + 1;
       fkdotGrid_GCT_k	= inj_fkdotMin(k) + [ 0 : (nfkdot_GCT_k-1) ] * uvar.dfkdot(k);
       [ foo, ifkdot0_k] = min ( abs ( fkdotGrid_GCT_k - inj.fkdot(k) ) );
-      sch.fkdot(k)	= fkdotGrid_GCT_k(ifkdot0_k) - floor(uvar.sch_Nfkdot(k)/2) * uvar.dfkdot(k);	%% start floor(Nfkdot/2) bins below ifkdot0
-      sch.fkdotBand(k)	= (uvar.sch_Nfkdot(k)-1) * uvar.dfkdot(k);					%% search Nfkdot bins total
+      sch.fkdot(k)	= fkdotGrid_GCT_k(ifkdot0_k) - floor(uvar.sch_Nfkdot(k)/2) * uvar.dfkdot(k);	## start floor(Nfkdot/2) bins below ifkdot0
+      sch.fkdotBand(k)	= (uvar.sch_Nfkdot(k)-1) * uvar.dfkdot(k);					## search Nfkdot bins total
 
-      %% contrary to frequency, we *will* truncate this search box to the GCT search range,
-      %% as this is typically represent the 'whole' range of the search, so we simulate 'boundary truncation'
+      ## contrary to frequency, we *will* truncate this search box to the GCT search range,
+      ## as this is typically represent the 'whole' range of the search, so we simulate 'boundary truncation'
       sch.fkdot(k)	= max ( [ inj_fkdotMin(k), sch.fkdot(k) ] );
       fkdotMax_k	= min ( [ inj_fkdotMax(k), sch.fkdot(k)	+ sch.fkdotBand(k) ] );
       sch.fkdotBand(k)	= fkdotMax_k - sch.fkdot(k);
     endfor ## k = 1:spindown_order
 
-    %% ----- sky search range: find subset of Nsky 'closest' skygrid points
+    ## ----- sky search range: find subset of Nsky 'closest' skygrid points
     skyGrid = load ( uvar.skyGridFile );
     NskyGrid = size(skyGrid)(1);
     ## convert to unit 3-vectors vn = [nx,ny,nz]
@@ -328,7 +328,7 @@ function results = injectionRecoveryGCT ( varargin )
     tmp = sprintf ( "%.16g %.16g; ", sch.skyPatch' );
     sch.skyPatchString	= sprintf ( "{ %s }", tmp );
 
-    %% ----- total number of fine-grid search templates
+    ## ----- total number of fine-grid search templates
     sch.Ntempl_coh = uvar.sch_Nfreq * uvar.sch_Nsky;
     sch.Ntempl_inc = sch.Ntempl_coh;
     for k = 1 : spindown_order
@@ -337,12 +337,12 @@ function results = injectionRecoveryGCT ( varargin )
     endfor
     DebugPrintf (1, "done.\n");
 
-    %% 'signal only' convention is a bit messy/broken across different codes
-    %% in particular: PFS will generally estimate (4 + SNR^2), while
-    %% GCT --SignalOnly outputs <2F> = (4+SNR^2) *BUT* <2F_recalc> = SNR^2 !!
-    %% ie no +4 is added to the recalculated 2F values in the SignalOnly case
-    %% so we need to account for this here in order to correctly compute mismatches
-    %% (relevant in the low-SNR limit used here for 2F histogram size reasons)
+    ## 'signal only' convention is a bit messy/broken across different codes
+    ## in particular: PFS will generally estimate (4 + SNR^2), while
+    ## GCT --SignalOnly outputs <2F> = (4+SNR^2) *BUT* <2F_recalc> = SNR^2 !!
+    ## ie no +4 is added to the recalculated 2F values in the SignalOnly case
+    ## so we need to account for this here in order to correctly compute mismatches
+    ## (relevant in the low-SNR limit used here for 2F histogram size reasons)
     SignalOnly = (isempty ( uvar.inj_sqrtSX ));
     if ( SignalOnly )
       SignalOnlyOffsetR = 4;
@@ -383,12 +383,12 @@ function results = injectionRecoveryGCT ( varargin )
     GCT.printCand1	= true;
     GCT.semiCohToplist	= true;
     GCT.fnameout	= "GCT.out";
-    GCT.nCand1		= uvar.nCand;	%% keep this many candidates in toplist
-    GCT.recalcToplistStats = true;	%% re-calculate toplist
+    GCT.nCand1		= uvar.nCand;	## keep this many candidates in toplist
+    GCT.recalcToplistStats = true;	## re-calculate toplist
     if uvar.computeBSGL
-      GCT.SortToplist	= 3;	%% sort by 2F and BSGL
+      GCT.SortToplist	= 3;	## sort by 2F and BSGL
     else
-      GCT.SortToplist	= 0;	%% sort by 2F
+      GCT.SortToplist	= 0;	## sort by 2F
     endif
     GCT.FstatMethod	= uvar.FstatMethod;
     GCT.computeBSGL     = uvar.computeBSGL;
@@ -405,7 +405,7 @@ function results = injectionRecoveryGCT ( varargin )
     out = load ( GCT.fnameout );
     DebugPrintf ( 1, "done.\n");
 
-    %% store and analyse loudest-2F candidate ----------
+    ## store and analyse loudest-2F candidate ----------
     DebugPrintf ( 1, "Analysing mismatches and offsets ... " );
     maxTwoF = struct();
     [dummy,  iTwoF_max ]  = max ( out(:,7)(:) );
@@ -460,9 +460,9 @@ function results = injectionRecoveryGCT ( varargin )
     offsSky = sch.skyPatch - repmat ( [ maxTwoF.Alpha, maxTwoF.Delta ], [ uvar.sch_Nsky, 1 ] );
     distSqSky = sumsq ( offsSky, 2 );
     [dummy, iSkyBest] = min ( distSqSky );
-    maxTwoF.offsBins.skyInd = iSkyBest - 1; %% 'skyPatch' was sorted from 'closest' to 'farthest'
+    maxTwoF.offsBins.skyInd = iSkyBest - 1; ## 'skyPatch' was sorted from 'closest' to 'farthest'
 
-    %% ---------- store and analyse loudest recalc 2Fr candidate ----------
+    ## ---------- store and analyse loudest recalc 2Fr candidate ----------
     maxTwoFR = struct();
     if GCT.computeBSGL == true;
       [dummy, iTwoFR_max ] = max ( out(:,19)(:) );
@@ -515,7 +515,7 @@ function results = injectionRecoveryGCT ( varargin )
     offsSky = sch.skyPatch - repmat ( [ maxTwoFR.Alpha, maxTwoFR.Delta ], [ uvar.sch_Nsky, 1 ] );
     distSqSky = sumsq ( offsSky, 2 );
     [dummy, iSkyBest] = min ( distSqSky );
-    maxTwoFR.offsBins.skyInd = iSkyBest - 1;	%% 'skyPatch' was sorted from 'closest' to 'farthest'
+    maxTwoFR.offsBins.skyInd = iSkyBest - 1;	## 'skyPatch' was sorted from 'closest' to 'farthest'
 
     gct.args = GCT;
     gct.maxTwoF  = maxTwoF;
@@ -535,7 +535,7 @@ function results = injectionRecoveryGCT ( varargin )
     DebugPrintf ( 1, "done.\n");
 
     ## ---------- run HierarchSearchGCT in perfectly-matched injection point ----------
-    GCTSig = GCT;	%% inherit settings
+    GCTSig = GCT;	## inherit settings
     GCTSig.Freq		= inj.Freq;
     GCTSig.FreqBand	= 0;
     if ( spindown_order >= 1 )
@@ -553,7 +553,7 @@ function results = injectionRecoveryGCT ( varargin )
 
     GCTSig.skyGridFile	= sprintf ( "{ %.16g %.16g; }", inj.Alpha, inj.Delta );
     GCTSig.fnameout	= "GCT0.out";
-    GCTSig.nCand1	= 1;	%% keep this many candidates in toplist
+    GCTSig.nCand1	= 1;	## keep this many candidates in toplist
     GCTSig.loudestTwoFPerSeg = false;
 
     runCode ( GCTSig, uvar.GCT_binary, (uvar.debugLevel > 0) );
@@ -589,7 +589,7 @@ function results = injectionRecoveryGCT ( varargin )
       hists.offsBinsR.fkdotIc(k) = addDataToHist ( hists.offsBinsR.fkdotIc(k), gct.maxTwoFR.offsBins.fkdotIc(k) );
     endfor
 
-  endfor %% iTrial = 1:Ntrials
+  endfor ## iTrial = 1:Ntrials
 
   results.trials = trials;
   results.hists = hists;

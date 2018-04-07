@@ -56,7 +56,7 @@
 
 function stackparams = LocalSolution4StackSlide ( coefCoh, coefInc, constraints, w = 1 )
 
-  %% check user-input sanity
+  ## check user-input sanity
   assert ( !isempty( constraints ) );
 
   assert ( isfield ( constraints, "cost0" ) );
@@ -83,7 +83,7 @@ function stackparams = LocalSolution4StackSlide ( coefCoh, coefInc, constraints,
   assert ( isfield ( coefInc, "nDim" ) );
   assert ( isfield ( coefInc, "lattice" ) && ischar ( coefInc.lattice ) );
 
-  %% coherent power-law coefficients
+  ## coherent power-law coefficients
   delta_c = coefCoh.delta;
   kappa_c = coefCoh.kappa;
   n_c     = coefCoh.nDim;
@@ -92,33 +92,33 @@ function stackparams = LocalSolution4StackSlide ( coefCoh, coefInc, constraints,
     eta_c = coefCoh.eta;	## ... but we allow user-input to override this
   endif
 
-  %% incoherent power-law coefficients
+  ## incoherent power-law coefficients
   delta_f = coefInc.delta;
   kappa_f = coefInc.kappa;
   n_f     = coefInc.nDim;
   eta_f   = coefInc.eta;
 
-  %% derived quantities 'epsilon' of Eq.(66)
+  ## derived quantities 'epsilon' of Eq.(66)
   eps_c   = delta_c - eta_c;
   eps_f   = delta_f - eta_f;
 
-  %% ----- average mismatch factor linking average and maximal mismatch for lattices used
+  ## ----- average mismatch factor linking average and maximal mismatch for lattices used
   xi_c = coefCoh.xi;
   xi_f = coefInc.xi;
 
-  %% degenerate case can only be solved with Tseg0 and Tobs0 constraints
+  ## degenerate case can only be solved with Tseg0 and Tobs0 constraints
   if ( (abs(eps_c) < 1e-6) && (abs(eps_f) < 1e-6 ) )
     if ( !(have_Tobs0 && have_Tseg0) )
-      %%warning ( "Degenerate case (eps_c=eps_f=0), need both constraints 'Tobs0' and 'Tseg0'\n");
+      ## warning ( "Degenerate case (eps_c=eps_f=0), need both constraints 'Tobs0' and 'Tseg0'\n");
       stackparams.need_TsegMax = true;
       stackparams.need_TobsMax = true;
       return;
     else
-      %%warning ("Degenerate case, using constraints Tobs0=%g, Tseg0=%g!\n", constraints.Tobs0, constraints.Tseg0 );
+      ## warning ("Degenerate case, using constraints Tobs0=%g, Tseg0=%g!\n", constraints.Tobs0, constraints.Tseg0 );
     endif
   endif
 
-  %% ----- first: special handling of Tobs0 + Tseg0 constrained case ----------
+  ## ----- first: special handling of Tobs0 + Tseg0 constrained case ----------
   if ( have_Tobs0 && have_Tseg0 )
     Tobs0 = constraints.Tobs0;
     Tseg0 = constraints.Tseg0;
@@ -128,7 +128,7 @@ function stackparams = LocalSolution4StackSlide ( coefCoh, coefInc, constraints,
     cost0_fmf = @(m_f) (kappa_c) * m_f.^(-n_c/2 * (n_f + 2) / (n_c + 2)) * Tau0^(-n_c/(n_c+2)) * Tobs0^delta_c * Nseg0^(-eps_c) + (kappa_f) * m_f.^(-n_f/2) * Tobs0^delta_f * Nseg0^(-eps_f);
     eq0_fmf = @(m_f) cost0_fmf(m_f)/cost0 - 1;
 
-    %% try to go with wide bounds for mfOpt, check if sign change
+    ## try to go with wide bounds for mfOpt, check if sign change
     x0 = [0, 1e4];
     if ( eq0_fmf( x0(1) )  * eq0_fmf ( x0(2) ) >= 0 )
       error( "No sign change for eq0_fmf(x) betweeen x0=%g and x1=%g, fzero() won't work!\n", x0(1), x0(2) );
@@ -150,56 +150,56 @@ function stackparams = LocalSolution4StackSlide ( coefCoh, coefInc, constraints,
 
   endif
 
-  %% ----- then: handle unconstrained and Tobs0-constrained cases ----------
+  ## ----- then: handle unconstrained and Tobs0-constrained cases ----------
 
-  %% and 'critical exponent' a of Eq.(77)
+  ## and 'critical exponent' a of Eq.(77)
   a_c = 2 * w * eps_c - delta_c;
   a_f = 2 * w * eps_f - delta_f;
 
-  %% coefficient-matrix determinant of Eq.(88)
+  ## coefficient-matrix determinant of Eq.(88)
   D = delta_c * eta_f - delta_f * eta_c;
-  %% in some extreme cases (e.g. supersky metrics with T < 1 day),
-  %% D can become negative, so only require that it be nonzero.
+  ## in some extreme cases (e.g. supersky metrics with T < 1 day),
+  ## D can become negative, so only require that it be nonzero.
   assert ( D != 0, "Failed assertion: D = %g * %g - %g * %g != 0", delta_c, eta_f, delta_f, eta_c );
   Dinv = 1/D;
 
-  %% ----- asymptotic mismatches, Eq.(78):
+  ## ----- asymptotic mismatches, Eq.(78):
   m0_c = ( xi_c * ( 1 + 4 * w * eps_c / n_c ) )^(-1);
   m0_f = ( xi_f * ( 1 + 4 * w * eps_f / n_f ) )^(-1);
 
-  %% ----- optimal mismatches as functions of 'cr', Eq.(94)
-  %% restrict mismatches to be >= 1e-3 to prevent numerical problems in later equations
+  ## ----- optimal mismatches as functions of 'cr', Eq.(94)
+  ## restrict mismatches to be >= 1e-3 to prevent numerical problems in later equations
   mcOpt_fcr = @(cr) max( 1e-3, ( ( 1 / m0_c ) + ( cr^(-1) / m0_f ) * ( n_f / n_c ) )^(-1) );
   mfOpt_fcr = @(cr) max( 1e-3, ( ( 1 / m0_f ) + ( cr      / m0_c ) * ( n_c / n_f ) )^(-1) );
 
-  %% ----- construct optimal Nseg(cr), Tobs(cr) given by Eqs.(86,87):
+  ## ----- construct optimal Nseg(cr), Tobs(cr) given by Eqs.(86,87):
 
-  %% cost prefactors in Eqs.(86,87) [avoiding overflow]
+  ## cost prefactors in Eqs.(86,87) [avoiding overflow]
   log_c0_kappa_f     = log ( cost0 / kappa_f );
   log_c0_kappa_c     = log ( cost0 / kappa_c );
   termU = @(cr) (mcOpt_fcr(cr))^(-0.5*n_c) * ( 1 + cr^(-1) );
   termL = @(cr) (mfOpt_fcr(cr))^(-0.5*n_f) * ( 1 + cr );
-  misfract_Nseg = @(cr) (termU(cr))^delta_f / (termL(cr))^delta_c;	%% main fraction term in Eq.(86)
-  misfract_Tobs = @(cr) (termU(cr))^eps_f   / (termL(cr))^eps_c;	%% main fraction term in Eq.(87)
+  misfract_Nseg = @(cr) (termU(cr))^delta_f / (termL(cr))^delta_c;	## main fraction term in Eq.(86)
+  misfract_Tobs = @(cr) (termU(cr))^eps_f   / (termL(cr))^eps_c;	## main fraction term in Eq.(87)
   log_cost_fact_Nseg = delta_c * log_c0_kappa_f - delta_f * log_c0_kappa_c;
   log_cost_fact_Tobs = eps_c * log_c0_kappa_f - eps_f * log_c0_kappa_c;
   cost_fact_Nseg     = exp ( log_cost_fact_Nseg );
   cost_fact_Tobs     = exp ( log_cost_fact_Tobs );
-  TobsOpt_fcr = @(cr) ( cost_fact_Tobs * misfract_Tobs(cr) )^Dinv;	%% Eq.(87) for Tobs(cr)
-  NsegOpt_fcr = @(cr) ( cost_fact_Nseg * misfract_Nseg(cr) )^Dinv;	%% Eq.(86) for Nseg(cr)
+  TobsOpt_fcr = @(cr) ( cost_fact_Tobs * misfract_Tobs(cr) )^Dinv;	## Eq.(87) for Tobs(cr)
+  NsegOpt_fcr = @(cr) ( cost_fact_Nseg * misfract_Nseg(cr) )^Dinv;	## Eq.(86) for Nseg(cr)
 
-  %% ----- compute optimal solution for different given constraints ----------
+  ## ----- compute optimal solution for different given constraints ----------
   if ( !have_Tobs0 )
-    crOpt = -a_f / a_c;		%% Eq.(103): if bounded solution
+    crOpt = -a_f / a_c;		## Eq.(103): if bounded solution
     if ( crOpt <= 0 )
       stackparams.need_TobsMax = true;
     endif
   else
-    %% solve **log of** computing-cost ratio equation Eq.(87) for given Tobs
+    ## solve **log of** computing-cost ratio equation Eq.(87) for given Tobs
     log_lhsTobs = D * log( constraints.Tobs0 ) - log_cost_fact_Tobs;
     log_deltaTobs_fcr = @(cr) log( misfract_Tobs(cr) ) - log_lhsTobs;
 
-    %% try to find working bounds for crOpt
+    ## try to find working bounds for crOpt
     x = logspace( -10, 10, 500 );
     y = arrayfun( @(x) log_deltaTobs_fcr(x), x );
     [ymax, imax] = max( y );
@@ -217,13 +217,13 @@ function stackparams = LocalSolution4StackSlide ( coefCoh, coefInc, constraints,
 
   endif
 
-  %% compute all derived quantities from crOpt
+  ## compute all derived quantities from crOpt
   mcOpt    = mcOpt_fcr ( crOpt );
   mfOpt    = mfOpt_fcr ( crOpt );
   TobsOpt  = TobsOpt_fcr ( crOpt );
   NsegOpt  = NsegOpt_fcr ( crOpt );
 
-  %% package this into return-struct 'stackparams'
+  ## package this into return-struct 'stackparams'
   stackparams.mCoh      = mcOpt;
   stackparams.mInc      = mfOpt;
   stackparams.Nseg      = NsegOpt;
@@ -235,7 +235,7 @@ function stackparams = LocalSolution4StackSlide ( coefCoh, coefInc, constraints,
 endfunction
 
 %!test
-%!  %% check recovery of published results in Prix&Shaltev(2012): V.A: directed CasA
+%!  ## check recovery of published results in Prix&Shaltev(2012): V.A: directed CasA
 %!  coefCoh.nDim = 2;
 %!  coefCoh.delta = 4.00;
 %!  coefCoh.kappa = 3.1358511e-17;
@@ -258,7 +258,7 @@ endfunction
 %!  assert ( stackparams.Nseg, 61.7557, 1e-4 );		## corrected result, found in Shaltev thesis, Eq.(4.119), corrected for accurate xi_c, xi_f
 
 %!test
-%!  %% check recovery of published results in Prix&Shaltev(2012): V.B: all-sky E@H [S5GC1], TableII
+%!  ## check recovery of published results in Prix&Shaltev(2012): V.B: all-sky E@H [S5GC1], TableII
 %!  coefCoh.nDim = 4;
 %!  coefCoh.delta = 10.0111962295912;
 %!  coefCoh.kappa = 9.09857109479269e-50;

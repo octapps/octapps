@@ -40,11 +40,11 @@ function DebugPrintStackparams ( level, stackparams )
     dC = NA;
   endif
 
-  %% ----- backwards-compatibility clause ----------
+  ## ----- backwards-compatibility clause ----------
   if ( isfield ( stackparams, "mc" ) ) mCoh = stackparams.mc; else mCoh = stackparams.mCoh; endif
   if ( isfield ( stackparams, "mf" ) ) mInc = stackparams.mf; else mInc = stackparams.mInc; endif
 
-  %% ----- output this
+  ## ----- output this
   fprintf ( stderr, "{Nseg = %6.1f, Tseg = %7.2f d, Tobs = %7.2f d, mCoh = %-7.2g, mInc = %-7.2g} : dCC0=%+6.0e : %s=%+8.2e",
             stackparams.Nseg, stackparams.Tseg/DAYS, stackparams.Nseg * stackparams.Tseg/DAYS, mCoh, mInc, dC, L0name, L0 );
   if ( isfield ( stackparams, "DepthNLM" ) )
@@ -52,7 +52,7 @@ function DebugPrintStackparams ( level, stackparams )
   endif
 
   return;
-endfunction %% DebugPrintStackparams()
+endfunction ## DebugPrintStackparams()
 
 %!test
 %!  params.Nseg = 205;

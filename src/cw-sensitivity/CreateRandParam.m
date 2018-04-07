@@ -36,10 +36,10 @@ function rng = CreateRandParam(varargin)
   for i = 1:nargin
     p = varargin{i};
     switch numel(p)
-      case 1    # <constant>
+      case 1    ## <constant>
         rng.cii(end+1,1) = i;
         rng.cc(end+1,1) = p;
-      case 2    # [<min>, <max>]
+      case 2    ## [<min>, <max>]
         rng.rii(end+1,1) = i;
         rng.rm(end+1,1) = max(p) - min(p);
         rng.rc(end+1,1) = min(p);

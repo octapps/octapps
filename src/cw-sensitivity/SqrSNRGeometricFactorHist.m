@@ -56,7 +56,7 @@ function Rsqr = SqrSNRGeometricFactorHist(varargin)
          "%s: invalid detectors '%s'", funcName, detectors);
 
   ## product of angular sidereal frequency and observation time
-  OmegaT = 2*pi*T;   # T is in sidereal days
+  OmegaT = 2*pi*T;   ## T is in sidereal days
 
   ## create random parameter generator for source location parameters
   rng = CreateRandParam(alpha, sdelta, psi, cosi);

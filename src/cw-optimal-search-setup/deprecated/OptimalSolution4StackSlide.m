@@ -94,7 +94,7 @@ function stackparams = OptimalSolution4StackSlide ( varargin )
             );
   endif
 
-  %% ----- handle different levels of constraints ----------
+  ## ----- handle different levels of constraints ----------
   constraints0.cost0 = uvar.cost0;
 
   have_TobsMax = !isempty(uvar.TobsMax);
@@ -169,7 +169,7 @@ function stackparams = OptimalSolution4StackSlide ( varargin )
     ## compute new guess 'solution'
     new_stackparams = LocalSolution4StackSlide ( coefCoh, coefInc, constraints0, w );
 
-    %% ----- check special failure modes and handle them separately ----------
+    ## ----- check special failure modes and handle them separately ----------
     need_TsegMax = isfield(new_stackparams,"need_TsegMax") && new_stackparams.need_TsegMax;
     need_TobsMax = isfield(new_stackparams,"need_TobsMax") && new_stackparams.need_TobsMax;
     if ( need_TsegMax )
@@ -183,7 +183,7 @@ function stackparams = OptimalSolution4StackSlide ( varargin )
       assert ( have_TobsMax, "LocalSolution4StackSlide() asked for 'TobsMax' constraint!\n");
       new_stackparams = LocalSolution4StackSlide ( coefCoh, coefInc, constraintsTobs, w );
     endif
-    %% ----- sucess, but check if constraints violated, if yes need to recompute:
+    ## ----- sucess, but check if constraints violated, if yes need to recompute:
     Tobs = new_stackparams.Nseg * new_stackparams.Tseg;
     if ( have_TobsMax && (Tobs > uvar.TobsMax) )
       new_stackparams = LocalSolution4StackSlide ( coefCoh, coefInc, constraintsTobs, w );
@@ -201,7 +201,7 @@ function stackparams = OptimalSolution4StackSlide ( varargin )
 
   endwhile
 
-  %% supplement result with estimated achieved value for the objective function 'L0'
+  ## supplement result with estimated achieved value for the objective function 'L0'
   stackparams.misAvg    = stackparams.coefCoh.xi * stackparams.mCoh + stackparams.coefInc.xi * stackparams.mInc;
   stackparams.L0        = ( 1 - stackparams.misAvg ) .* stackparams.Tseg .* stackparams.Nseg.^(1 - 1./(2*stackparams.w));
 

@@ -39,12 +39,12 @@ function [a, b] = DetectorNullVectors(Phis, slambda, gamma)
   gamma = gamma(:)';
 
   ## cosine and sine terms of detector vectors
-  c1 = sin(gamma);              # cos(pi/2 - gamma)
-  s1 = cos(gamma);              # sin(pi/2 - gamma)
-  c2 = slambda;                 # cos(lambda - pi/2)
-  s2 = -sqrt(1 - slambda.^2);   # sin(lambda - pi/2)
-  c3 = -sin(Phis);              # cos(-Phis - pi/2)
-  s3 = -cos(Phis);              # sin(-Phis - pi/2)
+  c1 = sin(gamma);              ## cos(pi/2 - gamma)
+  s1 = cos(gamma);              ## sin(pi/2 - gamma)
+  c2 = slambda;                 ## cos(lambda - pi/2)
+  s2 = -sqrt(1 - slambda.^2);   ## sin(lambda - pi/2)
+  c3 = -sin(Phis);              ## cos(-Phis - pi/2)
+  s3 = -cos(Phis);              ## sin(-Phis - pi/2)
 
   ## detector vectors
   a = [ c1.*c3 - c2.*s1.*s3; -c1.*s3 - c2.*c3.*s1;  s1.*s2 ];

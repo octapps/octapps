@@ -37,10 +37,10 @@ function utc = gps_to_utc(gps)
   utc = cell(1, length(gps));
   for i = 1:length(gps)
 
-    # convert GPS time to a UTC date vector
+    ## convert GPS time to a UTC date vector
     utcv = XLALGPSToUTC(gps(i));
 
-    # convert UTC date vector to a string
+    ## convert UTC date vector to a string
     utc{i} = datestr(datenum(utcv(1:6)));
 
   endfor

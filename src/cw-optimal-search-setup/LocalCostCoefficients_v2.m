@@ -116,7 +116,7 @@ endfunction
 %!endfunction
 %!
 %!test
-%!  %% trivial test example first
+%!  ## trivial test example first
 %! tol = 1e-8;
 %! testCostFunction = struct ( "lattice", "Ans", "f", @test_f );
 %!  [coefCoh, coefInc] = LocalCostCoefficients_v2 ( testCostFunction, 100, 86400, 0.5, 0.3 );

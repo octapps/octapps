@@ -37,7 +37,7 @@ function LRstat = ComputeLineRobustStat ( twoF_multi, twoF_single, Fstar0, oLGX,
  ## implementation here is optimized to avoid underflows ("log-sum-exp formula")
  ## should be compatible with current implementation in lalpulsar/src/LineRobustStats.c
 
- # check for consistent vector/matrix lengths
+ ## check for consistent vector/matrix lengths
  if ( isempty(twoF_multi) || isempty(twoF_single) || isempty(Fstar0) || isempty(oLGX) )
   error("Need non-empty input on all arguments!");
  endif
@@ -53,36 +53,36 @@ function LRstat = ComputeLineRobustStat ( twoF_multi, twoF_single, Fstar0, oLGX,
   error("Invalid input - prior parameter oLGX must be >=0.")
  endif
 
- # translate line priors
+ ## translate line priors
  oLG = sum(oLGX);
  rX = oLGX*numdets/oLG;
  pL = oLG/(1+oLG);
 
- # special treatment for additional denominator term (1-pL)exp(F*0)  - octave seems to work fine with log(0)=-inf
+ ## special treatment for additional denominator term (1-pL)exp(F*0)  - octave seems to work fine with log(0)=-inf
  logFstar0Term = Fstar0 + log(1-pL);
- denomterms      = zeros(numcands,1+numdets); # pre-allocate with fixed size, for minor speedup
+ denomterms      = zeros(numcands,1+numdets); ## pre-allocate with fixed size, for minor speedup
  denomterms(:,1) = logFstar0Term*ones(numcands,1);
 
- # get log per-detector terms
+ ## get log per-detector terms
  for X = 1:1:numdets
   denomterms(:,1+X) = 0.5*twoF_single(:,X) + log(rX(X));
  endfor
  denomterms(:,2:end) += log(pL) - log(numdets);
 
- maxInSum = max( denomterms, [], 2 ); # vector of the maximum from each row
+ maxInSum = max( denomterms, [], 2 ); ## vector of the maximum from each row
 
- LRstat = 0.5 * twoF_multi - maxInSum; # dominant term to LV-statistic
+ LRstat = 0.5 * twoF_multi - maxInSum; ## dominant term to LV-statistic
 
- if ( useAllTerms ) # optionally add logsumexp term (possibly negligible in many cases)
+ if ( useAllTerms ) ## optionally add logsumexp term (possibly negligible in many cases)
   extraSum = zeros(numcands,1);
   for X = 1:1:length(denomterms(1,:))
    extraSum += exp ( denomterms(:,X) - maxInSum );
   endfor
   LRstat -= log( extraSum );
- endif # useAllTerms?
+ endif ## useAllTerms?
 
  LRstat *= log10(e);
 
-endfunction # ComputeLineRobustStat()
+endfunction ## ComputeLineRobustStat()
 
 %!assert(ComputeLineRobustStat(10, [6, 5], 0.1, [0.5, 0.5], false), 1.4706, 1e-3)

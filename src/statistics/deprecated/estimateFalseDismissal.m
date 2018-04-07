@@ -1,27 +1,27 @@
-%% Copyright (C) 2010 Reinhard Prix
-%%
-%% This program is free software; you can redistribute it and/or modify
-%% it under the terms of the GNU General Public License as published by
-%% the Free Software Foundation; either version 2 of the License, or
-%% (at your option) any later version.
-%%
-%% This program is distributed in the hope that it will be useful,
-%% but WITHOUT ANY WARRANTY; without even the implied warranty of
-%% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-%% GNU General Public License for more details.
-%%
-%% You should have received a copy of the GNU General Public License
-%% along with with program; see the file COPYING. If not, write to the
-%% Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
-%% MA  02111-1307  USA
+## Copyright (C) 2010 Reinhard Prix
+##
+## This program is free software; you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation; either version 2 of the License, or
+## (at your option) any later version.
+##
+## This program is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License
+## along with with program; see the file COPYING. If not, write to the
+## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+## MA  02111-1307  USA
 
 function [fDEst, dfDEst] = estimateFalseDismissal ( fA, stat_0, stat_s )
-  %% DEPRECATED: use estimateRateFromSamples() or estimateROC() instead
-  %%
-  %% Usage: [fDEst, dfDEst] = estimateFalseDismissal ( fA, stat_0, stat_s )
-  %% function to estimate false-dismissals plus Jackknife error-estimates for given false-alarms
-  %% and samples of the statistic in no-signal case (stat_0) and in case of signal+noise (stat_s)
-  %% new version 2011/01: for N<100 samples, just calculate fDest without errors; for N>100, but not multiple, truncate to closest multiple
+  ## DEPRECATED: use estimateRateFromSamples() or estimateROC() instead
+  ##
+  ## Usage: [fDEst, dfDEst] = estimateFalseDismissal ( fA, stat_0, stat_s )
+  ## function to estimate false-dismissals plus Jackknife error-estimates for given false-alarms
+  ## and samples of the statistic in no-signal case (stat_0) and in case of signal+noise (stat_s)
+  ## new version 2011/01: for N<100 samples, just calculate fDest without errors; for N>100, but not multiple, truncate to closest multiple
 
   warning ( "DEPRECATED: use estimateRateFromSamples() or estimateROC() instead\n");
 
@@ -50,7 +50,7 @@ function [fDEst, dfDEst] = estimateFalseDismissal ( fA, stat_0, stat_s )
 
     h_0 = round(Nsamples_0 / g );
     h_s = round(Nsamples_s / g );
-    %% Jackknife error-estimate on g=100 subgroups
+    ## Jackknife error-estimate on g=100 subgroups
     stat_0_j = reshape ( stat_0, g, Nsamples_0/g );
     stat_s_j = reshape ( stat_s, g, Nsamples_s/g );
 
