@@ -58,24 +58,24 @@ function p = ChiSquare_pdf(x, k, lambda=0)
   normal_approx = 0;
   if any(ii(:))
 
-     ## compute terms in logarithm of PDF
-     logp_t1 = logp_t2 = nu = z = logp_t3 = logp_ts = zeros(size(p));
-     logp_t1(ii) = -log(2) - 0.5.*( x(ii) + lambda(ii) );
-     logp_t2(ii) = (k(ii)./4 - 0.5).*log( x(ii) ./ lambda(ii) );
-     nu(ii) = k(ii)./2 - 1;
-     z(ii) = sqrt(x(ii) .* lambda(ii));
-     logp_t3(ii) = log( besseli( nu(ii), z(ii) ) );
-     logp_ts(ii) = logp_t1(ii) + logp_t2(ii) + logp_t3(ii);
+    ## compute terms in logarithm of PDF
+    logp_t1 = logp_t2 = nu = z = logp_t3 = logp_ts = zeros(size(p));
+    logp_t1(ii) = -log(2) - 0.5.*( x(ii) + lambda(ii) );
+    logp_t2(ii) = (k(ii)./4 - 0.5).*log( x(ii) ./ lambda(ii) );
+    nu(ii) = k(ii)./2 - 1;
+    z(ii) = sqrt(x(ii) .* lambda(ii));
+    logp_t3(ii) = log( besseli( nu(ii), z(ii) ) );
+    logp_ts(ii) = logp_t1(ii) + logp_t2(ii) + logp_t3(ii);
 
-     ## compute PDF
-     p(ii) = exp( logp_ts(ii) );
+    ## compute PDF
+    p(ii) = exp( logp_ts(ii) );
 
-     ## approximate by normal distribution if chi^2 failed
-     kk = ii & ( !isfinite(logp_ts) | (logp_ts > 0) );
-     if any(kk)
-       p(kk) = normpdf(x(kk), k(kk) + lambda(kk), sqrt( 2.* ( k(kk) + 2.*lambda(kk) ) ));
-       normal_approx = 1;
-     endif
+    ## approximate by normal distribution if chi^2 failed
+    kk = ii & ( !isfinite(logp_ts) | (logp_ts > 0) );
+    if any(kk)
+      p(kk) = normpdf(x(kk), k(kk) + lambda(kk), sqrt( 2.* ( k(kk) + 2.*lambda(kk) ) ));
+      normal_approx = 1;
+    endif
 
   endif
 

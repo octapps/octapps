@@ -44,17 +44,17 @@ function sensDepth = SensitivityDepthHoughF ( varargin )
 
   ## parse options
   uvar = parseOptions ( varargin,
-                       {"Nseg", "integer,strictpos,column", 1 },
-                       {"Tdata", "real,strictpos,column" },
-                       {"misHist", "acell:Hist" },
-                       {"pFD", "real,strictpos,column", 0.1},
-                       {"pFA", "real,strictpos,vector"},
-                       {"Fth", "real,strictpos,column", 5.2/2 },
-                       {"detectors", "char", "H1,L1" },
-                       {"detweights", "real,strictpos,vector", []},
-                       {"alpha", "real,vector", [0, 2*pi]},
-                       {"delta", "real,vector", [-pi/2, pi/2]},
-                       []);
+                        {"Nseg", "integer,strictpos,column", 1 },
+                        {"Tdata", "real,strictpos,column" },
+                        {"misHist", "acell:Hist" },
+                        {"pFD", "real,strictpos,column", 0.1},
+                        {"pFA", "real,strictpos,vector"},
+                        {"Fth", "real,strictpos,column", 5.2/2 },
+                        {"detectors", "char", "H1,L1" },
+                        {"detweights", "real,strictpos,vector", []},
+                        {"alpha", "real,vector", [0, 2*pi]},
+                        {"delta", "real,vector", [-pi/2, pi/2]},
+                        []);
 
   ## compute sensitivity SNR
   Rsqr = SqrSNRGeometricFactorHist("detectors", uvar.detectors, "detweights", uvar.detweights, "alpha", uvar.alpha, "sdelta", sin(uvar.delta) );

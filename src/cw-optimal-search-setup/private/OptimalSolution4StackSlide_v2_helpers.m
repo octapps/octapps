@@ -364,7 +364,7 @@ function sol = INT_unconstrained ( stackparams, funs )
                         - etaCoh * log(CostInc0/kInc) - etaCoh * nInc/2 * log(mIncOpt) );
     TsegOpt = exp(logTseg);
     logNseg = (1/D) * ( + deltaCoh * log(CostInc0/kInc) + deltaCoh * nInc/2 * log(mIncOpt) ...
-                          - deltaInc * log(CostCoh0/kCoh) - deltaInc * nCoh/2 * log(mCohOpt) );
+                        - deltaInc * log(CostCoh0/kCoh) - deltaInc * nCoh/2 * log(mCohOpt) );
     NsegOpt = exp(logNseg);
 
     sol = struct ( "Nseg", NsegOpt, "Tseg", TsegOpt, "mCoh", mCohOpt, "mInc", mIncOpt );

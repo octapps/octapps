@@ -16,43 +16,43 @@
 ## MA  02111-1307  USA
 
 function [num_outliers, max_outlier, freqbins] = CountSFTPowerOutliers ( params_psd, thresh, lalpath, debug )
- ## [num_outliers, max_outlier, freqbins] = CountSFTPowerOutliers ( params_psd, thresh, lalpath, debug )
- ## function to compute the number of outliers of the SFT power statistic
+  ## [num_outliers, max_outlier, freqbins] = CountSFTPowerOutliers ( params_psd, thresh, lalpath, debug )
+  ## function to compute the number of outliers of the SFT power statistic
 
- threshdimensions = size(thresh);
- if ( ( length(threshdimensions) > 3 ) || ( ( threshdimensions(1) > 1 ) && ( threshdimensions(2) > 1 ) ) )
-  error("Parameter 2 (thresh) has too high dimension, only a single row or column vector is accepted.");
- endif
-
- ## The following params_psd fields are REQUIRED from the caller function
- required_fields = {"inputData","outputPSD"};
- for n=1:1:length(required_fields)
-  if ( !isfield(params_psd,required_fields{n}) )
-   error(["Required field '", required_fields{n}, "' of params_psd was not set by caller function."]);
+  threshdimensions = size(thresh);
+  if ( ( length(threshdimensions) > 3 ) || ( ( threshdimensions(1) > 1 ) && ( threshdimensions(2) > 1 ) ) )
+    error("Parameter 2 (thresh) has too high dimension, only a single row or column vector is accepted.");
   endif
- endfor
- ## additionally, the following are relevant, but optional (as good defaults exist): PSDmthopSFTs, PSDmthopIFOs, blocksRngMed
- params_psd.outputNormSFT = 1; ## this one we ALWAYS need to get the power statistic
 
- ComputePSD      = [lalpath, "lalapps_ComputePSD"];
+  ## The following params_psd fields are REQUIRED from the caller function
+  required_fields = {"inputData","outputPSD"};
+  for n=1:1:length(required_fields)
+    if ( !isfield(params_psd,required_fields{n}) )
+      error(["Required field '", required_fields{n}, "' of params_psd was not set by caller function."]);
+    endif
+  endfor
+  ## additionally, the following are relevant, but optional (as good defaults exist): PSDmthopSFTs, PSDmthopIFOs, blocksRngMed
+  params_psd.outputNormSFT = 1; ## this one we ALWAYS need to get the power statistic
 
- if ( debug )
-  printf("Computing PSDs for a running median window of %d bins.\n", params_psd.blocksRngMed);
-  params_psd.LAL_DEBUG_LEVEL = "MSGLVL2"; ## errors and warnings
- else
-  params_psd.LAL_DEBUG_LEVEL = 0;
- endif
+  ComputePSD      = [lalpath, "lalapps_ComputePSD"];
 
- ## run ComputePSD on all input SFTs
- runCode ( params_psd, ComputePSD );
- psd = load(params_psd.outputPSD);
+  if ( debug )
+    printf("Computing PSDs for a running median window of %d bins.\n", params_psd.blocksRngMed);
+    params_psd.LAL_DEBUG_LEVEL = "MSGLVL2"; ## errors and warnings
+  else
+    params_psd.LAL_DEBUG_LEVEL = 0;
+  endif
 
- ## get PSD power outlier count and maximum
- for n = 1:1:length(thresh)
-  num_outliers(n) = length(psd(psd(:,3)>thresh(n),3));
- endfor
- max_outlier  = max(psd(:,3));
- freqbins     = length(psd(:,1));
+  ## run ComputePSD on all input SFTs
+  runCode ( params_psd, ComputePSD );
+  psd = load(params_psd.outputPSD);
+
+  ## get PSD power outlier count and maximum
+  for n = 1:1:length(thresh)
+    num_outliers(n) = length(psd(psd(:,3)>thresh(n),3));
+  endfor
+  max_outlier  = max(psd(:,3));
+  freqbins     = length(psd(:,1));
 
 endfunction ## CountSFTPowerOutliers()
 

@@ -207,7 +207,7 @@ function tex = buildTeXTable(spec, varargin)
         multicolalign = "c";
       endif
       if isstruct(tbl{i, jj(k)})
-         error("%s: cannot split number '%s' over multiple columns", funcName, tbl{i, jj(k)}.value);
+        error("%s: cannot split number '%s' over multiple columns", funcName, tbl{i, jj(k)}.value);
       endif
       tex{end+1} = sprintf("\\multicolumn{%i}{%s}{%s}", cols, multicolalign, tbl{i, jj(k)});
 

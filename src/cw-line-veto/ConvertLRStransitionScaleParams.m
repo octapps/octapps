@@ -16,83 +16,83 @@
 ## MA  02111-1307  USA
 
 function outvalue = ConvertLRStransitionScaleParams ( outname, inname, invalue, Nseg=1 )
- ## outvalue = ConvertLRStransitionScaleParams ( outname, inname, invalue, Nseg )
- ## function to convert between various parametrisations of the line-robust statistic transition scale
- ## reference: Keitel, Prix, Papa, Leaci, Siddiq, PRD 89(6):064023 (2014)
- ##
- ## outname/inname can be any of:
- ## "Fstar0" as defined in Eq. (38), not to be confused with the semicoherent Fstar0hat
- ## "Fstar0hat" as defined in Eq. (57)
- ## "pFAstar0" as defined in Eq. (67)
- ## "cstar" as defined in Eq. (11)
- ## "LVrho" (deprecated) as defined in footnote 1 (p4)
- ##
- ## Nseg is optional and will be assumed 1 by default
+  ## outvalue = ConvertLRStransitionScaleParams ( outname, inname, invalue, Nseg )
+  ## function to convert between various parametrisations of the line-robust statistic transition scale
+  ## reference: Keitel, Prix, Papa, Leaci, Siddiq, PRD 89(6):064023 (2014)
+  ##
+  ## outname/inname can be any of:
+  ## "Fstar0" as defined in Eq. (38), not to be confused with the semicoherent Fstar0hat
+  ## "Fstar0hat" as defined in Eq. (57)
+  ## "pFAstar0" as defined in Eq. (67)
+  ## "cstar" as defined in Eq. (11)
+  ## "LVrho" (deprecated) as defined in footnote 1 (p4)
+  ##
+  ## Nseg is optional and will be assumed 1 by default
 
- supported_params = {"Fstar0","Fstar0hat","pFAstar0","cstar","LVrho"};
+  supported_params = {"Fstar0","Fstar0hat","pFAstar0","cstar","LVrho"};
 
- if ( !exist("outname","var") || !exist("inname","var") || !exist("invalue","var") )
-  error("Need at least three input arguments: outname, inname, invalue. (optional fourth argument: Nseg)");
- endif
+  if ( !exist("outname","var") || !exist("inname","var") || !exist("invalue","var") )
+    error("Need at least three input arguments: outname, inname, invalue. (optional fourth argument: Nseg)");
+  endif
 
- if ( !ischar(outname) || !ischar(inname) )
-  error("First two input arguments (name of output/input variable) must be character strings.");
- endif
+  if ( !ischar(outname) || !ischar(inname) )
+    error("First two input arguments (name of output/input variable) must be character strings.");
+  endif
 
- if ( !any(strcmp(outname,supported_params)) )
-  error("Requested unsupported output parametrisation '%s'. Supported parameters:\n %s", outname, list_in_columns(supported_params));
- endif
+  if ( !any(strcmp(outname,supported_params)) )
+    error("Requested unsupported output parametrisation '%s'. Supported parameters:\n %s", outname, list_in_columns(supported_params));
+  endif
 
- if ( !any(strcmp(inname,supported_params)) )
-  error("Requested unsupported input parametrisation '%s'. Supported parameters:\n %s", inname, list_in_columns(supported_params));
- endif
+  if ( !any(strcmp(inname,supported_params)) )
+    error("Requested unsupported input parametrisation '%s'. Supported parameters:\n %s", inname, list_in_columns(supported_params));
+  endif
 
- if ( !isnumeric(invalue) || !isscalar(invalue) || !isreal(invalue) )
-  error("Third input argument (input value) must be a real scalar.");
- endif
+  if ( !isnumeric(invalue) || !isscalar(invalue) || !isreal(invalue) )
+    error("Third input argument (input value) must be a real scalar.");
+  endif
 
- if ( !isnumeric(Nseg) || !isscalar(Nseg) || !isreal(Nseg) || mod(Nseg,1) || ( Nseg < 1 ) )
-  error("Fourth input argument (Nseg) must be a scalar, positive integer.");
- endif
+  if ( !isnumeric(Nseg) || !isscalar(Nseg) || !isreal(Nseg) || mod(Nseg,1) || ( Nseg < 1 ) )
+    error("Fourth input argument (Nseg) must be a scalar, positive integer.");
+  endif
 
- if ( strcmp(outname,inname) )
+  if ( strcmp(outname,inname) )
 
-  outvalue = invalue;
+    outvalue = invalue;
 
- else
+  else
 
-  switch inname
-   case "Fstar0"
-    Fstar0 = invalue;
-   case "Fstar0hat"
-    Fstar0 = invalue/Nseg;
-   case "pFAstar0"
-    Fstar0 = invFalseAlarm_chi2(invalue,4*Nseg)/(2*Nseg);
-   case "cstar"
-    Fstar0 = log(invalue);
-   case "LVrho"
-    cstar = (invalue^4/70)^(1/Nseg);
-    Fstar0 = log(cstar);
-  endswitch
+    switch inname
+      case "Fstar0"
+        Fstar0 = invalue;
+      case "Fstar0hat"
+        Fstar0 = invalue/Nseg;
+      case "pFAstar0"
+        Fstar0 = invFalseAlarm_chi2(invalue,4*Nseg)/(2*Nseg);
+      case "cstar"
+        Fstar0 = log(invalue);
+      case "LVrho"
+        cstar = (invalue^4/70)^(1/Nseg);
+        Fstar0 = log(cstar);
+    endswitch
 
-  switch outname
-   case "Fstar0"
-    outvalue = Fstar0;
-   case "Fstar0hat"
-    outvalue = Nseg*Fstar0;
-   case "pFAstar0"
-    outvalue = falseAlarm_chi2 ( 2*Nseg*Fstar0, 4*Nseg );
-   case "cstar"
-    if ( exist("cstar","var") )
-     outvalue = cstar;
-    else
-     outvalue = exp(Fstar0);
-    endif
-   case "LVrho"
-    outvalue = 70^(0.25)*exp(Fstar0*Nseg/4);
-  endswitch
+    switch outname
+      case "Fstar0"
+        outvalue = Fstar0;
+      case "Fstar0hat"
+        outvalue = Nseg*Fstar0;
+      case "pFAstar0"
+        outvalue = falseAlarm_chi2 ( 2*Nseg*Fstar0, 4*Nseg );
+      case "cstar"
+        if ( exist("cstar","var") )
+          outvalue = cstar;
+        else
+          outvalue = exp(Fstar0);
+        endif
+      case "LVrho"
+        outvalue = 70^(0.25)*exp(Fstar0*Nseg/4);
+    endswitch
 
- endif
+  endif
 
 endfunction ## ConvertLRStransitionScaleParams()
 

@@ -80,9 +80,9 @@ function g = GCTCoherentTaylorMetric(varargin)
       g(nud, nudd) = g(nudd, nud) = 4/3 * tj_t0_T(1) + 16 * tj_t0_T(3);
       g(nudd, nudd) = 1/7 + 8 * tj_t0_T(2) + 48 * tj_t0_T(4);
       g(nudd, nx) = g(nx, nudd) = ( -3/5 * j1_phi + 2/5 * j3_phi ) * sin_Omega_tj - 4 * j2_phi ...
-          * tj_t0_T(1) * cos_Omega_tj - 12 * j1_phi * tj_t0_T(2) * sin_Omega_tj;
+                                                                                    * tj_t0_T(1) * cos_Omega_tj - 12 * j1_phi * tj_t0_T(2) * sin_Omega_tj;
       g(nudd, ny) = g(ny, nudd) = (  3/5 * j1_phi - 2/5 * j3_phi ) * cos_Omega_tj - 4 * j2_phi ...
-          * tj_t0_T(1) * sin_Omega_tj + 12 * j1_phi * tj_t0_T(2) * cos_Omega_tj;
+                                                                                    * tj_t0_T(1) * sin_Omega_tj + 12 * j1_phi * tj_t0_T(2) * cos_Omega_tj;
     endif
   endif
 

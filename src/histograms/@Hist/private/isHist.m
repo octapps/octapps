@@ -22,8 +22,8 @@ function ishgrm = isHist(hgrm)
   if ishgrm
     for k = 1:length(hgrm.bins)
       ishgrm = ishgrm && isvector(hgrm.bins{k}) && length(hgrm.bins{k}) >= 2 && ...
-          hgrm.bins{k}(1) == -inf && all(isfinite(hgrm.bins{k}(2:end-1))) && hgrm.bins{k}(end) == inf && ...
-          length(hgrm.bins{k}) == size(hgrm.counts, k) + 1;
+               hgrm.bins{k}(1) == -inf && all(isfinite(hgrm.bins{k}(2:end-1))) && hgrm.bins{k}(end) == inf && ...
+               length(hgrm.bins{k}) == size(hgrm.counts, k) + 1;
     endfor
   endif
 

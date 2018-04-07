@@ -259,11 +259,11 @@ function Nt = rssky_num_templates(Nseg, Tseg, mis, params, padding)
 
       ## compute number of templates
       Nt_interp(i, j) = NumberOfLatticeBankTemplates(
-                                                     "lattice", lattice,
-                                                     "metric", rssky_metric,
-                                                     "max_mismatch", mis,
-                                                     "param_vol", vol
-                                                     );
+                            "lattice", lattice,
+                            "metric", rssky_metric,
+                            "max_mismatch", mis,
+                            "param_vol", vol
+                          );
 
     endfor
   endfor

@@ -57,17 +57,17 @@ function sensDepth = SensitivityDepthStackSlide ( varargin )
 
   ## parse options
   uvar = parseOptions ( varargin,
-                       {"Nseg", "integer,strictpos,matrix", 1 },
-                       {"Tdata", "real,strictpos,matrix" },
-                       {"misHist", "acell:Hist", []},
-                       {"pFD", "real,strictpos,column", 0.1},
-                       {"pFA", "real,strictpos,matrix", []},
-                       {"avg2Fth", "real,strictpos,matrix", []},
-                       {"detectors", "char", "H1,L1" },
-                       {"detweights", "real,strictpos,vector", []},
-                       {"alpha", "real,vector", [0, 2*pi]},
-                       {"delta", "real,vector", [-pi/2, pi/2]},
-                       []);
+                        {"Nseg", "integer,strictpos,matrix", 1 },
+                        {"Tdata", "real,strictpos,matrix" },
+                        {"misHist", "acell:Hist", []},
+                        {"pFD", "real,strictpos,column", 0.1},
+                        {"pFA", "real,strictpos,matrix", []},
+                        {"avg2Fth", "real,strictpos,matrix", []},
+                        {"detectors", "char", "H1,L1" },
+                        {"detweights", "real,strictpos,vector", []},
+                        {"alpha", "real,vector", [0, 2*pi]},
+                        {"delta", "real,vector", [-pi/2, pi/2]},
+                        []);
 
   ## check input
   assert ( ! ( isempty ( uvar.pFA ) && isempty ( uvar.avg2Fth ) ), "Need at least one of 'pFA' or 'avg2Fth' to determine false-alarm probability!\n" );

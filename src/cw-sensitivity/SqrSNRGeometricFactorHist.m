@@ -51,7 +51,7 @@ function Rsqr = SqrSNRGeometricFactorHist(varargin)
                {"hist_dx", "real,scalar", 5e-3},
                {"hist_N", "real,scalar", 20000},
                {"hist_err", "real,scalar", 1e-4}
-               );
+              );
   assert(all(isalnum(detectors) | detectors == ","), ...
          "%s: invalid detectors '%s'", funcName, detectors);
 
@@ -69,7 +69,7 @@ function Rsqr = SqrSNRGeometricFactorHist(varargin)
   ## then normalise weights by their mean
   assert(isempty(detweights) || length(detweights) == length(detectors));
   if isempty(detweights)
-     detweights = ones(1, length(detectors));
+    detweights = ones(1, length(detectors));
   endif
   detweights /= mean(detweights);
 

@@ -16,67 +16,67 @@
 ## MA  02111-1307  USA
 
 function [gct_freq_min, gct_freq_band, gct_phys_freq_min, gct_phys_freq_band] = PredictGCTFreqband ( freq, freqband, dFreq, f1dot, f1dotband, df1dot, f2dot, f2dotband, df2dot, starttime, duration, reftime, Tsft, blocksRngMed, Dterms )
- ## [gct_freq_min, gct_freq_band, gct_phys_freq_min, gct_phys_freq_band] = PredictGCTFreqband ( freq, freqband, dFreq, f1dot, f1dotband, df1dot, f2dot, f2dotband, df2dot, starttime, duration, reftime, Tsft, blocksRngMed, Dterms )
- ## function to predict the frequency band required by a HSGCT search
- ## based on code snippets from LALSuite program HierarchSearchGCT and on XLALCreateFstatInput() from lalpulsar
- ## for older freqband convention (e.g. S6Bucket, S6LV1 runs), see PredictGCTFreqbandLegacy.m
- ## NOTE: this is for laldemod only, resampling is somewhat different
+  ## [gct_freq_min, gct_freq_band, gct_phys_freq_min, gct_phys_freq_band] = PredictGCTFreqband ( freq, freqband, dFreq, f1dot, f1dotband, df1dot, f2dot, f2dotband, df2dot, starttime, duration, reftime, Tsft, blocksRngMed, Dterms )
+  ## function to predict the frequency band required by a HSGCT search
+  ## based on code snippets from LALSuite program HierarchSearchGCT and on XLALCreateFstatInput() from lalpulsar
+  ## for older freqband convention (e.g. S6Bucket, S6LV1 runs), see PredictGCTFreqbandLegacy.m
+  ## NOTE: this is for laldemod only, resampling is somewhat different
 
- ## input checks
- if ( dFreq == 0 )
-  error("dFreq=0 will lead to divisions by 0 in calculating extraBinsFstat.");
- endif
+  ## input checks
+  if ( dFreq == 0 )
+    error("dFreq=0 will lead to divisions by 0 in calculating extraBinsFstat.");
+  endif
 
- ## copy user specified spin variables at reftime
- ## NOTE: different index conventions between lalapps and octave - (k) here corresponds to [k-1] in LALExtrapolatePulsarSpinRange
- fkdot_reftime(1) = freq;  ## frequency
- fkdot_reftime(2) = f1dot; ## 1st spindown
- fkdot_reftime(3) = f2dot; ## 2nd spindown
- fkdotband_reftime(1) = freqband;  ## frequency range
- fkdotband_reftime(2) = f1dotband; ## 1st spindown range
- fkdotband_reftime(3) = f2dotband; ## 2nd spindown range
+  ## copy user specified spin variables at reftime
+  ## NOTE: different index conventions between lalapps and octave - (k) here corresponds to [k-1] in LALExtrapolatePulsarSpinRange
+  fkdot_reftime(1) = freq;  ## frequency
+  fkdot_reftime(2) = f1dot; ## 1st spindown
+  fkdot_reftime(3) = f2dot; ## 2nd spindown
+  fkdotband_reftime(1) = freqband;  ## frequency range
+  fkdotband_reftime(2) = f1dotband; ## 1st spindown range
+  fkdotband_reftime(3) = f2dotband; ## 2nd spindown range
 
- ## get frequency and fdot bands at start / mid / end time of sfts by extrapolating from reftime
- numSpins = 2; ## used in ExtrapolatePulsarSpinRange with counting from 0, thus 2 = freq + 2 spindowns
- [fkdot_starttime, fkdotband_starttime] = ExtrapolatePulsarSpinRange ( reftime, starttime, fkdot_reftime, fkdotband_reftime, numSpins );
- midtime = starttime + 0.5*duration;
- [fkdot_midtime, fkdotband_midtime]     = ExtrapolatePulsarSpinRange ( reftime, midtime, fkdot_reftime, fkdotband_reftime, numSpins );
- endtime = starttime + duration;
- [fkdot_endtime, fkdotband_endtime]     = ExtrapolatePulsarSpinRange ( reftime, endtime, fkdot_reftime, fkdotband_reftime, numSpins );
+  ## get frequency and fdot bands at start / mid / end time of sfts by extrapolating from reftime
+  numSpins = 2; ## used in ExtrapolatePulsarSpinRange with counting from 0, thus 2 = freq + 2 spindowns
+  [fkdot_starttime, fkdotband_starttime] = ExtrapolatePulsarSpinRange ( reftime, starttime, fkdot_reftime, fkdotband_reftime, numSpins );
+  midtime = starttime + 0.5*duration;
+  [fkdot_midtime, fkdotband_midtime]     = ExtrapolatePulsarSpinRange ( reftime, midtime, fkdot_reftime, fkdotband_reftime, numSpins );
+  endtime = starttime + duration;
+  [fkdot_endtime, fkdotband_endtime]     = ExtrapolatePulsarSpinRange ( reftime, endtime, fkdot_reftime, fkdotband_reftime, numSpins );
 
- ## calculate number of bins for Fstat overhead due to residual spin-down
- extraBinsFstat = floor( 0.25*duration*(df1dot+duration*df2dot)/dFreq + 1e-6) + 1;
+  ## calculate number of bins for Fstat overhead due to residual spin-down
+  extraBinsFstat = floor( 0.25*duration*(df1dot+duration*df2dot)/dFreq + 1e-6) + 1;
 
- ## set wings of sfts to be read
- ## NOTE: contrary to GCT code, do not translate again from midtime to starttime and endtime
- ## This is potentially 'wider' than the physically-requested template bank, and can therefore also require more SFT frequency bins!
- [minCoverFreq, maxCoverFreq] = CWSignalCoveringBand ( fkdot_starttime, fkdotband_endtime, fkdot_endtime, fkdotband_endtime );
+  ## set wings of sfts to be read
+  ## NOTE: contrary to GCT code, do not translate again from midtime to starttime and endtime
+  ## This is potentially 'wider' than the physically-requested template bank, and can therefore also require more SFT frequency bins!
+  [minCoverFreq, maxCoverFreq] = CWSignalCoveringBand ( fkdot_starttime, fkdotband_endtime, fkdot_endtime, fkdotband_endtime );
 
- minCoverFreq -= extraBinsFstat * dFreq;
- maxCoverFreq += extraBinsFstat * dFreq;
+  minCoverFreq -= extraBinsFstat * dFreq;
+  maxCoverFreq += extraBinsFstat * dFreq;
 
- ## extra terms for laldemod method
- extraBinsMethod = Dterms;
+  ## extra terms for laldemod method
+  extraBinsMethod = Dterms;
 
- ## add number of extra frequency bins required by running median
- extraBinsFull = extraBinsMethod + blocksRngMed/2 + 1;
+  ## add number of extra frequency bins required by running median
+  extraBinsFull = extraBinsMethod + blocksRngMed/2 + 1;
 
- ## extend frequency range by number of extra bins times SFT bin width
- extraFreqMethod = extraBinsMethod / Tsft;
- minFreqMethod = minCoverFreq - extraFreqMethod;
- maxFreqMethod = maxCoverFreq + extraFreqMethod;
+  ## extend frequency range by number of extra bins times SFT bin width
+  extraFreqMethod = extraBinsMethod / Tsft;
+  minFreqMethod = minCoverFreq - extraFreqMethod;
+  maxFreqMethod = maxCoverFreq + extraFreqMethod;
 
- extraFreqFull = extraBinsFull / Tsft;
- minFreqFull = minCoverFreq - extraFreqFull;
- maxFreqFull = maxCoverFreq + extraFreqFull;
+  extraFreqFull = extraBinsFull / Tsft;
+  minFreqFull = minCoverFreq - extraFreqFull;
+  maxFreqFull = maxCoverFreq + extraFreqFull;
 
- ## full band for data readin
- gct_freq_min = minFreqFull;
- gct_freq_band = maxFreqFull - minFreqFull;
+  ## full band for data readin
+  gct_freq_min = minFreqFull;
+  gct_freq_band = maxFreqFull - minFreqFull;
 
- ## physical band e.g. for adaptive oLGX tuning
- gct_phys_freq_min = minFreqMethod;
- gct_phys_freq_band = maxFreqMethod - minFreqMethod;
+  ## physical band e.g. for adaptive oLGX tuning
+  gct_phys_freq_min = minFreqMethod;
+  gct_phys_freq_band = maxFreqMethod - minFreqMethod;
 
 endfunction ## PredictGCTFreqband()
 

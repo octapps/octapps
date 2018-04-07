@@ -94,12 +94,12 @@ function ezprint(filepath, varargin)
             sprintf("-FHelvetica:%i", fontsize), ...
             filepath);
 
-    ## reset scale figure line widths
+      ## reset scale figure line widths
     unwind_protect_cleanup
       set(H, {"linewidth"}, linewidths);
     end_unwind_protect
 
-  ## reset graphics toolkit to gnuplot
+    ## reset graphics toolkit to gnuplot
   unwind_protect_cleanup
     graphics_toolkit(gcf, toolkit);
   end_unwind_protect

@@ -120,22 +120,22 @@ function ret = func_Nt_given_s ( s, Nseg, Tseg, mis, params )
 
   switch ( s )
 
-      case 1
-        ## Eq.(56) in Pletsch(2010)
-        prefact = rho0 * pi^5 * tauE^2 / (2 * tau_min ) * ( fmax^4 - fmin^4 );
-        Ntc     = fracSky * prefact * sqrt(detg1(phi)) .* Tseg.^3;
+    case 1
+      ## Eq.(56) in Pletsch(2010)
+      prefact = rho0 * pi^5 * tauE^2 / (2 * tau_min ) * ( fmax^4 - fmin^4 );
+      Ntc     = fracSky * prefact * sqrt(detg1(phi)) .* Tseg.^3;
 
-      case 2
-        prefact = rho0  * pi^6 * tauE^2 / (15 * tau_min.^3) * ( fmax^5 - fmin^5 );
-        Ntc     = fracSky * prefact * sqrt(detg2(phi)) .* Tseg.^6;
+    case 2
+      prefact = rho0  * pi^6 * tauE^2 / (15 * tau_min.^3) * ( fmax^5 - fmin^5 );
+      Ntc     = fracSky * prefact * sqrt(detg2(phi)) .* Tseg.^6;
 
-      otherwise
-        error ("Invalid value of s: '%f' given, allowed are {1,2}\n", s );
-    endswitch
+    otherwise
+      error ("Invalid value of s: '%f' given, allowed are {1,2}\n", s );
+  endswitch
 
-    refine = refinement ( s, Nseg );
+  refine = refinement ( s, Nseg );
 
-    ret = Ntc * refine;
+  ret = Ntc * refine;
 
   return;
 endfunction ## func_Nt_given_s()

@@ -38,17 +38,17 @@ function pDET = DetectionProbabilityStackSlide ( varargin )
 
   ## parse options
   uvar = parseOptions ( varargin,
-                       {"Nseg", "integer,strictpos,scalar", 1 },
-                       {"Tdata", "real,strictpos,scalar" },
-                       {"misHist", "a:Hist" },
-                       {"pFA", "real,strictpos,vector", []},
-                       {"avg2Fth", "real,strictpos,vector", []},
-                       {"detectors", "char", "H1,L1" },
-                       {"alpha", "real,vector", [0, 2*pi]},
-                       {"delta", "real,vector", [-pi/2, pi/2]},
-                       {"Depth", "real,strictpos,vector", [] },
-                       {"detweights", "real,strictpos,vector", []},
-                       []);
+                        {"Nseg", "integer,strictpos,scalar", 1 },
+                        {"Tdata", "real,strictpos,scalar" },
+                        {"misHist", "a:Hist" },
+                        {"pFA", "real,strictpos,vector", []},
+                        {"avg2Fth", "real,strictpos,vector", []},
+                        {"detectors", "char", "H1,L1" },
+                        {"alpha", "real,vector", [0, 2*pi]},
+                        {"delta", "real,vector", [-pi/2, pi/2]},
+                        {"Depth", "real,strictpos,vector", [] },
+                        {"detweights", "real,strictpos,vector", []},
+                        []);
 
   dof = 4;
   ## check input
