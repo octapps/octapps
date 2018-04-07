@@ -25,13 +25,13 @@ function R = LatticeCoveringRadius ( dim, lattice )
 
   valid = { "Zn", "An", "Ans" };
 
-  if ( strcmp ( lattice, valid{1}) )		## Zn
+  if ( strcmp ( lattice, valid{1}) )            ## Zn
     R = ZnCoveringRadius ( dim );
     return;
   elseif ( strcmp ( lattice, valid{2} ) )       ## An
     R = AnCoveringRadius ( dim );
     return;
-  elseif ( strcmp ( lattice, valid{3} ) )	## An*
+  elseif ( strcmp ( lattice, valid{3} ) )       ## An*
     R = AnsCoveringRadius ( dim );
     return;
   else

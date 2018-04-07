@@ -58,10 +58,10 @@ function freqSeries = FourierTransform ( ti, xi, oversampleby = 1 )
   Tobs1 = N1 * dt;
   df1 = (1/Tobs1);
 
-  xFFT = dt * fft ( xi, N1, 2 );	## FFT over columns, ie "along rows"
+  xFFT = dt * fft ( xi, N1, 2 );        ## FFT over columns, ie "along rows"
 
   xk = fftshift ( xFFT );
-  fk = [ -(ceil((N1-1)/2):-1:1)*df1, 0, (1:floor((N1-1)/2))*df1 ];	## taken from fftshift()
+  fk = [ -(ceil((N1-1)/2):-1:1)*df1, 0, (1:floor((N1-1)/2))*df1 ];      ## taken from fftshift()
 
   assert ( length(fk) == length(xk) );
   freqSeries.fk = fk;

@@ -47,7 +47,7 @@ function [ generator, rotator ] = AnGenerator ( dim )
   ## of the generator contain the lattice-vectors. I'm afraid I'm stuck with
   ## that latter convention now ...
 
-  gen0 = gen0';	## use transpose matrix: columns == lattice-vectors
+  gen0 = gen0'; ## use transpose matrix: columns == lattice-vectors
 
   ## now convert this to a full-rank matrix so we have an n x n generator,
   ## simply using octave's QR-decomposition

@@ -31,7 +31,7 @@ function mis = sampleLatticeMismatches ( dim, trials, lattice )
   up = gen * upZn;
 
   c = LatticeFindClosestPoint (up, lattice);
-  relv = up - c;	## vector shifted to origin
+  relv = up - c;        ## vector shifted to origin
 
   mis0 = sumsq ( relv, 1 );
 

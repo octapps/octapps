@@ -26,10 +26,10 @@ function R = LatticeNormalizedThickness ( dim, lattice )
 
   valid = { "Zn", "Ans" };
 
-  if ( strcmp ( lattice, valid{1}) )		## Zn
+  if ( strcmp ( lattice, valid{1}) )            ## Zn
     R = ZnNormalizedThickness ( dim );
     return;
-  elseif ( strcmp ( lattice, valid{2} ) )	## An*
+  elseif ( strcmp ( lattice, valid{2} ) )       ## An*
     R = AnsNormalizedThickness ( dim );
     return;
   else

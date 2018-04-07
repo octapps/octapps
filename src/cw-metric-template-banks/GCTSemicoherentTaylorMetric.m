@@ -132,7 +132,7 @@ endfunction
 
 ## check refinement of GCT metric implementation against expressions by Prix&Shaltev from CostFunctionsEaHGCT()
 %!function ret = refinement ( s, Nseg )
-%!  gam1 = sqrt ( 5 * Nseg.^2 - 4 );	## Eq.(77) in Pletsch(2010)
+%!  gam1 = sqrt ( 5 * Nseg.^2 - 4 );    ## Eq.(77) in Pletsch(2010)
 %!  switch ( s )
 %!    case 1
 %!      ret = gam1;

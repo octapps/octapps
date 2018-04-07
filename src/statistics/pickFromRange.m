@@ -28,7 +28,7 @@ function ret = pickFromRange(range, num)
 
   if ( length(range) == 1 )
     ret = range * ones(num,1);
-    return;		## trivial case
+    return;             ## trivial case
   endif
   if ( rows(range) * columns(range) > 2 )
     error ("Illegal input to pickFromRange(): input either a scalar or an array[2]");

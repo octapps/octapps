@@ -40,7 +40,7 @@ function [fLower, fUpper] = binomialConfidenceInterval ( N, K, confidence )
   assert ( K >= 0 && K <= N && K == round(K));
   assert ( (confidence > 0) && (confidence < 1) );
 
-  Nd = 1000;	## discretation of numerical integrals
+  Nd = 1000;    ## discretation of numerical integrals
 
   fMPE = K ./ N;
   fE = (K+1)/(N+2);
@@ -50,8 +50,8 @@ function [fLower, fUpper] = binomialConfidenceInterval ( N, K, confidence )
   fMin = max(0, fMPE - 5 * sigf );
   fMax = min(1, fMPE + 5 * sigf );
   df = (fMax-fMin)/Nd;
-  f = linspace ( fMin, fMax, Nd + 1);	## Nd intervals, Nd+1 points
-  Pd   = df * binomialRatePDF ( f, N, K );	## discretized probability 'histogram'
+  f = linspace ( fMin, fMax, Nd + 1);   ## Nd intervals, Nd+1 points
+  Pd   = df * binomialRatePDF ( f, N, K );      ## discretized probability 'histogram'
   PMax = df * binomialRatePDF ( fMPE, N, K );
 
   [PIso0, delta, INFO, OUTPUT] = fzero ( @(PIso)  sum ( Pd ( find ( Pd >= PIso ) ) ) - confidence, [0, PMax] );
@@ -61,7 +61,7 @@ function [fLower, fUpper] = binomialConfidenceInterval ( N, K, confidence )
   ## paranoia sanity check on final confidence
   conf0 = sum ( Pd(inds0) );
   relerr = abs( conf0 - confidence ) / confidence;
-  assert ( relerr < 0.01 );	## tolerate 1% error on resulting confidence
+  assert ( relerr < 0.01 );     ## tolerate 1% error on resulting confidence
 
   fLower = f ( min(inds0) );
   fUpper = f ( max(inds0) );

@@ -25,13 +25,13 @@ function ret = LatticeVolume ( dim, lattice )
 
   valid = { "Zn", "An", "Ans" };
 
-  if ( strcmp ( lattice, valid{1}) )		## Zn
+  if ( strcmp ( lattice, valid{1}) )            ## Zn
     ret = ZnVolume ( dim );
     return;
   elseif ( strcmp ( lattice, valid{2} ) )       ## An
     ret = AnVolume ( dim );
     return;
-  elseif ( strcmp ( lattice, valid{3} ) )	## An*
+  elseif ( strcmp ( lattice, valid{3} ) )       ## An*
     ret = AnsVolume ( dim );
     return;
   else

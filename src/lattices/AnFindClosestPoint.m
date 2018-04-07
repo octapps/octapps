@@ -32,17 +32,17 @@
 function closest = AnFindClosestPoint ( x, embedded )
 
   if ( !exist("embedded") )
-    embedded = false;		## normal n-dimensional representation of n-dim lattice
+    embedded = false;           ## normal n-dimensional representation of n-dim lattice
   endif
 
   [ rows, numPoints ] = size ( x );
 
   ## ----- find input-vectors in embedding space -----
   if ( embedded )
-    dim = rows - 1;	## space is (n+1)-dimensional, lattice is n-dimensional
+    dim = rows - 1;     ## space is (n+1)-dimensional, lattice is n-dimensional
     x1 = x;
   else
-    dim = rows;		## space == lattice == n-dimensional
+    dim = rows;         ## space == lattice == n-dimensional
     [ gen, rot ] = AnGenerator ( dim );
     ## map n-dimensional input points x "back" into x0 in the n+1-dimensional
     ## embedding lattice space of the original generator space, satisfying sum(x0) = 0
@@ -55,9 +55,9 @@ function closest = AnFindClosestPoint ( x, embedded )
   x0 = x1 - sMat;
 
   ## ----- Step 2 -----
-  fx0 = round ( x0 );		## f(x)
-  dx0 = x0 - fx0;		## delta(x)
-  def = sum ( fx0, 1 );		## deficiency Delta
+  fx0 = round ( x0 );           ## f(x)
+  dx0 = x0 - fx0;               ## delta(x)
+  def = sum ( fx0, 1 );         ## deficiency Delta
 
   ## ----- Step 3 -----
   [ s, inds ] = sort ( dx0, 1 );
@@ -67,10 +67,10 @@ function closest = AnFindClosestPoint ( x, embedded )
   inds_lt0 = find ( def < 0 );
 
   corr = zeros ( dim+1, numPoints );
-  for i = inds_gt0	## if deficiency > 0: subtract 1 from f(x_i0)...f(x_i(def-1))
+  for i = inds_gt0      ## if deficiency > 0: subtract 1 from f(x_i0)...f(x_i(def-1))
     corr ( inds(1:def(i), i), i ) = -1;
   endfor
-  for i = inds_lt0	## if deficiency < 0: add 1 to f(x_dim) .... f(x_i(dim+1-def)
+  for i = inds_lt0      ## if deficiency < 0: add 1 to f(x_dim) .... f(x_i(dim+1-def)
     corr( inds( (dim+2 + def(i)):(dim+1), i), i ) = 1;
   endfor
 

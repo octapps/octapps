@@ -21,7 +21,7 @@
 ## and returns a struct containing the data
 
 function ret = loadCandidateFile ( fname )
-  source ( fname );	## uses only local variables!
+  source ( fname );     ## uses only local variables!
 
   ## amplitude params with error-estimates
   ret.phi0    = phi0;

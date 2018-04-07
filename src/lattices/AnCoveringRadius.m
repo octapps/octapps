@@ -25,7 +25,7 @@
 function coveringRadius = AnCoveringRadius ( dim )
 
   ## covering Radius of An is given in Chap.4, Eq.(54) in CS99
-  rho = 1/sqrt(2);	## packing radius
+  rho = 1/sqrt(2);      ## packing radius
   a = round ( (dim + 1)/2 );
   coveringRadius = rho * sqrt ( 2 * a .* (dim + 1 - a) ./ (dim + 1) );
 

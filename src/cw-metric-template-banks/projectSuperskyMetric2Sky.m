@@ -50,7 +50,7 @@ function g_aa = projectSuperskyMetric2Sky ( g_nn, alpha0, delta0 )
 
   g_aa = Jak_a_n * g_nn * Jak_n_a;
 
-  g_aa = 0.5 * ( g_aa + g_aa');	## re-symmetriz (may be require due to numerical noise)
+  g_aa = 0.5 * ( g_aa + g_aa'); ## re-symmetriz (may be require due to numerical noise)
 
   return;
 endfunction
@@ -77,5 +77,5 @@ endfunction
 %!
 %!  alpha=1; delta=1;
 %!  gaa2 = projectSuperskyMetric2Sky ( gnn, alpha, delta );
-%!  tol = -1e-8;	## relative tolerance passes as <0 !
+%!  tol = -1e-8;        ## relative tolerance passes as <0 !
 %!  assert ( gaa, gaa2, tol );

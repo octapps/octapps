@@ -21,18 +21,18 @@
 ## Usage:
 ##   pDET = = DetectionProbabilityStackSlide ("opt", val, ...)
 ## where Options are:
-##    "Nseg"		number of StackSlide segments
-##    "Tdata"		total amount of data used, in seconds
+##    "Nseg"            number of StackSlide segments
+##    "Tdata"           total amount of data used, in seconds
 ##                      (Note: Tdata = Nsft * Tsft, where 'Nsft' is the total number of
 ##                      SFTs of length 'Tsft' used in the search, from all detectors)
-##    "misHist"		mismatch histogram, produced using Hist()
-##    "pFA"		false-alarm probability (-ies) *per template* (can be a vector)
-##    "avg2Fth"		ALTERNATIVE to pFA: specify average-2F threshold directly (can be a vector)
-##    "detectors"	CSV list of detectors to use ("H1"=Hanford, "L1"=Livingston, "V1"=Virgo, ...)
-##    "alpha"		source right ascension in radians (default: all-sky = [0, 2pi])
-##    "delta"		source declination (default: all-sky = [-pi/2, pi/2])
-##    "Depth"		fixed sensitivity-depth of signal population (can be a vector)
-##    "detweights"	detector weights on S_h to use (default: uniform weights)
+##    "misHist"         mismatch histogram, produced using Hist()
+##    "pFA"             false-alarm probability (-ies) *per template* (can be a vector)
+##    "avg2Fth"         ALTERNATIVE to pFA: specify average-2F threshold directly (can be a vector)
+##    "detectors"       CSV list of detectors to use ("H1"=Hanford, "L1"=Livingston, "V1"=Virgo, ...)
+##    "alpha"           source right ascension in radians (default: all-sky = [0, 2pi])
+##    "delta"           source declination (default: all-sky = [-pi/2, pi/2])
+##    "Depth"           fixed sensitivity-depth of signal population (can be a vector)
+##    "detweights"      detector weights on S_h to use (default: uniform weights)
 ##
 function pDET = DetectionProbabilityStackSlide ( varargin )
 

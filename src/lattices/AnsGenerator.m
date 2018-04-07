@@ -60,7 +60,7 @@ function [ generator, rotator ] = AnsGenerator ( dim )
   ## decided to use a convention where the *COLUMNS* of the generator contain
   ## the lattice-vectors. I'm afraid I'm stuck with the latter convention now ...
 
-  gen0 = gen0';	## use transpose matrix: columns == lattice-vectors
+  gen0 = gen0'; ## use transpose matrix: columns == lattice-vectors
 
   ## now convert this to a full-rank matrix so we have an n x n generator,
   ## simply using octave's QR-decomposition

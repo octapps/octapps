@@ -47,7 +47,7 @@ function noncent = CriticalNoncentralityStackSlide ( pFA, pFD, Nseg, approx = []
   if ( isempty ( approx ) )
     ## ----- no approximations, fully numerical solution
 
-    dof = 4 * Nseg;	## degrees of freedom
+    dof = 4 * Nseg;     ## degrees of freedom
     ## first get F-stat threshold corresponding to pFA false-alarm probability
     Sth = invFalseAlarm_chi2 ( pFA, dof );
 
@@ -57,7 +57,7 @@ function noncent = CriticalNoncentralityStackSlide ( pFA, pFD, Nseg, approx = []
 
       ## numerically solve equation pFD = chi2_dof ( Sth; noncent )
       fun = @(noncent) ChiSquare_cdf( Sth(i), dof(i), noncent) - pFD(i);
-      x0 = 4*dof(i);	## use '4dof' as starting-guess
+      x0 = 4*dof(i);    ## use '4dof' as starting-guess
       [noncent_i, fun1, INFO, OUTPUT] = fzero (fun, x0);
       if ( INFO != 1 || noncent_i <= 0 )
         OUTPUT

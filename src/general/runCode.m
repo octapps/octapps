@@ -53,7 +53,7 @@ function output = runCode(params, code, verbose=false)
       valstr = sprintf ("'%s'", val );
     elseif ( isreal (val) && isvector(val) )
       tmp = sprintf ("%.16g,", val );
-      valstr = tmp(1:end-1);	## remove trailing ','
+      valstr = tmp(1:end-1);    ## remove trailing ','
     elseif ( islogical ( val ) )
       valstr = sprintf ("%d", val );
     else

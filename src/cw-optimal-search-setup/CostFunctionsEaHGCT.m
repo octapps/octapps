@@ -85,7 +85,7 @@ endfunction ## detg2()
 
 function ret = refinement ( s, Nseg )
 
-  gam1 = sqrt ( 5 * Nseg.^2 - 4 );	## Eq.(77) in Pletsch(2010)
+  gam1 = sqrt ( 5 * Nseg.^2 - 4 );      ## Eq.(77) in Pletsch(2010)
   switch ( s )
     case 1
       ret = gam1;
@@ -102,18 +102,18 @@ endfunction ## refinement()
 function ret = func_Nt_given_s ( s, Nseg, Tseg, mis, params )
   ## number of templates Nt for given search-parameters {Nseg, Tseg, mis} and spindown-order 's'
   ## using Eqs.(56) and (82) in Pletsch(2010)
-  C_SI          = 299792458;		## Speed of light in vacuo, m s^-1
-  DAYSID_SI	= 86164.09053;		## Mean sidereal day, s
-  REARTH_SI	= 6.378140e6;		## Earth equatorial radius, m
+  C_SI          = 299792458;            ## Speed of light in vacuo, m s^-1
+  DAYSID_SI     = 86164.09053;          ## Mean sidereal day, s
+  REARTH_SI     = 6.378140e6;           ## Earth equatorial radius, m
   OmE = 2*pi / DAYSID_SI;
   tauE = REARTH_SI / C_SI;
 
-  n = 3 + s;	## 2 x sky + 1 x Freq + s x spindowns
+  n = 3 + s;    ## 2 x sky + 1 x Freq + s x spindowns
 
   rho0 = LatticeNormalizedThickness ( n, params.lattice ) * mis^(-n/2);
-  phi = OmE .* Tseg / 2;	##  Eq.(49) in Pletsch(2010)
+  phi = OmE .* Tseg / 2;        ##  Eq.(49) in Pletsch(2010)
 
-  fracSky = params.fracSky;	## WU covers only a fraction of the sky
+  fracSky = params.fracSky;     ## WU covers only a fraction of the sky
   fmin = params.fmin;
   fmax = params.fmax;
   tau_min = params.tau_min;
@@ -196,7 +196,7 @@ endfunction ## cost_coh_wparams()
 %!test
 %!
 %!  refParams.Nseg = 205;
-%!  refParams.Tseg = 25 * 3600;	## 25(!) hours
+%!  refParams.Tseg = 25 * 3600; ## 25(!) hours
 %!  refParams.mCoh   = 0.5;
 %!  refParams.mInc   = 0.5;
 %!

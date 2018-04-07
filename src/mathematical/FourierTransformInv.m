@@ -71,4 +71,3 @@ endfunction
 %! ts = FourierTransformInv ( ft.fk, ft.xk );
 %! err = max ( abs ( ts.xi - xi ) );
 %! assert ( err < 1e-9 );
-

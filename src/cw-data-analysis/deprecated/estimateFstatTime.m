@@ -21,24 +21,24 @@ function [tauRS, tauLD, lg2NsampFFT, dtauRSBary] = estimateFstatTime ( varargin 
   ## for Demod and Resampling methods of computing F-statistic
   ##
   ## ----- Input parameters:
-  ## "Tcoh":	coherent segment length
-  ## "Tspan":	total data time-span
-  ## "FreqMax":	maximal search frequency
-  ## "FreqBand": search frequency band
-  ## "dFreq":	search frequency spacing
-  ## "f1dotMax":	maximal first-order spindown
-  ## "f2dotMax":	maximal 2nd-order spindown
-  ## "tauFbin":	Resampling timing coefficient 'tauFbin'
-  ## "tauFFT":	Resampling timing coefficient 'tauFFT'
-  ## "tauSpin":	Resampling timing coefficient 'tauSpin'
-  ## "tauBary":	Resampling timing coefficient 'tauBary'
-  ## "tauLDsft": Demod timing coefficient 'tauLDsft': time per SFT per frequency bin
-  ## "Tsft":	SFT length [default: 1800]
-  ## "Nsft":	Number of sfts
+  ## "Tcoh":            coherent segment length
+  ## "Tspan":           total data time-span
+  ## "FreqMax":         maximal search frequency
+  ## "FreqBand":        search frequency band
+  ## "dFreq":           search frequency spacing
+  ## "f1dotMax":        maximal first-order spindown
+  ## "f2dotMax":        maximal 2nd-order spindown
+  ## "tauFbin":         Resampling timing coefficient 'tauFbin'
+  ## "tauFFT":          Resampling timing coefficient 'tauFFT'
+  ## "tauSpin":         Resampling timing coefficient 'tauSpin'
+  ## "tauBary":         Resampling timing coefficient 'tauBary'
+  ## "tauLDsft":        Demod timing coefficient 'tauLDsft': time per SFT per frequency bin
+  ## "Tsft":            SFT length [default: 1800]
+  ## "Nsft":            Number of sfts
   ##
   ## ----- Return values
-  ## tauRS:	Resampling Fstat time per frequency bin per detector assuming perfect buffering (ie excluding barycentering time)
-  ## tauLD:	Demod Fstat time per frequency bin per detector assuming perfect buffering  (ie excluding barycentering time)
+  ## tauRS:     Resampling Fstat time per frequency bin per detector assuming perfect buffering (ie excluding barycentering time)
+  ## tauLD:     Demod Fstat time per frequency bin per detector assuming perfect buffering  (ie excluding barycentering time)
   ## lg2NsampFFT: log_2 ( NsampFFT): number of FFT samples = 2 ^ lg2NsampFFT
   ## dtauRSBary: time per detector per frequency bin for resampling barycentering
   ##
@@ -61,16 +61,16 @@ function [tauRS, tauLD, lg2NsampFFT, dtauRSBary] = estimateFstatTime ( varargin 
                         {"Tcoh",        "strictpos,matrix"},
                         {"Tspan",       "positive,matrix",      0},
                         {"FreqMax",     "strictpos,matrix"},
-                        {"FreqBand",	"strictpos,matrix"},
-                        {"dFreq",	"strictpos,matrix"},
-                        {"f1dotMax",	"real,matrix",          0},
+                        {"FreqBand",    "strictpos,matrix"},
+                        {"dFreq",       "strictpos,matrix"},
+                        {"f1dotMax",    "real,matrix",          0},
                         {"f2dotMax",    "real,matrix",          0},
-                        {"tauFbin",	"strictpos,scalar", 6.1e-8 },
-                        {"tauFFT",	"strictpos,scalar", 3.3e-8 },	## FFT time assuming NFFT>2^18
-                        {"tauSpin",	"strictpos,scalar", 7.7e-8 },
-                        {"tauBary",	"strictpos,scalar", 2.6e-7 },
-                        {"tauLDsft",	"strictpos,scalar", 7.4e-8 },	## Demod time per SFT
-                        {"Tsft",	"strictpos,scalar", 1800 },
+                        {"tauFbin",     "strictpos,scalar", 6.1e-8 },
+                        {"tauFFT",      "strictpos,scalar", 3.3e-8 },   ## FFT time assuming NFFT>2^18
+                        {"tauSpin",     "strictpos,scalar", 7.7e-8 },
+                        {"tauBary",     "strictpos,scalar", 2.6e-7 },
+                        {"tauLDsft",    "strictpos,scalar", 7.4e-8 },   ## Demod time per SFT
+                        {"Tsft",        "strictpos,scalar", 1800 },
                         {"Nsft",        "positive,scalar", 0}
                       );
 

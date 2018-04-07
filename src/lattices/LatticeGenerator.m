@@ -25,13 +25,13 @@ function [ gen, rot ] = LatticeGenerator ( dim, lattice )
 
   valid = { "Zn", "An", "Ans" };
 
-  if ( strcmp ( lattice, valid{1}) )		## Zn
+  if ( strcmp ( lattice, valid{1}) )            ## Zn
     [gen, rot] = ZnGenerator ( dim );
     return;
   elseif ( strcmp ( lattice, valid{2} ) )       ## An
     [gen, rot] = AnGenerator ( dim );
     return;
-  elseif ( strcmp ( lattice, valid{3} ) )	## An*
+  elseif ( strcmp ( lattice, valid{3} ) )       ## An*
     [gen, rot] = AnsGenerator ( dim );
     return;
   else

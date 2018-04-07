@@ -51,8 +51,8 @@ function stackparams = LocalSolution4Fstat ( coefCoh, cost0 )
 
   xi     = meanOfHist( LatticeMismatchHist( round(nc), coefCoh.lattice ) ); ## factor linking average and maximal mismatch for selected lattice
 
-  mcOpt   = ( xi * ( 1 + 2 * deltac / nc ))^(-1);			## Eq.(69)
-  TobsOpt = ( cost0 / kappac )^(1/deltac) * mcOpt^(nc/(2*deltac));	## Eq.(70)
+  mcOpt   = ( xi * ( 1 + 2 * deltac / nc ))^(-1);                       ## Eq.(69)
+  TobsOpt = ( cost0 / kappac )^(1/deltac) * mcOpt^(nc/(2*deltac));      ## Eq.(70)
 
   stackparams.Tseg = TobsOpt;
   stackparams.Nseg = 1;

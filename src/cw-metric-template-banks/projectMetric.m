@@ -34,7 +34,7 @@ function gOut_ij = projectMetric ( g_ij, c=1 )
   for i = 1:n
     for j = 1:n
       if ( i == c || j == c )
-        gOut_ij(i, j) = 0;	## exact result to avoid roundoff issues
+        gOut_ij(i, j) = 0;      ## exact result to avoid roundoff issues
       else
         gOut_ij( i, j ) = g_ij( i, j ) - g_ij(c, i) * g_ij ( c, j ) / g_ij ( c, c );
       endif

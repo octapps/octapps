@@ -188,7 +188,7 @@ function bands = templateBankDims ( Nseg, Tseg, mismatch, params )
     df(s) = sqrt ( mismatch * gInv_ss );
     fCrit(s) = df(s) / kappa(s);
 
-    if ( fCrit(s) >= params.fmax )	## no higher orders possible
+    if ( fCrit(s) >= params.fmax )      ## no higher orders possible
       break;
     endif
   endfor
@@ -220,11 +220,11 @@ function Nt = templateCountReal ( Nseg, Tseg, mismatch, params )
   ## for given target- and search parameters, as determined by templateBankDims()
   ##
   ## params struct containing input arguments:
-  ## 'fmin':		lower frequency bound
-  ## 'fmax':		upper frequency bound
-  ## 'lattice':		lattice type, currently allowed are {"Ans", "Zn"}
-  ## 'tau_min':		spindown-age 'tau' in seconds
-  ## 'brk_min':		(minimal) braking index used for spindown-bounds
+  ## 'fmin':            lower frequency bound
+  ## 'fmax':            upper frequency bound
+  ## 'lattice':         lattice type, currently allowed are {"Ans", "Zn"}
+  ## 'tau_min':         spindown-age 'tau' in seconds
+  ## 'brk_min':         (minimal) braking index used for spindown-bounds
   ##
 
   bands = templateBankDims ( Nseg, Tseg, mismatch, params );
@@ -251,16 +251,16 @@ function Nt = templateCountPure ( Nseg, Tseg, mismatch, sMax, params )
   ## use templateCountReal() for the realistic case of variable spindown-order over frequency
   ##
   ## extra arguments in 'params' struct:
-  ## 'lattice':		lattice type, currently allowed are {"An*", "Zn"=hypercubic}
-  ## 'fmin':		lower frequency bound
-  ## 'fmax':		upper frequency bound
-  ## 'tau_min':		spindown-age 'tau' in seconds
-  ## 'brk_min':		(minimal) braking index used for spindown-bounds
+  ## 'lattice':         lattice type, currently allowed are {"An*", "Zn"=hypercubic}
+  ## 'fmin':            lower frequency bound
+  ## 'fmax':            upper frequency bound
+  ## 'tau_min':         spindown-age 'tau' in seconds
+  ## 'brk_min':         (minimal) braking index used for spindown-bounds
   ##
 
   assert ( isscalar(sMax) && ( sMax == round(sMax)), "Invalid non-integer scalar 'sMax'\n");
 
-  nDim = 1 + sMax;	## template-bank dimension
+  nDim = 1 + sMax;      ## template-bank dimension
 
   switch ( params.lattice )
     case "Ans"
@@ -283,7 +283,7 @@ function gss = frequencyMetric ( sMax, Nseg, Tseg )
   ## compute metric g_{ss'} in frequency-space: f^{(s)}(tRef), in SI units
   ##
   ## input arguments:
-  ## 'sMax':		maximal spindown-order, so the metric dimension is nDim = sMax + 1
+  ## 'sMax':            maximal spindown-order, so the metric dimension is nDim = sMax + 1
   ##
   ## Default reference time is the mean segment mid-time over all segments.
   ##
@@ -305,7 +305,7 @@ function ret = frequencyMetricNat ( sMax, Nseg, Tseg )
   ## where Tseg is the segment length
   ##
   ##  input arguments:
-  ## 'sMax':		maximal spindown-order, so the metric dimension is nDim = sMax + 1
+  ## 'sMax':            maximal spindown-order, so the metric dimension is nDim = sMax + 1
   ##
   ## Default reference time is the mean segment mid-time over all segments.
   ##
@@ -314,7 +314,7 @@ function ret = frequencyMetricNat ( sMax, Nseg, Tseg )
   assert ( isscalar(sMax) && ( sMax == round(sMax)), "Invalid non-integer scalar 'sMax'\n");
   assert ( ( sMax >= 0) && (sMax <= 3), "The maximal spindown-order 'sMax'=%d must be in the range {0,..,3}!", sMax );
 
-  if ( (Nseg > 1) && (Nseg < 2) )	## avoid negative determinants that happen for N in (1,2)
+  if ( (Nseg > 1) && (Nseg < 2) )       ## avoid negative determinants that happen for N in (1,2)
     Nseg = 2;
   endif
 
@@ -324,7 +324,7 @@ function ret = frequencyMetricNat ( sMax, Nseg, Tseg )
   D = [ 0, D2, 0, D4, 0, D6 ];
 
   ## HACK required to correctly describe GCT-code behaviour: need finer coherent-grid in f2dot by factor of "finef2"
-  global finef2 = 1;	## default=1 but won't change if set in global context already
+  global finef2 = 1;    ## default=1 but won't change if set in global context already
   ## ----- use this only for coherent metrics ----------
   ff2 = 1;
   if ( Nseg == 1 )
@@ -357,7 +357,7 @@ function ret = frequencyMetricNat ( sMax, Nseg, Tseg )
           d03,   d13,  d23,  d33;
           ];
 
-  n = 1 + sMax;	## template-bank dimension
+  n = 1 + sMax; ## template-bank dimension
   gij = (g4D + g4SC) ( 1:n, 1:n );
 
   ## enforce strict symmetric matrix (compensate roundoff troubles...)
