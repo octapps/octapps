@@ -15,14 +15,27 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{hgrm} = resampleHist(@var{hgrm}, @var{k}, @var{newbins_k})
+## @deftypefnx {Function File} @var{hgrm} = resampleHist(@var{hgrm}, @var{newbins_1}, @dots{}, @var{newbins_dim})
+##
 ## Resamples a histogram to a new set of bins
-## Syntax:
-##   hgrm = resampleHist(hgrm, k, newbins_k)
-##   hgrm = resampleHist(hgrm, newbins_1, ..., newbins_dim)
-## where:
-##   hgrm      = histogram object
-##   k         = dimension along which to resample
-##   newbins_k = new bins in dimension k (dim = number of dimensions)
+##
+## @heading Arguments
+##
+## @table @var
+## @item hgrm
+## histogram object
+##
+## @item k
+## dimension along which to resample
+##
+## @item newbins_k
+## new bins in dimension @var{k} (dim = number of dimensions)
+##
+## @end table
+##
+## @end deftypefn
 
 function hgrm = resampleHist(hgrm, varargin)
 

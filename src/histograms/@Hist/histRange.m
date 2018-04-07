@@ -15,19 +15,38 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} [@var{rng}, @var{nbins} ] = histRange(@var{hgrm}, [@var{kk} = 1:dim])
+## @deftypefnx {Function File} [@var{frng}, @var{fnbins}] = histRange(@var{hgrm}, [@var{kk} = 1:dim], @code{finite})
+##
 ## Returns the ranges of a histogram object, which are finite
 ## if the histogram is non-empty and NaNs otherwise, and the
 ## number of bins in each range.
-## Syntax:
-##   [rng,  nbins ] = histRange(hgrm, [kk = 1:dim])
-##   [frng, fnbins] = histRange(hgrm, [kk = 1:dim], "finite")
-## where:
-##   hgrm   = histogram object
-##   kk     = dimensions for which to return ranges; defaults to all
-##   rng    = ranges of the histogram
-##   nbins  = number of bins in each range
-##   frng   = finite ranges of the histogram
-##   fnbins = number of finite bins in each range
+##
+## @heading Arguments
+##
+## @table @var
+## @item hgrm
+## histogram object
+##
+## @item kk
+## dimensions for which to return ranges; defaults to all
+##
+## @item rng
+## ranges of the histogram
+##
+## @item nbins
+## number of bins in each range
+##
+## @item frng
+## @code{finite} ranges of the histogram
+##
+## @item fnbins
+## number of @code{finite} bins in each range
+##
+## @end table
+##
+## @end deftypefn
 
 function [rng, nbins] = histRange(hgrm, varargin)
 

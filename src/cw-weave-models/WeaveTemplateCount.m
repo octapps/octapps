@@ -15,45 +15,92 @@
 ## along with Octave; see the file COPYING.  If not, see
 ## <http://www.gnu.org/licenses/>.
 
-## Estimate the number of templates computed by 'lalapps_Weave'
-## Usage:
-##   [coh_Nt, semi_Nt, dfreq] = WeaveTemplateCount("opt", val, ...)
-## where:
-##   coh_Nt  = number of coherent templates
-##   semi_Nt = number of semicoherent templates
-##   dfreq   = frequency spacing
-## Options:
-##   EITHER:
-##     setup_file:
-##       Weave setup file
-##   OR:
-##     Nsegments:
-##       Number of segments
-##     detectors:
-##       Comma-separated list of detectors
-##     ref_time:
-##       GPS reference time
-##     coh_Tspan:
-##       Time span of coherent segments
-##     semi_Tspan:
-##       Total time span of semicoherent search
-##   EITHER:
-##     result_file:
-##       Weave result file
-##   OR:
-##     sky_area:
-##       Area of sky to cover (4*pi = entire sky)
-##     freq_min/max:
-##       Minimum/maximum frequency range
-##     f1dot_min/max:
-##       Minimum/maximum 1st spindown
-##     f2dot_min/max:
-##       Minimum/maximum 2nd spindown (optional)
-##     coh_max_mismatch,semi_max_mismatch:
-##       Maximum coherent and semicoherent mismatches; for a single-
-##       segment or non-interpolating search, set coh_max_mismatch=0
-##   lattice:
-##     Type of lattice to use (default: Ans)
+## -*- texinfo -*-
+## @deftypefn  {Function File} [@var{coh_Nt}, @var{semi_Nt}, @var{dfreq}] = WeaveTemplateCount(@var{opt}, @var{val}, @dots{})
+##
+## Estimate the number of templates computed by @command{lalapps_Weave}
+##
+## @heading Arguments
+##
+## @table @var
+## @item coh_Nt
+## number of coherent templates
+##
+## @item semi_Nt
+## number of semicoherent templates
+##
+## @item dfreq
+## frequency spacing
+##
+## @end table
+##
+## @heading Options
+##
+## @table @code
+## @item @strong{EITHER}
+## @table @code
+##
+## @item setup_file
+## Weave setup file
+##
+## @end table
+##
+## @item @strong{OR}
+## @table @code
+##
+## @item Nsegments
+## Number of segments
+##
+## @item detectors
+## Comma-separated list of detectors
+##
+## @item ref_time
+## GPS reference time
+##
+## @item coh_Tspan
+## Time span of coherent segments
+##
+## @item semi_Tspan
+## Total time span of semicoherent search
+##
+## @end table
+##
+## @item @strong{EITHER}
+## @table @code
+##
+## @item result_file
+## Weave result file
+##
+## @end table
+##
+## @item @strong{OR}
+## @table @code
+##
+## @item sky_area
+## Area of sky to cover (4*pi = entire sky)
+##
+## @item freq_min/max
+## Minimum/maximum frequency range
+##
+## @item f1dot_min/max
+## Minimum/maximum 1st spindown
+##
+## @item f2dot_min/max
+## Minimum/maximum 2nd spindown (optional)
+##
+## @item coh_max_mismatch
+## @itemx semi_max_mismatch
+## Maximum coherent and semicoherent mismatches; for a single-
+## segment or non-interpolating search, set @var{coh_max_mismatch}=0
+##
+## @end table
+##
+## @item lattice
+## Type of @var{lattice} to use (default: Ans)
+##
+## @end table
+##
+## @end deftypefn
 
 ## octapps_run_link
 

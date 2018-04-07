@@ -15,12 +15,23 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{ubins} = histBinUnions(@var{hgrms}@dots{})
+##
 ## Return the unions of bins of the given histograms in each dimension.
-## Syntax:
-##   ubins = histBinUnions(hgrms...)
-## where:
-##   ubins = cell array of union of bins in each dimension
-##   hgrms = histograms
+##
+## @heading Arguments
+##
+## @table @var
+## @item ubins
+## cell array of union of bins in each dimension
+##
+## @item hgrms
+## histograms
+##
+## @end table
+##
+## @end deftypefn
 
 function ubins = histBinUnions(varargin)
 

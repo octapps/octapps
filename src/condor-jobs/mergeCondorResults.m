@@ -15,34 +15,62 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} mergeCondorResults(@var{opt}, @var{val}, @dots{})
+##
 ## Merge results from a Condor DAG.
-## Usage:
-##   mergeCondorResults("opt", val, ...)
-## Options:
-##   "dag_name":       Name of Condor DAG, used to name DAG submit file.
-##   "merged_suffix":  Suffix to append to merged results file name
-##                        'dag_name'_'merged_suffix'.bin.gz
-##                     Default is "merged".
-##   "args_filter":    Job results which share the same job arguments are merged
-##                     together. If specified, this is a function which may modify
-##                     the job arguments before they are compared, i.e. to change
-##                     which arguments are merged together.
-##   "merge_function": Function(s) used to merge results from two Condor
-##                     jobs with the same arguments, as determined by
-##                     the DAG job name 'vars' field. Syntax is:
-##                       merged_res = merge_function(merged_res, res, args)
-##                     where 'res' are to be merged into 'merged_res', and
-##                     'args' are the arguments passed to the job.
-##                     One function per element of job 'results' must be given.
-##   "norm_function":  If given, function(s) used to normalise merged results
-##                     after all Condor jobs have been processed. Syntax is:
-##                       merged_res = norm_function(merged_res, n)
-##                     where 'n' is the number of merged Condor jobs
-##                     One function per element of job 'results' must be given.
-##   "save_period":    How often merged results should be saved (default: 90 sec).
-##   "extra_data":     Extra data to save to merged results file.
-##   "load_retries":   How many times to try loading result files (default: 3).
-##   "retry_period":   How long to wait between trying to load results (default 30 sec).
+##
+## @heading Options
+##
+## @table @code
+## @item dag_name
+## Name of Condor DAG, used to name DAG submit file.
+##
+## @item merged_suffix
+## Suffix to append to merged results file name
+## @code{'dag_name'_'merged_suffix'.bin.gz}.
+## Default is "merged".
+##
+## @item args_filter
+## Job results which share the same job arguments are merged
+## together. If specified, this is a function which may modify
+## the job arguments before they are compared, i.e. to change
+## which arguments are merged together.
+##
+## @item merge_function
+## jobs with the same arguments, as determined by
+## the DAG job name 'vars' field. Syntax is:
+## @verbatim
+##   merged_res = merge_function(merged_res, res, args)
+## @end verbatim
+## where 'res' are to be merged into 'merged_res', and
+## 'args' are the arguments passed to the job.
+## One function per element of job 'results' must be given.
+##
+## @item norm_function
+## If given, function(s) used to normalise merged results
+## after all Condor jobs have been processed. Syntax is:
+## @verbatim
+##   merged_res = norm_function(merged_res, n)
+## @end verbatim
+## where 'n' is the number of merged Condor jobs.
+## One function per element of job 'results' must be given.
+##
+## @item save_period
+## How often merged results should be saved (default: 90 sec).
+##
+## @item extra_data
+## Extra data to save to merged results file.
+##
+## @item load_retries
+## How many times to try loading result files (default: 3).
+##
+## @item retry_period
+## How long to wait between trying to load results (default 30 sec).
+##
+## @end table
+##
+## @end deftypefn
 
 function mergeCondorResults(varargin)
 

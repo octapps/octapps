@@ -15,38 +15,73 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} parseOptions(@var{opts}, @var{optspec}, @var{optspec}, @dots{})
+## @deftypefnx {Function File} @var{paropts} = parseOptions(@dots{})
+## @deftypefnx {Function File} [@bullet{}, @var{paropts}] = parseOptions(@dots{})
+##
 ## Kitchen-sink options parser.
-## Syntax:
-##   parseOptions(opts, optspec, optspec, ...)
-##   paropts = parseOptions(...)
-##   [~, paropts] = parseOptions(...)
-## where:
-##   opts    = function options
-##   optspec = option specification, one of:
-##      * required option:  {'name','types'}
-##      * optional option:  {'name','types',defvalue}
-##      where:
-##         name     = name of option variable
-##         types    = datatype specification of option:
-##                    'type,type,...'
-##         defvalue = default value given to <name>
-##   paropts = struct of parsed function options (optional)
-## Notes:
-##   * using the 1st or 3rd syntax, <name> will be assigned in
-##     the context of the calling function; using the 2nd or 3rd
-##     syntax, <name> will be assigned in the return struct.
-##   * each 'type' in <types> must correspond to a function
-##     'istype': each function will be called to check that
-##     a value is valid. For example, if
-##        <types> = 'numeric,scalar'
-##     then a value <x> must satisfy:
-##        isnumeric(x) && isscalar(x)
-##   * <opts> should contain options of the form
-##        reg,reg,...,"key",val,"key",val,...
-##     where <reg> are regular options and <key>-<val> are
-##     keyword-value option pairs. Regular options are
-##     assigned in the order they were given as <optspec>s;
-##     regular options may also be given as keyword-values.
+##
+## @heading Arguments
+##
+## @table @var
+## @item opts
+##   function options
+##
+## @item optspec
+##   option specification, one of:
+##
+##   @table @asis
+##   @item required option
+##     @{@var{name}, @var{types}@}
+##   @item optional option
+##     @{@var{name}, @var{types}, @var{defvalue}@}
+##   @end table
+##
+##   where:
+##
+##   @table @var
+##   @item name
+##     name of option variable
+##   @item types
+##     datatype specification of option:
+##     'type,type,@dots{}'
+##   @item defvalue
+##     default value given to <name>
+##   @end table
+##
+## @item paropts
+##   struct of parsed function options (optional)
+##
+## @end table
+##
+## @heading Notes
+##
+## @itemize
+## @item
+##   using the 1st or 3rd syntax, @var{name} will be assigned in the context of
+##   the calling function; using the 2nd or 3rd syntax, @var{name} will be
+##   assigned in the return struct.
+##
+## @item
+##   each @code{type} in @var{types} must correspond to a function
+##   @command{istype()}: each function will be called to check that a value is
+##   valid. For example, if @var{types} = 'numeric,scalar' then a value @var{x}
+##   must satisfy @code{isnumeric(x) && isscalar(x)}
+##
+## @item
+##   @var{opts} should contain options of the form
+##   @verbatim
+##   reg, reg, ..., "key", val, "key", val, ...
+##   @end verbatim
+##   where @var{reg} are regular options, and @var{key} and @var{val} are
+##   keyword-value option pairs. Regular options are assigned in the order they
+##   were given as @var{optspec}s; regular options may also be given as
+##   keyword-values.
+##
+## @end itemize
+##
+## @end deftypefn
 
 function varargout = parseOptions(opts, varargin)
 

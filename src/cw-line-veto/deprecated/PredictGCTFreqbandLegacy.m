@@ -15,12 +15,22 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} [@var{gct_freq_min}, @var{gct_freq_band}] = PredictGCTFreqbandLegacy ( @var{freq}, @var{freqband}, @var{dFreq}, @var{f1dot}, @var{f1dotband}, @var{df1dot}, @var{f2dot}, @var{f2dotband}, @var{df2dot}, @var{starttime}, @var{duration}, @var{reftime}, @var{deltaFsft}, @var{blocksRngMed}, @var{Dterms} )
+##
+## function to predict the frequency band required by a HSGCT search
+## based on code snippets from LALSuite program HierarchSearchGCT
+##
+## @heading Note
+##
+## deltaFsft is usually 1.0/Tsft
+##
+## @heading Note
+##
+## this is for S6Bucket era GCT code, for newer versions see PredictGCTFreqband.m
+## @end deftypefn
+
 function [gct_freq_min, gct_freq_band] = PredictGCTFreqbandLegacy ( freq, freqband, dFreq, f1dot, f1dotband, df1dot, f2dot, f2dotband, df2dot, starttime, duration, reftime, deltaFsft, blocksRngMed, Dterms )
-  ## [gct_freq_min, gct_freq_band] = PredictGCTFreqbandLegacy ( freq, freqband, dFreq, f1dot, f1dotband, df1dot, f2dot, f2dotband, df2dot, starttime, duration, reftime, deltaFsft, blocksRngMed, Dterms )
-  ## function to predict the frequency band required by a HSGCT search
-  ## based on code snippets from LALSuite program HierarchSearchGCT
-  ## NOTE: deltaFsft is usually 1.0/Tsft
-  ## NOTE: this is for S6Bucket era GCT code, for newer versions see PredictGCTFreqband.m
 
   ## input checks
   if ( dFreq == 0 )

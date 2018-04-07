@@ -15,12 +15,17 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{Fveto} = computeFveto ( @var{inFstats} )
+##
+## compute "F+veto" stat from input vector with columns [2F, 2F_1, 2F_2, ...]
+## vetoed candidates are set to Fveto=-1, otherwise Fveto>=0
+##
+## F+veto is defined as F+veto = @{ 2F  if 2F > max(2F_1, 2F_2,...); -1 otherwise @}
+##
+## @end deftypefn
+
 function Fveto = computeFveto ( inFstats )
-  ## Fveto = computeFveto ( inFstats )
-  ## compute "F+veto" stat from input vector with columns [2F, 2F_1, 2F_2, ...]
-  ## vetoed candidates are set to Fveto=-1, otherwise Fveto>=0
-  ##
-  ## F+veto is defined as F+veto = { 2F  if 2F > max(2F_1, 2F_2,...); -1 otherwise }
 
   [ numDraws, numRows ] = size ( inFstats );
   numDet = numRows - 1;

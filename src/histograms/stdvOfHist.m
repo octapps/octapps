@@ -15,12 +15,23 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{stdv} = stdvOfHist(@var{hgrm}, [@var{k} = 1])
+##
 ## Returns the standard deviation(s) of a histogram.
-## Syntax:
-##   stdv = stdvOfHist(hgrm, [k = 1])
-## where:
-##   hgrm = histogram object
-##   k    = dimension to calculate standard deviation(s) over
+##
+## @heading Arguments
+##
+## @table @var
+## @item hgrm
+## histogram object
+##
+## @item k
+## dimension to calculate standard deviation(s) over
+##
+## @end table
+##
+## @end deftypefn
 
 function stdv = stdvOfHist(hgrm, k = 1)
 

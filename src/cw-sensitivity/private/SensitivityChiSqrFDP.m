@@ -15,14 +15,10 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## Helper function for SensitivityDepth:
-## Calculate the false dismissal probability of a chi^2 detection
-## statistic, such as the F-statistic
-## Options:
-##   "paNt" = false alarm probability per template
-##   "sa"   = false alarm threshold
-##   "dof"  = degrees of freedom per segment (default: 4)
-##   "norm" = use normal approximation to chi^2 (default: false)
+## Helper function for SensitivityDepth()
+##
+## Calculate the false dismissal probability of a chi^2 detection statistic,
+## such as the F-statistic
 
 function [pd, Ns, FDP, fdp_vars, fdp_opts] = SensitivityChiSqrFDP(pd, Ns, args)
 

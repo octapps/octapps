@@ -15,44 +15,57 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
+## -*- texinfo -*-
+## @deftypefn
+##
 ## Help on calling Octave functions from the command line:
 ##
 ## Only Octave functions which support keyword-value arguments can be
 ## called from the command line. For these functions, keywords are
 ## naturally translated into command-line options, for example:
 ##
+## @verbatim
 ##   function --option1 value1 --option2=value2
+## @end verbatim
 ##
 ## is translated into the Octave function call
 ##
+## @verbatim
 ##   function("option1", value1, "option2", value2)
+## @end verbatim
 ##
 ## By default the first output argument of the called function is printed.
 ## Additional arguments are supported for controlling how the output of
 ## a function is displayed;
 ##
-##   --printnargs=<n>
-##     Print the values of the first <n> output values of the function.
+## @table @asis
 ##
-##   --printarg<n>
-##     Print the value of the <n>th output value of the function.
-##     <n> default to 1 if not given.
+## @item @verb{|--|}printnargs=@samp{n}
+## Print the values of the first @samp{n} output values of the function.
 ##
-##   --printarg<n>=<print-function>
-##   --printarg<n>=<print-function(<args>, ...)
-##     Print the value of the function <print-function> applied to the
-##     <n>th output value of the function. See the following examples:
+## @item @verb{|--|}printarg@samp{n}
+## Print the value of the @samp{n}th output value of the function.
+## @samp{n} default to 1 if not given.
 ##
-##       Command                                          Outputs printed
-##       -------                                          ---------------
-##       f --printnarg=1, f --printarg, f --printarg1     a = f()
-##       f --printarg=mean                                mean(a)
-##       f --printarg=mean --printarg=stdv                mean(a), stdv(a)
-##       f --printarg=object2json                         object2json(a)
+## @item @verb{|--|}printarg@samp{n}=@samp{print-function}
+## @itemx @verb{|--|}printarg@samp{n}=@samp{print-function}(@samp{args}, @dots{})
+## Print the value of the function @samp{print-function} applied to the
+## @samp{n}th output value of the function. See the following examples:
 ##
-##       g --printnargs=2                                 [a, b] = g()
-##       g --printarg --printarg1=sin --printarg2=cos     a, mean(a), cos(b)
-##       g --printarg2=mod(?,3)                           mod(b,3)
+## @multitable @columnfractions .7 .3
+## @headitem Command                                                             @tab Outputs printed
+## @item f @verb{|--|}printnarg=1, f @verb{|--|}printarg, f @verb{|--|}printarg1 @tab a = f()
+## @item f @verb{|--|}printarg=mean                                              @tab mean(a)
+## @item f @verb{|--|}printarg=mean @verb{|--|}printarg=stdv                     @tab mean(a), stdv(a)
+## @item f @verb{|--|}printarg=object2json                                       @tab object2json(a)
+## @item g @verb{|--|}printnargs=2                                               @tab [a, b] = g()
+## @item g @verb{|--|}printarg @verb{|--|}printarg1=sin @verb{|--|}printarg2=cos @tab a, mean(a), cos(b)
+## @item g @verb{|--|}printarg2=mod(?,3)                                         @tab mod(b,3)
+## @end multitable
+##
+## @end table
+##
+## @end deftypefn
 
 function __octapps_run_driver__(func, varargin)
 

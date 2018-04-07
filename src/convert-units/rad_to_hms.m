@@ -15,9 +15,14 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} [ @var{hours}, @var{mins}, @var{secs} ] = rad_to_hms ( @var{rads} )
+##
+## convert radians into hours:minutes:seconds format
+##
+## @end deftypefn
+
 function [ hours, mins, secs ] = rad_to_hms ( rads )
-  ## [ hours, mins, secs ] = rad_to_hms ( rads )
-  ## convert radians into hours:minutes:seconds format
 
   assert ( rads >= 0, "Only positive angles allowed, got '%f'\n", rads );
 

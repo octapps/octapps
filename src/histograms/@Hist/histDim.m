@@ -15,12 +15,23 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{dim} = histDim(@var{hgrm})
+##
 ## Returns the dimensionality of a histogram object.
-## Syntax:
-##   dim = histDim(hgrm)
-## where:
-##   hgrm = histogram object
-##   dim  = dimensionality of the histogram
+##
+## @heading Arguments
+##
+## @table @var
+## @item hgrm
+## histogram object
+##
+## @item dim
+## dimensionality of the histogram
+##
+## @end table
+##
+## @end deftypefn
 
 function dim = histDim(hgrm)
 

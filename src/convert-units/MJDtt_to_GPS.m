@@ -16,10 +16,13 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## GPS = MJDtt_to_GPS ( MJDtt )
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{GPS} = MJDtt_to_GPS ( @var{MJDtt} )
 ##
 ## convert MJD (based on TT) into GPS seconds
-## translated from LAL-function LALTTMJDtoGPS() in BinaryPulsarTiming.c
+## translated from LAL-function @command{LALTTMJDtoGPS()} in BinaryPulsarTiming.c
+##
+## @end deftypefn
 
 function GPS = MJDtt_to_GPS ( MJDtt )
 

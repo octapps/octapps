@@ -15,19 +15,27 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## closest = AnFindClosestPoint ( x, embedded )
-## [can handle vector input]
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{closest} = AnFindClosestPoint ( @var{x}, @var{embedded} )
 ##
-## return the closest point of the An-lattice to the given point x in R^n
+## return the closest point of the An-lattice to the given point @var{x} in R^n
 ## based on Chap.20.2 'Algorithm 3' in Conway&Sloane (1999)
-## [this function can handle vector input]
+## @heading Note
+## this function can handle vector input
 ##
-## The boolean option input 'embedded' (default=false) governs whether
+## The boolean option input @var{embedded} (default=false) governs whether
 ## the input vectors are interpreted as vectors in the (n+1) dimensional
 ## embedding space of the lattice, otherwise they are interpreted as
 ## n-dimensional vectors in an n-dimensional lattice
-## NOTE: The returned lattice vectors use the same representation as
-## the input-vectors (i.e. 'embedded' or not)
+##
+## @heading Note
+##
+## The returned lattice vectors use the same representation asthe input-vectors (i.e. @var{embedded} or not)
+##
+## @heading Note
+## can handle vector input
+##
+## @end deftypefn
 
 function closest = AnFindClosestPoint ( x, embedded )
 

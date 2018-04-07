@@ -15,10 +15,13 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## loadCandidateFile ( fname )
+## -*- texinfo -*-
+## @deftypefn  {Function File} loadCandidateFile ( @var{fname} )
 ##
-## loads a 'candidate-file' from ComputeFStatistic_v2 --outputLoudest=cand.file
+## loads a 'candidate-file' from @command{lalapps_ComputeFStatistic_v2 --outputLoudest=cand.file}
 ## and returns a struct containing the data
+##
+## @end deftypefn
 
 function ret = loadCandidateFile ( fname )
   source ( fname );     ## uses only local variables!

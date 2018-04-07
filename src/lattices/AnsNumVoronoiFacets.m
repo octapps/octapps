@@ -15,12 +15,17 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## ret = AnsNumVoronoiFacets ( dim )
-## [can handle vector input]
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{ret} = AnsNumVoronoiFacets ( @var{dim} )
 ##
 ## Return the number of Voronoi-facets for An* lattice, which corresponds
 ## to the maximal number of facets of an n-dimension parallelohedron (see CS99),
-## namely 2 ( 2^dim - 1 )
+## namely 2 ( 2^@var{dim} - 1 )
+##
+## @heading Note
+## can handle vector input
+##
+## @end deftypefn
 
 function ret = AnsNumVoronoiFacets ( dim )
 

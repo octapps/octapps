@@ -1,0 +1,389 @@
+#!/usr/bin/perl
+
+use strict;
+use File::Basename;
+
+my ($infile) = @ARGV;
+my $outfile = "$infile.tmp";
+
+open IN, "$infile" or die;
+open OUT, ">$outfile" or die;
+
+my $funcname = basename($infile);
+$funcname =~ s/\.m$//;
+
+my $prototype = undef;
+my $foundhelp = 0;
+while (my $line = <IN>) {
+
+  if ($line =~ /^function\s+(.*)$/) {
+    $prototype = " $1";
+  }
+
+  if ($line =~ /^\s*##/) {
+
+    my $comment = $line;
+    while ($line = <IN>) {
+      if ($line !~ /^\s*##/) {
+        last;
+      }
+      $comment .= $line;
+    }
+
+    if ($comment =~ /texinfo/) {
+      $foundhelp = 1;
+    }
+
+    if (!$foundhelp && $comment !~ /Copyright/) {
+      $foundhelp = 1;
+
+      printf "$0: converting $infile ...\n";
+
+      my @origcommentlines = split /\n/, $comment;
+      map { s/^\s*##/## \@comment/; } @origcommentlines;
+      my $origcomment = join "\n", @origcommentlines;
+
+      $comment =~ s/{/\@{/g;
+      $comment =~ s/}/\@}/g;
+
+      my @commentlines = split /\n/, $comment;
+      map { s/^\s*## //; s/^\s*##$//; } @commentlines;
+      map { s/^\s+$//; } @commentlines;
+
+      my $deftypefn = "\@deftypefn ";
+      my $header = "-*- texinfo -*-\n";
+      my $footer = "";
+
+      my @varnames;
+
+      sub format_function {
+        my ($cl) = @_;
+
+        sub re_code {
+          my ($a, $b, $c, $d, $e) = @_;
+          my @C = split /,\s*/, $c;
+          map { s/^\s+//; s/\s+$//; } @C;
+          push @varnames, @C;
+          map { $_ = "\@var\{" . $_ . "\}"; } @C;
+          map { s/^\@var\{\[(.+)\]\}$/\[\@var\{$1\}\]/; } @C;
+          map { s/^\@var\{['"](opt|val)["']\}$/\@var\{$1\}/; } @C;
+          map { s/^\@var\{['"](.+)["']\}$/\@code\{$1\}/; } @C;
+          map { s/\@var\{(.+?)(\s*=\s*)(.+)\}/\@var\{$1\}$2$3/; } @C;
+          map { s/^\@var\{(.+)\.\.\.\}/\@var\{$1\}\@dots\{\}/; } @C;
+          map { s/^\@var\{\.\.\.\}/\@dots\{\}/; } @C;
+          map { s/^\@var\{\~\}/\@bullet\{\}/; } @C;
+          $c = join ", ", @C;
+          $a . $b . $c . $d . $e
+        }
+
+        $cl =~ s{([[])(\s*)([^[\]]*?,[^[\]]*?)(\s*)([\]])}{re_code $1, $2, $3, $4, $5}eg;
+
+        $cl =~ s{([(])(\s*)([^()]*?)(\s*)([)])}{re_code $1, $2, $3, $4, $5}eg;
+
+        $cl =~ s/^\s+//;
+        $cl =~ s/\s+$//;
+
+        $cl =~ s/^([^[]\S+?)\s*=\s*/\@var\{$1} = /;
+
+        return $cl
+
+      }
+
+      $comment = "";
+      while (@commentlines > 0) {
+        my $cl = shift @commentlines;
+
+        if ($cl =~ /^\s*note:\s*(.*)$/i) {
+
+          $comment .= "\n\@heading Note\n\n$1";
+
+          next;
+
+        }
+
+        if ($cl =~ /^\s*\[(can handle vector input.*?)\]\s*$/) {
+
+          $footer = "\@heading Note\n$1\n\n" . $footer;
+
+          next;
+
+        }
+
+        if ($cl =~ /^(?:syntax|usage):?(.*$)/i) {
+
+          $cl = $1;
+          unshift @commentlines, $cl;
+
+          $comment .= "\n";
+
+          $footer .= "\@end deftypefn\n";
+
+          while (@commentlines > 0) {
+            $cl = shift @commentlines;
+            if ($cl =~ /^\s*$/) {
+              next;
+            }
+            if ($cl =~ /^ /) {
+
+              $cl = format_function $cl;
+
+              $header .= "$deftypefn {Function File} $cl\n";
+              $deftypefn = "\@deftypefnx";
+
+            } else {
+              unshift @commentlines, $cl;
+              last;
+            }
+          }
+
+          next;
+
+        }
+
+        if ($cl =~ /^[[A-Za-z][A-Za-z0-9_, \]]+\s+=\s+$funcname/) {
+
+          $comment .= "\n";
+
+          $footer .= "\@end deftypefn\n";
+
+          unshift @commentlines, $cl;
+          while (@commentlines > 0) {
+            $cl = shift @commentlines;
+            if ($cl =~ /^[[A-Za-z][A-Za-z0-9_, \]]+\s+=/) {
+
+              $cl = format_function $cl;
+
+              $header .= "$deftypefn {Function File} $cl\n";
+              $deftypefn = "\@deftypefnx";
+
+            } else {
+              unshift @commentlines, $cl;
+              last;
+            }
+          }
+
+          next;
+
+        }
+
+        if ($cl =~ /(?:^\s*|=\s+)$funcname\s*\(/) {
+
+          $comment .= "\n";
+
+          $footer .= "\@end deftypefn\n";
+
+          unshift @commentlines, $cl;
+          while (@commentlines > 0) {
+            $cl = shift @commentlines;
+            if ($cl =~ /(?:^\s*|=\s+)$funcname\s*\(/) {
+
+              $cl = format_function $cl;
+
+              $header .= "$deftypefn {Function File} $cl\n";
+              $deftypefn = "\@deftypefnx";
+
+            } else {
+              unshift @commentlines, $cl;
+              last;
+            }
+          }
+
+          next;
+
+        }
+
+        if ($cl =~ /^(?:where|notes|options|general options.*|and where options.*|search setup options.*|outputs?)/i) {
+
+          $cl =~ s/:$//;
+          $cl =~ s|^where$|Arguments|;
+          $comment .= "\@heading $cl\n\n";
+
+          my $tablehead;
+          if ($cl =~ /options/i) {
+            $tablehead = "\@table \@code";
+          } else {
+            $tablehead = "\@table \@var";
+          }
+
+          my $tablebody = "";
+          my $eitherorfooter = "";
+
+          while (@commentlines > 0) {
+            $cl = shift @commentlines;
+            if ($cl =~ /^\s*$/ || $cl =~ /^\S/i || $cl =~ /^(?:where|notes|options|general options.*|and where options.*|search setup options.*|outputs?)/i) {
+              unshift @commentlines, $cl;
+              last;
+            } elsif ($cl =~ m{^(\s+)"?([A-Za-z0-9_*/, .]+)\s*[":=]+\s*[:=]?\s*(.*)$}) {
+              my $itemspace = $1;
+              my $itemname = $2;
+              my $itembody = $3;
+
+              $itemname =~ s/\s//g;
+
+              push @varnames, split(/,/, $itemname);
+
+              $itemname =~ s/,/\n\@itemx /g;
+              $itemname =~ s/\.\.\./\@dots{}/g;
+
+              if ($itemname =~ /^(EITHER|OR)$/i) {
+                $itemname = ucfirst($itemname);
+                $tablebody .= $eitherorfooter . "\@item \@strong\{$itemname\}\n\@table \@code\n";
+                $eitherorfooter = "\@end table\n\n";
+              } elsif ($itembody =~ /\S/) {
+                $tablebody .= "\@item $itemname\n$itemspace$itembody\n";
+              } else {
+                $tablebody .= "\@item $itemname\n";
+              }
+
+              while (@commentlines > 0) {
+                $cl = shift @commentlines;
+                if ($cl =~ /^\s*$/ || $cl =~ /^\S/i || $cl =~ /^(?:where|notes|options|general options.*|and where options.*|search setup options.*|outputs?)/i) {
+                  unshift @commentlines, $cl;
+                  last;
+                } elsif ($cl =~ m{^(\s+)"?([A-Za-z0-9_*/, .]+)\s*[":=]+\s*[:=]?\s*(.*)$}) {
+                  unshift @commentlines, $cl;
+                  last;
+                } else {
+                  $cl =~ s/^\s*/$itemspace/;
+                  $tablebody .= "$cl\n";
+                }
+              }
+              if ($cl =~ /^\s*$/ || $cl =~ /^\S/i || $cl =~ /^(?:where|notes|options|general options.*|and where options.*|search setup options.*|outputs?)/i) {
+                unshift @commentlines, $cl;
+                last;
+              }
+
+              $tablebody .= "\n";
+
+            } else {
+              unshift @commentlines, $cl;
+              last;
+            }
+          }
+
+          if ($tablebody =~ /\S/) {
+            $comment .= "$tablehead\n$tablebody\n$eitherorfooter\@end table\n\n";
+          }
+
+          next;
+
+        }
+
+        if ($cl =~ /^\s\s\s\s*[*-]/) {
+
+          $comment .= "\n\@itemize\n";
+          my $tablebody = "";
+
+          unshift @commentlines, $cl;
+          while (@commentlines > 0) {
+            $cl = shift @commentlines;
+            if ($cl =~ /^\s*$/ || $cl =~ /^\S/i) {
+              unshift @commentlines, $cl;
+              last;
+            } elsif ($cl =~ /^(\s\s\s\s*)[*-](.*)$/) {
+
+              my $itemspace = $1;
+              my $itembody = $2;
+              if ($itembody =~ /\S/) {
+                $tablebody .= "\@item\n$itemspace$itembody\n";
+              } else {
+                $tablebody .= "\@item\n";
+              }
+
+              while (@commentlines > 0) {
+                $cl = shift @commentlines;
+                if ($cl =~ /^\s*$/ || $cl =~ /^\S/i) {
+                  unshift @commentlines, $cl;
+                  last;
+                } elsif ($cl =~ /^\s\s\s\s*[*-]/) {
+                  unshift @commentlines, $cl;
+                  last;
+                } elsif ($cl =~ m{^(\s+)"?([A-Za-z0-9_*/, .]+)\s*[":=]+\s*[:=]?\s*(.*)$}) {
+                  unshift @commentlines, $cl;
+                  last;
+                } else {
+                  $cl =~ s/^\s*/$itemspace/;
+                  $tablebody .= "$cl\n";
+                }
+              }
+              if ($cl =~ /^\s*$/ || $cl =~ /^\S/i) {
+                unshift @commentlines, $cl;
+                last;
+              }
+
+              $tablebody .= "\n";
+
+            } else {
+              unshift @commentlines, $cl;
+              last;
+            }
+          }
+
+          if ($tablebody =~ /\S/) {
+            $comment .= "\n$tablebody\n\@end itemize\n\n";
+          }
+
+          next;
+
+        }
+
+        $comment .= "$cl\n";
+
+      }
+
+      if ($header !~ /deftypefn/ && defined($prototype)) {
+
+        $footer .= "\@end deftypefn\n";
+
+        $prototype = format_function $prototype;
+
+        $header .= "$deftypefn {Function File} $prototype\n";
+
+      }
+
+      $comment = $header . "\n" . $comment . "\n" . $footer;
+
+      $comment =~ s/(?:\s*\n){3,}/\n\n/mg;
+      my @commentlines = split /\n/, $comment;
+
+      for my $cl (@commentlines) {
+        if ($cl !~ /^\s*\@item/) {
+          for my $varname (@varnames) {
+            if ($varname != '...') {
+              $varname =~ s/^\s+//;
+              $varname =~ s/\s+$//;
+              $varname =~ s/"//g;
+              $varname =~ s/\s*=.*$//;
+              $cl =~ s/([^{A-Za-z0-9])['<]?\Q$varname\E[>']?([^}A-Za-z0-9])/$1\@var\{${varname}\}$2/g;
+            }
+          }
+        }
+      }
+
+      map { s/\b'?([A-Za-z0-9_]+\(\))'?/\@command\{$1\}/g; } @commentlines;
+      map { s/'?(lalapps_\w+)'?/\@command\{$1\}/g; } @commentlines;
+
+      map { s/^\s+//; s/\s+$//; } @commentlines;
+      map { s/^(.)/## $1/; s/^$/##/; } @commentlines;
+
+      $comment = join "\n", @commentlines;
+      $comment .= "\n";
+
+      $comment .= $origcomment . "\n";
+
+      printf "$0: converted  $infile\n";
+
+    }
+
+    print OUT $comment;
+
+  }
+
+  print OUT $line;
+
+}
+
+close IN;
+close OUT;
+
+rename $outfile, $infile;

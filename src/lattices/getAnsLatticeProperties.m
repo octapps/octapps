@@ -15,10 +15,13 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## ret = getAnsLatticeProperties ( dim )
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{ret} = getAnsLatticeProperties ( @var{dim} )
 ##
 ## Return a struct holding important properties of An* lattice in n-dimensions
 ## from Chap.4, Sect.6.6 in Conway&Sloane(1999):
+##
+## @end deftypefn
 
 function ret = getAnsLatticeProperties ( dim )
 

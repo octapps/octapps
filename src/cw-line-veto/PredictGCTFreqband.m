@@ -15,12 +15,19 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} [@var{gct_freq_min}, @var{gct_freq_band}, @var{gct_phys_freq_min}, @var{gct_phys_freq_band}] = PredictGCTFreqband ( @var{freq}, @var{freqband}, @var{dFreq}, @var{f1dot}, @var{f1dotband}, @var{df1dot}, @var{f2dot}, @var{f2dotband}, @var{df2dot}, @var{starttime}, @var{duration}, @var{reftime}, @var{Tsft}, @var{blocksRngMed}, @var{Dterms} )
+##
+## function to predict the frequency band required by a HSGCT search
+## based on code snippets from LALSuite program HierarchSearchGCT and on @command{XLALCreateFstatInput()} from lalpulsar
+## for older freqband convention (e.g. S6Bucket, S6LV1 runs), see PredictGCTFreqbandLegacy.m
+##
+## @heading Note
+##
+## this is for laldemod only, resampling is somewhat different
+## @end deftypefn
+
 function [gct_freq_min, gct_freq_band, gct_phys_freq_min, gct_phys_freq_band] = PredictGCTFreqband ( freq, freqband, dFreq, f1dot, f1dotband, df1dot, f2dot, f2dotband, df2dot, starttime, duration, reftime, Tsft, blocksRngMed, Dterms )
-  ## [gct_freq_min, gct_freq_band, gct_phys_freq_min, gct_phys_freq_band] = PredictGCTFreqband ( freq, freqband, dFreq, f1dot, f1dotband, df1dot, f2dot, f2dotband, df2dot, starttime, duration, reftime, Tsft, blocksRngMed, Dterms )
-  ## function to predict the frequency band required by a HSGCT search
-  ## based on code snippets from LALSuite program HierarchSearchGCT and on XLALCreateFstatInput() from lalpulsar
-  ## for older freqband convention (e.g. S6Bucket, S6LV1 runs), see PredictGCTFreqbandLegacy.m
-  ## NOTE: this is for laldemod only, resampling is somewhat different
 
   ## input checks
   if ( dFreq == 0 )

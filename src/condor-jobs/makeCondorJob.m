@@ -15,40 +15,87 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{job_file} = makeCondorJob(@var{opt}, @var{val}, @dots{})
+##
 ## Set up a Condor job for running Octave scripts or executables.
-## Usage:
-##   job_file = makeCondorJob("opt", val, ...)
-## where
-##   job_file = name of Condor job submit file
-## General options:
-##   "job_name":        name of Condor job, used to name submit file
-##                      and input/output directories
-##   "log_dir":         where to write Condor log files (default: $TMP)
-##   "data_files":      cell array of required data files; elements of cell
-##                      array may be either:
-##                      * "file_path", or
-##                      * {"ENVPATH", "file_name_in_ENVPATH", ...}
-##                      where ENVPATH is the name of an environment path
-##   "extra_condor":    extra commands to write to Condor submit file, in form:
-##                      {"command", "value", ...}
-## Options for running Octave scripts:
-##   "func_name":       name of Octave function to run
-##   "arguments":       cell array of arguments to pass to function.
-##                      use $(variable) to insert reference to a Condor variable.
-##   "func_nargout":    how many outputs returned by the function to save
-##   "exec_files":      cell array of executable files required by the function
-##   "output_format":   output format of file containg saved outputs from function:
-##                      * "Oct(Text|Bin)(Z)": Octave (text|binary) (zipped) format
-##                        - file extension will be .(txt|bin)(.gz)
-##                      * "HDF5": Hierarchical Data Format version 5 format
-##                        - file extension will be .hdf5
-##                      * "Mat": Matlab (version 6) binary format
-##                        - file extension will be .mat
-##                      Default is "OctBinZ"
-## Options for running executables:
-##   "executable":      name of executable to run
-##   "arguments":       cell array of arguments to pass to executable.
-##                      use $(variable) to insert reference to a Condor variable.
+##
+## @heading Arguments
+##
+## @table @var
+## @item job_file
+## name of Condor job submit file
+##
+## @end table
+##
+## @heading General options
+##
+## @table @code
+## @item job_name
+## name of Condor job, used to name submit file
+## and input/output directories
+##
+## @item log_dir
+## where to write Condor log files (default: $TMP)
+##
+## @item data_files
+## cell array of required data files; elements of cell
+## array may be either:
+## @itemize
+## @item @file{file_path}, or
+## @item @{@env{ENVPATH}, @file{file_name_in_ENVPATH}, @dots{}@}
+## @end itemize
+## where @env{ENVPATH} is the name of an environment path
+##
+## @item extra_condor
+## extra commands to write to Condor submit file, in form:
+## @{@samp{command}, @samp{value}, @dots{}@}
+##
+## @end table
+##
+## @heading Options for running Octave scripts
+##
+## @table @code
+## @item func_name
+## name of Octave function to run
+##
+## @item arguments
+## cell array of arguments to pass to function.
+## use $(variable) to insert reference to a Condor variable.
+##
+## @item func_nargout
+## how many outputs returned by the function to save
+##
+## @item exec_files
+## cell array of executable files required by the function
+##
+## @item output_format
+## output format of file containg saved outputs from function:
+## @table @code
+## @item Oct(Text|Bin)(Z)
+## Octave (text|binary) (zipped) format; file extension will be .(txt|bin)(.gz)
+## @item HDF5
+## Hierarchical Data Format version 5 format; file extension will be .hdf5
+## @item Mat
+## Matlab (version 6) binary format; file extension will be .mat
+## @end table
+## Default is "OctBinZ"
+##
+## @end table
+##
+## @heading Options for running executables
+##
+## @table @code
+## @item executable
+## name of executable to run
+##
+## @item arguments
+## cell array of arguments to pass to executable.
+## use @code{$(variable)} to insert reference to a Condor variable.
+##
+## @end table
+##
+## @end deftypefn
 
 function job_file = makeCondorJob(varargin)
 

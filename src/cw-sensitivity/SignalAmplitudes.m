@@ -15,16 +15,30 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} [@var{ap}, @var{ax}] = SignalAmplitudes(@code{nonax}, @var{cosi})
+## @deftypefnx {Function File} @var{apxnorm} = SignalAmplitudes(@code{nonax})
+##
 ## Calculate the amplitudes of each polarisation from a signal
 ## emitted by a particular emission mechanism:
-##   "nonax": nonaxisymmetric distortion at 2f
-## Syntax:
-##   [ap, ax] = SignalAmplitudes("nonax", cosi)
-##   apxnorm  = SignalAmplitudes("nonax")
-## where:
-##   ap,ax   = signal polarisation amplitudes
-##   apxnorm = normalisation constant for R^2
-##   cosi    = cosine of the inclination angle
+## "@var{nonax}": nonaxisymmetric distortion at 2f
+##
+## @heading Arguments
+##
+## @table @var
+## @item ap
+## @itemx ax
+## signal polarisation amplitudes
+##
+## @item apxnorm
+## normalisation constant for R^2
+##
+## @item cosi
+## cosine of the inclination angle
+##
+## @end table
+##
+## @end deftypefn
 
 function varargout = SignalAmplitudes(emission, cosi)
 

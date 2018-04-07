@@ -15,11 +15,16 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## ret = RogersBoundNormalized ( n )
-## [can handle vector input]
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{ret} = RogersBoundNormalized ( @var{n} )
 ##
-## Rogers' upper bound on (normalized) packing density in n dimensions
+## Rogers' upper bound on (normalized) packing density in @var{n} dimensions
 ## from Chap.1, Conway&Sloane(1999)
+##
+## @heading Note
+## can handle vector input
+##
+## @end deftypefn
 
 function ret = RogersBoundNormalized ( n )
   ## a few 'exact' numbers taken from Conway&Sloane(1999) Table 1.2:

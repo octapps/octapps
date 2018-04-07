@@ -15,14 +15,17 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} function p(@var{x}) = maxChi2FromNdraws_pdf ( @var{x}, @var{Ndraws}, @var{dof = 4} )
+##
+## Probability density (pdf) for the maximum out of @var{Ndraws} independent draws from a
+## (central) chi2 distribution with @var{dof} degrees of freedom.
+##
+## Return p(@var{x}): pdf over (vector of) maxChi2 statistics values @var{x}'
+##
+## @end deftypefn
+
 function p = maxChi2FromNdraws_pdf ( x, Ndraws, dof = 4 )
-  ## function p(x) = maxChi2FromNdraws_pdf ( x, Ndraws, dof = 4 )
-  ##
-  ## Probability density (pdf) for the maximum out of Ndraws independent draws from a
-  ## (central) chi2 distribution with 'dof' degrees of freedom.
-  ##
-  ## Return p(x): pdf over (vector of) maxChi2 statistics values 'x'
-  ##
 
   assert ( isscalar ( Ndraws ) );
   assert ( isscalar ( dof ) );

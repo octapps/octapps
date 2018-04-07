@@ -15,12 +15,15 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## ret = AnsMinimalVectors ( dim )
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{ret} = AnsMinimalVectors ( @var{dim} )
 ##
 ## return matrix containing the tau/2=(n+1) 'minimal' vectors for An*,
 ## (tau is the kissing number) in n dimensions. The second half of minimal
 ## vectors is simply obtained by multiplying these by (-1).
 ## From Conway&Sloane(1991) "The cell Structure of Certain Lattices"
+##
+## @end deftypefn
 
 function ret = AnsMinimalVectors ( dim )
 

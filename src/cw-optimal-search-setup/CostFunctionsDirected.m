@@ -14,35 +14,76 @@
 ## along with Octave; see the file COPYING.  If not, see
 ## <http://www.gnu.org/licenses/>.
 
-## Return computing-cost functions for use in OptimalSolution4StackSlide_v2() to compute
-## optimal StackSlide setup for a directed search (known sky-position, unknown f, fdot, f2dot, ...)
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{cost_funs} = CostFunctionsDirected(@var{opt}, @var{val}, @dots{})
 ##
-## [Adapted from 'metricComputingCost()' function initially used in S6CasA E@H search setup]
+## Return computing-cost functions for use in @command{OptimalSolution4StackSlide_v2()} to compute
+## optimal StackSlide setup for a directed search (known sky-position, unknown f, fdot, f2dot, @var{...})
 ##
-## Usage:
-##   cost_funs = CostFunctionsDirected("opt", val, ...)
-## where
-##   cost_funs = struct of computing-cost functions to pass to OptimalSolution4StackSlide_v2()
+## @heading Note
 ##
-## Search setup options:
-##   "tau_min":       spindown-age 'tau' in seconds [default: 300 yrs]
-##   "brk_min":       (minimal) braking index 'n0' for spindown-bounds [default: 2]
-##   "fmin":          lower search frequency bound [default: 50.00]
-##   "fmax":          upper search frequency bound [default: 50.05]
-##   "boundaryType":  what type of parameter-space boundary to assume [default: "EaHCasA"]:
-##                    "EaHCasA" for a freq-dependent 'box' in {f1dot,f2dot}, defined by (tau_min, brk_min)
-##                    "S5CasA" for Karl's CasA search construction, with brk-index in [2,7]
+## Adapted from @command{metricComputingCost()} function initially used in S6CasA E\@H search setup
 ##
-##   "detectors":     CSV list of detectors to use ("H1"=Hanford, "L1"=Livingston, "V1"=Virgo, ...)
-##   "coh_duty":      duty cycle of data within each coherent segment
+## @heading Arguments
 ##
-##   "resampling":    use F-statistic 'resampling' instead of 'demod' timings for coherent cost [default: false]
-##   "lattice":       template-bank lattice ("Zn", "Ans",..) [default: "Ans"]
-##   "coh_c0_demod":  computational cost of F-statistic 'demod' per template per second [optional]
-##   "coh_c0_resamp": computational cost of F-statistic 'resampling' per template [optional]
-##   "inc_c0":        computational cost of incoherent step per template per segment [optional]
-##   "grid_interpolation": use interpolating StackSlide or non-interpolating (ie coherent-grids == incoherent-grid)
+## @table @var
+## @item cost_funs
+## struct of computing-cost functions to pass to @command{OptimalSolution4StackSlide_v2()}
 ##
+## @end table
+##
+## @heading Search setup options
+##
+## @table @code
+## @item tau_min
+## spindown-age 'tau' in seconds [default: 300 yrs]
+##
+## @item brk_min
+## (minimal) braking index 'n0' for spindown-bounds [default: 2]
+##
+## @item fmin
+## lower search frequency bound [default: 50.00]
+##
+## @item fmax
+## upper search frequency bound [default: 50.05]
+##
+## @item boundaryType
+## what type of parameter-space boundary to assume [default: @code{EaHCasA}]:
+##
+## @item EaHCasA
+## for a freq-dependent 'box' in @{f1dot,f2dot@}, defined by (@var{tau_min}, @var{brk_min})
+##
+## @item S5CasA
+## for Karl's CasA search construction, with brk-index in [2,7]
+##
+## @item detectors
+## CSV list of @var{detectors} to use ("H1"=Hanford, "L1"=Livingston, "V1"=Virgo, @var{...})
+##
+## @item coh_duty
+## duty cycle of data within each coherent segment
+##
+## @item resampling
+## use F-statistic @var{resampling} instead of 'demod' timings for coherent cost [default: false]
+##
+## @item lattice
+## template-bank @var{lattice} ("Zn", "Ans",..) [default: "Ans"]
+##
+## @item coh_c0_demod
+## computational cost of F-statistic 'demod' per template per second [optional]
+##
+## @item coh_c0_resamp
+## computational cost of F-statistic @var{resampling} per template [optional]
+##
+## @item inc_c0
+## computational cost of incoherent step per template per segment [optional]
+##
+## @item grid_interpolation
+## use interpolating StackSlide or non-interpolating (ie coherent-grids == incoherent-grid)
+##
+## @end table
+##
+## @end deftypefn
+
 function cost_funs = CostFunctionsDirected ( varargin )
 
   ## parse options

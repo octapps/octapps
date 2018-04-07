@@ -14,16 +14,33 @@
 ## along with Octave; see the file COPYING.  If not, see
 ## <http://www.gnu.org/licenses/>.
 
-## Generate a colour map by interpolating colour intensities.
-## Usage:
-##   map   = makeColourMap(r, g, b, [n=64])
-## where
-##   map   = colour map
-##   r,g,b = m-by-2 arrays of interpolation coefficients
-##             [x1, c1; x2, c2; ...]
-##           where x indexes the colour map, 0<=x<=1
-##                 c is the red/gree/blue colour at x
-##   n     = number of colour map entries
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{map} = makeColourMap(@var{r}, @var{g}, @var{b}, [@var{n} = 64])
+##
+## Generate a colour @var{map} by interpolating colour intensities.
+##
+## @heading Arguments
+##
+## @table @var
+## @item map
+## colour map
+##
+## @item r
+## @itemx g
+## @itemx b
+## m-by-2 arrays of interpolation coefficients
+## @verbatim
+## [x1, c1; x2, c2; ...]
+## @end verbatim
+## where x indexes the colour @var{map}, 0<=x<=1
+## c is the red/gree/blue colour at x
+##
+## @item n
+## number of colour @var{map} entries
+##
+## @end table
+##
+## @end deftypefn
 
 function map = makeColourMap(r, g, b, n=64)
 

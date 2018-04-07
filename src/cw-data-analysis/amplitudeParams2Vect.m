@@ -15,14 +15,21 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## Amu = amplitudeParams2Vect ( Amp )
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{Amu} = amplitudeParams2Vect ( @var{Amp} )
 ##
-## compute the amplitude-vector {A^mu} for given amplitude-params, which can follow
-## EITHER the MLDC convention {Amplitude, Inclination, Polarization, IntialPhase },
-## OR in LIGO convention {h0, cosi, psi, phi0}: this will be auto-detected and properly
+## compute the amplitude-vector @{A^mu@} for given amplitude-params, which can follow
+## @itemize
+## @item
+## either the MLDC convention @{Amplitude, Inclination, Polarization, IntialPhase @},
+## @item
+## or in LIGO convention @{h0, cosi, psi, phi0@}: this will be auto-detected and properly
 ## converted.
+## @end itemize
 ## multiple signals must correspond to different *lines* in those fields, i.e. column-vectors!
 ## the output consists of 4D line vectors Amu(,1:4), multiple lines corresponding to multiple signals
+##
+## @end deftypefn
 
 function Amu = amplitudeParams2Vect ( Amp )
 

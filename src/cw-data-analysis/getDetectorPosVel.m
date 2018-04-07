@@ -14,22 +14,54 @@
 ## along with Octave; see the file COPYING.  If not, see
 ## <http://www.gnu.org/licenses/>.
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} [@var{p}, @var{v}, @var{sp}, @var{sv}, @var{op}, @var{ov}] = getDetectorPosVel(@var{opt}, @var{val}, @dots{})
+##
 ## Compute the spin, orbital, and total components of a detector's
 ## position and velocity at a list of GPS times, using LALPulsar
-## Usage:
-##   [p, v, sp, sv, op, ov] = getDetectorPosVel("opt", val, ...)
-## where:
-##   p  = detector positions, in equatorial coordinates
-##   v  = detector velocities, in equatorial coordinates
-##   sp = spin components of detector positions
-##   sv = spin components of detector velocities
-##   op = orbital components of detector positions
-##   ov = orbital components of detector velocities
-## Options:
-##   "gps_times":   list of GPS times
-##   "detector":    name of detector (default: H1)
-##   "motion":      type of motion (default: spin+orbit)
-##   "ephemerides": Earth/Sun ephemerides from loadEphemerides()
+##
+## @heading Arguments
+##
+## @table @var
+## @item p
+## detector positions, in equatorial coordinates
+##
+## @item v
+## detector velocities, in equatorial coordinates
+##
+## @item sp
+## spin components of detector positions
+##
+## @item sv
+## spin components of detector velocities
+##
+## @item op
+## orbital components of detector positions
+##
+## @item ov
+## orbital components of detector velocities
+##
+## @end table
+##
+## @heading Options
+##
+## @table @code
+## @item gps_times
+## list of GPS times
+##
+## @item detector
+## name of detector (default: H1)
+##
+## @item motion
+## type of motion (default: spin+orbit)
+##
+## @item ephemerides
+## Earth/Sun ephemerides from @command{loadEphemerides()}
+##
+## @end table
+##
+## @end deftypefn
+
 function [p, v, sp, sv, op, ov] = getDetectorPosVel(varargin)
 
   ## load LAL libraries

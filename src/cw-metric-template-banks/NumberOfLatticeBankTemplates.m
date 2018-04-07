@@ -14,16 +14,37 @@
 ## along with Octave; see the file COPYING.  If not, see
 ## <http://www.gnu.org/licenses/>.
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} N = NumberOfLatticeBankTemplates(@var{opt}, @var{val}, @dots{})
+##
 ## Estimate the number of templates in a lattice template bank.
-## Usage:
-##   N = NumberOfLatticeBankTemplates("opt", val, ...)
-## where
-##   N              = Number of templates
-## Options:
-##   "lattice"      : Type of lattice; see LatticeNormalizedThickness()
-##   "metric"       : Parameter-space metric
-##   "max_mismatch" : Maximum metric mismatch
-##   "param_vol"    : Parameter space volume
+##
+## @heading Arguments
+##
+## @table @var
+## @item N
+## Number of templates
+##
+## @end table
+##
+## @heading Options
+##
+## @table @code
+## @item lattice
+## Type of lattice; see @command{LatticeNormalizedThickness()}
+##
+## @item metric
+## Parameter-space metric
+##
+## @item max_mismatch
+## Maximum metric mismatch
+##
+## @item param_vol
+## Parameter space volume
+##
+## @end table
+##
+## @end deftypefn
 
 function N = NumberOfLatticeBankTemplates(varargin)
 

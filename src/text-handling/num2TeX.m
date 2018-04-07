@@ -14,21 +14,52 @@
 ## along with Octave; see the file COPYING.  If not, see
 ## <http://www.gnu.org/licenses/>.
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{tex} = num2TeX(@var{num}, @var{fmt}, @var{opt}, @var{val}, @dots{})
+##
 ## Format a number in TeX format.
-## Usage:
-##   tex = num2TeX(num, fmt, "opt", val, ...)
-## where:
-##   tex = cell array of TeX strings (or string if numel(num) == 1)
-##   num = any-dimensional array of numbers
-##   fmt = printf()-style format string, without the leading %
-## Options:
-##   "prefix:": string to add at start of TeX string (default: "")
-##   "suffix:": string to add at end of TeX string (default: "")
-##   "dollar": symbol to wrap TeX string with (default: "$")
-##   "times": TeX symbol to use for times (default: "{\times}")
-##   "infstr": TeX string to use for infinity (default: "\infty")
-##   "nanstr": TeX string to use for not-a-number (default: "\mathrm{NaN}")
-##   "dbslash": double backslash characters, i.e. replace "\" with "\\"
+##
+## @heading Arguments
+##
+## @table @var
+## @item tex
+## cell array of TeX strings (or string if numel(@var{num}) == 1)
+##
+## @item num
+## any-dimensional array of numbers
+##
+## @item fmt
+## printf()-style format string, without the leading %
+##
+## @end table
+##
+## @heading Options
+##
+## @table @code
+## @item prefix
+## ": string to add at start of TeX string (default: "")
+##
+## @item suffix
+## ": string to add at end of TeX string (default: "")
+##
+## @item dollar
+## symbol to wrap TeX string with (default: "$")
+##
+## @item times
+## TeX symbol to use for @var{times} (default: "@{\@var{times}@}")
+##
+## @item infstr
+## TeX string to use for infinity (default: "\infty")
+##
+## @item nanstr
+## TeX string to use for not-a-number (default: "\mathrm@{NaN@}")
+##
+## @item dbslash
+## double backslash characters, i.e. replace "\" with "\\"
+##
+## @end table
+##
+## @end deftypefn
 
 function tex = num2TeX(num, fmt, varargin)
 

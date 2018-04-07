@@ -15,18 +15,32 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## [d, KLD, JSD] = histDistance(hgrm1, hgrm2)
-## where:
-##   hgrm{1,2} = histogram objects
+## -*- texinfo -*-
+## @deftypefn  {Function File} [@var{d}, @var{KLD}, @var{JSD}] = histDistance(@var{hgrm1}, @var{hgrm2})
 ##
 ## Computes different distance measures between histograms
-## 'd'  : defined to be the sum of the absolute difference in probability density in
-##        each bin (for a common bin set), multiplied by the bin area.
-## 'KLD': is the (non-symmetric) Kullback–Leibler divergence D_KL(hgrm1 || hgrm2) >= 0
-##        https://en.wikipedia.org/wiki/Kullback-Leibler_divergence
-## 'JSD': is the (symmetric) Jensen–Shannon divergence 0 <= JDS <= 1
-##        https://en.wikipedia.org/wiki/Jensen-Shannon_divergence
 ##
+## @heading Arguments
+## @table @var
+## @item hgrm1
+## @itemx hgrm2
+## histogram objects
+##
+## @item d
+## defined to be the sum of the absolute difference in probability density in
+## each bin (for a common bin set), multiplied by the bin area.
+##
+## @item KLD
+## is the (non-symmetric) Kullback–Leibler divergence D_KL(@var{hgrm1} || @var{hgrm2}) >= 0
+## https://en.wikipedia.org/wiki/Kullback-Leibler_divergence
+##
+## @item JSD
+## is the (symmetric) Jensen–Shannon divergence 0 <= JDS <= 1
+## https://en.wikipedia.org/wiki/Jensen-Shannon_divergence
+##
+## @end table
+##
+## @end deftypefn
 
 function [d, KLD, JSD] = histDistance(hgrm1, hgrm2)
 

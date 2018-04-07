@@ -15,9 +15,14 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{ret} = dms_to_rad ( @var{degs} )
+##
+## convert degrees in the format "deg:min:sec.xx" into radians
+##
+## @end deftypefn
+
 function ret = dms_to_rad ( degs )
-  ## ret = dms_to_rad ( degs )
-  ## convert degrees in the format "deg:min:sec.xx" into radians
 
   tmp = strtrim ( degs );
 

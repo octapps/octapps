@@ -15,27 +15,53 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{LRstat} = ComputeLineRobustStat ( @var{twoF_multi}, @var{twoF_single}, @var{Fstar0}, @var{oLGX}, @var{useAllTerms} )
+##
+## function to calculate line-robust statistic for multiple detectors
+##
+## this is actually the log-Bayes-factor:
+##
+## LRstat = log10(B_@{SGL@}) = log10(O_@{SGL@})-log10(o_@{SGL@})
+##
+## see Eq. (36) of Keitel, Prix, Papa, Leaci, Siddiqi, PR D 89, 064023 (2014)
+## and Eq. (55) for the semicoherent case
+##
+## @heading Notes
+##
+## @enumerate
+##
+## @item
+## input should be 2F, NOT F! Summed, not averaged, over segments!
+##
+## @item
+## Fstar0 is therefore reinterpreted as "semicoherent rho", Nseg exponent must already be included from caller
+## (compare Eq. (57), Fstar0^=ln(cstar^Nseg) )
+##
+## @item
+## pure line-veto statistic log10(BSL) is obtained in the limit Fstar0 -> -Inf
+##
+## @end enumerate
+##
+## @heading Original formula
+##
+## log10(B_SGL) = log10(e) * ( F_multi - log( (1-pL)*exp(Fstar0) + pL*<rX*exp(FX)> ) )
+## = log10(e) * ( F_multi - log( (1-pL)*exp(Fstar0) + (pL/Ndet)*sum(rX*exp(FX)) ) )
+##
+## with
+## @itemize
+## @item line-to-Gauss prior odds oLG = sumX oLGX
+## @item line prior weights       rX = oLGX*Ndet/oLG
+## @item detector-average         <QX> = (1/Ndet) * sumX QX
+## @item total line probability   pL = oLG/(1+oLG)
+## @end itemize
+##
+## implementation here is optimized to avoid underflows ("log-sum-exp formula")
+## should be compatible with current implementation in lalpulsar/src/LineRobustStats.c
+##
+## @end deftypefn
+
 function LRstat = ComputeLineRobustStat ( twoF_multi, twoF_single, Fstar0, oLGX, useAllTerms )
-  ## LRstat = ComputeLineRobustStat ( twoF_multi, twoF_single, Fstar0, oLGX, useAllTerms )
-  ## function to calculate line-robust statistic for multiple detectors
-  ## this is actually the log-Bayes-factor:
-  ## LRstat = log10(B_{SGL}) = log10(O_{SGL})-log10(o_{SGL})
-  ## see Eq. (36) of Keitel, Prix, Papa, Leaci, Siddiqi, PR D 89, 064023 (2014)
-  ## and Eq. (55) for the semicoherent case
-  ## NOTE: input should be 2F, NOT F! Summed, not averaged, over segments!
-  ## NOTE2: Fstar0 is therefore reinterpreted as "semicoherent rho", Nseg exponent must already be included from caller
-  ##        (compare Eq. (57), Fstar0^=ln(cstar^Nseg) )
-  ## NOTE4: pure line-veto statistic log10(BSL) is obtained in the limit Fstar0 -> -Inf
-  ## original formula:
-  ## log10(B_SGL) = log10(e) * ( F_multi - log( (1-pL)*exp(Fstar0) + pL*<rX*exp(FX)> ) )
-  ##              = log10(e) * ( F_multi - log( (1-pL)*exp(Fstar0) + (pL/Ndet)*sum(rX*exp(FX)) ) )
-  ## with
-  ## line-to-Gauss prior odds oLG = sumX oLGX
-  ## line prior weights       rX = oLGX*Ndet/oLG
-  ## detector-average         <QX> = (1/Ndet) * sumX QX
-  ## total line probability   pL = oLG/(1+oLG)
-  ## implementation here is optimized to avoid underflows ("log-sum-exp formula")
-  ## should be compatible with current implementation in lalpulsar/src/LineRobustStats.c
 
   ## check for consistent vector/matrix lengths
   if ( isempty(twoF_multi) || isempty(twoF_single) || isempty(Fstar0) || isempty(oLGX) )

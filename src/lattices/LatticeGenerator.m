@@ -15,11 +15,14 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## [ gen, rot ] = LatticeGenerator ( dim, lattice )
+## -*- texinfo -*-
+## @deftypefn  {Function File} [ @var{gen}, @var{rot} ] = LatticeGenerator ( @var{dim}, @var{lattice} )
 ##
 ## return an nxn full-rank generating matrix for the specified lattice
-## This is just a wrapper to the lower-level lattice-specific functions.
-## lattice is one of the strings { "Zn", "An", "Ans" }
+## This is just a wrapper to the lower-level @var{lattice}-specific functions.
+## lattice is one of the strings @{@code{Zn}, @code{An}, @code{Ans}@}
+##
+## @end deftypefn
 
 function [ gen, rot ] = LatticeGenerator ( dim, lattice )
 

@@ -14,9 +14,12 @@
 ## along with Octave; see the file COPYING.  If not, see
 ## <http://www.gnu.org/licenses/>.
 
+## -*- texinfo -*-
+## @deftypefn
+##
 ## Generates the Octave path for OctApps.
-## Usage:
-##   __octapps_genpath__()
+##
+## @end deftypefn
 
 function __octapps_genpath__()
   octvhex = versionstr2hex(OCTAVE_VERSION);

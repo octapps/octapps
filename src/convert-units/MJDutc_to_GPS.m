@@ -16,13 +16,16 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## GPS = MJDutc_to_GPS ( MJDutc )
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{GPS} = MJDutc_to_GPS ( @var{MJDutc} )
 ##
 ## convert MJD (based on UTC) into GPS seconds
 ## translated from lalapps-CVS/src/pulsar/TDS_isolated/TargetedPulsars.c
-## This conversion corresponds to what lalapps_tconvert does, but
+## This conversion corresponds to what @command{lalapps_tconvert} does, but
 ## is NOT the right thing for pulsar timing, as pulsar-epochs are typically
 ## given in MJD(TDB) ! ==> use MJDtdb_to_GPS.m for that purpose!
+##
+## @end deftypefn
 
 function GPS = MJDutc_to_GPS ( MJDutc )
 

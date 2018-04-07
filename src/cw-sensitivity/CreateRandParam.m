@@ -15,14 +15,29 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{rng} = CreateRandParam(@var{p}, @var{p}, @dots{})
+##
 ## Parses random parameters specs, which may be either
-##   <constant>,     denoting a single value, or
-##   [<min>, <max>], denoting a range of values
-## Syntax:
-##   rng = CreateRandParam(p, p, ...)
-## where
-##   rng = random parameter generator
-##   p   = random parameter spec
+## @itemize
+## @item @samp{constant}:
+## denoting a single value, or
+## @item [@samp{min}, @samp{max}]:
+## denoting a range of values
+## @end itemize
+##
+## @heading Arguments
+##
+## @table @var
+## @item rng
+## random parameter generator
+##
+## @item p
+## random parameter spec
+##
+## @end table
+##
+## @end deftypefn
 
 function rng = CreateRandParam(varargin)
 

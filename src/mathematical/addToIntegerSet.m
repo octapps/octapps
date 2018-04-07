@@ -14,13 +14,26 @@
 ## along with Octave; see the file COPYING.  If not, see
 ## <http://www.gnu.org/licenses/>.
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{intset} = addToIntegerSet(@var{intset}, @var{ints})
+##
 ## Add integers to an set of integers, stored as contiguous intervals.
-## Usage:
-##   intset = addToIntegerSet(intset, ints)
-## where:
-##   intset = set of integers, stored as a Nx2 matrix of intervals:
-##              [min1, max1; min2, max2; min3, max3; ...]
-##   ints   = integers to add to set
+##
+## @heading Arguments
+##
+## @table @var
+## @item intset
+## set of integers, stored as a Nx2 matrix of intervals:
+## @verbatim
+## [min1, max1; min2, max2; min3, max3; ...]
+## @end verbatim
+##
+## @item ints
+## integers to add to set
+##
+## @end table
+##
+## @end deftypefn
 
 function intset = addToIntegerSet(intset, ints)
 

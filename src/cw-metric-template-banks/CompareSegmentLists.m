@@ -13,11 +13,14 @@
 ## You should have received a copy of the GNU General Public License
 ## along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{iseq} = CompareSegmentLists(@var{seglist}, @var{seglist_1}, @var{seglist_2}, @dots{})
+## @deftypefnx {Function File} @var{iseq} = CompareSegmentLists(@var{seglist}, @var{@{seglist_1}, @var{seglist_2}, @var{...@}})
+##
 ## Return true if the segment list 'seglist' equals any of the segment
-## lists 'seglist_1', 'seglist_2', etc., and false otherwise.
-## Usage:
-##   iseq = CompareSegmentLists(seglist, seglist_1, seglist_2, ...)
-##   iseq = CompareSegmentLists(seglist, {seglist_1, seglist_2, ...})
+## lists @var{seglist_1}, @var{seglist_2}, etc., and false otherwise.
+##
+## @end deftypefn
 
 function iseq = CompareSegmentLists(seglist, varargin)
 

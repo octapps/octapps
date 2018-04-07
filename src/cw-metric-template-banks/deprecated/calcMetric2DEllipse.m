@@ -15,14 +15,19 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## [ret, angle, smin, smaj] = calcMetric2DEllipse ( gij, mismatch, numPoints, rotate )
+## -*- texinfo -*-
+## @deftypefn  {Function File} [@var{ret}, @var{angle}, @var{smin}, @var{smaj}] = calcMetric2DEllipse ( @var{gij}, @var{mismatch}, @var{numPoints}, @var{rotate} )
+## @deftypefnx {Function File} @var{ret} = calcMetric2DEllipse ( @var{gij}, @var{mismatch}, @var{numPoints} ):
 ##
-## ret = calcMetric2DEllipse ( gij, mismatch, numPoints ):
-## given a parameter-space metric 'gij' and a mismatch 'm', return the
-## corresponding metric 2D ellipse (centered at (0,0)) using 'numPoints'
+## Given a parameter-space metric 'gij' and a mismatch 'm', return the
+## corresponding metric 2D ellipse (centered at (0,0)) using 'numPoints'.
+## If 'rotate' is given, rotate ellipse by this angle.
 ##
-## Note: only the first 2 dimensions of gij are used!
-## if 'rotate' is given, rotate ellipse by this angle
+## @heading Note
+##
+## only the first 2 dimensions of gij are used!
+##
+## @end deftypefn
 
 function [ret, angle, sMin, sMaj] = calcMetric2DEllipse ( gij, mismatch, numPoints, rotate )
   global debug;

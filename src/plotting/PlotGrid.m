@@ -13,18 +13,32 @@
 ## You should have received a copy of the GNU General Public License
 ## along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-## A more flexible replacement for subplot().
-## Usage:
-##   PlotGrid(rowrange, colrange, rowspace, colspace, rowfigs, colfigs)
-##   hax = PlotGrid(rowidx, colidx)
-## or:
-##   PlotGrid(range, space, figs)
-##   hax = PlotGrid(idx)
-## where:
-##   [row|col]range: range of figure coordinates in [0,1] to be covered by grid [in this dimension]
-##   [row|col]space: spacing between figures [in this dimension]
-##   [row|col]figs: number of figures [in this dimension]
-##   [row|col]idx: figure index [in this dimension]
+## -*- texinfo -*-
+## @deftypefn  {Function File} PlotGrid(@var{rowrange}, @var{colrange}, @var{rowspace}, @var{colspace}, @var{rowfigs}, @var{colfigs})
+## @deftypefnx {Function File} @var{hax} = PlotGrid(@var{rowidx}, @var{colidx})
+## @deftypefnx {Function File} PlotGrid(@var{range}, @var{space}, @var{figs})
+## @deftypefnx {Function File} @var{hax} = PlotGrid(@var{idx})
+##
+## A more flexible replacement for @command{subplot()}.
+##
+## @heading Arguments
+##
+## @table @var
+## @item [row|col]range
+## range of figure coordinates in [0,1] to be covered by grid [in this dimension]
+##
+## @item [row|col]space
+## spacing between figures [in this dimension]
+##
+## @item [row|col]figs
+## number of figures [in this dimension]
+##
+## @item [row|col]idx
+## figure index [in this dimension]
+##
+## @end table
+##
+## @end deftypefn
 
 function hax = PlotGrid(varargin)
 

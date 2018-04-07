@@ -15,16 +15,35 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} [@var{xp}, @var{yp}, @var{xx}, @var{yx}] = PolarisationNullVectors(@var{alpha}, @var{sdelta}, @var{psi})
+##
 ## Calculate the vectors along which a pure plus/cross gravitational
 ## wave create no space-time peturbation
-## Syntax:
-##   [xp, yp, xx, yx] = PolarisationNullVectors(alpha, sdelta, psi)
-## where:
-##   xp,yp  = plus polarisation null vectors in equatorial coordinates
-##   xx,yx  = cross polarisation null vectors in equatorial coordinates
-##   alpha  = source right ascension in radians
-##   sdelta = sine of source declination
-##   psi    = source polarisation angle in radians
+##
+## @heading Arguments
+##
+## @table @var
+## @item xp
+## @itemx yp
+## plus polarisation null vectors in equatorial coordinates
+##
+## @item xx
+## @itemx yx
+## cross polarisation null vectors in equatorial coordinates
+##
+## @item alpha
+## source right ascension in radians
+##
+## @item sdelta
+## sine of source declination
+##
+## @item psi
+## source polarisation angle in radians
+##
+## @end table
+##
+## @end deftypefn
 
 function [xp, yp, xx, yx] = PolarisationNullVectors(alpha, sdelta, psi)
 

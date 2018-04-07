@@ -13,48 +13,115 @@
 ## You should have received a copy of the GNU General Public License
 ## along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-## Estimate the run time and maximum memory usage of 'lalapps_Weave'.
-## Usage:
-##   [times, maxmem, tau] = WeaveRunTime("opt", val, ...)
-## Options:
-##   EITHER:
-##     setup_file:      Weave setup file
-##   OR:
-##     Nsegments:       number of segments
-##     Ndetectors:      number of detectors
-##     ref_time:        GPS reference time
-##     start_time:      GPS start time
-##     coh_Tspan:       time span of coherent segments
-##     semi_Tspan:      total time span of semicoherent search
-##   EITHER:
-##     result_file:     Weave result file
-##   OR:
-##     freq_min/max:    minimum/maximum frequency range
-##     dfreq:           frequency spacing
-##     f1dot_min/max:   minimum/maximum 1st spindown
-##     f2dot_min/max:   minimum/maximum 2nd spindown (optional)
-##     NSFTs:           total number of SFTs
-##     Fmethod:         F-statistic method used by search
-##     Ncohres:         total number of computed coherent results
-##     Nsemitpl:        number of computed semicoherent results
-##     cache_max:       maximum size of coherent results cache
-##   stats:
-##     Comma-separated list of statistics being computed
-##   TSFT:
-##     Length of an SFT (default: 1800s)
-## Outputs:
-##   times.total:
-##     estimate of total CPU run time (seconds)
-##   times.<field>:
-##     estimate of CPU time (seconds) to perform action <field>;
-##     see the script itself for further documentation
-##   maxmem.total:
-##     estimate of maximum total memory usage (MB)
-##   maxmem.<field>:
-##     estimate of maximum memory usage (MB) of component <field>;
-##     see the script itself for further documentation
-##   tau.<field>"
-##     fundamental timing constants
+## -*- texinfo -*-
+## @deftypefn  {Function File} [@var{times}, @var{maxmem}, @var{tau}] = WeaveRunTime(@var{opt}, @var{val}, @dots{})
+##
+## Estimate the run time and maximum memory usage of @command{lalapps_Weave}.
+##
+## @heading Options
+##
+## @table @code
+## @item @strong{EITHER}
+## @table @code
+##
+## @item setup_file
+## Weave setup file
+##
+## @end table
+##
+## @item @strong{OR}
+## @table @code
+##
+## @item Nsegments
+## number of segments
+##
+## @item Ndetectors
+## number of detectors
+##
+## @item ref_time
+## GPS reference time
+##
+## @item start_time
+## GPS start time
+##
+## @item coh_Tspan
+## time span of coherent segments
+##
+## @item semi_Tspan
+## total time span of semicoherent search
+##
+## @end table
+##
+## @item @strong{EITHER}
+## @table @code
+##
+## @item result_file
+## Weave result file
+##
+## @end table
+##
+## @item @strong{OR}
+## @table @code
+##
+## @item freq_min/max
+## minimum/maximum frequency range
+##
+## @item dfreq
+## frequency spacing
+##
+## @item f1dot_min/max
+## minimum/maximum 1st spindown
+##
+## @item f2dot_min/max
+## minimum/maximum 2nd spindown (optional)
+##
+## @item NSFTs
+## total number of SFTs
+##
+## @item Fmethod
+## F-statistic method used by search
+##
+## @item Ncohres
+## total number of computed coherent results
+##
+## @item Nsemitpl
+## number of computed semicoherent results
+##
+## @item cache_max
+## maximum size of coherent results cache
+##
+## @end table
+##
+## @item stats
+## Comma-separated list of statistics being computed
+##
+## @item TSFT
+## Length of an SFT (default: 1800s)
+##
+## @end table
+##
+## @heading Outputs
+## @itemize
+## @item @var{times}.total:
+## estimate of total CPU run time (seconds)
+##
+## @item @var{times}.@samp{field}:
+## estimate of CPU time (seconds) to perform action @samp{field};
+## see the script itself for further documentation
+##
+## @item @var{maxmem}.total:
+## estimate of maximum total memory usage (MB)
+##
+## @item @var{maxmem}.@samp{field}:
+## estimate of maximum memory usage (MB) of component @samp{field};
+## see the script itself for further documentation
+##
+## @item @var{tau}.@samp{field}:
+## fundamental timing constants
+##
+## @end itemize
+##
+## @end deftypefn
 
 ## octapps_run_link
 

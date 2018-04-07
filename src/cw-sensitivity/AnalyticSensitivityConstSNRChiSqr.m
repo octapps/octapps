@@ -15,18 +15,37 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} [@var{rhob}, @var{tms}] = AnalyticSensitivityConstSNRChiSqr(@var{paNt}, @var{pd}, @var{Ns}, @var{nu})
+##
 ## Calculate sensitivty in terms of the root-mean-square SNR for
 ## a population of constant-SNR signals, and for a chi^2 detection
 ## statistic
-## Syntax:
-##   [rhob,tms] = AnalyticSensitivityConstSNRChiSqr(paNt, pd, Ns, nu)
-## where:
-##   rhob = detectable r.m.s. SNR (per segment)
-##   tms  = terms of the second factor of the expression
-##   paNt = false alarm probability (per template)
-##   pd   = false dismissal probability
-##   Ns   = number of segments
-##   nu   = degrees of freedom per segment
+##
+## @heading Arguments
+##
+## @table @var
+## @item rhob
+## detectable r.m.s. SNR (per segment)
+##
+## @item tms
+## terms of the second factor of the expression
+##
+## @item paNt
+## false alarm probability (per template)
+##
+## @item pd
+## false dismissal probability
+##
+## @item Ns
+## number of segments
+##
+## @item nu
+## degrees of freedom per segment
+##
+## @end table
+##
+## @end deftypefn
 
 function [rhob,tms] = AnalyticSensitivityConstSNRChiSqr(paNt, pd, Ns, nu)
 

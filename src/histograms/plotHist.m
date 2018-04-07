@@ -15,18 +15,38 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} plotHist(@var{hgrm}, @var{options}, @dots{}, @var{hgrm}, @var{options}, @dots{})
+## @deftypefnx {Function File} @var{hh} = plotHist(@dots{})
+##
 ## Plot a histogram as a stair graph
-## Syntax:
-##   plotHist(hgrm, options, ..., hgrm, options, ...)
-##   hh = plotHist(...)
-## where:
-##   hgrm    = histogram object
-##   options = options to pass to graphics function
-##   hh      = return graphics handles
-## plotHist-specific options:
-##   "stairs":   if true [default], plot histogram as a stair-stepped
-##               graph; otherwise, plot a smooth line through bin centres
-##   "infbins":  if true [default], plot stalks for counts in infinite bins
+##
+## @heading Arguments
+##
+## @table @var
+## @item hgrm
+## histogram object
+##
+## @item options
+## @var{options} to pass to graphics function
+##
+## @item hh
+## return graphics handles
+##
+## @end table
+##
+## @heading @command{plotHist()}-specific options
+##
+## @table @code
+## @item stairs
+## if true [default], plot histogram as a stair-stepped
+## graph; otherwise, plot a smooth line through bin centres
+##
+## @item infbins
+## if true [default], plot stalks for counts in infinite bins
+## @end table
+##
+## @end deftypefn
 
 function varargout = plotHist(varargin)
 

@@ -15,12 +15,17 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} unmanglePATH
+##
 ## Aaargh Octave! At startup it prepends PATH with directories containing
-## Octave executables - which if it's installed in /usr/bin include
-## /usr/bin. This will clobber any existing paths in PATH that were meant
-## to override /usr/bin, such as e.g. custom installation of LALSuite!
+## Octave executables - which if it's installed in @file{/usr/bin} include
+## @file{/usr/bin}. This will clobber any existing paths in PATH that were meant
+## to override @file{/usr/bin}, such as e.g. custom installation of LALSuite!
 ##
 ## This script undoes the damage.
+##
+## @end deftypefn
 
 function unmanglePATH
 

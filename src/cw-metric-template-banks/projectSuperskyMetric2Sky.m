@@ -15,16 +15,20 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{g_aa} = projectSuperskyMetric2Sky ( @var{g_nn}, @var{alpha0}, @var{delta0} )
+##
+## returns metric in coordinates [a, ...] = [alpha, delta, ... ] at a given
+## sky-position @var{alpha0},@var{delta0}, for the given input 'supersky' metric in coordinates
+## [n, ...] = [ nx,ny,nz, ...].
+##
+## @heading Note
+##
+## the supersky-coordinates n = [nx,ny,nz] must be the first 3 coordinates of theinput metric @var{g_nn} and the output metric has a = [alpha,delta] as the first 2 coordinates
+##
+## @end deftypefn
+
 function g_aa = projectSuperskyMetric2Sky ( g_nn, alpha0, delta0 )
-  ## g_aa = projectSuperskyMetric2Sky ( g_nn, alpha0, delta0 )
-  ##
-  ## returns metric in coordinates [a, ...] = [alpha, delta, ... ] at a given
-  ## sky-position 'alpha0,delta0', for the given input 'supersky' metric in coordinates
-  ## [n, ...] = [ nx,ny,nz, ...].
-  ##
-  ## Note: the supersky-coordinates n = [nx,ny,nz] must be the first 3 coordinates of the
-  ## input metric 'g_nn' and the output metric has a = [alpha,delta] as the first 2 coordinates
-  ##
 
   assert ( issymmetric ( g_nn ) > 0, "Input supersky metric 'g_nn' must be a symmetric square matrix" );
   nDim = columns(g_nn);

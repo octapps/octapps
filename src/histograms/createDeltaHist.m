@@ -14,12 +14,23 @@
 ## along with Octave; see the file COPYING.  If not, see
 ## <http://www.gnu.org/licenses/>.
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{hgrm} = createDeltaHist(@var{x0})
+##
 ## Creates a histogram representing a delta function at a given value
-## Usage:
-##   hgrm = createDeltaHist(x0)
-## where:
-##   hgrm = delta function histogram
-##   x0   = location of delta function
+##
+## @heading Arguments
+##
+## @table @var
+## @item hgrm
+## delta function histogram
+##
+## @item x0
+## location of delta function
+##
+## @end table
+##
+## @end deftypefn
 
 function hgrm = createDeltaHist(x0)
 

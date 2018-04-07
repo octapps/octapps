@@ -15,12 +15,17 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} [@var{sfts}, @var{firstsft}, @var{sfts_cell}] = get_EatH_sft_paths ( @var{sftdir}, @var{filenamebit}, @var{sft_width}, @var{sftstartfreq}, @var{num_sfts_to_load}, @var{IFO} )
+##
+## function to get the full SFT paths (assuming Atlas-like directory structure)
+## and cat them into argument strings for, e.g., @command{lalapps_ComputePSD}
+## and also return first single SFT file path
+## and a cell array of all SFT paths
+##
+## @end deftypefn
+
 function [sfts, firstsft, sfts_cell] = get_EatH_sft_paths ( sftdir, filenamebit, sft_width, sftstartfreq, num_sfts_to_load, IFO )
-  ## [sfts, firstsft, sfts_cell] = get_sft_paths ( sftdir, filenamebit, sft_width, sftstartfreq, num_sfts_to_load, IFO )
-  ## function to get the full SFT paths (assuming Atlas-like directory structure)
-  ## and cat them into argument strings for, e.g., lalapps_ComputePSD
-  ## and also return first single SFT file path
-  ## and a cell array of all SFT paths
 
   ## if SMALL_EPS not already defined globally, use a reasonable local default
   if ( isglobal("SMALL_EPS") )

@@ -13,12 +13,22 @@
 ## You should have received a copy of the GNU General Public License
 ## along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-## Create segment list(s) with the given mean timestamp 'mean_time', and exactly 3 of the following
-## 4 input parameters: number of segments 'Nseg', segment time-span 'Tseg', total time span 'Tspan',
-## and incoherent duty cycle 'duty'. Aside from 'mean_time', each parameter may be vectorised to
-## return multiple segment lists with all possible parameter combinations.
-## Usage:
-##   segment_lists = CreateSegmentList(mean_time, Nseg, Tseg, Tspan, duty, [always_cell=false])
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{segment_lists} = CreateSegmentList(@var{mean_time}, @var{Nseg}, @var{Tseg}, @var{Tspan}, @var{duty}, [@var{always_cell}=false])
+##
+## Create segment list(s) with the given mean timestamp @var{mean_time}, and exactly 3 of the following
+## 4 input parameters:
+## @itemize
+## @item number of segments @var{Nseg}
+## @item segment time-span @var{Tseg}
+## @item total time span @var{Tspan}
+## @item incoherent @var{duty} cycle @var{duty}
+## @end itemize
+##
+## Aside from @var{mean_time}, each parameter may be vectorised to return
+## multiple segment lists with all possible parameter combinations.
+##
+## @end deftypefn
 
 function varargout = CreateSegmentList(mean_time, Nseg, Tseg, Tspan, duty, always_cell=false)
 

@@ -15,28 +15,67 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## Return computing-cost functions used by OptimalSolution4StackSlide_v2()
-## to compute optimal Einstein@Home search setups for the GCT code.
-## Used to compute the E@H S5GC1 solution given in Prix&Shaltev,PRD85,
-## 084010(2012) Table~II.
-## Usage:
-##   cost_funs = CostFunctionsEaHGCT("opt", val, ...)
-## where
-##   cost_funs = struct of computing-cost functions to pass to OptimalSolution4StackSlide_v2()
-## Options:
-##   "fracSky":       fraction of sky covered by search
-##   "fmin":          minimum frequency covered by search (in Hz)
-##   "fmax":          maximum frequency covered by search (in Hz)
-##   "tau_min":       minimum spindown age, determines spindown ranges
-##   "detectors":     CSV list of detectors to use ("H1"=Hanford, "L1"=Livingston, "V1"=Virgo, ...)
-##   "coh_duty":      duty cycle of data within each coherent segment
-##   "resampling":    use F-statistic 'resampling' instead of 'demod' for coherent cost [default: false]
-##   "lattice":       template-bank lattice ("Zn", "Ans",..) [default: "Zn"]
-##   "coh_c0_demod":  computational cost of F-statistic 'demod' per template per second [optional]
-##   "coh_c0_resamp": computational cost of F-statistic 'resampling' per template [optional]
-##   "inc_c0":        computational cost of incoherent step per template per segment [optional]
-##   "grid_interpolation": whether to use interpolating or non-interpolating StackSlide (ie coherent-grids == incoherent-grid)
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{cost_funs} = CostFunctionsEaHGCT(@var{opt}, @var{val}, @dots{})
 ##
+## Return computing-cost functions used by @command{OptimalSolution4StackSlide_v2()}
+## to compute optimal Einstein@@Home search setups for the GCT code.
+## Used to compute the E@@H S5GC1 solution given in Prix&Shaltev,PRD85,
+## 084010(2012) Table~II.
+##
+## @heading Arguments
+##
+## @table @var
+## @item cost_funs
+## struct of computing-cost functions to pass to @command{OptimalSolution4StackSlide_v2()}
+##
+## @end table
+##
+## @heading Options
+##
+## @heading Options
+##
+## @table @code
+## @item fracSky
+## fraction of sky covered by search
+##
+## @item fmin
+## minimum frequency covered by search (in Hz)
+##
+## @item fmax
+## maximum frequency covered by search (in Hz)
+##
+## @item tau_min
+## minimum spindown age, determines spindown ranges
+##
+## @item detectors
+## CSV list of @var{detectors} to use ("H1"=Hanford, "L1"=Livingston, "V1"=Virgo, @var{...})
+##
+## @item coh_duty
+## duty cycle of data within each coherent segment
+##
+## @item resampling
+## use F-statistic @var{resampling} instead of 'demod' for coherent cost [default: false]
+##
+## @item lattice
+## template-bank @var{lattice} ("Zn", "Ans",..) [default: "Zn"]
+##
+## @item coh_c0_demod
+## computational cost of F-statistic 'demod' per template per second [optional]
+##
+## @item coh_c0_resamp
+## computational cost of F-statistic @var{resampling} per template [optional]
+##
+## @item inc_c0
+## computational cost of incoherent step per template per segment [optional]
+##
+## @item grid_interpolation
+## whether to use interpolating or non-interpolating StackSlide (ie coherent-grids == incoherent-grid)
+##
+## @end table
+##
+## @end deftypefn
+
 function cost_funs = CostFunctionsEaHGCT(varargin)
 
   ## parse options

@@ -13,41 +13,96 @@
 ## You should have received a copy of the GNU General Public License
 ## along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-## Estimate the sensitivity depth of 'lalapps_Weave'.
-## Usage:
-##   depth = WeaveSensDepth("opt", val, ...)
-## Options:
-##   EITHER:
-##     setup_file:  Weave setup file
-##   OR:
-##     Nsegments:   number of segments
-##     detectors:   comma-separated list of detectors
-##     coh_Tspan:   time span of coherent segments
-##     semi_Tspan:  total time span of semicoherent search
-##   alpha,delta:
-##     If not searching over sky parameters, give sky point of
-##     search (default: all-sky)
-##   spindowns:
-##     Number of spindown parameters being searched
-##   lattice:
-##     Type of lattice used by search (default: Ans)
-##   coh_max_mismatch,semi_max_mismatch:
-##     Maximum coherent and semicoherent mismatches; for a single-
-##     segment or non-interpolating search, set coh_max_mismatch=0
-##   NSFTs:
-##     total number of SFTs used by search
-##   pFD:
-##     false dismissal probability of search
-##   EITHER:
-##     pFA:         false alarm probability of search
-##     semi_ntmpl:  number of semicoherent templates used by search
-##   OR:
-##     mean2F_th:   threshold on mean 2F
-##   TSFT:
-##     Time span of a single SFT (default: 1800 seconds)
-## Outputs:
-##   depth:
-##     estimated sensitivity depth
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{depth} = WeaveSensDepth(@var{opt}, @var{val}, @dots{})
+##
+## Estimate the sensitivity depth of @command{lalapps_Weave}.
+##
+## @heading Options
+##
+## @table @code
+## @item @strong{EITHER}
+## @table @code
+##
+## @item setup_file
+## Weave setup file
+##
+## @end table
+##
+## @item @strong{OR}
+## @table @code
+##
+## @item Nsegments
+## number of segments
+##
+## @item detectors
+## comma-separated list of detectors
+##
+## @item coh_Tspan
+## time span of coherent segments
+##
+## @item semi_Tspan
+## total time span of semicoherent search
+##
+## @end table
+##
+## @item alpha
+## @itemx delta
+## If not searching over sky parameters, give sky point of
+## search (default: all-sky)
+##
+## @item spindowns
+## Number of spindown parameters being searched
+##
+## @item lattice
+## Type of @var{lattice} used by search (default: Ans)
+##
+## @item coh_max_mismatch
+## @itemx semi_max_mismatch
+## Maximum coherent and semicoherent mismatches; for a single-
+## segment or non-interpolating search, set @var{coh_max_mismatch}=0
+##
+## @item NSFTs
+## total number of SFTs used by search
+##
+## @item pFD
+## false dismissal probability of search
+##
+## @item @strong{EITHER}
+## @table @code
+##
+## @item pFA
+## false alarm probability of search
+##
+## @item semi_ntmpl
+## number of semicoherent templates used by search
+##
+## @end table
+##
+## @item @strong{OR}
+## @table @code
+##
+## @item mean2F_th
+## threshold on mean 2F
+##
+## @item TSFT
+## Time span of a single SFT (default: 1800 seconds)
+##
+## @end table
+##
+## @end table
+##
+## @heading Outputs
+## @table @var
+## @item depth
+## estimated sensitivity depth
+##
+## @item mismatch_hgrm
+## mismatch histogram
+##
+## @end table
+##
+## @end deftypefn
 
 ## octapps_run_link
 

@@ -14,16 +14,33 @@
 ## along with Octave; see the file COPYING.  If not, see
 ## <http://www.gnu.org/licenses/>.
 
-## Given a set of points, find the closest template to each in a 'virtual'
-## lattice template bank, constructed using a given metric and maximum mismatch.
-## Usage:
-##   closest = FindClosestTemplate(points, metric, max_mismatch, lattice)
-## where:
-##   points       = set of points (in columns) to find closest template
-##   metric       = parameter-space metric associated with 'points'
-##   max_mismatch = maximum mismatch of lattice template bank
-##   lattice      = type of lattice to use; see LatticeFindClosestPoint()
-##   closest      = closest template to each point
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{closest} = FindClosestTemplate(@var{points}, @var{metric}, @var{max_mismatch}, @var{lattice})
+##
+## Given a set of @var{points}, find the @var{closest} template to each in a 'virtual'
+## lattice template bank, constructed using a given @var{metric} and maximum mismatch.
+##
+## @heading Arguments
+##
+## @table @var
+## @item points
+## set of @var{points} (in columns) to find @var{closest} template
+##
+## @item metric
+## parameter-space @var{metric} associated with @var{points}'
+##
+## @item max_mismatch
+## maximum mismatch of @var{lattice} template bank
+##
+## @item lattice
+## type of @var{lattice} to use; see @command{LatticeFindClosestPoint()}
+##
+## @item closest
+## closest template to each point
+##
+## @end table
+##
+## @end deftypefn
 
 function closest = FindClosestTemplate(points, metric, max_mismatch, lattice)
 

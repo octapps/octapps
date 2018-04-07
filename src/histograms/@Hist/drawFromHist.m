@@ -15,14 +15,27 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{x} = drawFromHist(@var{hgrm}, @var{N})
+##
 ## Generates random values drawn from the
 ## probability distribution given by the histogram.
-## Syntax:
-##   x    = drawFromHist(hgrm, N)
-## where:
-##   hgrm = histogram object
-##   N    = number of random values to generate
-##   x    = generated random values
+##
+## @heading Arguments
+##
+## @table @var
+## @item hgrm
+## histogram object
+##
+## @item N
+## number of random values to generate
+##
+## @item x
+## generated random values
+##
+## @end table
+##
+## @end deftypefn
 
 function x = drawFromHist(hgrm, N)
 

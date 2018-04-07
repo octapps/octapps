@@ -15,9 +15,14 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{ret} = hms_to_rad ( @var{hms} )
+##
+## convert an "hour:minute:second.xxx" string into radians
+##
+## @end deftypefn
+
 function ret = hms_to_rad ( hms )
-  ## ret = hms_to_rad ( hms )
-  ## convert an "hour:minute:second.xxx" string into radians
 
   tmp = strtrim ( hms );
 

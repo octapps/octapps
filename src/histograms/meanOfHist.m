@@ -15,12 +15,23 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{mean} = meanOfHist(@var{hgrm}, [@var{k} = 1])
+##
 ## Returns the mean(s) of a histogram.
-## Syntax:
-##   mean = meanOfHist(hgrm, [k = 1])
-## where:
-##   hgrm = histogram object
-##   k    = dimension to calculate mean(s) over
+##
+## @heading Arguments
+##
+## @table @var
+## @item hgrm
+## histogram object
+##
+## @item k
+## dimension to calculate mean(s) over
+##
+## @end table
+##
+## @end deftypefn
 
 function mean = meanOfHist(hgrm, k = 1)
 

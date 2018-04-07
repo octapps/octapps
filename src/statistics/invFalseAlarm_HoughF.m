@@ -15,19 +15,22 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## [nth, fAH] = invFalseAlarm_HoughF ( fAH, Nseg, Fth )
+## -*- texinfo -*-
+## @deftypefn  {Function File} [@var{nth}, @var{fAH}] = invFalseAlarm_HoughF ( @var{fAH}, @var{Nseg}, @var{Fth} )
 ##
-## 'invert' false-alarm function to obtain discrete numer-count threshold nth which comes
+## 'invert' false-alarm function to obtain discrete numer-count threshold @var{nth} which comes
 ## closest to the desired false-alarm probability fAH0 for Hough-on-Fstat,
-## for given number of segments Nseg, and an F-statistic threshold per segment Fth.
-## A false-alarm is defined as n >= nth segments crossing the threshold Fth in the
+## for given number of segments @var{Nseg}, and an F-statistic threshold per segment @var{Fth}.
+## A false-alarm is defined as n >= @var{nth} segments crossing the threshold @var{Fth} in the
 ## absence of a signal
 ##
-## returns nth and corresponding actual false-alarm probability fAH
+## returns @var{nth} and corresponding actual false-alarm probability fAH
 ##
-## NOTE: all arguments need to be scalars, use arrayfun() or cellfun() to iterate this
-## over vectors of arguments
+## @heading Note
 ##
+## all arguments need to be scalars, use arrayfun() or cellfun() to iterate thisover vectors of arguments
+##
+## @end deftypefn
 
 function [nth, fAH] = invFalseAlarm_HoughF ( fAH0, Nseg, Fth )
   fn = "invFalseAlarm_HoughF()";

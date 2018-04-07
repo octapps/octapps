@@ -45,7 +45,7 @@ while [ "x$1" != x ]; do
         ${OCTAVE} <<EOF | less -FRX
 func = "${funcname}";
 funchelp = help(func);
-printf("\nHelp on Octave function %s():\n\n%s\n%s\n\n", func, funchelp, strtrim(help("__octapps_run_driver__")));
+printf("\nHelp on Octave function %s():\n\n%s\n\n%s\n\n", func, funchelp, strtrim(help("__octapps_run_driver__")));
 EOF
         exit 1
 

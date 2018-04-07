@@ -15,15 +15,30 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} [@var{binq}, @dots{}] = histBinsGrids(@var{hgrm}, @var{k}, @code{type}, @dots{})
+##
 ## Return quantities relating to the histogram bin boundaries,
 ## in gridded arrays of the same size as the probability array.
-## Syntax:
-##   [binq, ...] = histBinsGrids(hgrm, k, "type", ...)
-## where:
-##   hgrm = histogram object
-##   k    = dimension along which to return bin quantities
-##   type = see histBins()
-##   binq = bin quantities
+##
+## @heading Arguments
+##
+## @table @var
+## @item hgrm
+## histogram object
+##
+## @item k
+## dimension along which to return bin quantities
+##
+## @item type
+## see @command{histBins()}
+##
+## @item binq
+## bin quantities
+##
+## @end table
+##
+## @end deftypefn
 
 function varargout = histBinGrids(hgrm, k, varargin)
 

@@ -15,14 +15,25 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} makeCondorRescueDAG(@var{opt}, @var{val}, @dots{})
+##
 ## Build a rescue Condor DAG to rerun jobs with missing or corrupt result files.
-## Usage:
-##   makeCondorRescueDAG("opt", val, ...)
-## Options:
-##   "dag_name":       Name of Condor DAG, used to name DAG submit file.
-##   "check_load":     If true, check that result file can be loaded and
-##                     its contents are not corrupted; otherwise, just
-##                     check that result file exists [default: true].
+##
+## @heading Options
+##
+## @table @code
+## @item dag_name
+## Name of Condor DAG, used to name DAG submit file.
+##
+## @item check_load
+## If true, check that result file can be loaded and
+## its contents are not corrupted; otherwise, just
+## check that result file exists [default: true].
+##
+## @end table
+##
+## @end deftypefn
 
 function makeCondorRescueDAG(varargin)
 

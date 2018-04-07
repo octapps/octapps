@@ -15,11 +15,16 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## ret = AnsNormalizedThickness ( n )
-## [can handle vector input]
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{ret} = AnsNormalizedThickness ( @var{n} )
 ##
 ## normalized thickness (=center density) of An* lattice,
 ## from Chap.4, Eq.(82) in Conway&Sloane(1999)
+##
+## @heading Note
+## can handle vector input
+##
+## @end deftypefn
 
 function ret = AnsNormalizedThickness ( n )
 

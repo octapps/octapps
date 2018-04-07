@@ -15,7 +15,12 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## Helper function for testing parseOptions() and related functions.
+## -*- texinfo -*-
+## @deftypefn
+##
+## Helper function for testing @command{parseOptions()} and related functions.
+##
+## @end deftypefn
 
 function optstr = __test_parseOptions__(varargin)
 

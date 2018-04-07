@@ -15,14 +15,27 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{prob} = histProbs(@var{hgrm})
+## @deftypefnx {Function File} @var{fprob} = histProbs(@var{hgrm}, @code{finite})
+##
 ## Return the probabily densities of each histogram bin
-## Syntax:
-##   prob  = histProbs(hgrm)
-##   fprob = histProbs(hgrm, "finite")
-## where:
-##   hgrm  = histogram object
-##   prob  = probability densities of all bins
-##   fprob = probability densities of finite bins
+##
+## @heading Arguments
+##
+## @table @var
+## @item hgrm
+## histogram object
+##
+## @item prob
+## probability densities of all bins
+##
+## @item fprob
+## probability densities of @code{finite} bins
+##
+## @end table
+##
+## @end deftypefn
 
 function prob = histProbs(hgrm, finite = [])
 

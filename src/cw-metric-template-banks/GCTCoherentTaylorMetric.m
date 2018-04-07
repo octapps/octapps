@@ -14,20 +14,43 @@
 ## along with Octave; see the file COPYING.  If not, see
 ## <http://www.gnu.org/licenses/>.
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} g = GCTCoherentTaylorMetric(@var{opt}, @var{val}, @dots{})
+##
 ## Computes the coherent global correlation transform metric, as
 ## given in Pletsch, PRD 82 042002 (2010), which Taylor-expands the
 ## Earth's orbital motion.
-## Syntax:
-##   g = GCTCoherentTaylorMetric("opt", val, ...)
-## where:
-##   g = coherent GCT metric using Taylor-expanded phase model
-## Options:
-##   "smax":  number of spindowns (up to second spindown)
-##   "tj":    value of tj, the mid-point of the coherent time span
-##   "t0":    value of t0, an overall reference time
-##   "T":     value of T, the coherent time span
-##   "Omega": value of Omega, the Earth's angular rotation frequency
-##            (default: 2*pi / (sidereal day in seconds)
+##
+## @heading Arguments
+##
+## @table @var
+## @item g
+## coherent GCT metric using Taylor-expanded phase model
+##
+## @end table
+##
+## @heading Options
+##
+## @table @code
+## @item smax
+## number of spindowns (up to second spindown)
+##
+## @item tj
+## value of tj, the mid-point of the coherent time span
+##
+## @item t0
+## value of t0, an overall reference time
+##
+## @item T
+## value of T, the coherent time span
+##
+## @item Omega
+## value of Omega, the Earth's angular rotation frequency
+## (default: 2*pi / (sidereal day in seconds)
+##
+## @end table
+##
+## @end deftypefn
 
 function g = GCTCoherentTaylorMetric(varargin)
 

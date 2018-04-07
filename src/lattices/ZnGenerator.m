@@ -15,10 +15,13 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## [ generator, rotator ] = ZnGenerator ( dim )
+## -*- texinfo -*-
+## @deftypefn  {Function File} [ @var{generator}, @var{rotator} ] = ZnGenerator ( @var{dim} )
 ##
-## return an nxn full-rank generating matrix for the Zn lattice,
-## [this is trivial, of course, but added for completeness]
+## Return an nxn full-rank generating matrix for the Zn lattice;
+## this is trivial, of course, but added for completeness.
+##
+## @end deftypefn
 
 function [ generator, rotator ] = ZnGenerator ( dim )
 

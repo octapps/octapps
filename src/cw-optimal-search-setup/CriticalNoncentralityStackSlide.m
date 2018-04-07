@@ -15,23 +15,31 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## Usage: noncent = CriticalNoncentralityStackSlide ( pFA, pFD, Nseg, approx=[] )
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{noncent} = CriticalNoncentralityStackSlide ( @var{pFA}, @var{pFD}, @var{Nseg}, @var{approx}=[] )
 ##
 ## function to compute the 'critical' non-centrality parameter required to obtain
-## exactly pFD false-dismissal probability at given pFA false-alarm
-## probability for a chi^2 distribution with '4*Nseg' degrees of freedrom,
-## i.e. the solution 'noncent' to the equations
+## exactly @var{pFD} false-dismissal probability at given @var{pFA} false-alarm
+## probability for a chi^2 distribution with '4*@var{Nseg} degrees of freedrom,
+## i.e. the solution @var{noncent} to the equations
 ##
-## pFA = prob ( S > Sth | noncent=0 ) --> Sth(pFA)
-## pFD = prob ( S < Sth(pFA) | noncent )
+## @var{pFA} = prob ( S > Sth | @var{noncent}=0 ) --> Sth(@var{pFA})
+## @var{pFD} = prob ( S < Sth(@var{pFA}) | @var{noncent} )
 ##
-## at given {pFA, pFD}, and S ~ chi^2_(4Nseg) ( noncent ) is a chi^2-distributed statistic
-## with '4Nseg' degrees of freedrom and non-centrality 'noncent'.
+## at given @{@var{pFA}, @var{pFD}@}, and S ~ chi^2_(4Nseg) ( @var{noncent} ) is a chi^2-distributed statistic
+## with '4Nseg' degrees of freedrom and non-centrality @var{noncent}.
 ##
-## the optional argument 'approx' allows to control the level of approximation:
-## 'approx' == []:      use full chi^2_(4*Nseg) distribution to solve numerically
-## 'approx' == "Gauss": use Gaussian approximation, suitable for Nseg>>1, [analytic]
-## 'approx' == "WSG":   weak-signal Gaussian approximation assuming rhoF<<1, [analytic]
+## the optional argument @var{approx} allows to control the level of approximation:
+## @itemize
+## @item @code{approx} == "":
+## use full chi^2_(4*@var{Nseg}) distribution
+## @item @code{approx} == "Gauss":
+## use the Gaussian (N>>1) approximation
+## @item @code{approx} == "WSG":
+## return w=1 for the "weak-signal Gaussian" case
+## @end itemize
+##
+## @end deftypefn
 
 function noncent = CriticalNoncentralityStackSlide ( pFA, pFD, Nseg, approx = [] )
 

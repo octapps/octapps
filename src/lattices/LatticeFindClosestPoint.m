@@ -15,12 +15,17 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## closest = LatticeFindClosestPoint ( x, lattice )
-## [can handle vector input in 'x']
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{closest} = LatticeFindClosestPoint ( @var{x}, @var{lattice} )
 ##
-## return the closest point of the lattice to the given point x in R^n
-## This is just a wrapper to the lower-level lattice-specific functions.
-## lattice is one of the strings { "Zn", "An", "Ans" }
+## return the closest point of the @var{lattice} to the given point @var{x} in R^n
+## This is just a wrapper to the lower-level @var{lattice}-specific functions.
+## lattice is one of the strings @{@code{Zn}, @code{An}, @code{Ans}@}
+##
+## @heading Note
+## can handle vector input in @var{x}
+##
+## @end deftypefn
 
 function closest = LatticeFindClosestPoint ( x, lattice )
 

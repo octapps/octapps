@@ -15,15 +15,33 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{hgrmt} = addHists(@var{addop}, @var{hgrms}@dots{})
+##
 ## Add multiple histograms together.
-## Syntax:
-##   hgrmt = addHists(addop, hgrms...)
-## where:
-##   addop = operation used to add histograms:
-##           "count" : sum histogram counts
-##           "prob"  : sum histogram probabilities
-##   hgrms = histograms to add; [] arguments are ignored
-##   hgrmt = total histogram
+##
+## @heading Arguments
+##
+## @table @var
+## @item addop
+## operation used to add histograms:
+## @table @code
+##   @item count
+##   sum histogram counts
+##
+##   @item prob
+##   sum histogram probabilities
+## @end table
+##
+## @item hgrms
+## histograms to add; @code{[]} arguments are ignored
+##
+## @item hgrmt
+## total histogram
+##
+## @end table
+##
+## @end deftypefn
 
 function hgrmt = addHists(addop, varargin)
 

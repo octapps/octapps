@@ -15,12 +15,14 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## thresh = invFalseAlarm_chi2 ( fA, dof )
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{thresh} = invFalseAlarm_chi2 ( @var{fA}, @var{dof} )
 ##
-## compute the threshold on a central chi^2 distribution with 'dof'
+## compute the threshold on a central chi^2 distribution with @var{dof}
 ## degrees of freedom, corresponding to a false-alarm probability
-## of 'fA'
+## of @var{fA}
 ##
+## @end deftypefn
 
 function thresh = invFalseAlarm_chi2 ( fA, dof )
 

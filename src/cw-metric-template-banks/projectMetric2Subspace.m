@@ -15,29 +15,39 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{gProj_ss} = projectMetric2Subspace ( @var{g_ij}, @var{sSpace} )
+##
+## function to compute the 'projection' of a given symmetric metric @var{g_ij}'
+## onto the s-subspace defined by coordinates @var{sSpace} = [s1,s2,...], which is a vector of coordinate-indices
+##
+## If we denotes the indices of the projection-subspace as s and the remaining coordinates
+## as k, such that for an n-dimensional space, writing vn = @{1,2,...n@}, we have k = vn \ @var{sSpace},
+## then the projection operation is defined as
+##
+## gProj_@{ss'@} = g_@{ss'@} - gkInv^@{kk'@} g_@{ks@} g_@{k's'@}
+##
+## where gkInv is the inverse matrix of g_@{kk'@}, ie the inverse of g restricted to the k-subspace excluding coordinates 's'
+##
+## @heading Notes
+## @enumerate
+## @item
+## this function generalizes projectMetric(@var{g_ij},k1) to projecting out more than one dimension k = [k1,k2,...],
+## contrary to @command{projectMetric()}, we only return the projected metric of the subspace, ie gProj_@{ss'@}
+##
+## @item
+## gProj_@{ss'@} gives the smallest possible distance mMin = gProj_@{ss'@} dl^@{s@} dl^@{s'@} of the general distance
+## function m = g_@{ij@} dl^@{i@} dl^@{j@} if we fix the offset in the s-subspace, if for fixed dl^@{s@}, if one can freely
+## vary the remaining coordinate offsets dl^@{k@}
+##
+## @item
+## gProj_@{ss'@} is just the Schur complement of g_@{kk'@}, see https://en.wikipedia.org/wiki/Schur_complement
+##
+## @end enumerate
+##
+## @end deftypefn
+
 function gProj_ss = projectMetric2Subspace ( g_ij, sSpace )
-  ## gProj_ss = projectMetric2Subspace ( g_ij, sSpace )
-  ##
-  ## function to compute the 'projection' of a given symmetric metric 'g_ij'
-  ## onto the s-subspace defined by coordinates sSpace = [s1,s2,...], which is a vector of coordinate-indices
-  ##
-  ## If we denotes the indices of the projection-subspace as s and the remaining coordinates
-  ## as k, such that for an n-dimensional space, writing vn = {1,2,...n}, we have k = vn \ sSpace,
-  ## then the projection operation is defined as
-  ##
-  ## gProj_{ss'} = g_{ss'} - gkInv^{kk'} g_{ks} g_{k's'}
-  ##
-  ## where gkInv is the inverse matrix of g_{kk'}, ie the inverse of g restricted to the k-subspace excluding coordinates 's'
-  ##
-  ## Note 1: this function generalizes projectMetric(g_ij,k1) to projecting out more than one dimension k = [k1,k2,...],
-  ##         contrary to projectMetric(), we only return the projected metric of the subspace, ie gProj_{ss'}
-  ##
-  ## Note 2: gProj_{ss'} gives the smallest possible distance mMin = gProj_{ss'} dl^{s} dl^{s'} of the general distance
-  ##         function m = g_{ij} dl^{i} dl^{j} if we fix the offset in the s-subspace, if for fixed dl^{s}, if one can freely
-  ##         vary the remaining coordinate offsets dl^{k}
-  ##
-  ## Note 3: gProj_{ss'} is just the Schur complement of g_{kk'}, see https://en.wikipedia.org/wiki/Schur_complement
-  ##
 
   assert ( issymmetric ( g_ij ) > 0, "Input metric 'g_ij' must be a symmetric square matrix" );
 

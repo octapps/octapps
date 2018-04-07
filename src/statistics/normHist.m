@@ -15,20 +15,23 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## [NN, XX] = normHist ( data, bins )
+## -*- texinfo -*-
+## @deftypefn  {Function File} [@var{NN}, @var{XX}] = normHist ( @var{data}, @var{bins} )
 ##
 ## compute a pdf-normalized histogram (i.e. the *integral* is 1)
 ##
 ## With one vector input argument, plot a histogram of the values with
-## 10 bins.  The range of the histogram bins is determined by the
-## range of the data.  With one matrix input argument, plot a
+## 10 @var{bins}.  The range of the histogram @var{bins} is determined by the
+## range of the @var{data}.  With one matrix input argument, plot a
 ## histogram where each bin contains a bar per input column.
 ##
-## Given a second scalar argument, use that as the number of bins.
+## Given a second scalar argument, use that as the number of @var{bins}.
 ##
 ## Given a second vector argument, use that as the centers of the
-## bins, with the width of the bins determined from the adjacent
+## bins, with the width of the @var{bins} determined from the adjacent
 ## values in the vector.
+##
+## @end deftypefn
 
 function [NN, XX] = normHist ( data, bins )
 

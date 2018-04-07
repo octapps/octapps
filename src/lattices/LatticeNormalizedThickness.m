@@ -16,11 +16,16 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## R = LatticeNormalizedThickness ( dim, lattice )
-## [can handle vector input in 'dim']
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{R} = LatticeNormalizedThickness ( @var{dim}, @var{lattice} )
 ##
 ## returns normalized thicknesses in n dimensions
-## lattice is one of the strings { "Zn", "Ans" }
+## lattice is one of the strings @{ "Zn", "Ans" @}
+##
+## @heading Note
+## can handle vector input in @var{dim}
+##
+## @end deftypefn
 
 function R = LatticeNormalizedThickness ( dim, lattice )
 

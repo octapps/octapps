@@ -15,11 +15,16 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## ret = RegularSimplexVolume ( n )
-## [can handle vector input]
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{ret} = RegularSimplexVolume ( @var{n} )
 ##
-## volume of regular simplex in n dimensions with unit side-length,
+## volume of regular simplex in @var{n} dimensions with unit side-length,
 ## Chap.21, Eq.(12) in Conway&Sloane (1999)
+##
+## @heading Note
+## can handle vector input
+##
+## @end deftypefn
 
 function ret = RegularSimplexVolume ( n )
 

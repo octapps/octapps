@@ -15,9 +15,14 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} [@var{num_outliers}, @var{max_outlier}, @var{freqbins}] = CountSFTPowerOutliers ( @var{params_psd}, @var{thresh}, @var{lalpath}, @var{debug} )
+##
+## function to compute the number of outliers of the SFT power statistic
+##
+## @end deftypefn
+
 function [num_outliers, max_outlier, freqbins] = CountSFTPowerOutliers ( params_psd, thresh, lalpath, debug )
-  ## [num_outliers, max_outlier, freqbins] = CountSFTPowerOutliers ( params_psd, thresh, lalpath, debug )
-  ## function to compute the number of outliers of the SFT power statistic
 
   threshdimensions = size(thresh);
   if ( ( length(threshdimensions) > 3 ) || ( ( threshdimensions(1) > 1 ) && ( threshdimensions(2) > 1 ) ) )

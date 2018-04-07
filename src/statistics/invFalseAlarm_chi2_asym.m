@@ -15,16 +15,29 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{sa} = invFalseAlarm_chi2_asym(@var{pa}, @var{k})
+##
 ## Calculate the threshold of a central chi^2 distribution which gives
 ## a certain false alarm probability. Uses an analytic, asymptotic
 ## inversion of the chi^2 CDF that is accurate for very small
 ## false alarm probabilities and very large degrees of freedom.
-## Syntax:
-##   sa = invFalseAlarm_chi2_asym(pa, k)
-## where:
-##   sa = threshold
-##   pa = false alarm probability
-##   k  = degrees of freedom of the chi^2 distribution
+##
+## @heading Arguments
+##
+## @table @var
+## @item sa
+## threshold
+##
+## @item pa
+## false alarm probability
+##
+## @item k
+## degrees of freedom of the chi^2 distribution
+##
+## @end table
+##
+## @end deftypefn
 
 function sa = invFalseAlarm_chi2_asym(pa, k)
 

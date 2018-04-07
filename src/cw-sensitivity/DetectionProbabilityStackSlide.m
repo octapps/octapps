@@ -17,23 +17,50 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## Estimate detection probability for given fixed sensitivity-depth signal 'Depth' = sqrt(S)/h0
-## Usage:
-##   pDET = = DetectionProbabilityStackSlide ("opt", val, ...)
-## where Options are:
-##    "Nseg"            number of StackSlide segments
-##    "Tdata"           total amount of data used, in seconds
-##                      (Note: Tdata = Nsft * Tsft, where 'Nsft' is the total number of
-##                      SFTs of length 'Tsft' used in the search, from all detectors)
-##    "misHist"         mismatch histogram, produced using Hist()
-##    "pFA"             false-alarm probability (-ies) *per template* (can be a vector)
-##    "avg2Fth"         ALTERNATIVE to pFA: specify average-2F threshold directly (can be a vector)
-##    "detectors"       CSV list of detectors to use ("H1"=Hanford, "L1"=Livingston, "V1"=Virgo, ...)
-##    "alpha"           source right ascension in radians (default: all-sky = [0, 2pi])
-##    "delta"           source declination (default: all-sky = [-pi/2, pi/2])
-##    "Depth"           fixed sensitivity-depth of signal population (can be a vector)
-##    "detweights"      detector weights on S_h to use (default: uniform weights)
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{pDET} = = DetectionProbabilityStackSlide (@var{opt}, @var{val}, @dots{})
 ##
+## Estimate detection probability for given fixed sensitivity-depth signal @var{Depth} = sqrt(S)/h0
+##
+## @heading where Options are
+##
+## @table @code
+## @item Nseg
+## number of StackSlide segments
+##
+## @item Tdata
+## total amount of data used, in seconds
+## (Note: @var{Tdata} = Nsft * Tsft, where 'Nsft' is the total number of
+## SFTs of length 'Tsft' used in the search, from all @var{detectors})
+##
+## @item misHist
+## mismatch histogram, produced using @command{Hist()}
+##
+## @item pFA
+## false-alarm probability (-ies) *per template* (can be a vector)
+##
+## @item avg2Fth
+## ALTERNATIVE to @var{pFA}: specify average-2F threshold directly (can be a vector)
+##
+## @item detectors
+## CSV list of @var{detectors} to use ("H1"=Hanford, "L1"=Livingston, "V1"=Virgo, @var{...})
+##
+## @item alpha
+## source right ascension in radians (default: all-sky = [0, 2pi])
+##
+## @item delta
+## source declination (default: all-sky = [-pi/2, pi/2])
+##
+## @item Depth
+## fixed sensitivity-depth of signal population (can be a vector)
+##
+## @item detweights
+## detector weights on S_h to use (default: uniform weights)
+##
+## @end table
+##
+## @end deftypefn
+
 function pDET = DetectionProbabilityStackSlide ( varargin )
 
   ## parse options

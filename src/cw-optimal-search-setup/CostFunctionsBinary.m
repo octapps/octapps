@@ -14,33 +14,70 @@
 ## along with Octave; see the file COPYING.  If not, see
 ## <http://www.gnu.org/licenses/>.
 
-## Return computing-cost functions for use in OptimalSolution4StackSlide_v2() to compute
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{cost_funs} = CostFunctionsBinary(@var{opt}, @var{val}, @dots{})
+##
+## Return computing-cost functions for use in @command{OptimalSolution4StackSlide_v2()} to compute
 ## optimal StackSlide setup for a binary-CW searches (freq, Period, asini, tAsc, ecc, argp)
 ## assuming the "long segment regime" where Tseg >> P
 ##
-## Usage:
-##   cost_funs = CostFunctionsBinary("opt", val, ...)
-## where
-##   cost_funs = struct of computing-cost functions to pass to OptimalSolution4StackSlide_v2()
+## @heading Arguments
 ##
-## Search setup options: (using ScoX1 defaults)
-##   "freqRange":     [min, max] of search frequency range [100, 300]
-##   "asiniRange":    [min, max] of a*sini/c search range (default: [0.90000, 1.98000])
-##   "tAscRange":     [min, max] of time of ascensino search range (default: [897753694.073760   897754294.073760])
-##   "PeriodRange":   [min, max] of Period search range (default: [68023.5753600000, 68023.8345600000]
-##   "eccRange":      [min, max] of eccentricity search range (default: [0, 0]
-##   "argpRange":     [min, max] of argument(periapse) search range (default: [0, 0])
+## @table @var
+## @item cost_funs
+## struct of computing-cost functions to pass to @command{OptimalSolution4StackSlide_v2()}
 ##
-##   "detectors":     CSV list of detectors to use ("H1"=Hanford, "L1"=Livingston, "V1"=Virgo, ...)
-##   "coh_duty":      duty cycle of data within each coherent segment
+## @end table
 ##
-##   "resampling":    use F-statistic 'resampling' instead of 'demod' timings for coherent cost [default: false]
-##   "lattice":       template-bank lattice ("Zn", "Ans",..) [default: "Ans"]
-##   "coh_c0_demod":  computational cost of F-statistic 'demod' per template per second [optional]
-##   "coh_c0_resamp": computational cost of F-statistic 'resampling' per template [optional]
-##   "inc_c0":        computational cost of incoherent step per template per segment [optional]
-##   "grid_interpolation": use interpolating StackSlide or non-interpolating (ie coherent-grids == incoherent-grid)
+## @heading Search setup options: (using ScoX1 defaults)
 ##
+## @table @code
+## @item freqRange
+## [min, max] of search frequency range [100, 300]
+##
+## @item asiniRange
+## [min, max] of a*sini/c search range (default: [0.90000, 1.98000])
+##
+## @item tAscRange
+## [min, max] of time of ascensino search range (default: [897753694.073760   897754294.073760])
+##
+## @item PeriodRange
+## [min, max] of Period search range (default: [68023.5753600000, 68023.8345600000]
+##
+## @item eccRange
+## [min, max] of eccentricity search range (default: [0, 0]
+##
+## @item argpRange
+## [min, max] of argument(periapse) search range (default: [0, 0])
+##
+## @item detectors
+## CSV list of @var{detectors} to use ("H1"=Hanford, "L1"=Livingston, "V1"=Virgo, @dots{})
+##
+## @item coh_duty
+## duty cycle of data within each coherent segment
+##
+## @item resampling
+## use F-statistic @var{resampling} instead of 'demod' timings for coherent cost [default: false]
+##
+## @item lattice
+## template-bank @var{lattice} ("Zn", "Ans",..) [default: "Ans"]
+##
+## @item coh_c0_demod
+## computational cost of F-statistic 'demod' per template per second [optional]
+##
+## @item coh_c0_resamp
+## computational cost of F-statistic @var{resampling} per template [optional]
+##
+## @item inc_c0
+## computational cost of incoherent step per template per segment [optional]
+##
+## @item grid_interpolation
+## use interpolating StackSlide or non-interpolating (ie coherent-grids == incoherent-grid)
+##
+## @end table
+##
+## @end deftypefn
+
 function cost_funs = CostFunctionsBinary ( varargin )
 
   ## parse options

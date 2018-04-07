@@ -15,11 +15,13 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## fA = falseAlarm_chi2 ( thresh, dof )
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{fA} = falseAlarm_chi2 ( @var{thresh}, @var{dof} )
 ##
-## compute the false-alarm probability for given threshold 'thresh'
-## for a (central) chi-squared distribution with 'dof' degrees-of-freedom
+## compute the false-alarm probability for given threshold @var{thresh}'
+## for a (central) chi-squared distribution with @var{dof} degrees-of-freedom
 ##
+## @end deftypefn
 
 function fA = falseAlarm_chi2 ( thresh, dof )
 

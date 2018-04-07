@@ -15,11 +15,16 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## vol = LatticeVolume ( dim, lattice )
-## [can handle vector input in 'dim']
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{vol} = LatticeVolume ( @var{dim}, @var{lattice} )
 ##
-## return the lattice volume (ie volume of the fundamental cell) of given 'lattice'
-## lattice is one of the strings { "Zn", "An", "Ans" }
+## return the @var{lattice} volume (ie volume of the fundamental cell) of given @var{lattice}'
+## lattice is one of the strings @{ "Zn", "An", "Ans" @}
+##
+## @heading Note
+## can handle vector input in @var{dim}
+##
+## @end deftypefn
 
 function ret = LatticeVolume ( dim, lattice )
 

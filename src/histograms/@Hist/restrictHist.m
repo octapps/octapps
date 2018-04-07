@@ -14,21 +14,37 @@
 ## along with Octave; see the file COPYING.  If not, see
 ## <http://www.gnu.org/licenses/>.
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{rhgrm} = restrictHist(@var{hgrm}, @var{k}, [@var{xl_k}, @var{xh_k}])
+## @deftypefnx {Function File} @var{rhgrm} = restrictHist(@var{hgrm}, [@var{xl_1}, @var{xh_1}], @dots{}, [@var{xl_dim}, @var{xh_dim}])
+## @deftypefnx {Function File} @var{rhgrm} = restrictHist(@var{hgrm})
+## @deftypefnx {Function File} @var{rhgrm} = restrictHist(@dots{}, @var{discard})
+##
 ## Extract histogram restricted to subrange of bins, as determined by
-## the ranges [xl_k, xh_k]. Samples outside of these ranges are moved
-## to the histogram boundary bins [-\inf,xl_k] and [xh_k,\inf], unless
-## the string "discard" is given as the last argument. If no ranges are
-## given, histRange() is used to find the minimum ranges.
-## Usage
-##   rhgrm = restrictHist(hgrm, k, [xl_k, xh_k])
-##   rhgrm = restrictHist(hgrm, [xl_1, xh_1], ..., [xl_dim, xh_dim])
-##   rhgrm = restrictHist(hgrm)
-##   rhgrm = restrictHist(..., "discard")
-## where:
-##   rhgrm        = restricted histogram object
-##   hgrm         = original histogram object
-##   k            = dimension along which to restrict histogram range
-##   [xl_k, xh_k] = range in dimension 'k' to restrict range to
+## the ranges [@var{xl_k}, @var{xh_k}]. Samples outside of these ranges are moved
+## to the histogram boundary bins [-\inf,@var{xl_k}] and [@var{xh_k},\inf], unless
+## the string "@var{discard}" is given as the last argument. If no ranges are
+## given, @command{histRange()} is used to find the minimum ranges.
+##
+## @heading Arguments
+##
+## @table @var
+## @item rhgrm
+## restricted histogram object
+##
+## @item hgrm
+## original histogram object
+##
+## @item k
+## dimension along which to restrict histogram range
+##
+## @item xl_k
+## @itemx xh_k
+## range in dimension @var{k} to restrict range to
+##
+## @end table
+##
+## @end deftypefn
 
 function hgrm = restrictHist(hgrm, varargin)
 

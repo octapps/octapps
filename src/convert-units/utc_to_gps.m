@@ -14,14 +14,27 @@
 ## along with Octave; see the file COPYING.  If not, see
 ## <http://www.gnu.org/licenses/>.
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} [@var{gps}, @var{gpsns}] = utc_to_gps(@var{utc})
+## @deftypefnx {Function File} utc_to_gps utc
+##
 ## Convert UTC date strings to GPS times (using LAL functions)
-## Usage:
-##   [gps, gpsns] = utc_to_gps(utc)
-##   utc_to_gps utc
-## where
-##   gps   = matrix of GPS times (integer seconds)
-##   gpsns = matrix of GPS times (nanoseconds)
-##   utc   = cell array of UTC date strings
+##
+## @heading Arguments
+##
+## @table @var
+## @item gps
+## matrix of GPS times (integer seconds)
+##
+## @item gpsns
+## matrix of GPS times (nanoseconds)
+##
+## @item utc
+## cell array of UTC date strings
+##
+## @end table
+##
+## @end deftypefn
 
 function [gps, gpsns] = utc_to_gps(utc)
 

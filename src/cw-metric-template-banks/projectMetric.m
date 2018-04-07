@@ -15,15 +15,19 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{gOut_ij} = projectMetric ( @var{g_ij}, @var{c} = 1 )
+##
+## project out metric dimension @var{c} from the input n x n metric @var{g_ij},
+## by projecting onto the subspace orthogonal to the coordinate-axis of @var{c}, namely
+## gOut_ij = @var{g_ij} - ( g_ic * g_jc / g_cc )
+##
+## Returns a 'projected' n x n metric, where the projected-out dimension @var{c} is replaced
+## by zeros, consistent with the behavior of @command{XLALProjectMetric()}
+##
+## @end deftypefn
+
 function gOut_ij = projectMetric ( g_ij, c=1 )
-  ## gOut_ij = projectMetric ( g_ij, c=1 )
-  ##
-  ## project out metric dimension 'c' from the input n x n metric 'g_ij',
-  ## by projecting onto the subspace orthogonal to the coordinate-axis of 'c', namely
-  ## gOut_ij = g_ij - ( g_ic * g_jc / g_cc )
-  ##
-  ## Returns a 'projected' n x n metric, where the projected-out dimension 'c' is replaced
-  ## by zeros, consistent with the behavior of XLALProjectMetric()
 
   assert ( issymmetric ( g_ij ) > 0, "Input metric 'g_ij' must be a symmetric square matrix" );
 

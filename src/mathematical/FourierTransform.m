@@ -15,26 +15,34 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## freqSeries = FourierTransform ( ti, xi, oversampleby )
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{freqSeries} = FourierTransform ( @var{ti}, @var{xi}, @var{oversampleby} )
 ##
-## Computes Fourier-transform of input timeseries with timestamps {t_j}
-## and data-points {x_j}, where j = 0 ... N-1
+## Computes Fourier-transform of input timeseries with timestamps @{t_j@}
+## and data-points @{x_j@}, where j = 0 ... N-1
 ## This function complies with the LSC convention for Fourier-transforms, i.e.
-## xFT(f) = dt * sum_{j=0}^{N-1} x_j * e^{-2pi i f t_j}
+## xFT(f) = dt * sum_@{j=0@}^@{N-1@} x_j * e^@{-2pi i f t_j@}
 ##
-## The optional argument 'oversampleby' specifies an INTEGER
+## The optional argument @var{oversampleby} specifies an INTEGER
 ## factor to oversample the FFT by, using zero-padding of the time-series.
 ##
 ## The returned 'freqSeries' is a struct with two array-fields:
-## freqSeries.fk = { f_k }, the frequency-bins, and
-## freqSeries.xk = { x_k }, the (complex) Fourier bins,
+## @itemize
+## @item freqSeries.fk = @{ f_k @}, the frequency-bins, and
+## @item freqSeries.xk = @{ x_k @}, the (complex) Fourier bins,
+## @end itemize
+##
 ## where k = 0 ... N-1, and DFT frequency-bins f_k = k / N
 ##
-## Note: Matrix inputs
-## The input can contain several time-series data vectors xi over the same N time-samples,
-## where each time-series is a row-vector, ie the dimension of xi must be Nseries x N,
+## @heading Note
+##
+## Matrix inputsThe input can contain several time-series data vectors @var{xi} over the same N time-samples,
+## where each time-series is a row-vector, ie the dimension of @var{xi} must be Nseries x N,
 ## where 'Nseries' is the number of parallel time-series.
-## The FFT is therefore performed along rows of xi, and the resulting x_k has the same arrangement.
+##
+## The FFT is therefore performed along rows of @var{xi}, and the resulting x_k has the same arrangement.
+##
+## @end deftypefn
 
 function freqSeries = FourierTransform ( ti, xi, oversampleby = 1 )
 

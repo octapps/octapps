@@ -14,27 +14,36 @@
 ## along with Octave; see the file COPYING.  If not, see
 ## <http://www.gnu.org/licenses/>.
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{X} = possibilities(@var{x}, @var{N})
+##
 ## Build a matrix whos columns are all possible selections of N elements
 ## from the vector x, in the order that would be given by an N-dimensional
 ## nested loop. For example:
 ##
-##    M = [];
-##    for ii = possibilities(-1:1, 3);
-##      M = [M, ii];
-##    endfor
+## @verbatim
+## M = [];
+## for ii = possibilities(-1:1, 3);
+##   M = [M, ii];
+## endfor
+## @end verbatim
 ##
 ## will produce the same matrix M as:
 ##
-##    M = [];
-##    for i = -1:1
-##      for j = -1:1
-##        for k = -1:1
-##          M = [M, [i;j;k]];
-##        endfor
-##      endfor
-##    endfor
+## @verbatim
+## M = [];
+## for i = -1:1
+##   for j = -1:1
+##     for k = -1:1
+##       M = [M, [i;j;k]];
+##     endfor
+##   endfor
+## endfor
+## @end verbatim
 ##
 ## except that the dimensionality N can be determine at run time
+##
+## @end deftypefn
 
 function X = possibilities(x, N)
 

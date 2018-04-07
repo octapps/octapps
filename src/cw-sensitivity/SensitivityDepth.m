@@ -16,28 +16,87 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} [@var{Depth}, @var{pd_Depth}] = SensitivityDepth(@var{opt}, @var{val}, @dots{})
+##
 ## Calculate sensitivity in terms of the sensitivity depth.
-## Syntax:
-##   [Depth, pd_Depth] = SensitivityDepth("opt", val, ...)
-## where:
-##   Depth    = SensitivityDepth
-##   pd_Depth = calculated false dismissal probability
-## and where options are:
-##   "pd"     = false dismissal probability
-##   "Ns"     = number of segments
-##   "Tdata"  = total amount of data used in seconds
-##   "Rsqr"   = histogram of SNR "geometric factor" R^2,
-##              computed using SqrSNRGeometricFactorHist(),
-##              or scalar giving mean value of R^2
-##   "stat"   = detection statistic, one of:
-##              * {"ChiSqr", "opt", val, ...}
-##                  chi^2 statistic, e.g. the F-statistic, see
-##                  SensitivityChiSqrFDP() for options
-##              * {"HoughFstat", "opt", val, ...}
-##                  Hough on the F-statistic, see
-##                  SensitivityHoughFstatFDP() for options
-##   "prog"   = show progress updates
-##  "misHist" = mismatch histograms (default: no mismatch)
+##
+## @heading Arguments
+##
+## @table @var
+## @item Depth
+## SensitivityDepth
+##
+## @item pd_Depth
+## calculated false dismissal probability
+##
+## @end table
+##
+## @heading Options
+##
+## @table @code
+## @item pd
+## false dismissal probability
+##
+## @item Ns
+## number of segments
+##
+## @item Tdata
+## total amount of data used in seconds
+##
+## @item Rsqr
+## histogram of SNR "geometric factor" R^2,
+## computed using @command{SqrSNRGeometricFactorHist()},
+## or scalar giving mean value of R^2
+##
+## @item stat
+## detection statistic, one of:
+## @table @asis
+##   @item @{@code{ChiSqr}, @var{opt}, @var{val}, @dots{}@}
+##   chi^2 statistic, e.g. the F-statistic, with options:
+##   @table @var
+##     @item paNt
+##     false alarm probability per template
+##
+##     @item sa
+##     false alarm threshold
+##
+##     @item dof
+##     degrees of freedom per segment (default: 4)
+##
+##     @item norm
+##     use normal approximation to chi^2 (default: false)
+##
+##   @end table
+##
+##   @item @{@code{HoughFstat}, @var{opt}, @var{val}, @dots{}@}
+##   Hough on the F-statistic, with options:
+##   @table @var
+##     @item paNt
+##     false alarm probability per template
+##
+##     @item nth
+##     number count false alarm threshold
+##
+##     @item Fth
+##     F-statistic threshold per segment
+##
+##     @item zero
+##     use zeroth-order approximation (default: false)
+##
+##   @end table
+##
+## @end table
+##
+## @item prog
+## show progress updates
+##
+## @item misHist
+## mismatch histograms (default: no mismatch)
+##
+## @end table
+##
+## @end deftypefn
 
 function [Depth, pd_Depth] = SensitivityDepth(varargin)
 

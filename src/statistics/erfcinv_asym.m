@@ -17,7 +17,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn {Function File} {} erfcinv_asym(@var{X})
+## @deftypefn {Function File} @var{y} = erfcinv_asym(@var{X})
 ## Compute the inverse complementary error function, i.e., @var{Y} such that
 ##
 ## @example

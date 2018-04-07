@@ -15,9 +15,15 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{num_SFTs} = GetNumSFTsFromFile ( @var{sftfile} )
+##
+## safety measure to work around @command{lalapps_dumpSFT} bug: check if sftfile is a pattern matching several files, and if it is, just use the first one.
+##
+## @end deftypefn
+
 function num_SFTs = GetNumSFTsFromFile ( sftfile )
 
-  ## safety measure to work around lalapps_dumpSFT bug: check if sftfile is a pattern matching several files, and if it is, just use the first one.
   [status, output] = system(["find ", sftfile]);
   sftfiles = strsplit(output,"\n");
 

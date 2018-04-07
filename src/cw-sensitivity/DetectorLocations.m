@@ -16,20 +16,51 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} [@var{L}, @var{slambda}, @var{gamma}, @var{zeta}] = DetectorLocations(@var{detID})
+##
 ## Return parameters of various gravitational-wave interferometers
-## Syntax:
-##   [L, slambda, gamma, zeta] = DetectorLocations(detID)
-## where:
-##   L       = detector's longitude in radians
-##   slambda = sine of the detector's latitude
-##   gamma   = detector orientation in radians
-##   zeta    = angle between interferometer arms in radians
-##   detID   = identifier of a gravitational-wave interferometer:
-##             "H": LIGO Hanford
-##             "L": LIGO Livingston
-##             "V": VIRGO
-##             "G": GEO
-##             "K": KAGRA
+##
+## @heading Arguments
+##
+## @table @var
+## @item L
+## detector's longitude in radians
+##
+## @item slambda
+## sine of the detector's latitude
+##
+## @item gamma
+## detector orientation in radians
+##
+## @item zeta
+## angle between interferometer arms in radians
+##
+## @item detID
+## identifier of a gravitational-wave interferometer:
+##
+## @table @samp
+##
+## @item H
+## LIGO Hanford
+##
+## @item L
+## LIGO Livingston
+##
+## @item V
+## VIRGO
+##
+## @item G
+## GEO
+##
+## @item K
+## KAGRA
+##
+## @end table
+##
+## @end table
+##
+## @end deftypefn
 
 function [L, slambda, gamma, zeta] = DetectorLocations(detID)
 

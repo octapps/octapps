@@ -15,10 +15,13 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
-## Converts contour matrix C returned by contour
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{S} = contourc2struct(@var{C})
+##
+## Converts contour matrix @var{C} returned by contour
 ## functions into a easier-to-use array struct S
-## Syntax:
-##   S = contourc2struct(C)
+##
+## @end deftypefn
 
 function S = contourc2struct(C)
 
