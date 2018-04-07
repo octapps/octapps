@@ -50,5 +50,5 @@ endfunction
 %!
 %! err1 = max ( abs ( LongLatEclIn - LongLatEclOut )(:) );
 %! err2 = max ( abs ( vnEclIn - vnEclOut )(:) );
-%! assert ( (err1 < 1e-14) && (err2 < 1e-14 ) );
+%! assert ( (err1 < 1e-6) && (err2 < 1e-6 ) );
 
