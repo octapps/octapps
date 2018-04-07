@@ -39,7 +39,7 @@ CheckPkg = $(shell $(PKGCONFIG) --exists $1 && echo true)
 version := $(shell $(OCTAVE) --eval "disp(OCTAVE_VERSION)")
 vershex := -DOCTAVE_VERSION_HEX=$(shell $(OCTAVE) --eval "addpath('$(curdir)/src/version-handling', '-begin'); printf('0x%x', versionstr2hex(OCTAVE_VERSION))")
 
-# OctApps source path and file list
+# OctApps source path and file lists
 srcpath := $(shell $(OCTAVE) --eval "addpath('$(curdir)/src/general', '$(curdir)/src/version-handling', '-begin'); octapps_genpath()")
 srcfilepath := $(filter-out %/deprecated, $(srcpath))
 srcmfiles := $(wildcard $(srcfilepath:%=%/*.m))
@@ -97,8 +97,8 @@ octapps-user-env.sh octapps-user-env.csh : Makefile
 	echo "$${setenv} PATH$${equals}\`echo $${path} | $${cleanpath}\`" >>$@
 
 # generate author list, sorted by last name
-all .PHONY: AUTHORS
-AUTHORS:
+all .PHONY : AUTHORS
+AUTHORS : Makefile
 	$(making)( $(GIT) shortlog -s | $(SED) 's/^[^A-Z]*//'; $(GIT) grep Copyright src/ | $(SED) 's/^.*Copyright ([Cc]) [-0-9, ]*//' | $(TR) ',' '\n' | $(SED) 's/^ *//' ) | $(SORT) -u > .$@.all; \
 	awkscript='/^[A-Z].*@.*$$/ { name = $$0 } /^[0-9]/ { lines[name] += $$1 } END { for (name in lines) printf "%i\t%s\n", lines[name], name }'; \
 	$(GIT) log --pretty='format:%aN <%aE>' --numstat | $(AWK) "$${awkscript}" | $(SORT) -k1,1 -n -r | $(SED) -n 's/^[^A-Z]*//;s/ <[^@]*@[^@]*>$$//p' > $@; \
