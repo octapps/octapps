@@ -27,5 +27,9 @@ function __octapps_make_check__(fn)
   fn = fullfile(d, n);
   [htext, hfmt] = get_help_text(fn);
   assert(length(strtrim(htext)) > 0, "help message is missing");
+  assert(strcmp(hfmt, "texinfo"), "help message is not in Texinfo format");
+  makeinfo_program(sprintf("%s --verbose --error-limit=0", makeinfo_program()), "local");
+  [hfmttext, status] = __makeinfo__(htext);
+  assert(status == 0, "help message has some Texinfo errors");
   test(fn);
 endfunction
