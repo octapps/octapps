@@ -248,11 +248,3 @@ endfunction
 ## skip printing argument
 function print_skip(x)
 endfunction
-
-%!test
-%!  status = system("octapps_run __test_parseOptions__ --help");
-%!  assert(status == 1);
-%!test
-%!  [status, output] = system("octapps_run __test_parseOptions__ --real-strictpos-scalar 1.23 --integer-vector='[3,9,5]' --string 'Hi there' --cell '{1,{2,3}}'");
-%!  assert(status == 0);
-%!  assert(strtrim(output), 'struct("cell",{{1,{2,3}}},"twobytwo",{[1 0;0 1]},"real_strictpos_scalar",{1.23},"integer_vector",{[3 9 5]},"string",{"Hi there"})')

@@ -439,3 +439,11 @@ endfunction
 %!assert(__test_parseOptions__("real_strictpos_scalar", 2.34, "integer_vector", [9,-1], "string", "Over there", "cell", {1;3}), 'struct("cell",{{1;3}},"twobytwo",{[1 0;0 1]},"real_strictpos_scalar",{2.34},"integer_vector",{[9 -1]},"string",{"Over there"})')
 %!assert(__test_parseOptions__("real_strictpos_scalar", 2.34, "integer_vector", [9,-1], "string", "Over there", "twobytwo", [1,2;3,4]), 'struct("cell",{{1;1;1}},"twobytwo",{[1 2;3 4]},"real_strictpos_scalar",{2.34},"integer_vector",{[9 -1]},"string",{"Over there"})')
 %!fail('__test_parseOptions__("real_strictpos_scalar", 2.34, "integer_vector", [9,-1], "string", "Over there", "cell", {NA,NA}, "twobytwo", zeros(2))', "parseOptions: exactly one of options 'twobytwo', 'cell' are required")
+
+%!test
+%!  status = system("octapps_run __test_parseOptions__ --help");
+%!  assert(status == 1);
+%!test
+%!  [status, output] = system("octapps_run __test_parseOptions__ --real-strictpos-scalar 1.23 --integer-vector='[3,9,5]' --string 'Hi there' --cell '{1,{2,3}}'");
+%!  assert(status == 0);
+%!  assert(strtrim(output), 'struct("cell",{{1,{2,3}}},"twobytwo",{[1 0;0 1]},"real_strictpos_scalar",{1.23},"integer_vector",{[3 9 5]},"string",{"Hi there"})')

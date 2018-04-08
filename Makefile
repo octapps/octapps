@@ -44,7 +44,7 @@ srcpath := $(shell $(OCTAVE) --eval "addpath('$(curdir)/src/general', '$(curdir)
 srcfilepath := $(filter-out %/deprecated, $(srcpath))
 srcmfiles := $(wildcard $(srcfilepath:%=%/*.m))
 srccfiles := $(wildcard $(srcfilepath:%=%/*.hpp) $(srcfilepath:%=%/*.cc))
-srctestfiles := $(wildcard $(srcfilepath:%=%/*.m) $(srcfilepath:%=%/@*/*.m) $(srcfilepath:%=%/*.cc) $(srcfilepath:%=%/*.i))
+srctestfiles := $(filter-out %__.m, $(wildcard $(srcfilepath:%=%/*.m) $(srcfilepath:%=%/@*/*.m) $(srcfilepath:%=%/*.cc) $(srcfilepath:%=%/*.i)))
 
 # OctApps extension module directory
 octdir := oct/$(version)

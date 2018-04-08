@@ -32,6 +32,3 @@ function optstr = __test_parseOptions__(varargin)
   optstr = stringify(opts);
 
 endfunction
-
-%!test
-%!  disp("this function is only used to test parseOptions() and related functions");

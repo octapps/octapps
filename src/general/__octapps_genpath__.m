@@ -38,6 +38,3 @@ function __octapps_genpath__()
   endfor
   printf("\n");
 endfunction
-
-%!test
-%!  __octapps_genpath__();
