@@ -345,6 +345,6 @@ DEFUN_DLD( fitsread, args, nargout, fitsread_usage ) {
 /*
 
 %!test
-%!  fitsread(fullfile(fileparts(file_in_loadpath("fitsread.cpp")), "fitsread_test.fits"));
+%!  fitsread(fullfile(fileparts(file_in_loadpath("fitsread.cc")), "fitsread_test.fits"));
 
 */
