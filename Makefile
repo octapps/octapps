@@ -40,7 +40,7 @@ version := $(shell $(OCTAVE) --eval "disp(OCTAVE_VERSION)")
 vershex := -DOCTAVE_VERSION_HEX=$(shell $(OCTAVE) --eval "addpath('$(curdir)/src/version-handling', '-begin'); printf('0x%x', versionstr2hex(OCTAVE_VERSION))")
 
 # OctApps source path and file lists
-srcpath := $(shell $(OCTAVE) --eval "addpath('$(curdir)/src/general', '$(curdir)/src/version-handling', '-begin'); octapps_genpath()")
+srcpath := $(shell $(OCTAVE) --eval "addpath('$(curdir)/src/general', '$(curdir)/src/version-handling', '-begin'); __octapps_genpath__()")
 srcfilepath := $(filter-out %/deprecated, $(srcpath))
 srcmfiles := $(wildcard $(srcfilepath:%=%/*.m))
 srccfiles := $(wildcard $(srcfilepath:%=%/*.hpp) $(srcfilepath:%=%/*.cc))
