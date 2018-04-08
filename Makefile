@@ -230,25 +230,21 @@ check : all
 				*) action=;; \
 			esac; \
 			case "$${action}" in \
-				missinghelp) \
-					printf "$${cr}%-48s: MISSING HELP MESSAGE\n" "$${test}"; \
-					exit 1;; \
-				missingtest) \
-					printf "$${cr}%-48s: MISSING TEST(S)\n" "$${test}"; \
-					exit 1;; \
-				skip) \
-					printf "$${cr}%-48s: skipping test(s)\n" "$${test}"; \
-					exit 0;; \
-				pass) \
-					printf "$${cr}%-48s: test(s) passed\n" "$${test}"; \
-					exit 0;; \
-				fail) \
-					printf "$${cr}%-48s: TEST(S) FAILED\n" "$${test}"; \
-					printf "%-72s\n" "$${test}:" | $(SED) 's/ /-/g;s/:-/: /'; \
-					$(SED) "s|^|$${test}: |" "$${OCTAPPS_TEST_LOG}"; \
-					printf "%-72s\n" "$${test}:" | $(SED) 's/ /-/g;s/:-/: /'; \
-					exit 1;; \
+				missinghelp) printf "$${cr}%-48s: HELP MESSAGE ERROR\n" "$${test}"; status=1;; \
+				missingtest) printf "$${cr}%-48s: MISSING TEST(S)\n" "$${test}"; status=1;; \
+				skip) printf "$${cr}%-48s: skipping test(s)\n" "$${test}"; status=0;; \
+				pass) printf "$${cr}%-48s: test(s) passed\n" "$${test}"; status=0;; \
+				fail) printf "$${cr}%-48s: TEST(S) FAILED\n" "$${test}"; status=1;; \
+				*) status=;; \
 			esac; \
+			if test "x$${status}" = x1; then \
+				printf "%-72s\n" "$${test}:" | $(SED) 's/ /-/g;s/:-/: /'; \
+				$(SED) "s|^|$${test}: |" "$${OCTAPPS_TEST_LOG}"; \
+				printf "%-72s\n" "$${test}:" | $(SED) 's/ /-/g;s/:-/: /'; \
+			fi; \
+			if test "x$${status}" != x; then \
+				exit $${status}; \
+			fi; \
 		done; \
 	}
 
