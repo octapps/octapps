@@ -219,10 +219,10 @@ check : all
 	test=`echo "$*" | $(SED) 's|::|/|g'`; \
 	printf "%-48s: $${cn}" "$${test}"; \
 	OCTAPPS_TEST_LOG="$${OCTAPPS_TMPDIR}/.$*.log"; \
-	env TMPDIR="$${OCTAPPS_TMPDIR}" $(OCTAVE) --eval "crash_dumps_octave_core(0); assert(length(help('$${test}')) > 0, 'no help message'); test $${test}" 2>&1 | tee "$${OCTAPPS_TEST_LOG}" | { \
+	env TMPDIR="$${OCTAPPS_TMPDIR}" $(OCTAVE) --eval "__octapps_make_check__('$${test}');" 2>&1 | tee "$${OCTAPPS_TEST_LOG}" | { \
 		while read line; do \
 			case "$${line}" in \
-				"error: no help message"*) action=missinghelp;; \
+				"error: help"*) action=missinghelp;; \
 				"?????"*) action=missingtest;; \
 				"skip"*) if test "x$(NOSKIP)" = x; then action=skip; else action=fail; fi;; \
 				"PASSES"*) action=pass;; \
