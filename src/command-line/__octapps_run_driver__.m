@@ -54,7 +54,7 @@
 ##       g --printarg --printarg1=sin --printarg2=cos     a, mean(a), cos(b)
 ##       g --printarg2=mod(?,3)                           mod(b,3)
 
-function octapps_run_driver(func, varargin)
+function __octapps_run_driver__(func, varargin)
 
   ## check input
   assert(ischar(func));
