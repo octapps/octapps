@@ -58,4 +58,4 @@ endfunction
 %!  args.integer_vector = [-5, 3];
 %!  args.string = "Hi";
 %!  args.cell = {1, 9};
-%!  fevalstruct(@__test_parseOptions, args);
+%!  fevalstruct(@__test_parseOptions__, args);

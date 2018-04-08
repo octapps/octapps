@@ -17,7 +17,7 @@
 
 ## Helper function for testing parseOptions() and related functions.
 
-function optstr = __test_parseOptions(varargin)
+function optstr = __test_parseOptions__(varargin)
 
   ## parse options
   opts = parseOptions(varargin,

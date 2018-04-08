@@ -51,4 +51,4 @@ endfunction ## writeCommandLineToFile()
 %!  args.real_strictpos_scalar = 1.23;
 %!  args.integer_vector = [-5, 3];
 %!  args.string = "Hi";
-%!  writeCommandLineToFile(tempname(tempdir), args, "__test_parseOptions")
+%!  writeCommandLineToFile(tempname(tempdir), args, "__test_parseOptions__")
