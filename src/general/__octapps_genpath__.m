@@ -16,9 +16,9 @@
 
 ## Generates the Octave path for OctApps.
 ## Usage:
-##   octapps_genpath
+##   __octapps_genpath__()
 
-function octapps_genpath()
+function __octapps_genpath__()
   octvhex = versionstr2hex(OCTAVE_VERSION);
   srcbasedir = canonicalize_file_name(fullfile(fileparts(mfilename("fullpath")), ".."));
   assert(exist(srcbasedir, "dir"));
@@ -40,4 +40,4 @@ function octapps_genpath()
 endfunction
 
 %!test
-%!  octapps_genpath();
+%!  __octapps_genpath__();
