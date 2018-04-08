@@ -15,6 +15,13 @@
 ## Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ## MA  02111-1307  USA
 
+## -*- texinfo -*-
+## @deftypefn  {Function File} @var{SFTpower_thresh} = ComputeSFTPowerThresholdFromFA ( @var{SFTpower_fA}, @var{num_SFTs} )
+##
+## Compute SFT power threshold from a SFT power false alarm rate.
+##
+## @end deftypefn
+
 function SFTpower_thresh = ComputeSFTPowerThresholdFromFA ( SFTpower_fA, num_SFTs )
 
   SFTpower_thresh = norminv ( 1.0 - SFTpower_fA, 1.0, 1.0/sqrt(num_SFTs) );
