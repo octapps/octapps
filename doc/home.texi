@@ -1,0 +1,43 @@
+\input texinfo
+
+@settitle OctApps Function Reference
+
+@copying
+This document is a reference listing of functions in OctApps.
+
+Copyright @copyright{} 2018 The Authors of OctApps.
+
+@quotation
+Copying and distribution of this document, with or without modification,
+are permitted in any medium without royalty provided the copyright
+notice and this notice are preserved.
+@end quotation
+@end copying
+
+@contents
+
+@node Top
+@top OctApps Function Reference
+
+This document is a reference listing of functions in @emph{OctApps}.
+
+Please see the @url{https://github.com/octapps/octapps, project homepage} for further information on @emph{OctApps}.
+
+@menu
+* Directories::
+* Function Index::
+@end menu
+
+@node Directories
+@unnumbered Directories
+
+@include menu.texi
+
+@include all.texi
+
+@node Function Index
+@unnumbered Function Index
+
+@printindex fn
+
+@bye

@@ -23,6 +23,7 @@ DIFF := $(call CheckProg, diff)
 FIND := $(call CheckProg, gfind find)
 GIT := $(call CheckProg, git)
 GREP := $(call CheckProg, grep)
+MAKEINFO := $(call CheckProg, makeinfo) --force --no-warn --no-validate -c TOP_NODE_UP_URL='https://github.com/octapps/octapps'
 MKOCTFILE := env CC= CXX= $(call CheckProg, mkoctfile)
 OCTAVE := $(call CheckProg, octave-cli, octave) --no-gui --silent --norc --no-history --no-window-system
 PKGCONFIG := $(call CheckProg, pkg-config)
@@ -45,6 +46,7 @@ srcfilepath := $(filter-out %/deprecated, $(srcpath))
 srcmfiles := $(wildcard $(srcfilepath:%=%/*.m))
 srccfiles := $(wildcard $(srcfilepath:%=%/*.hpp) $(srcfilepath:%=%/*.cc))
 srctestfiles := $(filter-out %__.m, $(wildcard $(srcfilepath:%=%/*.m) $(srcfilepath:%=%/@*/*.m) $(srcfilepath:%=%/*.cc) $(srcfilepath:%=%/*.i)))
+srctexifiles = $(srctestfiles)
 
 # OctApps extension module directory
 octdir := oct/$(version)
@@ -259,6 +261,52 @@ check : all
 			fi; \
 		done; \
 	}
+
+# generate HTML documentation
+html : all
+	$(verbose)texifiles=; texifilesdirs=; texidirs=; \
+	for texifile in $(patsubst $(curdir)/src/%,%,$(srctexifiles)); do \
+		texifiledir=`dirname $${texifile}`; \
+		texifilename=`basename $${texifile}`; \
+		texiclass=`basename $${texifiledir}`; \
+		case "$${texiclass}" in \
+			@*) \
+				texifilename="$${texiclass}::$${texifilename}";; \
+		esac; \
+		texidirname=`echo $${texifiledir} | $(SED) 's|/|::|g;'`; \
+		texifiles="$${texifiles} $${texifilename}"; \
+		texidirfiles="$${texidirfiles} $${texidirname} "`echo $${texifilename} | $(SED) 's|@|@@|g'`; \
+		texidirs="$${texidirs} "`echo $${texidirname} | $(SED) 's|@|@@|g'`; \
+	done; \
+	export OCTAPPS_TMPDIR=`mktemp -d -t octapps-make-html.XXXXXX`; \
+	echo "Created temporary directory $${OCTAPPS_TMPDIR}"; \
+	printf "$${OCTAPPS_TMPDIR}/%s.dir.texi %s.texi\n" $${texidirfiles} | $(SORT) | $(AWK) '{ printf "@include %s\n", $$2 >> $$1}'; \
+	$(OCTAVE) --eval "fid = fopen('$${OCTAPPS_TMPDIR}/all.texi', 'w'); assert(fid >= 0); fprintf(fid, '@include %s\n', texi_macros_file()); fclose(fid);"; \
+	printf "@menu\n" > "$${OCTAPPS_TMPDIR}/menu.texi"; \
+	for texidir in `printf "%s\n" $${texidirs} | $(SORT) -u`; do \
+		dir=`echo $${texidir} | $(SED) 's|::|/|g;'`; \
+		printf "* @file{%s}::\n" "$${dir}" >> "$${OCTAPPS_TMPDIR}/menu.texi"; \
+		printf "@node @file{%s}\n@unnumberedsec @file{%s}\n@include %s\n" "$${dir}" "$${dir}" "$${texidir}.dir.texi" >> "$${OCTAPPS_TMPDIR}/all.texi"; \
+	done; \
+	printf "@end menu\n" >> "$${OCTAPPS_TMPDIR}/menu.texi"; \
+	$(MAKE) `printf "%s.texi\n" $${texifiles} | $(SORT)` || exit 1; \
+	mkdir -p "$(curdir)/html"; \
+	rm -rf "$(curdir)/html"/*; \
+	( cd "$${OCTAPPS_TMPDIR}" && $(MAKEINFO) --html -o "$(curdir)/html" "$(curdir)/doc/home.texi" ) || exit 1; \
+	if test "x$(NOCLEANUP)" = x; then \
+		rm -rf "$${OCTAPPS_TMPDIR}"; \
+		echo "Removed temporary directory $${OCTAPPS_TMPDIR}"; \
+	else \
+		echo "NOT removing temporary directory $${OCTAPPS_TMPDIR}"; \
+	fi; \
+	echo "=================================================="; \
+	echo "OctApps HTML documentation has been built!"; \
+	echo "=================================================="
+
+%.texi :
+	$(making) "documentation for" `echo $* | $(SED) 's|@@|@|g'`; \
+	source octapps-user-env.sh; \
+	$(OCTAVE) --eval "__octapps_make_html__('$*');"
 
 # generate tags
 ifneq ($(CTAGSEX),false)
