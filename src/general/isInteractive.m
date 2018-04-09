@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{f} = isInteractive()
+## @deftypefn {Function File} {@var{f} =} isInteractive ( )
 ##
 ## Returns whether the calling Octave script is being run from
 ## an interactive session, as opposed to from the command line.

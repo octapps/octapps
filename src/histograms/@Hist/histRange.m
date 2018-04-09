@@ -16,8 +16,8 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} [@var{rng}, @var{nbins} ] = histRange(@var{hgrm}, [@var{kk} = 1:dim])
-## @deftypefnx {Function File} [@var{frng}, @var{fnbins}] = histRange(@var{hgrm}, [@var{kk} = 1:dim], @code{finite})
+## @deftypefn {Function File} { [ @var{rng}, @var{nbins} ] =} histRange ( @var{hgrm}, [ @var{kk} = 1:dim ] )
+## @deftypefnx{Function File} { [ @var{frng}, @var{fnbins} ] =} histRange ( @var{hgrm}, [ @var{kk} = 1:dim ] , @code{finite} )
 ##
 ## Returns the ranges of a histogram object, which are finite
 ## if the histogram is non-empty and NaNs otherwise, and the

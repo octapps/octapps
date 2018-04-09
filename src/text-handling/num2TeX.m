@@ -15,7 +15,7 @@
 ## <http://www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{tex} = num2TeX(@var{num}, @var{fmt}, @var{opt}, @var{val}, @dots{})
+## @deftypefn {Function File} {@var{tex} =} num2TeX ( @var{num}, @var{fmt}, @var{opt}, @var{val}, @dots{} )
 ##
 ## Format a number in TeX format.
 ##

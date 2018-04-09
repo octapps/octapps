@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} display(@var{hgrm})
+## @deftypefn {Function File} {} display ( @var{hgrm} )
 ##
 ## Display a histogram object.
 ##

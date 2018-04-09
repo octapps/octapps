@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{stdv} = stdvOfHist(@var{hgrm}, [@var{k} = 1])
+## @deftypefn {Function File} {@var{stdv} =} stdvOfHist ( @var{hgrm}, [ @var{k} = 1 ] )
 ##
 ## Returns the standard deviation(s) of a histogram.
 ##

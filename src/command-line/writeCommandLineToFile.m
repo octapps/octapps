@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} writeCommandLineToFile ( @var{filename}, @var{params}, @var{scriptname} )
+## @deftypefn {Function File} {} writeCommandLineToFile ( @var{filename}, @var{params}, @var{scriptname} )
 ##
 ## write an octapps_run commandline as an output file header
 ## 'params' should be prepared by @command{parseOptions()} before

@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{p} = randPointInNSphere(@var{n}, @var{u})
+## @deftypefn {Function File} {@var{p} =} randPointInNSphere ( @var{n}, @var{u} )
 ##
 ## Generate random points (with)in a @var{n}-dimensional sphere
 ##

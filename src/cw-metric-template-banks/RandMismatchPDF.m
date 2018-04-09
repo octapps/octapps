@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{ret} = RandMismatchPDF ( @var{mt}, @var{dim}, @var{falseDismissal} )
+## @deftypefn {Function File} {@var{ret} =} RandMismatchPDF ( @var{mt}, @var{dim}, @var{falseDismissal} )
 ##
 ## Return the mismatch probability density of "relative effective mismatch"
 ## mt = m/meff of a random-template bank with given false-dismissal probability

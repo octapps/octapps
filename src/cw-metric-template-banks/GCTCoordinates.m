@@ -15,8 +15,8 @@
 ## <http://www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{gctco} = GCTCoherentMetric(@code{togct}, @var{phyco}, @var{opt}, @var{val}, @dots{})
-## @deftypefnx {Function File} @var{phyco} = GCTCoherentMetric(@code{tophy}, @var{gctco}, @var{opt}, @var{val}, @dots{})
+## @deftypefn {Function File} {@var{gctco} =} GCTCoherentMetric ( @code{togct}, @var{phyco}, @var{opt}, @var{val}, @dots{} )
+## @deftypefnx{Function File} {@var{phyco} =} GCTCoherentMetric ( @code{tophy}, @var{gctco}, @var{opt}, @var{val}, @dots{} )
 ##
 ## Computes the coherent global correlation coordinates, as
 ## given in Pletsch, PRD 82 042002 (2010)

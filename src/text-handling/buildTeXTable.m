@@ -15,7 +15,7 @@
 ## <http://www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{tex} = buildTeXTable(@var{spec}, @var{opt}, @var{val}, @dots{})
+## @deftypefn {Function File} {@var{tex} =} buildTeXTable ( @var{spec}, @var{opt}, @var{val}, @dots{} )
 ##
 ## Build a TeX table from a cell array specification.
 ##

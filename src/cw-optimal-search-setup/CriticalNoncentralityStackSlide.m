@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{noncent} = CriticalNoncentralityStackSlide ( @var{pFA}, @var{pFD}, @var{Nseg}, @var{approx}=[] )
+## @deftypefn {Function File} {@var{noncent} =} CriticalNoncentralityStackSlide ( @var{pFA}, @var{pFD}, @var{Nseg}, @var{approx}= [ ] )
 ##
 ## function to compute the 'critical' non-centrality parameter required to obtain
 ## exactly @var{pFD} false-dismissal probability at given @var{pFA} false-alarm

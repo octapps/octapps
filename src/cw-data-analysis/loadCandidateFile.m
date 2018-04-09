@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} loadCandidateFile ( @var{fname} )
+## @deftypefn {Function File} {} loadCandidateFile ( @var{fname} )
 ##
 ## loads a 'candidate-file' from @command{lalapps_ComputeFStatistic_v2 --outputLoudest=cand.file}
 ## and returns a struct containing the data

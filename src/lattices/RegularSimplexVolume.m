@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{ret} = RegularSimplexVolume ( @var{n} )
+## @deftypefn {Function File} {@var{ret} =} RegularSimplexVolume ( @var{n} )
 ##
 ## volume of regular simplex in @var{n} dimensions with unit side-length,
 ## Chap.21, Eq.(12) in Conway&Sloane (1999)

@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} [@var{metric}, @var{dnorm}, @var{invdnorm}] = DiagonalNormaliseMetric(@var{metric}, [@code{tolerant}])
+## @deftypefn {Function File} { [ @var{metric}, @var{dnorm}, @var{invdnorm} ] =} DiagonalNormaliseMetric ( @var{metric}, [ @code{tolerant} ] )
 ##
 ## Diagonally normalise a metric.
 ##

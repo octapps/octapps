@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{S} = contourc2struct(@var{C})
+## @deftypefn {Function File} {@var{S} =} contourc2struct ( @var{C} )
 ##
 ## Converts contour matrix @var{C} returned by contour
 ## functions into a easier-to-use array struct S

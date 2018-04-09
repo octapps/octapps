@@ -14,7 +14,7 @@
 ## along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn {Function File} [@var{s}] = sortStructFields (@var{s})
+## @deftypefn {Function File} { [ @var{s} ] =} sortStructFields ( @var{s} )
 ##
 ## Return the struct @var{S} with its fields sorted alphabetically.
 ##

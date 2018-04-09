@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} [@var{nth}, @var{fAH}] = invFalseAlarm_HoughF ( @var{fAH}, @var{Nseg}, @var{Fth} )
+## @deftypefn {Function File} { [ @var{nth}, @var{fAH} ] =} invFalseAlarm_HoughF ( @var{fAH}, @var{Nseg}, @var{Fth} )
 ##
 ## 'invert' false-alarm function to obtain discrete numer-count threshold @var{nth} which comes
 ## closest to the desired false-alarm probability fAH0 for Hough-on-Fstat,

@@ -15,7 +15,7 @@
 ## <http://www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} [@var{SFT_freq_min}, @var{SFT_freq_max}] = WeaveInputSFTBand(@var{opt}, @var{val}, @dots{})
+## @deftypefn {Function File} { [ @var{SFT_freq_min}, @var{SFT_freq_max} ] =} WeaveInputSFTBand ( @var{opt}, @var{val}, @dots{} )
 ##
 ## Estimate the input SFT band required by @command{lalapps_Weave}
 ##

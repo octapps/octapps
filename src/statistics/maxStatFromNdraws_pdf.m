@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{p} = maxStatFromNdraws_pdf( @var{x}, @var{Ndraws}, @var{statHgrm} )
+## @deftypefn {Function File} {@var{p} =} maxStatFromNdraws_pdf ( @var{x}, @var{Ndraws}, @var{statHgrm} )
 ##
 ## Probability density (pdf) for the maximum out of @var{Ndraws} independent draws from an
 ## arbitrary statistic, defined via its empirical probability density @var{statHgrm} as a histogram object.

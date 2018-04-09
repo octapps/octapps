@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{sa} = invFalseAlarm_chi2_asym(@var{pa}, @var{k})
+## @deftypefn {Function File} {@var{sa} =} invFalseAlarm_chi2_asym ( @var{pa}, @var{k} )
 ##
 ## Calculate the threshold of a central chi^2 distribution which gives
 ## a certain false alarm probability. Uses an analytic, asymptotic

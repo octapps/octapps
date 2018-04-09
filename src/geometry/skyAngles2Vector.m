@@ -15,7 +15,7 @@
 ## <http://www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{vn} = skyAngles2Vector ( [@var{longitude}, @var{latitude}] )
+## @deftypefn {Function File} {@var{vn} =} skyAngles2Vector ( [ @var{longitude}, @var{latitude} ] )
 ##
 ## Convert a sky-position given in terms of @var{longitude} and @var{latitude}'
 ## angles into a unit vector @code{vn = [nx, ny, nz]} in the same reference frame

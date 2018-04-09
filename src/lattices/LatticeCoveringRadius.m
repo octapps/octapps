@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{R} = LatticeCoveringRadius ( @var{dim}, @var{lattice} )
+## @deftypefn {Function File} {@var{R} =} LatticeCoveringRadius ( @var{dim}, @var{lattice} )
 ##
 ## return the covering radius for the given lattice
 ## lattice is one of the strings @{@code{Zn}, @code{An}, @code{Ans}@}

@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{mu} = momentOfHist(@var{hgrm}, @var{sumdims}, @var{n}, [@var{x0} = 0])
+## @deftypefn {Function File} {@var{mu} =} momentOfHist ( @var{hgrm}, @var{sumdims}, @var{n}, [ @var{x0} = 0 ] )
 ##
 ## Computes the moments of a histogram:
 ## Only moments for finite bins are returned.

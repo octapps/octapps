@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{ret} = TuneAdaptiveLVPriors ( @var{varargin} )
+## @deftypefn {Function File} {@var{ret} =} TuneAdaptiveLVPriors ( @var{varargin} )
 ##
 ## function to count outliers in SFT power statistic over a large set of frequency bands (input sft files) and derive LV priors from that
 ## command-line parameters can be taken from parseOptions call below

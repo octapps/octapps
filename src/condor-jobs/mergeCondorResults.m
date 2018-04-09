@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} mergeCondorResults(@var{opt}, @var{val}, @dots{})
+## @deftypefn {Function File} {} mergeCondorResults ( @var{opt}, @var{val}, @dots{} )
 ##
 ## Merge results from a Condor DAG.
 ##

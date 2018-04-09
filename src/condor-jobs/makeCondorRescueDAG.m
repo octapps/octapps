@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} makeCondorRescueDAG(@var{opt}, @var{val}, @dots{})
+## @deftypefn {Function File} {} makeCondorRescueDAG ( @var{opt}, @var{val}, @dots{} )
 ##
 ## Build a rescue Condor DAG to rerun jobs with missing or corrupt result files.
 ##

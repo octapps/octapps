@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{hgrm} = rescaleHistBins(@var{hgrm}, @var{s})
+## @deftypefn {Function File} {@var{hgrm} =} rescaleHistBins ( @var{hgrm}, @var{s} )
 ##
 ## Rescale the bins of a histogram.
 ##

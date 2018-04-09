@@ -15,7 +15,7 @@
 ## <http://www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} g = GCTSemicoherentTaylorMetric(@var{opt}, @var{val}, @dots{})
+## @deftypefn {Function File} {g =} GCTSemicoherentTaylorMetric ( @var{opt}, @var{val}, @dots{} )
 ##
 ## Computes the semicoherent global correlation transform metric, as
 ## given in Pletsch, PRD 82 042002 (2010), which Taylor-expands the

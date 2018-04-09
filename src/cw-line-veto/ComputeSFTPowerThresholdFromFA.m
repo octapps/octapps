@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{SFTpower_thresh} = ComputeSFTPowerThresholdFromFA ( @var{SFTpower_fA}, @var{num_SFTs} )
+## @deftypefn {Function File} {@var{SFTpower_thresh} =} ComputeSFTPowerThresholdFromFA ( @var{SFTpower_fA}, @var{num_SFTs} )
 ##
 ## Compute SFT power threshold from a SFT power false alarm rate.
 ##

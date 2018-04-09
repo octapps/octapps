@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{cost_funs} = CostFunctionsEaHGCT(@var{opt}, @var{val}, @dots{})
+## @deftypefn {Function File} {@var{cost_funs} =} CostFunctionsEaHGCT ( @var{opt}, @var{val}, @dots{} )
 ##
 ## Return computing-cost functions used by @command{OptimalSolution4StackSlide_v2()}
 ## to compute optimal Einstein@@Home search setups for the GCT code.

@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{ret} = GetNormSFTPowerFiles ( @var{varargin} )
+## @deftypefn {Function File} {@var{ret} =} GetNormSFTPowerFiles ( @var{varargin} )
 ##
 ## function to produce files of normalized SFT power over a large set of frequency bands (input sft files) for a single IFO
 ## command-line parameters can be taken from parseOptions call below

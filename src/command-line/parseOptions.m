@@ -16,9 +16,9 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} parseOptions(@var{opts}, @var{optspec}, @var{optspec}, @dots{})
-## @deftypefnx {Function File} @var{paropts} = parseOptions(@dots{})
-## @deftypefnx {Function File} [@bullet{}, @var{paropts}] = parseOptions(@dots{})
+## @deftypefn {Function File} {} parseOptions ( @var{opts}, @var{optspec}, @var{optspec}, @dots{} )
+## @deftypefnx{Function File} {@var{paropts} =} parseOptions ( @dots{} )
+## @deftypefnx{Function File} { [ @bullet{}, @var{paropts} ] =} parseOptions ( @dots{} )
 ##
 ## Kitchen-sink options parser.
 ##
@@ -26,32 +26,32 @@
 ##
 ## @table @var
 ## @item opts
-##   function options
+## function options
 ##
 ## @item optspec
-##   option specification, one of:
+## option specification, one of:
 ##
-##   @table @asis
-##   @item required option
-##     @{@var{name}, @var{types}@}
-##   @item optional option
-##     @{@var{name}, @var{types}, @var{defvalue}@}
-##   @end table
+## @table @asis
+## @item required option
+## @{@var{name}, @var{types}@}
+## @item optional option
+## @{@var{name}, @var{types}, @var{defvalue}@}
+## @end table
 ##
-##   where:
+## where:
 ##
-##   @table @var
-##   @item name
-##     name of option variable
-##   @item types
-##     datatype specification of option:
-##     'type,type,@dots{}'
-##   @item defvalue
-##     default value given to <name>
-##   @end table
+## @table @var
+## @item name
+## name of option variable
+## @item types
+## datatype specification of option:
+## 'type,type,@dots{}'
+## @item defvalue
+## default value given to <name>
+## @end table
 ##
 ## @item paropts
-##   struct of parsed function options (optional)
+## struct of parsed function options (optional)
 ##
 ## @end table
 ##
@@ -59,25 +59,25 @@
 ##
 ## @itemize
 ## @item
-##   using the 1st or 3rd syntax, @var{name} will be assigned in the context of
-##   the calling function; using the 2nd or 3rd syntax, @var{name} will be
-##   assigned in the return struct.
+## using the 1st or 3rd syntax, @var{name} will be assigned in the context of
+## the calling function; using the 2nd or 3rd syntax, @var{name} will be
+## assigned in the return struct.
 ##
 ## @item
-##   each @code{type} in @var{types} must correspond to a function
-##   @command{istype()}: each function will be called to check that a value is
-##   valid. For example, if @var{types} = 'numeric,scalar' then a value @var{x}
-##   must satisfy @code{isnumeric(x) && isscalar(x)}
+## each @code{type} in @var{types} must correspond to a function
+## @command{istype()}: each function will be called to check that a value is
+## valid. For example, if @var{types} = 'numeric,scalar' then a value @var{x}
+## must satisfy @code{isnumeric(x) && isscalar(x)}
 ##
 ## @item
-##   @var{opts} should contain options of the form
-##   @verbatim
+## @var{opts} should contain options of the form
+## @verbatim
 ##   reg, reg, ..., "key", val, "key", val, ...
-##   @end verbatim
-##   where @var{reg} are regular options, and @var{key} and @var{val} are
-##   keyword-value option pairs. Regular options are assigned in the order they
-##   were given as @var{optspec}s; regular options may also be given as
-##   keyword-values.
+## @end verbatim
+## where @var{reg} are regular options, and @var{key} and @var{val} are
+## keyword-value option pairs. Regular options are assigned in the order they
+## were given as @var{optspec}s; regular options may also be given as
+## keyword-values.
 ##
 ## @end itemize
 ##

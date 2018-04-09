@@ -15,7 +15,7 @@
 ## <http://www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{LongLat} = skyVector2Angles ( @var{vSky} )
+## @deftypefn {Function File} {@var{LongLat} =} skyVector2Angles ( @var{vSky} )
 ##
 ## Convert a sky-position given in terms of a 3-vector into 'longitude' and 'latitude'
 ## angles in the same reference frame (ie either in equatorial or ecliptic system).

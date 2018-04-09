@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{vol} = LatticeVolume ( @var{dim}, @var{lattice} )
+## @deftypefn {Function File} {@var{vol} =} LatticeVolume ( @var{dim}, @var{lattice} )
 ##
 ## return the @var{lattice} volume (ie volume of the fundamental cell) of given @var{lattice}'
 ## lattice is one of the strings @{ "Zn", "An", "Ans" @}

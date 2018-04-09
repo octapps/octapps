@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{coveringRadius} = AnCoveringRadius ( @var{dim} )
+## @deftypefn {Function File} {@var{coveringRadius} =} AnCoveringRadius ( @var{dim} )
 ##
 ## Return covering-radius for the An lattice in n dimensions
 ## referring to lattice-definition corresponding to the generator

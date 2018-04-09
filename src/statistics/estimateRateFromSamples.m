@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} [@var{fMPE}, @var{fE}, @var{fLower}, @var{fUpper}] = estimateRateFromSamples ( @var{DATA}, @var{threshold}, @var{confidence} )
+## @deftypefn {Function File} { [ @var{fMPE}, @var{fE}, @var{fLower}, @var{fUpper} ] =} estimateRateFromSamples ( @var{DATA}, @var{threshold}, @var{confidence} )
 ##
 ## Compute maximum-posterior rate estimate @var{fMPE} and @var{confidence}-interval [@var{fLower}, @var{fUpper}].
 ##

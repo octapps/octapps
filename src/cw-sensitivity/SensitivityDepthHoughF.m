@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{sensDepth} = SensitivityDepthHoughF(@var{opt}, @var{val}, @dots{})
+## @deftypefn {Function File} {@var{sensDepth} =} SensitivityDepthHoughF ( @var{opt}, @var{val}, @dots{} )
 ##
 ## Estimate Hough-on-Fstat sensitivity depth, defined as
 ##

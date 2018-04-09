@@ -16,7 +16,7 @@
 ## <http://www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn {Function File} @var{ID} = octapps_gitID([@var{directory}, [@var{name}]])
+## @deftypefn {Function File} {@var{ID} =} octapps_gitID ( [ @var{directory}, [ @var{name} ] ] )
 ##
 ## Returns the git-tag (commitID, date, etc) information for the
 ## specified git repository containing @var{directory}. If @var{directory}

@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{version_string} = getLalAppsVersionInfo (@var{lalapps_command});
+## @deftypefn {Function File} {@var{version_string} =} getLalAppsVersionInfo ( @var{lalapps_command} ) ;
 ##
 ## get version info from the given lalapps code
 ##

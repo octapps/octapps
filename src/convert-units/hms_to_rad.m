@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{ret} = hms_to_rad ( @var{hms} )
+## @deftypefn {Function File} {@var{ret} =} hms_to_rad ( @var{hms} )
 ##
 ## convert an "hour:minute:second.xxx" string into radians
 ##

@@ -15,7 +15,7 @@
 ## <http://www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{cost_funs} = CostFunctionsWeave(@var{opt}, @var{val}, @dots{})
+## @deftypefn {Function File} {@var{cost_funs} =} CostFunctionsWeave ( @var{opt}, @var{val}, @dots{} )
 ##
 ## Cost function for @command{lalapps_Weave} for use with OptimalSolution4StackSlide_v2
 ##

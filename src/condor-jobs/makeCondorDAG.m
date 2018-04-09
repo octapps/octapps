@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{dag_file} = makeCondorDAG(@var{opt}, @var{val}, @dots{})
+## @deftypefn {Function File} {@var{dag_file} =} makeCondorDAG ( @var{opt}, @var{val}, @dots{} )
 ##
 ## Set up a Condor DAG for running Condor jobs.
 ##

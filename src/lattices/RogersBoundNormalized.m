@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{ret} = RogersBoundNormalized ( @var{n} )
+## @deftypefn {Function File} {@var{ret} =} RogersBoundNormalized ( @var{n} )
 ##
 ## Rogers' upper bound on (normalized) packing density in @var{n} dimensions
 ## from Chap.1, Conway&Sloane(1999)

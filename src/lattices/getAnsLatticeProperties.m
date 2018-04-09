@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{ret} = getAnsLatticeProperties ( @var{dim} )
+## @deftypefn {Function File} {@var{ret} =} getAnsLatticeProperties ( @var{dim} )
 ##
 ## Return a struct holding important properties of An* lattice in n-dimensions
 ## from Chap.4, Sect.6.6 in Conway&Sloane(1999):

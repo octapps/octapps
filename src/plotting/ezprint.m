@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} ezprint(@var{filepath}, @var{opt}, @var{val}, @dots{})
+## @deftypefn {Function File} {} ezprint ( @var{filepath}, @var{opt}, @var{val}, @dots{} )
 ##
 ## Print a figure to a file, with some common options.
 ##

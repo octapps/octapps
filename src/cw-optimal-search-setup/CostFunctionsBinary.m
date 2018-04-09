@@ -15,7 +15,7 @@
 ## <http://www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{cost_funs} = CostFunctionsBinary(@var{opt}, @var{val}, @dots{})
+## @deftypefn {Function File} {@var{cost_funs} =} CostFunctionsBinary ( @var{opt}, @var{val}, @dots{} )
 ##
 ## Return computing-cost functions for use in @command{OptimalSolution4StackSlide_v2()} to compute
 ## optimal StackSlide setup for a binary-CW searches (freq, Period, asini, tAsc, ecc, argp)

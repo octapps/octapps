@@ -15,7 +15,7 @@
 ## <http://www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} [@var{x1}, @var{x2}, @dots{}] = native(@var{x1}, @var{x2}, @dots{})
+## @deftypefn {Function File} { [ @var{x1}, @var{x2}, @dots{} ] =} native ( @var{x1}, @var{x2}, @dots{} )
 ##
 ## Converts its arguments from foreign objects (e.g. SWIG-wrapped objects)
 ## to native Octave objects, if possible. Native objects are passed though.

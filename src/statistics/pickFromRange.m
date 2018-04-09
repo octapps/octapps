@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{ret} = pickFromRange(@var{range}, [@var{num}])
+## @deftypefn {Function File} {@var{ret} =} pickFromRange ( @var{range}, [ @var{num} ] )
 ##
 ## function to return a number of random-values (specified by the optional
 ## argument @var{num}, default is 1. Return is a column-vector) from within 'range',

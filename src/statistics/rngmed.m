@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{ret} = rngmed(@var{data}, @var{window})
+## @deftypefn {Function File} {@var{ret} =} rngmed ( @var{data}, @var{window} )
 ##
 ## return a 'smoothed' vector using a
 ## running-median of the given @var{window}-size.

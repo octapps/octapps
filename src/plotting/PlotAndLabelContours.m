@@ -16,9 +16,9 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} PlotAndLabelContour(@var{C}, @var{ctropt}, @var{ctropt}, @dots{})
-## @deftypefnx {Function File} PlotAndLabelContour(@var{S}, @var{ctropt}, @var{ctropt}, @dots{})
-## @deftypefnx {Function File} @var{S} = PlotAndLabelContour(@dots{})
+## @deftypefn {Function File} {} PlotAndLabelContour ( @var{C}, @var{ctropt}, @var{ctropt}, @dots{} )
+## @deftypefnx{Function File} {} PlotAndLabelContour ( @var{S}, @var{ctropt}, @var{ctropt}, @dots{} )
+## @deftypefnx{Function File} {@var{S} =} PlotAndLabelContour ( @dots{} )
 ##
 ## Plot contours, possibly with labels
 ##
@@ -26,31 +26,31 @@
 ##
 ## @table @var
 ## @item C
-##   contour array returned by contourc, etc.
+## contour array returned by contourc, etc.
 ##
 ## @item S
-##   @var{S} = contourc2struct(@var{C})
+## @var{S} = contourc2struct(@var{C})
 ##
 ## @item ctropt
-##   @{@var{lev}, @var{prop}, @var{options}@dots{}@}, where:
-##   @table @var
-##   @item lev
-##     contour level(s)
-##   @item prop
-##     contour line properties
-##   @item options
-##     @table @code
-##     @item lbl
-##       label this contour (true/false)
-##     @item lblpos
-##       relative position of label along contour
-##     @item lbldim
-##       size of area to clear for contour label
-##     @item lblminlen
-##       don't label contours shorter than this
-##     @end table
+## @{@var{lev}, @var{prop}, @var{options}@dots{}@}, where:
+## @table @var
+## @item lev
+## contour level(s)
+## @item prop
+## contour line properties
+## @item options
+## @table @code
+## @item lbl
+## label this contour (true/false)
+## @item lblpos
+## relative position of label along contour
+## @item lbldim
+## size of area to clear for contour label
+## @item lblminlen
+## don't label contours shorter than this
+## @end table
 ##
-##   @end table
+## @end table
 ##
 ## @end table
 ##

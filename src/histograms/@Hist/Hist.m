@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{hgrm} = Hist(@var{dim}, @var{type}@dots{})
+## @deftypefn {Function File} {@var{hgrm} =} Hist ( @var{dim}, @var{type}@dots{} )
 ##
 ## Create a new object representing a multi-dimensional histogram.
 ##
@@ -32,18 +32,18 @@
 ## @item type
 ## bin types, one per dimension; possible types:
 ## @itemize
-##   @item
-##   @{@code{lin}, @code{dbin}, @samp{bin width}, @dots{},
-##                 @code{bin0}, @samp{starting bin (default 0)}@}
+## @item
+## @{@code{lin}, @code{dbin}, @samp{bin width}, @dots{},
+## @code{bin0}, @samp{starting bin (default 0)}@}
 ##
-##   @item
-##   @{@code{log}, @code{minrange}, @samp{starting minimal bin range (default: auto)}, @dots{},
-##                 @code{binsper10}, @samp{number of bins to add per decade}@}
+## @item
+## @{@code{log}, @code{minrange}, @samp{starting minimal bin range (default: auto)}, @dots{},
+## @code{binsper10}, @samp{number of bins to add per decade}@}
 ##
-##   @item
-##   [@samp{bin}, @samp{bin}, @dots{}]
+## @item
+## [@samp{bin}, @samp{bin}, @dots{}]
 ##
-##   Fixed array of bins, cannot be extended
+## Fixed array of bins, cannot be extended
 ##
 ## @end itemize
 ##

@@ -18,7 +18,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{results} = injectionRecoveryGCT ( @var{opt}, @var{val}, @dots{} )
+## @deftypefn {Function File} {@var{results} =} injectionRecoveryGCT ( @var{opt}, @var{val}, @dots{} )
 ##
 ## Perform signal injection and (area-search) recovery using @command{HierarchSearchGCT}
 ##

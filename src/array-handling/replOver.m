@@ -15,7 +15,7 @@
 ## <http://www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} x = replOver(@var{x}, @var{dims}, @var{siz})
+## @deftypefn {Function File} {x =} replOver ( @var{x}, @var{dims}, @var{siz} )
 ##
 ## Replicate @var{x} over dimensions @var{dims}, so that its final size is @var{siz}.
 ##

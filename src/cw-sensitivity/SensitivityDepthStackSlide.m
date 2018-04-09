@@ -17,7 +17,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{sensDepth} = SensitivityDepthStackSlide(@var{opt}, @var{val}, @dots{})
+## @deftypefn {Function File} {@var{sensDepth} =} SensitivityDepthStackSlide ( @var{opt}, @var{val}, @dots{} )
 ##
 ## Estimate StackSlide sensitivity depth, defined as
 ##

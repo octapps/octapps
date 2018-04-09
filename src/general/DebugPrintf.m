@@ -15,7 +15,7 @@
 ## <http://www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} DebugPrintf ( @var{level}, @var{args}@dots{} )
+## @deftypefn {Function File} {} DebugPrintf ( @var{level}, @var{args}@dots{} )
 ##
 ## If @var{debugLevel} >= @var{level}, then print @var{args}@dots{} using
 ## @code{fprintf()} to @file{stderr}.

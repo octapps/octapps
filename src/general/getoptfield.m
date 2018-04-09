@@ -14,7 +14,7 @@
 ## along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn {Function File} [@var{val}] = getoptfield (@var{def}, @var{S}, @dots{})
+## @deftypefn {Function File} { [ @var{val} ] =} getoptfield ( @var{def}, @var{S}, @dots{} )
 ##
 ## Return getfield (@var{S}, @dots{}), if it exists, otherwise return @var{def}.
 ##

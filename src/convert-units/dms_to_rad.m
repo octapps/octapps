@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{ret} = dms_to_rad ( @var{degs} )
+## @deftypefn {Function File} {@var{ret} =} dms_to_rad ( @var{degs} )
 ##
 ## convert degrees in the format "deg:min:sec.xx" into radians
 ##

@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} printHistTable(@var{hgrm}, @var{opt}, @var{val}, @dots{})
+## @deftypefn {Function File} {} printHistTable ( @var{hgrm}, @var{opt}, @var{val}, @dots{} )
 ##
 ## Print the contents of a histogram object as an ASCII table.
 ##

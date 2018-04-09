@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} [@var{pDet_MPE}, @var{pDet_Lower}, @var{pDet_Upper}, @var{pFA_MPE}, @var{pFA_Lower}, @var{pFA_Upper}] = estimateROC ( @var{DATA_noise}, @var{DATA_signal}, @var{pFA}, @var{confidence} = 0.95 )
+## @deftypefn {Function File} { [ @var{pDet_MPE}, @var{pDet_Lower}, @var{pDet_Upper}, @var{pFA_MPE}, @var{pFA_Lower}, @var{pFA_Upper} ] =} estimateROC ( @var{DATA_noise}, @var{DATA_signal}, @var{pFA}, @var{confidence} = 0.95 )
 ##
 ## Compute the Receiver Operator Characteristic (ROC) function pDet(@var{pFA}) on given samples drawn under
 ## the noise hypothesis, @var{DATA_noise}, and under the signal hypothesis, @var{DATA_signal}.

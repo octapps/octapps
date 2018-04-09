@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{x} = drawFromHist(@var{hgrm}, @var{N})
+## @deftypefn {Function File} {@var{x} =} drawFromHist ( @var{hgrm}, @var{N} )
 ##
 ## Generates random values drawn from the
 ## probability distribution given by the histogram.

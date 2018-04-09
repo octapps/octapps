@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} [@var{rhoh}, @var{iter}] = AnalyticSensitivitySNRChiSqr(@var{paNt}, @var{pd}, @var{Ns}, @var{nu})
+## @deftypefn {Function File} { [ @var{rhoh}, @var{iter} ] =} AnalyticSensitivitySNRChiSqr ( @var{paNt}, @var{pd}, @var{Ns}, @var{nu} )
 ##
 ## Calculate sensitivty in terms of the root-mean-square SNR for
 ## a population of isotropically distributed and oriented signals,

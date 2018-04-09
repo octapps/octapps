@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{ret} = CoxeterFewRogersBound ( @var{n} )
+## @deftypefn {Function File} {@var{ret} =} CoxeterFewRogersBound ( @var{n} )
 ##
 ## returns Coxter-Few-Rogers bound on thickness in dimension n
 ## taken from Conway&Sloane (1999), Chap.2, Eq.(17)

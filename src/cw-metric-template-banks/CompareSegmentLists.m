@@ -14,8 +14,8 @@
 ## along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{iseq} = CompareSegmentLists(@var{seglist}, @var{seglist_1}, @var{seglist_2}, @dots{})
-## @deftypefnx {Function File} @var{iseq} = CompareSegmentLists(@var{seglist}, @var{@{seglist_1}, @var{seglist_2}, @var{...@}})
+## @deftypefn {Function File} {@var{iseq} =} CompareSegmentLists ( @var{seglist}, @var{seglist_1}, @var{seglist_2}, @dots{} )
+## @deftypefnx{Function File} {@var{iseq} =} CompareSegmentLists ( @var{seglist}, @var{@{seglist_1}, @var{seglist_2}, @var{...@}} )
 ##
 ## Return true if the segment list 'seglist' equals any of the segment
 ## lists @var{seglist_1}, @var{seglist_2}, etc., and false otherwise.

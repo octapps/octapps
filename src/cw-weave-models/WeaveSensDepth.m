@@ -14,7 +14,7 @@
 ## along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{depth} = WeaveSensDepth(@var{opt}, @var{val}, @dots{})
+## @deftypefn {Function File} {@var{depth} =} WeaveSensDepth ( @var{opt}, @var{val}, @dots{} )
 ##
 ## Estimate the sensitivity depth of @command{lalapps_Weave}.
 ##

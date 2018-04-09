@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} [@var{ua}, @var{ub}] = TwoLineIntersection(@var{p1a}, @var{p2a}, @var{p1b}, @var{p2b})
+## @deftypefn {Function File} { [ @var{ua}, @var{ub} ] =} TwoLineIntersection ( @var{p1a}, @var{p2a}, @var{p1b}, @var{p2b} )
 ##
 ## Returns the intersection of two lines defined by the locus of points
 ## pa = @var{p1a} + @var{ua}*(@var{p2a} - @var{p1a}) and

@@ -15,7 +15,7 @@
 ## <http://www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} [@var{y1}, @var{y2}, @dots{}] = runningFunction(@var{F}, @var{n}, @var{x1}, @var{x2}, @dots{})
+## @deftypefn {Function File} { [ @var{y1}, @var{y2}, @dots{} ] =} runningFunction ( @var{F}, @var{n}, @var{x1}, @var{x2}, @dots{} )
 ##
 ## Compute the function @var{F} over a running window of @var{n} values of each 'x'.
 ##

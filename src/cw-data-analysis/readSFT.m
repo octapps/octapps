@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{ret} = readSFT(@var{fname})
+## @deftypefn {Function File} {@var{ret} =} readSFT ( @var{fname} )
 ##
 ## read a given SFT-file and return its meta-info (header) and data as a struct:
 ## ret = @{version; epoch; Tsft; f0; Band; SFTdata @}

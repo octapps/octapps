@@ -14,7 +14,7 @@
 ## along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{hgrm} = WeaveFstatMismatch(@var{opt}, @var{val}, @dots{})
+## @deftypefn {Function File} {@var{hgrm} =} WeaveFstatMismatch ( @var{opt}, @var{val}, @dots{} )
 ##
 ## Estimate the F-statistic mismatch distribution of @command{lalapps_Weave}.
 ##

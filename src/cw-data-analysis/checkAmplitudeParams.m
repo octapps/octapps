@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} [ @var{convention}, @var{numSignals} ] = checkAmplitudeParams ( @var{Amp} )
+## @deftypefn {Function File} { [ @var{convention}, @var{numSignals} ] =} checkAmplitudeParams ( @var{Amp} )
 ##
 ## check syntactic correctness of amplitude-parameter struct,
 ## and determine its convention: "LIGO" || "MLDC", depending

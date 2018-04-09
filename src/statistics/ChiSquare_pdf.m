@@ -18,7 +18,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{p} = ChiSquare_pdf(@var{x}, @var{k}, @var{lambda})
+## @deftypefn {Function File} {@var{p} =} ChiSquare_pdf ( @var{x}, @var{k}, @var{lambda} )
 ##
 ## Compute the probability density function of the
 ## non-central chi^2 distribution.

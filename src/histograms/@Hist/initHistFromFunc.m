@@ -14,7 +14,7 @@
 ## along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{hgrm} = initHistFromFunc(@var{hgrm}, @var{F}, [@var{xl_1}, @var{xh_1}], ..., [@var{xl_dim}, @var{xh_dim}])
+## @deftypefn {Function File} {@var{hgrm} =} initHistFromFunc ( @var{hgrm}, @var{F}, [ @var{xl_1}, @var{xh_1} ] , ..., [ @var{xl_dim}, @var{xh_dim} ] )
 ##
 ## Initialise a histogram directly from a given function.
 ##

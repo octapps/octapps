@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{ret} = RandNormalizedThickness ( @var{dim}, @var{falseDismissal} )
+## @deftypefn {Function File} {@var{ret} =} RandNormalizedThickness ( @var{dim}, @var{falseDismissal} )
 ##
 ## Return the normalized thickness of an 'dim'-dimensional random-template
 ## grid with given falseDismissal probability

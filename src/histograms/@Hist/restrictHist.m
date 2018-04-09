@@ -15,10 +15,10 @@
 ## <http://www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{rhgrm} = restrictHist(@var{hgrm}, @var{k}, [@var{xl_k}, @var{xh_k}])
-## @deftypefnx {Function File} @var{rhgrm} = restrictHist(@var{hgrm}, [@var{xl_1}, @var{xh_1}], @dots{}, [@var{xl_dim}, @var{xh_dim}])
-## @deftypefnx {Function File} @var{rhgrm} = restrictHist(@var{hgrm})
-## @deftypefnx {Function File} @var{rhgrm} = restrictHist(@dots{}, @var{discard})
+## @deftypefn {Function File} {@var{rhgrm} =} restrictHist ( @var{hgrm}, @var{k}, [ @var{xl_k}, @var{xh_k} ] )
+## @deftypefnx{Function File} {@var{rhgrm} =} restrictHist ( @var{hgrm}, [ @var{xl_1}, @var{xh_1} ] , @dots{}, [ @var{xl_dim}, @var{xh_dim} ] )
+## @deftypefnx{Function File} {@var{rhgrm} =} restrictHist ( @var{hgrm} )
+## @deftypefnx{Function File} {@var{rhgrm} =} restrictHist ( @dots{}, @var{discard} )
 ##
 ## Extract histogram restricted to subrange of bins, as determined by
 ## the ranges [@var{xl_k}, @var{xh_k}]. Samples outside of these ranges are moved

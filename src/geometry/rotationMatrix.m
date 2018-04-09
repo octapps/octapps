@@ -15,7 +15,7 @@
 ## <http://www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{rotMatrix} = rotationMatrix ( @var{angle}, @var{rotAxis} )
+## @deftypefn {Function File} {@var{rotMatrix} =} rotationMatrix ( @var{angle}, @var{rotAxis} )
 ##
 ## computes the rotation matrix for an *active* rotation by @var{angle} around
 ## the axis @var{rotAxis} (3d vector)

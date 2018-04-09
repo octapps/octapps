@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{cdf} = cumulativeDistOfHist(@var{hgrm}, @var{x}, [@var{k} = 1])
+## @deftypefn {Function File} {@var{cdf} =} cumulativeDistOfHist ( @var{hgrm}, @var{x}, [ @var{k} = 1 ] )
 ##
 ## Evaluate the cumulative distribution function (c.d.f) of a histogram.
 ##

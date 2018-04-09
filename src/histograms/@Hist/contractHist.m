@@ -15,7 +15,7 @@
 ## <http://www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{hgrm} = contractHist(@var{hgrm}, @var{newdims})
+## @deftypefn {Function File} {@var{hgrm} =} contractHist ( @var{hgrm}, @var{newdims} )
 ##
 ## Contract a histogram by summing counts over dimensions.
 ##

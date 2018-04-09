@@ -14,7 +14,7 @@
 ## along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} [@var{times}, @var{maxmem}, @var{tau}] = WeaveRunTime(@var{opt}, @var{val}, @dots{})
+## @deftypefn {Function File} { [ @var{times}, @var{maxmem}, @var{tau} ] =} WeaveRunTime ( @var{opt}, @var{val}, @dots{} )
 ##
 ## Estimate the run time and maximum memory usage of @command{lalapps_Weave}.
 ##

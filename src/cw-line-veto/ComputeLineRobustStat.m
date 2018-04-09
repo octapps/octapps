@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{LRstat} = ComputeLineRobustStat ( @var{twoF_multi}, @var{twoF_single}, @var{Fstar0}, @var{oLGX}, @var{useAllTerms} )
+## @deftypefn {Function File} {@var{LRstat} =} ComputeLineRobustStat ( @var{twoF_multi}, @var{twoF_single}, @var{Fstar0}, @var{oLGX}, @var{useAllTerms} )
 ##
 ## function to calculate line-robust statistic for multiple detectors
 ##

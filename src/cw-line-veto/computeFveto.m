@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{Fveto} = computeFveto ( @var{inFstats} )
+## @deftypefn {Function File} {@var{Fveto} =} computeFveto ( @var{inFstats} )
 ##
 ## compute "F+veto" stat from input vector with columns [2F, 2F_1, 2F_2, ...]
 ## vetoed candidates are set to Fveto=-1, otherwise Fveto>=0

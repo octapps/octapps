@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} function [@var{xx}, @var{yy}, @var{zz}] = metricEllipsoid ( @var{gij}, @var{mismatch}, @var{Nsteps}=20, @var{method}=1 )
+## @deftypefn {Function File} {function [ @var{xx}, @var{yy}, @var{zz} ] =} metricEllipsoid ( @var{gij}, @var{mismatch}, @var{Nsteps}=20, @var{method}=1 )
 ##
 ## return a metric iso-@var{mismatch} ellipsoid for given metric @var{gij} and @var{mismatch}, using
 ## '@var{Nsteps} points per surface direction.

@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{rng} = CreateRandParam(@var{p}, @var{p}, @dots{})
+## @deftypefn {Function File} {@var{rng} =} CreateRandParam ( @var{p}, @var{p}, @dots{} )
 ##
 ## Parses random parameters specs, which may be either
 ## @itemize

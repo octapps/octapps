@@ -17,7 +17,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{GPS} = MJDtdb_to_GPS ( @var{MJD_tdb} )
+## @deftypefn {Function File} {@var{GPS} =} MJDtdb_to_GPS ( @var{MJD_tdb} )
 ##
 ## convert MJD (based on TDB) into GPS seconds
 ## translated from LAL-function @command{LALTDBMJDtoGPS()} in BinaryPulsarTiming.c

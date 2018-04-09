@@ -15,7 +15,7 @@
 ## <http://www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} SetTickMarks(@var{dim}, @var{nticks})
+## @deftypefn {Function File} {} SetTickMarks ( @var{dim}, @var{nticks} )
 ##
 ## Try to generate a given number of ticks on a given axis.
 ##

@@ -15,7 +15,7 @@
 ## <http://www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} [@var{resampInfo}, @var{demodInfo}] = predictFstatTimeAndMemory ( @var{varargin} )
+## @deftypefn {Function File} { [ @var{resampInfo}, @var{demodInfo} ] =} predictFstatTimeAndMemory ( @var{varargin} )
 ##
 ## Predict @strong{single-segment} F-statistic computation time per frequency bin per detector (@code{tauF_core} and @code{tauF_buffer})
 ## and corresponding memory requirements (@code{MBWorkspace}, @code{MBDataPerDetSeg}) for both @emph{Resampling} and @emph{Demod} Fstat methods.

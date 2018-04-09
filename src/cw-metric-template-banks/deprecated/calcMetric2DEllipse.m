@@ -16,8 +16,8 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} [@var{ret}, @var{angle}, @var{smin}, @var{smaj}] = calcMetric2DEllipse ( @var{gij}, @var{mismatch}, @var{numPoints}, @var{rotate} )
-## @deftypefnx {Function File} @var{ret} = calcMetric2DEllipse ( @var{gij}, @var{mismatch}, @var{numPoints} ):
+## @deftypefn {Function File} { [ @var{ret}, @var{angle}, @var{smin}, @var{smaj} ] =} calcMetric2DEllipse ( @var{gij}, @var{mismatch}, @var{numPoints}, @var{rotate} )
+## @deftypefnx{Function File} {@var{ret} =} calcMetric2DEllipse ( @var{gij}, @var{mismatch}, @var{numPoints} ) :
 ##
 ## Given a parameter-space metric 'gij' and a mismatch 'm', return the
 ## corresponding metric 2D ellipse (centered at (0,0)) using 'numPoints'.

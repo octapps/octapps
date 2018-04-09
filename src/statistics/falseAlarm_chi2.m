@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{fA} = falseAlarm_chi2 ( @var{thresh}, @var{dof} )
+## @deftypefn {Function File} {@var{fA} =} falseAlarm_chi2 ( @var{thresh}, @var{dof} )
 ##
 ## compute the false-alarm probability for given threshold @var{thresh}'
 ## for a (central) chi-squared distribution with @var{dof} degrees-of-freedom

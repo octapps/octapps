@@ -15,7 +15,7 @@
 ## <http://www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{intset} = addToIntegerSet(@var{intset}, @var{ints})
+## @deftypefn {Function File} {@var{intset} =} addToIntegerSet ( @var{intset}, @var{ints} )
 ##
 ## Add integers to an set of integers, stored as contiguous intervals.
 ##

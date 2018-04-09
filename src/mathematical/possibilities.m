@@ -15,7 +15,7 @@
 ## <http://www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{X} = possibilities(@var{x}, @var{N})
+## @deftypefn {Function File} {@var{X} =} possibilities ( @var{x}, @var{N} )
 ##
 ## Build a matrix whos columns are all possible selections of N elements
 ## from the vector x, in the order that would be given by an N-dimensional

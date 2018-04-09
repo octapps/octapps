@@ -16,8 +16,8 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{cache_dir} = @command{SuperskyMetricsCache()}
-## @deftypefnx {Function File} SuperskyMetricsCache @samp{action}
+## @deftypefn {Function File} {@var{cache_dir} =} @command{SuperskyMetricsCache ( ) }
+## @deftypefnx{Function File} {} SuperskyMetricsCache @samp{action}
 ##
 ## Manage cache of computed supersky metrics
 ##
@@ -29,18 +29,18 @@
 ##
 ## @item @samp{action}
 ## one of
-##   @table @code
+## @table @code
 ##
-##   @item install
-##   Install the precomputed cache from the OctApps repository
+## @item install
+## Install the precomputed cache from the OctApps repository
 ##
-##   @item clear
-##   Clear the cache
+## @item clear
+## Clear the cache
 ##
-##   @item copytorepo
-##   Copy the current cache to the OctApps repository
+## @item copytorepo
+## Copy the current cache to the OctApps repository
 ##
-##   @end table
+## @end table
 ##
 ## @end table
 ##

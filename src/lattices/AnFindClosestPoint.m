@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{closest} = AnFindClosestPoint ( @var{x}, @var{embedded} )
+## @deftypefn {Function File} {@var{closest} =} AnFindClosestPoint ( @var{x}, @var{embedded} )
 ##
 ## return the closest point of the An-lattice to the given point @var{x} in R^n
 ## based on Chap.20.2 'Algorithm 3' in Conway&Sloane (1999)

@@ -17,7 +17,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{R} = LatticeNormalizedThickness ( @var{dim}, @var{lattice} )
+## @deftypefn {Function File} {@var{R} =} LatticeNormalizedThickness ( @var{dim}, @var{lattice} )
 ##
 ## returns normalized thicknesses in n dimensions
 ## lattice is one of the strings @{ "Zn", "Ans" @}

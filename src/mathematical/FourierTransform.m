@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{freqSeries} = FourierTransform ( @var{ti}, @var{xi}, @var{oversampleby} )
+## @deftypefn {Function File} {@var{freqSeries} =} FourierTransform ( @var{ti}, @var{xi}, @var{oversampleby} )
 ##
 ## Computes Fourier-transform of input timeseries with timestamps @{t_j@}
 ## and data-points @{x_j@}, where j = 0 ... N-1

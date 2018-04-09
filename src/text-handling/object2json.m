@@ -16,7 +16,7 @@
 ## <http://www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{json} = object2json(@var{object})
+## @deftypefn {Function File} {@var{json} =} object2json ( @var{object} )
 ##
 ## This function returns a valid json string that will describe @var{object}
 ## The string will be in a compact form (i.e. no spaces or line breaks)
@@ -24,17 +24,17 @@
 ## It will map simple octave values this way:
 ## @table @asis
 ## @item function handles
-##   String with the name of the function.
+## String with the name of the function.
 ## @item double (numbers)
-##   depends:
-##   if it's real it will map to a string representing that number.
-##   if it's complex it will map to an @var{object} with the next properties:
-##   @table @asis
-##   @item real
-##     real part of the number
-##   @item imag
-##     imaginary part of the number
-##   @end table
+## depends:
+## if it's real it will map to a string representing that number.
+## if it's complex it will map to an @var{object} with the next properties:
+## @table @asis
+## @item real
+## real part of the number
+## @item imag
+## imaginary part of the number
+## @end table
 ## @item char
 ## A string enclosed by double quotes representing that character
 ## @end table
@@ -42,18 +42,18 @@
 ## And will map more complex octave values this other way:
 ## @table @asis
 ## @item struct
-##   an @var{object} with properties equal to the struct's field names
-##   and value equal to the json counterpart of that field
+## an @var{object} with properties equal to the struct's field names
+## and value equal to the json counterpart of that field
 ## @item cell
-##   it will be mapped depending on the value of the cell (for
-##   example @{i@} will be mapped to an @var{object} with real=0 and imag=1)
+## it will be mapped depending on the value of the cell (for
+## example @{i@} will be mapped to an @var{object} with real=0 and imag=1)
 ## @item vectors or cell arrays
-##   it will map them to a corresponding js
-##   array (same size) with the values transformed to their json
-##   counterpart (Note: that in javascript all arrays are like octave's
-##   cells ,i.e. they can store different type and size variables)
-##   strings or char vectors: they will be mapped to the same string
-##   enclosed by double quotes
+## it will map them to a corresponding js
+## array (same size) with the values transformed to their json
+## counterpart (Note: that in javascript all arrays are like octave's
+## cells ,i.e. they can store different type and size variables)
+## strings or char vectors: they will be mapped to the same string
+## enclosed by double quotes
 ## @end table
 ##
 ## Other octave values will be mapped to a string enclosed by double

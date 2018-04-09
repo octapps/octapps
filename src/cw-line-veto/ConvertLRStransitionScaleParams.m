@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{outvalue} = ConvertLRStransitionScaleParams ( @var{outname}, @var{inname}, @var{invalue}, @var{Nseg} )
+## @deftypefn {Function File} {@var{outvalue} =} ConvertLRStransitionScaleParams ( @var{outname}, @var{inname}, @var{invalue}, @var{Nseg} )
 ##
 ## function to convert between various parametrisations of the line-robust statistic transition scale
 ## reference: Keitel, Prix, Papa, Leaci, Siddiq, PRD 89(6):064023 (2014)

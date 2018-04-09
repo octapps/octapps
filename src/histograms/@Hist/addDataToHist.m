@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{hgrm} = addDataToHist(@var{hgrm}, @var{data})
+## @deftypefn {Function File} {@var{hgrm} =} addDataToHist ( @var{hgrm}, @var{data} )
 ##
 ## Adds the given input @var{data} to the histogram.
 ## If the histogram is too small, more bins are added.

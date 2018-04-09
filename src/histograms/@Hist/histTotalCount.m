@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{total} = histTotalCount(@var{hgrm})
+## @deftypefn {Function File} {@var{total} =} histTotalCount ( @var{hgrm} )
 ##
 ## Returns the @var{total} number of counts in a histogram object.
 ##

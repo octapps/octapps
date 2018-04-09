@@ -15,7 +15,7 @@
 ## <http://www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{skyOut} = skyRotateFrame ( @var{skyIn}, @var{angle}, @var{axis} )
+## @deftypefn {Function File} {@var{skyOut} =} skyRotateFrame ( @var{skyIn}, @var{angle}, @var{axis} )
 ##
 ## Convert a sky-position given in terms of 'longitude' and 'latitude'
 ## angles into a unit vector @code{vn = [nx, ny, nz]} in the same reference frame

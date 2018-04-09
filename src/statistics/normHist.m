@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} [@var{NN}, @var{XX}] = normHist ( @var{data}, @var{bins} )
+## @deftypefn {Function File} { [ @var{NN}, @var{XX} ] =} normHist ( @var{data}, @var{bins} )
 ##
 ## compute a pdf-normalized histogram (i.e. the *integral* is 1)
 ##

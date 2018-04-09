@@ -15,7 +15,7 @@
 ## <http://www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{hex} = versionstr2hex(@var{str})
+## @deftypefn {Function File} {@var{hex} =} versionstr2hex ( @var{str} )
 ##
 ## Convert a version string into a hexadecimal number for easy comparisons.
 ##

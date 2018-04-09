@@ -15,7 +15,7 @@
 ## <http://www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{closest} = FindClosestTemplate(@var{points}, @var{metric}, @var{max_mismatch}, @var{lattice})
+## @deftypefn {Function File} {@var{closest} =} FindClosestTemplate ( @var{points}, @var{metric}, @var{max_mismatch}, @var{lattice} )
 ##
 ## Given a set of @var{points}, find the @var{closest} template to each in a 'virtual'
 ## lattice template bank, constructed using a given @var{metric} and maximum mismatch.

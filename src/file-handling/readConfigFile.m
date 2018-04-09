@@ -15,7 +15,7 @@
 ## <http://www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{cfg} = readConfigFile(@var{file})
+## @deftypefn {Function File} {@var{cfg} =} readConfigFile ( @var{file} )
 ##
 ## Read a .ini style configuration @var{file} into a struct.
 ##

@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} [ @var{hours}, @var{mins}, @var{secs} ] = rad_to_hms ( @var{rads} )
+## @deftypefn {Function File} { [ @var{hours}, @var{mins}, @var{secs} ] =} rad_to_hms ( @var{rads} )
 ##
 ## convert radians into hours:minutes:seconds format
 ##

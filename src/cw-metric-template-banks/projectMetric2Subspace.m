@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{gProj_ss} = projectMetric2Subspace ( @var{g_ij}, @var{sSpace} )
+## @deftypefn {Function File} {@var{gProj_ss} =} projectMetric2Subspace ( @var{g_ij}, @var{sSpace} )
 ##
 ## function to compute the 'projection' of a given symmetric metric @var{g_ij}'
 ## onto the s-subspace defined by coordinates @var{sSpace} = [s1,s2,...], which is a vector of coordinate-indices

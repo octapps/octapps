@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} function p(@var{x}) = maxChi2FromNdraws_pdf ( @var{x}, @var{Ndraws}, @var{dof = 4} )
+## @deftypefn {Function File} {} function p ( @var{x} ) = maxChi2FromNdraws_pdf ( @var{x}, @var{Ndraws}, @var{dof = 4} )
 ##
 ## Probability density (pdf) for the maximum out of @var{Ndraws} independent draws from a
 ## (central) chi2 distribution with @var{dof} degrees of freedom.

@@ -17,7 +17,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{Rsqr} = SqrSNRGeometricFactorHist(@var{opt}, @var{val}, @dots{})
+## @deftypefn {Function File} {@var{Rsqr} =} SqrSNRGeometricFactorHist ( @var{opt}, @var{val}, @dots{} )
 ##
 ## Calculate a histogram of the squared SNR "geometric factor", R^2
 ##

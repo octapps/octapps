@@ -29,7 +29,7 @@
 ##
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} [@var{bandwidth}, @var{density}, @var{xmesh}] = kde ( @var{data}, @var{n}, @var{MIN}, @var{MAX} )
+## @deftypefn {Function File} { [ @var{bandwidth}, @var{density}, @var{xmesh} ] =} kde ( @var{data}, @var{n}, @var{MIN}, @var{MAX} )
 ##
 ## Reliable and extremely fast kernel @var{density} estimator for one-dimensional @var{data};
 ## Gaussian kernel is assumed and the @var{bandwidth} is chosen automatically;
