@@ -18,8 +18,10 @@ install:
     && travis_retry curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh > /tmp/script.deb.sh
     && travis_retry sudo bash /tmp/script.deb.sh
     && travis_retry sudo apt-get -qq update
-    && travis_retry sudo apt-get -qq install git-lfs lalsuite-dev-deps
-    && travis_retry sudo apt-get -qq install liboctave-dev swig3.0 libgsl0-dev libav-tools
+    && travis_retry sudo apt-get -qq install
+       git-lfs lalsuite-dev-deps
+       liboctave-dev swig3.0 libgsl0-dev libav-tools
+       texinfo
     ; fi
   - if test "$TRAVIS_OS_NAME" = "linux"; then true
     && ccache -s
