@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} [ @var{generator}, @var{rotator} ] = ZnGenerator ( @var{dim} )
+## @deftypefn {Function File} { [ @var{generator}, @var{rotator} ] =} ZnGenerator ( @var{dim} )
 ##
 ## Return an nxn full-rank generating matrix for the Zn lattice;
 ## this is trivial, of course, but added for completeness.

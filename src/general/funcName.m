@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{name} = funcName()
+## @deftypefn {Function File} {@var{name} =} funcName ( )
 ##
 ## Returns the name of the currently executing function.
 ##

@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{gOut_ij} = projectMetric ( @var{g_ij}, @var{c} = 1 )
+## @deftypefn {Function File} {@var{gOut_ij} =} projectMetric ( @var{g_ij}, @var{c} = 1 )
 ##
 ## project out metric dimension @var{c} from the input n x n metric @var{g_ij},
 ## by projecting onto the subspace orthogonal to the coordinate-axis of @var{c}, namely

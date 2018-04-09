@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{ret} = RandThickness ( @var{dim}, @var{falseDismissal} )
+## @deftypefn {Function File} {@var{ret} =} RandThickness ( @var{dim}, @var{falseDismissal} )
 ##
 ## Return the thickness of an @var{dim}-dimensional random-template
 ## grid with given @var{falseDismissal} probability

@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{ret} = randSignalParams( @var{ranges}, [@var{numSignals}] )
+## @deftypefn {Function File} {@var{ret} =} randSignalParams ( @var{ranges}, [ @var{numSignals} ] )
 ##
 ## generate random-parameters for 'numSignals' (default=1, returns a colunm-vector)
 ## signals within given ranges and return the signal-parameters in a struct

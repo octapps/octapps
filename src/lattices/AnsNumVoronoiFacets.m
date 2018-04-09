@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{ret} = AnsNumVoronoiFacets ( @var{dim} )
+## @deftypefn {Function File} {@var{ret} =} AnsNumVoronoiFacets ( @var{dim} )
 ##
 ## Return the number of Voronoi-facets for An* lattice, which corresponds
 ## to the maximal number of facets of an n-dimension parallelohedron (see CS99),

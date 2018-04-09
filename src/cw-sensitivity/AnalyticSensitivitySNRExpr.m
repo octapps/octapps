@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} [@var{rho}, @var{tms}] = AnalyticSensitivitySNRExpr(@var{za}, @var{pd}, @var{Ns}, @var{nu})
+## @deftypefn {Function File} { [ @var{rho}, @var{tms} ] =} AnalyticSensitivitySNRExpr ( @var{za}, @var{pd}, @var{Ns}, @var{nu} )
 ##
 ## Implements an expression used in analytic sensitivity estimation
 ## for a chi^2 detection statistic

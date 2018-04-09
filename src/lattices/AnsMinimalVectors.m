@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{ret} = AnsMinimalVectors ( @var{dim} )
+## @deftypefn {Function File} {@var{ret} =} AnsMinimalVectors ( @var{dim} )
 ##
 ## return matrix containing the tau/2=(n+1) 'minimal' vectors for An*,
 ## (tau is the kissing number) in n dimensions. The second half of minimal

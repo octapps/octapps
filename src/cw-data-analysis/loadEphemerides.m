@@ -15,7 +15,7 @@
 ## <http://www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{ephemerides} = loadEphemerides(@var{opt}, @var{val}, @dots{})
+## @deftypefn {Function File} {@var{ephemerides} =} loadEphemerides ( @var{opt}, @var{val}, @dots{} )
 ##
 ## Load Earth and Sun ephemerides from LALPulsar.
 ##

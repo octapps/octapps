@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{fAH} = falseAlarm_HoughF ( @var{nth}, @var{Nseg}, @var{Fth} )
+## @deftypefn {Function File} {@var{fAH} =} falseAlarm_HoughF ( @var{nth}, @var{Nseg}, @var{Fth} )
 ##
 ## compute Hough-on-Fstat false-alarm probability fAH for given number of segments @var{Nseg},
 ## a threshold on segment-crossings @var{nth}, and an F-statistic threshold per segment @var{Fth}.

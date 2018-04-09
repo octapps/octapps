@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} [@var{metric}, @var{coordIDs}] = ComputeDopplerMetric(@var{opt}, @var{val}, @dots{})
+## @deftypefn {Function File} { [ @var{metric}, @var{coordIDs} ] =} ComputeDopplerMetric ( @var{opt}, @var{val}, @dots{} )
 ##
 ## Create various Doppler phase- and Fstat metrics.
 ##

@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{hgrmt} = addHists(@var{addop}, @var{hgrms}@dots{})
+## @deftypefn {Function File} {@var{hgrmt} =} addHists ( @var{addop}, @var{hgrms}@dots{} )
 ##
 ## Add multiple histograms together.
 ##
@@ -26,11 +26,11 @@
 ## @item addop
 ## operation used to add histograms:
 ## @table @code
-##   @item count
-##   sum histogram counts
+## @item count
+## sum histogram counts
 ##
-##   @item prob
-##   sum histogram probabilities
+## @item prob
+## sum histogram probabilities
 ## @end table
 ##
 ## @item hgrms

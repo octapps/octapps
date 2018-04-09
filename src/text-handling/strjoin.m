@@ -15,7 +15,7 @@
 ## <http://www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn {Function File} @var{s} = strjoin(@var{cstr}, @var{sep})
+## @deftypefn {Function File} {@var{s} =} strjoin ( @var{cstr}, @var{sep} )
 ##
 ## Join the cell array of strings @var{cstr} using the separator @var{sep}
 ## and return the joined string.

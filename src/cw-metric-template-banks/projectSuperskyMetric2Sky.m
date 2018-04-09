@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{g_aa} = projectSuperskyMetric2Sky ( @var{g_nn}, @var{alpha0}, @var{delta0} )
+## @deftypefn {Function File} {@var{g_aa} =} projectSuperskyMetric2Sky ( @var{g_nn}, @var{alpha0}, @var{delta0} )
 ##
 ## returns metric in coordinates [a, ...] = [alpha, delta, ... ] at a given
 ## sky-position @var{alpha0},@var{delta0}, for the given input 'supersky' metric in coordinates

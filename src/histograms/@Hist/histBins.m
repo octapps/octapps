@@ -16,8 +16,8 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} [@var{binq}, @dots{}] = histBins(@var{hgrm}, @var{k}, @code{type}, @dots{})
-## @deftypefnx {Function File} [@var{fbinq}, @dots{}] = histBins(@var{hgrm}, @var{k}, @code{finite}, @code{type}, @dots{})
+## @deftypefn {Function File} { [ @var{binq}, @dots{} ] =} histBins ( @var{hgrm}, @var{k}, @code{type}, @dots{} )
+## @deftypefnx{Function File} { [ @var{fbinq}, @dots{} ] =} histBins ( @var{hgrm}, @var{k}, @code{finite}, @code{type}, @dots{} )
 ##
 ## Return quantities relating to the histogram bin boundaries.
 ##
@@ -33,20 +33,20 @@
 ## @item type
 ## one of:
 ## @table @code
-##   @item bins
-##   bin boundaries
+## @item bins
+## bin boundaries
 ##
-##   @item lower
-##   @var{lower} bin boundary
+## @item lower
+## @var{lower} bin boundary
 ##
-##   @item upper
-##   @var{upper} bin boundary
+## @item upper
+## @var{upper} bin boundary
 ##
-##   @item centre
-##   bin centre
+## @item centre
+## bin centre
 ##
-##   @item width
-##   bin width
+## @item width
+## bin width
 ##
 ## @end table
 ##

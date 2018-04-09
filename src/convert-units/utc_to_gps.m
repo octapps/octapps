@@ -15,8 +15,8 @@
 ## <http://www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} [@var{gps}, @var{gpsns}] = utc_to_gps(@var{utc})
-## @deftypefnx {Function File} utc_to_gps utc
+## @deftypefn {Function File} { [ @var{gps}, @var{gpsns} ] =} utc_to_gps ( @var{utc} )
+## @deftypefnx{Function File} {} utc_to_gps utc
 ##
 ## Convert UTC date strings to GPS times (using LAL functions)
 ##

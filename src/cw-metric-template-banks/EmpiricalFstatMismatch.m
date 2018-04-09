@@ -14,8 +14,8 @@
 ## along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{mtwoF} = EmpiricalFstatMismatch(@var{Tcoh}, @var{Tsemi}, @var{mcoh}, @var{msemi})
-## @deftypefnx {Function File} [@var{mtwoF}, @var{stwoF}] = EmpiricalFstatMismatch(@var{Tcoh}, @var{Tsemi}, @var{mcoh}, @var{msemi}, @var{scoh}, @var{ssemi})
+## @deftypefn {Function File} {@var{mtwoF} =} EmpiricalFstatMismatch ( @var{Tcoh}, @var{Tsemi}, @var{mcoh}, @var{msemi} )
+## @deftypefnx{Function File} { [ @var{mtwoF}, @var{stwoF} ] =} EmpiricalFstatMismatch ( @var{Tcoh}, @var{Tsemi}, @var{mcoh}, @var{msemi}, @var{scoh}, @var{ssemi} )
 ##
 ## Compute an empirical fit, derived from numerical simulations,
 ## to the F-statistic mismatch as a function of the coherent and

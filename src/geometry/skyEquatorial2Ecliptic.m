@@ -15,7 +15,7 @@
 ## <http://www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{skyEcl} = skyEquatorial2Ecliptic ( @var{skyEq} )
+## @deftypefn {Function File} {@var{skyEcl} =} skyEquatorial2Ecliptic ( @var{skyEq} )
 ##
 ## Convert a sky-position given in terms of 'longitude' and 'latitude'
 ## angles into a unit vector @code{vn = [nx, ny, nz]} in the same reference frame

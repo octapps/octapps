@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{close} = ZnFindClosestPoint ( @var{x})
+## @deftypefn {Function File} {@var{close} =} ZnFindClosestPoint ( @var{x} )
 ##
 ## return the closest point of the (hypercubic) Zn-lattice to the given point @var{x} in R^n
 ## based on Chap.20.2 in Conway&Sloane (1999). This is the most trivial case.

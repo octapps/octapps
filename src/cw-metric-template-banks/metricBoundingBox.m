@@ -15,7 +15,7 @@
 ## <http://www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{bound_box} = metricBoundingBox(@var{metric}, @var{max_mismatch})
+## @deftypefn {Function File} {@var{bound_box} =} metricBoundingBox ( @var{metric}, @var{max_mismatch} )
 ##
 ## Compute the @var{metric} ellipse bounding box, given a @var{metric} and @var{max_mismatch}.
 ##

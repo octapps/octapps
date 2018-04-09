@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} [@var{binq}, @dots{}] = histBinsGrids(@var{hgrm}, @var{k}, @code{type}, @dots{})
+## @deftypefn {Function File} { [ @var{binq}, @dots{} ] =} histBinsGrids ( @var{hgrm}, @var{k}, @code{type}, @dots{} )
 ##
 ## Return quantities relating to the histogram bin boundaries,
 ## in gridded arrays of the same size as the probability array.

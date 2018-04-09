@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} [@var{gct_freq_min}, @var{gct_freq_band}, @var{gct_phys_freq_min}, @var{gct_phys_freq_band}] = PredictGCTFreqband ( @var{freq}, @var{freqband}, @var{dFreq}, @var{f1dot}, @var{f1dotband}, @var{df1dot}, @var{f2dot}, @var{f2dotband}, @var{df2dot}, @var{starttime}, @var{duration}, @var{reftime}, @var{Tsft}, @var{blocksRngMed}, @var{Dterms} )
+## @deftypefn {Function File} { [ @var{gct_freq_min}, @var{gct_freq_band}, @var{gct_phys_freq_min}, @var{gct_phys_freq_band} ] =} PredictGCTFreqband ( @var{freq}, @var{freqband}, @var{dFreq}, @var{f1dot}, @var{f1dotband}, @var{df1dot}, @var{f2dot}, @var{f2dotband}, @var{df2dot}, @var{starttime}, @var{duration}, @var{reftime}, @var{Tsft}, @var{blocksRngMed}, @var{Dterms} )
 ##
 ## function to predict the frequency band required by a HSGCT search
 ## based on code snippets from LALSuite program HierarchSearchGCT and on @command{XLALCreateFstatInput()} from lalpulsar

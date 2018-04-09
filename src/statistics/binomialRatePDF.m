@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{pdf} = binomialRatePDF ( @var{f}, @var{N}, @var{K} )
+## @deftypefn {Function File} {@var{pdf} =} binomialRatePDF ( @var{f}, @var{N}, @var{K} )
 ##
 ## Return the posterior pdf(@var{f}|@var{N},@var{K}) for the true 'rate' @var{f} given a drawing
 ## experiment with @var{K} "successful" results out of @var{N} trials, assuming a

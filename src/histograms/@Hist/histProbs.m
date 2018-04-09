@@ -16,8 +16,8 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{prob} = histProbs(@var{hgrm})
-## @deftypefnx {Function File} @var{fprob} = histProbs(@var{hgrm}, @code{finite})
+## @deftypefn {Function File} {@var{prob} =} histProbs ( @var{hgrm} )
+## @deftypefnx{Function File} {@var{fprob} =} histProbs ( @var{hgrm}, @code{finite} )
 ##
 ## Return the probabily densities of each histogram bin
 ##

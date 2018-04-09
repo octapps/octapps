@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} [@var{fLower}, @var{fUpper}] = binomialConfidenceInterval ( @var{N}, @var{K}, @var{confidence} )
+## @deftypefn {Function File} { [ @var{fLower}, @var{fUpper} ] =} binomialConfidenceInterval ( @var{N}, @var{K}, @var{confidence} )
 ##
 ## Compute the posterior @var{confidence} interval [@var{fLower}, @var{fUpper}] for the true rate f
 ## given a drawing experiment with @var{K} "successful" results out of @var{N} trials.

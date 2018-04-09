@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} [@var{fDEst}, @var{dfDEst}] = estimateFalseDismissal ( @var{fA}, @var{stat_0}, @var{stat_s} )
+## @deftypefn {Function File} { [ @var{fDEst}, @var{dfDEst} ] =} estimateFalseDismissal ( @var{fA}, @var{stat_0}, @var{stat_s} )
 ##
 ## @strong{DEPRECATED: use @command{estimateRateFromSamples()} or @command{estimateROC()} instead}
 ##

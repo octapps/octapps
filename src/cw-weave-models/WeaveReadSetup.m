@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{setup} = WeaveReadSetup ( @var{setup_file} )
+## @deftypefn {Function File} {@var{setup} =} WeaveReadSetup ( @var{setup_file} )
 ##
 ## Returns pre-parsed setup file as a struct with additional fields:
 ##

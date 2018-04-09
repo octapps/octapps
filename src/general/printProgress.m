@@ -15,7 +15,7 @@
 ## <http://www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{prog} = printProgress(@dots{})
+## @deftypefn {Function File} {@var{prog} =} printProgress ( @dots{} )
 ##
 ## Prints a progress message at decreasing intervals, displaying
 ## the number of tasks completed, CPU usage, time elasped/remaining

@@ -16,7 +16,7 @@
 ## <http://www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} [@var{coh_Nt}, @var{semi_Nt}, @var{dfreq}] = WeaveTemplateCount(@var{opt}, @var{val}, @dots{})
+## @deftypefn {Function File} { [ @var{coh_Nt}, @var{semi_Nt}, @var{dfreq} ] =} WeaveTemplateCount ( @var{opt}, @var{val}, @dots{} )
 ##
 ## Estimate the number of templates computed by @command{lalapps_Weave}
 ##

@@ -15,7 +15,7 @@
 ## <http://www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{lum} = plotColourMap(@var{map}, [@var{name}])
+## @deftypefn {Function File} {@var{lum} =} plotColourMap ( @var{map}, [ @var{name} ] )
 ##
 ## Visualise a colour @var{map}.
 ##

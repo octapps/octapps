@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} [@var{xp}, @var{yp}, @var{xx}, @var{yx}] = PolarisationNullVectors(@var{alpha}, @var{sdelta}, @var{psi})
+## @deftypefn {Function File} { [ @var{xp}, @var{yp}, @var{xx}, @var{yx} ] =} PolarisationNullVectors ( @var{alpha}, @var{sdelta}, @var{psi} )
 ##
 ## Calculate the vectors along which a pure plus/cross gravitational
 ## wave create no space-time peturbation

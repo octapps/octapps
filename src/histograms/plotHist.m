@@ -16,8 +16,8 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} plotHist(@var{hgrm}, @var{options}, @dots{}, @var{hgrm}, @var{options}, @dots{})
-## @deftypefnx {Function File} @var{hh} = plotHist(@dots{})
+## @deftypefn {Function File} {} plotHist ( @var{hgrm}, @var{options}, @dots{}, @var{hgrm}, @var{options}, @dots{} )
+## @deftypefnx{Function File} {@var{hh} =} plotHist ( @dots{} )
 ##
 ## Plot a histogram as a stair graph
 ##

@@ -17,7 +17,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} [@var{Depth}, @var{pd_Depth}] = SensitivityDepth(@var{opt}, @var{val}, @dots{})
+## @deftypefn {Function File} { [ @var{Depth}, @var{pd_Depth} ] =} SensitivityDepth ( @var{opt}, @var{val}, @dots{} )
 ##
 ## Calculate sensitivity in terms of the sensitivity depth.
 ##
@@ -52,39 +52,39 @@
 ## @item stat
 ## detection statistic, one of:
 ## @table @asis
-##   @item @{@code{ChiSqr}, @var{opt}, @var{val}, @dots{}@}
-##   chi^2 statistic, e.g. the F-statistic, with options:
-##   @table @var
-##     @item paNt
-##     false alarm probability per template
+## @item @{@code{ChiSqr}, @var{opt}, @var{val}, @dots{}@}
+## chi^2 statistic, e.g. the F-statistic, with options:
+## @table @var
+## @item paNt
+## false alarm probability per template
 ##
-##     @item sa
-##     false alarm threshold
+## @item sa
+## false alarm threshold
 ##
-##     @item dof
-##     degrees of freedom per segment (default: 4)
+## @item dof
+## degrees of freedom per segment (default: 4)
 ##
-##     @item norm
-##     use normal approximation to chi^2 (default: false)
+## @item norm
+## use normal approximation to chi^2 (default: false)
 ##
-##   @end table
+## @end table
 ##
-##   @item @{@code{HoughFstat}, @var{opt}, @var{val}, @dots{}@}
-##   Hough on the F-statistic, with options:
-##   @table @var
-##     @item paNt
-##     false alarm probability per template
+## @item @{@code{HoughFstat}, @var{opt}, @var{val}, @dots{}@}
+## Hough on the F-statistic, with options:
+## @table @var
+## @item paNt
+## false alarm probability per template
 ##
-##     @item nth
-##     number count false alarm threshold
+## @item nth
+## number count false alarm threshold
 ##
-##     @item Fth
-##     F-statistic threshold per segment
+## @item Fth
+## F-statistic threshold per segment
 ##
-##     @item zero
-##     use zeroth-order approximation (default: false)
+## @item zero
+## use zeroth-order approximation (default: false)
 ##
-##   @end table
+## @end table
 ##
 ## @end table
 ##

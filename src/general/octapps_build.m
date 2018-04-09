@@ -15,7 +15,7 @@
 ## <http://www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} octapps_build @samp{optional make arguments}
+## @deftypefn {Function File} {} octapps_build @samp{optional make arguments}
 ##
 ## Runs the top-level OctApps Makefile, to e.g. build extensions.
 ##

@@ -16,8 +16,8 @@
 ## <http://www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn {Function File} runCode(@var{params}, @var{code}, [@var{verbose} = false])
-## @deftypefnx{Function File} @var{output} = runCode(@dots{})
+## @deftypefn {Function File} {} runCode ( @var{params}, @var{code}, [ @var{verbose} = false ] )
+## @deftypefnx{Function File} {@var{output} =} runCode ( @dots{} )
 ##
 ## Generic code-running driver: run @var{code}, passing any command-line
 ## options in the struct @var{params}, which are passed to @var{code}

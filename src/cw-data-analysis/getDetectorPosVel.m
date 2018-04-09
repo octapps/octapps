@@ -15,7 +15,7 @@
 ## <http://www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} [@var{p}, @var{v}, @var{sp}, @var{sv}, @var{op}, @var{ov}] = getDetectorPosVel(@var{opt}, @var{val}, @dots{})
+## @deftypefn {Function File} { [ @var{p}, @var{v}, @var{sp}, @var{sv}, @var{op}, @var{ov} ] =} getDetectorPosVel ( @var{opt}, @var{val}, @dots{} )
 ##
 ## Compute the spin, orbital, and total components of a detector's
 ## position and velocity at a list of GPS times, using LALPulsar

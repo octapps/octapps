@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{ret} = UnitHypersphereVolume ( @var{n} )
+## @deftypefn {Function File} {@var{ret} =} UnitHypersphereVolume ( @var{n} )
 ##
 ## Volume of unit hypersphere in @var{n} dimensions: Vn = pi^(@var{n}/2) / (@var{n}/2)!,
 ## from Chap.21, Eq.(7) in Conway&Sloane(1999)

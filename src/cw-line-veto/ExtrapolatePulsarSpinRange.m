@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} [@var{fkdot_epoch1}, @var{fkdotband_epoch1}] = ExtrapolatePulsarSpinRange ( @var{epoch0}, @var{epoch1}, @var{fkdot_epoch0}, @var{fkdotband_epoch0}, @var{numSpins} )
+## @deftypefn {Function File} { [ @var{fkdot_epoch1}, @var{fkdotband_epoch1} ] =} ExtrapolatePulsarSpinRange ( @var{epoch0}, @var{epoch1}, @var{fkdot_epoch0}, @var{fkdotband_epoch0}, @var{numSpins} )
 ##
 ## function to translate spin-values \f$\f^@{(l)@}\f$ and bands from epoch0 to epoch1
 ## based on LALSuite programs/functions HierarchSearchGCT and LALExtrapolatePulsarSpinRange

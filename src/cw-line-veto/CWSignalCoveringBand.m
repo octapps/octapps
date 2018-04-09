@@ -15,7 +15,7 @@
 ## <http://www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} [@var{minCoverFreq}, @var{maxCoverFreq}] = CWSignalCoveringBand  ( @var{fkdot_starttime}, @var{fkdotband_starttime}, @var{fkdot_endtime}, @var{fkdotband_endtime} )
+## @deftypefn {Function File} { [ @var{minCoverFreq}, @var{maxCoverFreq} ] =} CWSignalCoveringBand ( @var{fkdot_starttime}, @var{fkdotband_starttime}, @var{fkdot_endtime}, @var{fkdotband_endtime} )
 ##
 ## based on @command{XLALCWSignalCoveringBand()} by K. Wette, R. Prix
 ## Determines a frequency band which covers the frequency evolution of a band of CW signals between two GPS times.

@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{vol} = AnVolume ( @var{dim} )
+## @deftypefn {Function File} {@var{vol} =} AnVolume ( @var{dim} )
 ##
 ## Return the "lattice-volume" (i.e. the volume of an elementary lattice-cell)
 ## for an An lattice in @var{dim} dimensions.

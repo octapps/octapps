@@ -15,7 +15,7 @@
 ## <http://www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} g = GCTCoherentTaylorMetric(@var{opt}, @var{val}, @dots{})
+## @deftypefn {Function File} {g =} GCTCoherentTaylorMetric ( @var{opt}, @var{val}, @dots{} )
 ##
 ## Computes the coherent global correlation transform metric, as
 ## given in Pletsch, PRD 82 042002 (2010), which Taylor-expands the

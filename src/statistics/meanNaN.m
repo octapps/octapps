@@ -15,7 +15,7 @@
 ## <http://www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn {Function File} @var{y} = meanNaN(@var{x}, @var{dim})
+## @deftypefn {Function File} {@var{y} =} meanNaN ( @var{x}, @var{dim} )
 ##
 ## Compute the mean of @var{x} over the dimension @var{dim}, ignoring NaNs.
 ## @end deftypefn

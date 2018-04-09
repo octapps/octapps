@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{coveringRadius} = ZnCoveringRadius ( @var{dim} )
+## @deftypefn {Function File} {@var{coveringRadius} =} ZnCoveringRadius ( @var{dim} )
 ##
 ## Return covering-radius for the Zn lattice in n dimensions
 ##

@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} [@var{sig}, @var{degs}, @var{mins}, @var{secs}] = rad_to_dms ( @var{rads} )
+## @deftypefn {Function File} { [ @var{sig}, @var{degs}, @var{mins}, @var{secs} ] =} rad_to_dms ( @var{rads} )
 ##
 ## convert radians 'rads' into degrees "<sig>degs:minutes:secs", where <sig> is either +1 or -1
 ##

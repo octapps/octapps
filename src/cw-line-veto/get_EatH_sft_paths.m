@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} [@var{sfts}, @var{firstsft}, @var{sfts_cell}] = get_EatH_sft_paths ( @var{sftdir}, @var{filenamebit}, @var{sft_width}, @var{sftstartfreq}, @var{num_sfts_to_load}, @var{IFO} )
+## @deftypefn {Function File} { [ @var{sfts}, @var{firstsft}, @var{sfts_cell} ] =} get_EatH_sft_paths ( @var{sftdir}, @var{filenamebit}, @var{sft_width}, @var{sftstartfreq}, @var{num_sfts_to_load}, @var{IFO} )
 ##
 ## function to get the full SFT paths (assuming Atlas-like directory structure)
 ## and cat them into argument strings for, e.g., @command{lalapps_ComputePSD}

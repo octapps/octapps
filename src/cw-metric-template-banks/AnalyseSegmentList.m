@@ -14,9 +14,9 @@
 ## along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} AnalyseSegmentList(@var{segment_list_2col})
-## @deftypefnx {Function File} AnalyseSegmentList(@var{segment_list_4col}, @var{Ndet}, @var{Tsft}=1800)
-## @deftypefnx {Function File} @var{props} = AnalyseSegmentList(@dots{})
+## @deftypefn {Function File} {} AnalyseSegmentList ( @var{segment_list_2col} )
+## @deftypefnx{Function File} {} AnalyseSegmentList ( @var{segment_list_4col}, @var{Ndet}, @var{Tsft}=1800 )
+## @deftypefnx{Function File} {@var{props} =} AnalyseSegmentList ( @dots{} )
 ##
 ## Analyse a segment list and print/return various properties.
 ##

@@ -18,7 +18,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{pDET} = = DetectionProbabilityStackSlide (@var{opt}, @var{val}, @dots{})
+## @deftypefn {Function File} {@var{pDET} =} DetectionProbabilityStackSlide ( @var{opt}, @var{val}, @dots{} )
 ##
 ## Estimate detection probability for given fixed sensitivity-depth signal @var{Depth} = sqrt(S)/h0
 ##

@@ -32,6 +32,61 @@ while (my $line = <IN>) {
 
     if ($comment =~ /texinfo/) {
       $foundhelp = 1;
+
+      printf "$0: cleaning up $infile ...\n";
+
+      my @commentlines = split /\n/, $comment;
+      map { s/^\s*## //; s/^\s*##$//; } @commentlines;
+      map { s/^\s+$//; } @commentlines;
+
+      $comment = "";
+      while (@commentlines > 0) {
+        my $cl = shift @commentlines;
+
+        $cl =~ s/^\s+//g;
+        $cl =~ s/\s+$//g;
+
+        if ($cl =~ /^\@deftypefn/) {
+
+          $cl =~ s/([[\]()])/ $1 /g;
+          $cl =~ s/\s+/ /g;
+
+          $cl =~ s/^\@deftypefn[^x]\s*/\@deftypefn /;
+          $cl =~ s/^\@deftypefnx\s*/\@deftypefnx/;
+
+          $cl =~ s/^(\@deftypefnx?\s*\{[A-Za-z ]+\})\s*/$1 /;
+          $cl =~ s/^(\@deftypefnx?\s*\{[A-Za-z ]+\}) ([^\{\}][^()]*?)\s*=\s*/$1 {$2 =} /;
+          $cl =~ s/^(\@deftypefnx?\s*\{[A-Za-z ]+\}) ([A-Za-z])/$1 {} $2/;
+
+          $cl =~ s/^\s+//g;
+          $cl =~ s/\s+$//g;
+
+        }
+
+        $comment .= "## $cl\n";
+
+        if ($cl =~ /^\@verbatim/ && @commentlines > 0) {
+          $cl = shift @commentlines;
+          $cl =~ s/^(\s*)//;
+          my $sp = $1;
+          $comment .= "## $sp$cl\n";
+          while (@commentlines > 0) {
+            my $cl = shift @commentlines;
+            if ($cl =~ /^\s*\@end/) {
+              $cl =~ s/^\s*//;
+              $comment .= "## $cl\n";
+              last;
+            }
+            $comment .= "## $sp$cl\n";
+          }
+        }
+
+      }
+
+      $comment =~ s/^##\s*$/##/mg;
+
+      printf "$0: cleaned up $infile\n";
+
     }
 
     if (!$foundhelp && $comment !~ /Copyright/) {

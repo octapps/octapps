@@ -17,7 +17,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} [@var{L}, @var{slambda}, @var{gamma}, @var{zeta}] = DetectorLocations(@var{detID})
+## @deftypefn {Function File} { [ @var{L}, @var{slambda}, @var{gamma}, @var{zeta} ] =} DetectorLocations ( @var{detID} )
 ##
 ## Return parameters of various gravitational-wave interferometers
 ##

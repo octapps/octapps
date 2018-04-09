@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{Fsqr_t} = TimeAvgSqrAntennaPattern(@var{a0}, @var{b0}, @var{x}, @var{y}, @var{zeta}, @var{OmegaT}, @var{nmax})
+## @deftypefn {Function File} {@var{Fsqr_t} =} TimeAvgSqrAntennaPattern ( @var{a0}, @var{b0}, @var{x}, @var{y}, @var{zeta}, @var{OmegaT}, @var{nmax} )
 ##
 ## Calculate the time-averaged squared antenna pattern of an interferometer
 ##

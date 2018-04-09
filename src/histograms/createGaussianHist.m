@@ -17,7 +17,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{hgrm} = createGaussianHist(@var{opt}, @var{val}, @dots{})
+## @deftypefn {Function File} {@var{hgrm} =} createGaussianHist ( @var{opt}, @var{val}, @dots{} )
 ##
 ## Creates a histogram representing a Gaussian PDF with given @var{mean} and standard deviation
 ##

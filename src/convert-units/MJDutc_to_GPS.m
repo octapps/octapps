@@ -17,7 +17,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{GPS} = MJDutc_to_GPS ( @var{MJDutc} )
+## @deftypefn {Function File} {@var{GPS} =} MJDutc_to_GPS ( @var{MJDutc} )
 ##
 ## convert MJD (based on UTC) into GPS seconds
 ## translated from lalapps-CVS/src/pulsar/TDS_isolated/TargetedPulsars.c

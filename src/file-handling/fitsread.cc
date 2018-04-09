@@ -33,7 +33,7 @@
 extern "C" int fffree(void*, int *);
 
 static const char *const fitsread_usage = "-*- texinfo -*- \n\
-@deftypefn {Loadable Function} @var{data} = fitsread(@var{filename})\n\
+@deftypefn {Loadable Function} {@var{data} =} fitsread(@var{filename})\n\
 \n\
 Load data from a FITS (Flexible Image Transport System) file.\n\
 \n\

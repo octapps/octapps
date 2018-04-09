@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} [@var{v}, @var{v}, @dots{}] = NextRandParam(@var{rng}, @var{N})
+## @deftypefn {Function File} { [ @var{v}, @var{v}, @dots{} ] =} NextRandParam ( @var{rng}, @var{N} )
 ##
 ## Generates values for random parameters, given a generator
 ##

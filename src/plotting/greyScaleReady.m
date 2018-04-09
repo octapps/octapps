@@ -15,7 +15,7 @@
 ## <http://www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{map} = greyScaleReady(@var{name}, [@var{n} = 64])
+## @deftypefn {Function File} {@var{map} =} greyScaleReady ( @var{name}, [ @var{n} = 64 ] )
 ##
 ## Generate colour maps where the "luma" (brightness) decreases
 ## linearly as a function of colour @var{map} index; these maps should

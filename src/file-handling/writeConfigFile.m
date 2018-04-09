@@ -15,7 +15,7 @@
 ## <http://www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} writeConfigFile(@var{file}, @var{cfg})
+## @deftypefn {Function File} {} writeConfigFile ( @var{file}, @var{cfg} )
 ##
 ## Write a .ini style configuration @var{file} from a struct.
 ##

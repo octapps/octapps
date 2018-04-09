@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{Amp} = amplitudeVect2Params ( @var{Amu}, @var{convention} )
+## @deftypefn {Function File} {@var{Amp} =} amplitudeVect2Params ( @var{Amu}, @var{convention} )
 ##
 ## compute amplitude-vector @{A^mu@} from (MLDC) amplitudes @{Amplitude, Inclination, Polarization, InitialPhase @}
 ##

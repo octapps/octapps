@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{p} = ChiSquare_cdf(@var{x}, @var{k}, @var{lambda})
+## @deftypefn {Function File} {@var{p} =} ChiSquare_cdf ( @var{x}, @var{k}, @var{lambda} )
 ##
 ## Compute the cumulative density function of the
 ## non-central chi^2 distribution.

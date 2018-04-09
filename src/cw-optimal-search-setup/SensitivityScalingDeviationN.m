@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{w} = SensitivityScalingDeviationN ( @var{pFA}, @var{pFD}, @var{Nseg}, @var{approx} = "" )
+## @deftypefn {Function File} {@var{w} =} SensitivityScalingDeviationN ( @var{pFA}, @var{pFD}, @var{Nseg}, @var{approx} = "" )
 ##
 ## Compute the deviation parameter @var{w} of the local StackSlide-sensitivity power-law scaling
 ## coefficient from the weak-signal limit (where w=1).

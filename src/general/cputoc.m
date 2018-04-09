@@ -15,7 +15,7 @@
 ## <http://www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} cputoc(@code{name});
+## @deftypefn {Function File} {} cputoc ( @code{name} ) ;
 ##
 ## Prints the elapsed CPU time since a named CPU time counter was set.
 ##

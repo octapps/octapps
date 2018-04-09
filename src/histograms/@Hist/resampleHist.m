@@ -16,8 +16,8 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{hgrm} = resampleHist(@var{hgrm}, @var{k}, @var{newbins_k})
-## @deftypefnx {Function File} @var{hgrm} = resampleHist(@var{hgrm}, @var{newbins_1}, @dots{}, @var{newbins_dim})
+## @deftypefn {Function File} {@var{hgrm} =} resampleHist ( @var{hgrm}, @var{k}, @var{newbins_k} )
+## @deftypefnx{Function File} {@var{hgrm} =} resampleHist ( @var{hgrm}, @var{newbins_1}, @dots{}, @var{newbins_dim} )
 ##
 ## Resamples a histogram to a new set of bins
 ##

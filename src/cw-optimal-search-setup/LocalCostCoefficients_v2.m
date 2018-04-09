@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} [@var{coefCoh}, @var{coefInc}] = LocalCostCoefficients_v2 ( @var{cost_fun}, @var{Nseg}, @var{Tseg}, @var{mCoh}, @var{mInc} )
+## @deftypefn {Function File} { [ @var{coefCoh}, @var{coefInc} ] =} LocalCostCoefficients_v2 ( @var{cost_fun}, @var{Nseg}, @var{Tseg}, @var{mCoh}, @var{mInc} )
 ##
 ## Compute local power-law coefficients fit to given computing-cost function
 ## @var{cost_fun} at StackSlide parameters @var{Nseg} and @var{Tseg} = Tobs/@var{Nseg}, and

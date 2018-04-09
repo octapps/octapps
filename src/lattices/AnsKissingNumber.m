@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{ret} = AnsKissingNumber ( @var{dim} )
+## @deftypefn {Function File} {@var{ret} =} AnsKissingNumber ( @var{dim} )
 ##
 ## Return the "kissing number", i.e. number of touching spheres to one lattice cell
 ## for an An* lattice in n dimensions, Sect.6.6 in Conway&Sloane(1999)

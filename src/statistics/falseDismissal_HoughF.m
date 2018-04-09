@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{fDH} = falseDismissal_HoughF ( @var{nth}, @var{Nseg}, @var{Fth}, @var{SNR0sq} )
+## @deftypefn {Function File} {@var{fDH} =} falseDismissal_HoughF ( @var{nth}, @var{Nseg}, @var{Fth}, @var{SNR0sq} )
 ##
 ## compute Hough-on-Fstat false-dismissal probability fDH for given number of segments @var{Nseg},
 ## a threshold on segment-crossings @var{nth}, an F-statistic threshold per segment @var{Fth},

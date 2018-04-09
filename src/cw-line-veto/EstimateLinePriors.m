@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{ret} = EstimateLinePriors ( @var{varargin} )
+## @deftypefn {Function File} {@var{ret} =} EstimateLinePriors ( @var{varargin} )
 ##
 ## Script to estimate oLGX priors from some SFTs
 ## based on compute_lX_from_SFTs from LineVetoBstat repository, but with simpler SFTs and timestamps handling

@@ -15,7 +15,7 @@
 ## <http://www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{map} = makeColourMap(@var{r}, @var{g}, @var{b}, [@var{n} = 64])
+## @deftypefn {Function File} {@var{map} =} makeColourMap ( @var{r}, @var{g}, @var{b}, [ @var{n} = 64 ] )
 ##
 ## Generate a colour @var{map} by interpolating colour intensities.
 ##

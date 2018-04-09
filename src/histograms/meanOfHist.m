@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{mean} = meanOfHist(@var{hgrm}, [@var{k} = 1])
+## @deftypefn {Function File} {@var{mean} =} meanOfHist ( @var{hgrm}, [ @var{k} = 1 ] )
 ##
 ## Returns the mean(s) of a histogram.
 ##

@@ -15,8 +15,8 @@
 ## along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} fevalstruct (@var{name}, @var{argstruct})
-## @deftypefnx {Function File} fevalstruct (@dots{}, @var{property}, @var{value}, @dots{})
+## @deftypefn {Function File} {} fevalstruct ( @var{name}, @var{argstruct} )
+## @deftypefnx{Function File} {} fevalstruct ( @dots{}, @var{property}, @var{value}, @dots{} )
 ## Evaluate the function named @var{name}, using the keyword-value
 ## arguments given by @var{argstruct}.
 ##

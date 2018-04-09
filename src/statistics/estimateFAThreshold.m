@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} [@var{threshold}, @var{pFA_MPE}, @var{pFA_Lower}, @var{pFA_Upper}, @var{threshold_Lower}, @var{threshold_Upper} ] = estimateFAThreshold ( @var{DATA}, @var{pFA}, @var{confidence=0.95} )
+## @deftypefn {Function File} { [ @var{threshold}, @var{pFA_MPE}, @var{pFA_Lower}, @var{pFA_Upper}, @var{threshold_Lower}, @var{threshold_Upper} ] =} estimateFAThreshold ( @var{DATA}, @var{pFA}, @var{confidence=0.95} )
 ##
 ## Compute @var{threshold} for desired false-alarm probablity on samples @var{DATA}, returns the resulting maximum-posterior
 ## estimate @var{pFA_MPE}, and @var{confidence} interval [@var{pFA_Lower}, @var{pFA_Upper}].

@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{closest} = LatticeFindClosestPoint ( @var{x}, @var{lattice} )
+## @deftypefn {Function File} {@var{closest} =} LatticeFindClosestPoint ( @var{x}, @var{lattice} )
 ##
 ## return the closest point of the @var{lattice} to the given point @var{x} in R^n
 ## This is just a wrapper to the lower-level @var{lattice}-specific functions.

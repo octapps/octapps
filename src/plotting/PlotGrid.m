@@ -14,10 +14,10 @@
 ## along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} PlotGrid(@var{rowrange}, @var{colrange}, @var{rowspace}, @var{colspace}, @var{rowfigs}, @var{colfigs})
-## @deftypefnx {Function File} @var{hax} = PlotGrid(@var{rowidx}, @var{colidx})
-## @deftypefnx {Function File} PlotGrid(@var{range}, @var{space}, @var{figs})
-## @deftypefnx {Function File} @var{hax} = PlotGrid(@var{idx})
+## @deftypefn {Function File} {} PlotGrid ( @var{rowrange}, @var{colrange}, @var{rowspace}, @var{colspace}, @var{rowfigs}, @var{colfigs} )
+## @deftypefnx{Function File} {@var{hax} =} PlotGrid ( @var{rowidx}, @var{colidx} )
+## @deftypefnx{Function File} {} PlotGrid ( @var{range}, @var{space}, @var{figs} )
+## @deftypefnx{Function File} {@var{hax} =} PlotGrid ( @var{idx} )
 ##
 ## A more flexible replacement for @command{subplot()}.
 ##

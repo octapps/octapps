@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{ret} = ZnThickness ( @var{n} )
+## @deftypefn {Function File} {@var{ret} =} ZnThickness ( @var{n} )
 ##
 ## normalized thickness of hypercubic grid in @var{n} dimensions
 ##

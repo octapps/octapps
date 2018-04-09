@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} [@var{a}, @var{b}] = DetectorNullVectors(@var{Phis}, @var{slambda}, @var{gamma})
+## @deftypefn {Function File} { [ @var{a}, @var{b} ] =} DetectorNullVectors ( @var{Phis}, @var{slambda}, @var{gamma} )
 ##
 ## Calculate the vectors along which an interferometric detector
 ## is insensitive to gravitational waves

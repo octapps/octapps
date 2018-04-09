@@ -15,7 +15,7 @@
 ## <http://www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{hgrm} = createDeltaHist(@var{x0})
+## @deftypefn {Function File} {@var{hgrm} =} createDeltaHist ( @var{x0} )
 ##
 ## Creates a histogram representing a delta function at a given value
 ##

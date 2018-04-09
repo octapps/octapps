@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{metrics} = ComputeSuperskyMetrics(@var{opt}, @var{val}, @dots{})
+## @deftypefn {Function File} {@var{metrics} =} ComputeSuperskyMetrics ( @var{opt}, @var{val}, @dots{} )
 ##
 ## Create the supersky parameter-space metrics.
 ##

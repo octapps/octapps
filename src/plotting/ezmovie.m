@@ -14,9 +14,9 @@
 ## along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} ezmovie(@code{start}, @var{opt}, @var{val}, @dots{});
-## @deftypefnx {Function File} ezmovie(@code{add});
-## @deftypefnx {Function File} ezmovie(@code{stop});
+## @deftypefn {Function File} {} ezmovie ( @code{start}, @var{opt}, @var{val}, @dots{} ) ;
+## @deftypefnx{Function File} {} ezmovie ( @code{add} ) ;
+## @deftypefnx{Function File} {} ezmovie ( @code{stop} ) ;
 ##
 ## Generate a H.264/MPEG-4 AVC movie from a sequence of figures.
 ## Requires the command @code{avconv} from Libav to be available.

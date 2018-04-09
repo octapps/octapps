@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} [@var{d}, @var{KLD}, @var{JSD}] = histDistance(@var{hgrm1}, @var{hgrm2})
+## @deftypefn {Function File} { [ @var{d}, @var{KLD}, @var{JSD} ] =} histDistance ( @var{hgrm1}, @var{hgrm2} )
 ##
 ## Computes different distance measures between histograms
 ##

@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} [@var{num_outliers}, @var{max_outlier}, @var{freqbins}] = CountSFTPowerOutliers ( @var{params_psd}, @var{thresh}, @var{lalpath}, @var{debug} )
+## @deftypefn {Function File} { [ @var{num_outliers}, @var{max_outlier}, @var{freqbins} ] =} CountSFTPowerOutliers ( @var{params_psd}, @var{thresh}, @var{lalpath}, @var{debug} )
 ##
 ## function to compute the number of outliers of the SFT power statistic
 ##

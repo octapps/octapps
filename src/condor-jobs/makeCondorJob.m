@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{job_file} = makeCondorJob(@var{opt}, @var{val}, @dots{})
+## @deftypefn {Function File} {@var{job_file} =} makeCondorJob ( @var{opt}, @var{val}, @dots{} )
 ##
 ## Set up a Condor job for running Octave scripts or executables.
 ##

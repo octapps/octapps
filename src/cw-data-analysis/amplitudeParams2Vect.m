@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{Amu} = amplitudeParams2Vect ( @var{Amp} )
+## @deftypefn {Function File} {@var{Amu} =} amplitudeParams2Vect ( @var{Amp} )
 ##
 ## compute the amplitude-vector @{A^mu@} for given amplitude-params, which can follow
 ## @itemize

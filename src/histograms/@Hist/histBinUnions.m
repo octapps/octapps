@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{ubins} = histBinUnions(@var{hgrms}@dots{})
+## @deftypefn {Function File} {@var{ubins} =} histBinUnions ( @var{hgrms}@dots{} )
 ##
 ## Return the unions of bins of the given histograms in each dimension.
 ##

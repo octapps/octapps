@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{packingRadius} = AnsPackingRadius ( @var{dim} )
+## @deftypefn {Function File} {@var{packingRadius} =} AnsPackingRadius ( @var{dim} )
 ##
 ## Return the packing-radius for An* lattice in n dimensions,
 ## from Chap.4, Eq.(79) in Conway&Sloane(1999)

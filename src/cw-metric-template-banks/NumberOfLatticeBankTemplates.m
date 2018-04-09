@@ -15,7 +15,7 @@
 ## <http://www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} N = NumberOfLatticeBankTemplates(@var{opt}, @var{val}, @dots{})
+## @deftypefn {Function File} {N =} NumberOfLatticeBankTemplates ( @var{opt}, @var{val}, @dots{} )
 ##
 ## Estimate the number of templates in a lattice template bank.
 ##

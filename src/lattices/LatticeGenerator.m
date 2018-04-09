@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} [ @var{gen}, @var{rot} ] = LatticeGenerator ( @var{dim}, @var{lattice} )
+## @deftypefn {Function File} { [ @var{gen}, @var{rot} ] =} LatticeGenerator ( @var{dim}, @var{lattice} )
 ##
 ## return an nxn full-rank generating matrix for the specified lattice
 ## This is just a wrapper to the lower-level @var{lattice}-specific functions.

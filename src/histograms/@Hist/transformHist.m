@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{hgrm} = transformHist(@var{hgrm}, @var{F}, [@var{err}])
+## @deftypefn {Function File} {@var{hgrm} =} transformHist ( @var{hgrm}, @var{F}, [ @var{err} ] )
 ##
 ## Transform the contents of a histogram.
 ##

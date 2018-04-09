@@ -17,7 +17,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{stackparams} = OptimalSolution4StackSlide_v2 ( @code{option}, @var{val}, @code{option}, @var{val}, @dots{} )
+## @deftypefn {Function File} {@var{stackparams} =} OptimalSolution4StackSlide_v2 ( @code{option}, @var{val}, @code{option}, @var{val}, @dots{} )
 ##
 ## Computes a *self-consistent* solution for (locally-)optimal StackSlide
 ## parameters, given computing cost-functions (coherent and incoherent) and
@@ -29,18 +29,18 @@
 ## @item costFuns
 ## structure containing parameters and cost-function handle
 ##
-##   @table @code
-##   @item grid_interpolation
-##   boolean flag about whether to use coherent-grid interpolation or not
+## @table @code
+## @item grid_interpolation
+## boolean flag about whether to use coherent-grid interpolation or not
 ##
-##   @item lattice
-##   string specifying the template-bank @var{lattice} to use
+## @item lattice
+## string specifying the template-bank @var{lattice} to use
 ##
-##   @item fun
-##   cost-function handle, of the form [ costCoh, costInc ] = @var{fun}(Nseg, Tseg, mCoh, mInc)
-##   where the cost function must accept vector-arguments (of equal length or scalar)
+## @item fun
+## cost-function handle, of the form [ costCoh, costInc ] = @var{fun}(Nseg, Tseg, mCoh, mInc)
+## where the cost function must accept vector-arguments (of equal length or scalar)
 ##
-##   @end table
+## @end table
 ##
 ## @item cost0
 ## total computing cost (in CPU seconds),
@@ -76,12 +76,12 @@
 ##
 ## @item sensApprox
 ## sensitivity approximation to use in @command{SensitivityScalingDeviationN()}, one of:
-##   @itemize
-##   @item @code{[]}
-##   @item @code{none} [default]
-##   @item @code{Gauss}
-##   @item @code{WSG}
-##   @end itemize
+## @itemize
+## @item @code{[]}
+## @item @code{none} [default]
+## @item @code{Gauss}
+## @item @code{WSG}
+## @end itemize
 ##
 ## @item nonlinearMismatch
 ## use empirical nonlinear mismatch relation instead of linear @samp{mis} = xi * m

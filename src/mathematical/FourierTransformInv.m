@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{timeSeries} = FourierTransformInv ( @var{fk}, @var{xk}, @var{oversampleby} )
+## @deftypefn {Function File} {@var{timeSeries} =} FourierTransformInv ( @var{fk}, @var{xk}, @var{oversampleby} )
 ##
 ## Computes inverse Fourier-transform of input frequency-series with
 ## frequency steps @var{fk} and data-points @var{xk}. This function complies with

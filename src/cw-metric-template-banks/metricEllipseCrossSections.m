@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} [@var{xcross}, @var{mucross}] = metricEllipseCrossSections(@var{x}, @var{mu}, @var{metric}, @var{cross})
+## @deftypefn {Function File} { [ @var{xcross}, @var{mucross} ] =} metricEllipseCrossSections ( @var{x}, @var{mu}, @var{metric}, @var{cross} )
 ##
 ## Return the ellipse centers and mismatches for a template bank @var{cross} section.
 ##

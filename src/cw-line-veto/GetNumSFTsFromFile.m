@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{num_SFTs} = GetNumSFTsFromFile ( @var{sftfile} )
+## @deftypefn {Function File} {@var{num_SFTs} =} GetNumSFTsFromFile ( @var{sftfile} )
 ##
 ## safety measure to work around @command{lalapps_dumpSFT} bug: check if sftfile is a pattern matching several files, and if it is, just use the first one.
 ##

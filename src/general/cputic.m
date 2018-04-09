@@ -15,8 +15,8 @@
 ## <http://www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} cputic(@code{name})
-## @deftypefnx {Function File} @var{t} = cputic(@code{name})
+## @deftypefn {Function File} {} cputic ( @code{name} )
+## @deftypefnx{Function File} {@var{t} =} cputic ( @code{name} )
 ##
 ## Sets or retrieves the value of a named CPU time counter.
 ##

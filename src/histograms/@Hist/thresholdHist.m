@@ -14,7 +14,7 @@
 ## along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{thgrm} = thresholdHist(@var{hgrm}, @var{pth})
+## @deftypefn {Function File} {@var{thgrm} =} thresholdHist ( @var{hgrm}, @var{pth} )
 ##
 ## Set a threshold on the histogram probability of each bin; bins with
 ## probability below the threshold have their count set to zero.

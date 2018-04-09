@@ -15,7 +15,7 @@
 ## <http://www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn {Function File} @var{A} = arrayflatten(@var{X}, @dots{})
+## @deftypefn {Function File} {@var{A} =} arrayflatten ( @var{X}, @dots{} )
 ##
 ## Flatten the arguments @var{X}, @dots{} into one array vector @var{A}.
 ## @end deftypefn

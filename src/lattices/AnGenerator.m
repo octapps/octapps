@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} [ @var{generator}, @var{rotator} ] = AnGenerator ( @var{dim} )
+## @deftypefn {Function File} { [ @var{generator}, @var{rotator} ] =} AnGenerator ( @var{dim} )
 ##
 ## return an nxn full-rank generating matrix for an An lattice,
 ## based on the (n+1)xn @var{generator} of Chap.4,Eq.(52) in Conway&Sloane(1999)

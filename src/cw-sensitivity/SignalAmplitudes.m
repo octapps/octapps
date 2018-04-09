@@ -16,8 +16,8 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} [@var{ap}, @var{ax}] = SignalAmplitudes(@code{nonax}, @var{cosi})
-## @deftypefnx {Function File} @var{apxnorm} = SignalAmplitudes(@code{nonax})
+## @deftypefn {Function File} { [ @var{ap}, @var{ax} ] =} SignalAmplitudes ( @code{nonax}, @var{cosi} )
+## @deftypefnx{Function File} {@var{apxnorm} =} SignalAmplitudes ( @code{nonax} )
 ##
 ## Calculate the amplitudes of each polarisation from a signal
 ## emitted by a particular emission mechanism:

@@ -14,7 +14,7 @@
 ## along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{segment_lists} = CreateSegmentList(@var{mean_time}, @var{Nseg}, @var{Tseg}, @var{Tspan}, @var{duty}, [@var{always_cell}=false])
+## @deftypefn {Function File} {@var{segment_lists} =} CreateSegmentList ( @var{mean_time}, @var{Nseg}, @var{Tseg}, @var{Tspan}, @var{duty}, [ @var{always_cell}=false ] )
 ##
 ## Create segment list(s) with the given mean timestamp @var{mean_time}, and exactly 3 of the following
 ## 4 input parameters:

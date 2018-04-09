@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{hgrm} = LatticeMismatchHist(@var{dim}, @var{lattice}, @var{opt}, @var{val}, @dots{})
+## @deftypefn {Function File} {@var{hgrm} =} LatticeMismatchHist ( @var{dim}, @var{lattice}, @var{opt}, @var{val}, @dots{} )
 ##
 ## Generates a normalised mismatch histogram for the given lattice
 ##

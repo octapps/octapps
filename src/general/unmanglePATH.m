@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} unmanglePATH
+## @deftypefn {Function File} {} unmanglePATH
 ##
 ## Aaargh Octave! At startup it prepends PATH with directories containing
 ## Octave executables - which if it's installed in @file{/usr/bin} include

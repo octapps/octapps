@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} [@var{lX}, @var{freqmin}, @var{freqmax}, @var{freqbins}, @var{num_outliers}, @var{max_outlier}] = EstimateLinePriorsFromNormSFT ( @var{psdfiles}, @var{thresh}, @var{LVlmin}, @var{LVlmax} )
+## @deftypefn {Function File} { [ @var{lX}, @var{freqmin}, @var{freqmax}, @var{freqbins}, @var{num_outliers}, @var{max_outlier} ] =} EstimateLinePriorsFromNormSFT ( @var{psdfiles}, @var{thresh}, @var{LVlmin}, @var{LVlmax} )
 ##
 ## function to estimate line priors from normalized SFT power values in files computed by @command{lalapps_ComputePSD}
 ## psdfiles must be a cell array of existing files of length numDet

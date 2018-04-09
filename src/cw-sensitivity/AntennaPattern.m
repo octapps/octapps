@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{F} = AntennaPattern(@var{a}, @var{b}, @var{x}, @var{y}, @var{zeta})
+## @deftypefn {Function File} {@var{F} =} AntennaPattern ( @var{a}, @var{b}, @var{x}, @var{y}, @var{zeta} )
 ##
 ## Calculate the antenna pattern of an interferometer
 ##

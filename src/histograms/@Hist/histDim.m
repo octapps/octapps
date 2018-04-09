@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} @var{dim} = histDim(@var{hgrm})
+## @deftypefn {Function File} {@var{dim} =} histDim ( @var{hgrm} )
 ##
 ## Returns the dimensionality of a histogram object.
 ##

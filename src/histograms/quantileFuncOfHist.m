@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn  {Function File} q.f. = quantileFuncOfHist(@var{hgrm}, @var{p}, [@var{k} = 1])
+## @deftypefn {Function File} {q.f. =} quantileFuncOfHist ( @var{hgrm}, @var{p}, [ @var{k} = 1 ] )
 ##
 ## Evaluate the quantile function (q.f.) of a histogram.
 ##
