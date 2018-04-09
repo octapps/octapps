@@ -8,7 +8,7 @@ curdir := $(shell pwd -L)
 # use "make V=1" to display verbose output
 making = $(making_$(V))
 making_ = $(making_0)
-making_0 = @echo "Making $@";
+making_0 = @echo "Making"
 verbose = $(verbose_$(V))
 verbose_ = $(verbose_0)
 verbose_0 = @
@@ -70,7 +70,8 @@ all :
 # generate links in bin/ directory
 all .PHONY : bin
 bin :
-	$(making)mkdir -p $(curdir)/bin; \
+	$(making) "$@"; \
+	mkdir -p $(curdir)/bin; \
 	rm -f $(curdir)/bin/octapps_run; \
 	ln -s $(curdir)/src/command-line/octapps_run $(curdir)/bin/octapps_run; \
 	for octappsrunlink in `$(GREP) -l '\#\# octapps_run_link' $(srcmfiles)`; do \
@@ -83,7 +84,8 @@ bin :
 # generate environment scripts
 all .PHONY : octapps-user-env.sh octapps-user-env.csh
 octapps-user-env.sh octapps-user-env.csh : Makefile
-	$(making)case $@ in \
+	$(making) "$@"; \
+	case $@ in \
 		*.csh) empty='?'; setenv='setenv'; equals=' ';; \
 		*) empty='#'; setenv='export'; equals='=';; \
 	esac; \
@@ -99,7 +101,8 @@ octapps-user-env.sh octapps-user-env.csh : Makefile
 # generate author list, sorted by last name
 all .PHONY : AUTHORS
 AUTHORS : Makefile
-	$(making)( $(GIT) shortlog -s | $(SED) 's/^[^A-Z]*//'; $(GIT) grep Copyright src/ | $(SED) 's/^.*Copyright ([Cc]) [-0-9, ]*//' | $(TR) ',' '\n' | $(SED) 's/^ *//' ) | $(SORT) -u > .$@.all; \
+	$(making) "$@"; \
+	( $(GIT) shortlog -s | $(SED) 's/^[^A-Z]*//'; $(GIT) grep Copyright src/ | $(SED) 's/^.*Copyright ([Cc]) [-0-9, ]*//' | $(TR) ',' '\n' | $(SED) 's/^ *//' ) | $(SORT) -u > .$@.all; \
 	awkscript='/^[A-Z].*@.*$$/ { name = $$0 } /^[0-9]/ { lines[name] += $$1 } END { for (name in lines) printf "%i\t%s\n", lines[name], name }'; \
 	$(GIT) log --pretty='format:%aN <%aE>' --numstat | $(AWK) "$${awkscript}" | $(SORT) -k1,1 -n -r | $(SED) -n 's/^[^A-Z]*//;s/ <[^@]*@[^@]*>$$//p' > $@; \
 	echo >> $@; $(SORT) .$@.all $@ $@ | $(UNIQ) -u | $(SED) 's/ \([a-z][a-z]*\) / \1@/;t;s/ \([^ ][^ ]*\)$$/@\1/' | $(SORT) -t @ -k2,2 | $(SED) 's/@/ /g' >> $@; \
@@ -128,10 +131,12 @@ $(octdir) :
 	$(verbose)mkdir -p $@
 
 $(octdir)/%.o : %.cc Makefile
-	$(making)$(call Compile, -Wall -Wno-narrowing)
+	$(making) "$@"; \
+	$(call Compile, -Wall -Wno-narrowing)
 
 $(octdir)/%.oct : $(octdir)/%.o Makefile
-	$(making)$(call Link)
+	$(making) "$@"; \
+	$(call Link)
 
 ifneq ($(SWIG),false)				# generate SWIG extension modules
 
@@ -142,13 +147,16 @@ $(octdir)/gsl.oct : LIBS = $(shell $(PKGCONFIG) --libs gsl)
 all : $(swig_octs:%=$(octdir)/%.oct)
 
 $(swig_octs:%=$(octdir)/%.o) : $(octdir)/%.o : oct/%.cc Makefile
-	$(making)$(call Compile, -Wno-narrowing)
+	$(making) "$@"; \
+	$(call Compile, -Wno-narrowing)
 
 $(swig_octs:%=oct/%.cc) : oct/%.cc : %.i Makefile
-	$(making)$(SWIG) $(vershex) -octave -c++ -globals "." -o $@ $<
+	$(making) "$@"; \
+	$(SWIG) $(vershex) -octave -c++ -globals "." -o $@ $<
 
 $(swig_octs:%=$(octdir)/%.oct) : $(octdir)/%.oct : $(octdir)/%.o Makefile
-	$(making)$(call Link)
+	$(making) "$@"; \
+	$(call Link)
 
 else						# generate SWIG extension modules
 
@@ -204,8 +212,12 @@ check : all
 	export OCTAPPS_TMPDIR=`mktemp -d -t octapps-make-check.XXXXXX`; \
 	echo "Created temporary directory $${OCTAPPS_TMPDIR}"; \
 	$(MAKE) `printf "%s.test\n" $${testfiles} | $(SORT)` || exit 1; \
-	rm -rf "$${OCTAPPS_TMPDIR}"; \
-	echo "Removed temporary directory $${OCTAPPS_TMPDIR}"; \
+	if test "x$(NOCLEANUP)" = x; then \
+		rm -rf "$${OCTAPPS_TMPDIR}"; \
+		echo "Removed temporary directory $${OCTAPPS_TMPDIR}"; \
+	else \
+		echo "NOT removing temporary directory $${OCTAPPS_TMPDIR}"; \
+	fi; \
 	echo "=================================================="; \
 	echo "OctApps test suite has passed successfully!"; \
 	echo "=================================================="
@@ -253,7 +265,8 @@ ifneq ($(CTAGSEX),false)
 
 all .PHONY : TAGS
 TAGS :
-	$(making)$(CTAGSEX) -e $(srcmfiles) $(srccfiles)
+	$(making) "$@"; \
+	$(CTAGSEX) -e $(srcmfiles) $(srccfiles)
 
 endif # neq ($(CTAGSEX),false)
 
