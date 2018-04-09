@@ -1,4 +1,4 @@
-## Copyright (C) 2017 Karl Wette
+## Copyright (C) 2018 Karl Wette
 ##
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
