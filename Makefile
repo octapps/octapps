@@ -51,8 +51,8 @@ srctexifiles = $(srctestfiles)
 # OctApps extension module directory
 octdir := oct/$(version)
 
-# main targets
-.PHONY : all check clean
+# main target
+.PHONY : all
 
 # print list of deprecated functions at finish
 all :
@@ -100,6 +100,8 @@ octapps-user-env.sh octapps-user-env.csh : Makefile
 	echo "test \$${$${empty}PATH} -eq 0 && $${setenv} PATH" >>$@; \
 	echo "$${setenv} PATH$${equals}\`echo $${path} | $${cleanpath}\`" >>$@
 
+ifneq ($(GIT),false)			# requires Git
+
 # generate author list, sorted by last name
 all .PHONY : AUTHORS
 AUTHORS : Makefile
@@ -109,6 +111,8 @@ AUTHORS : Makefile
 	$(GIT) log --pretty='format:%aN <%aE>' --numstat | $(AWK) "$${awkscript}" | $(SORT) -k1,1 -n -r | $(SED) -n 's/^[^A-Z]*//;s/ <[^@]*@[^@]*>$$//p' > $@; \
 	echo >> $@; $(SORT) .$@.all $@ $@ | $(UNIQ) -u | $(SED) 's/ \([a-z][a-z]*\) / \1@/;t;s/ \([^ ][^ ]*\)$$/@\1/' | $(SORT) -t @ -k2,2 | $(SED) 's/@/ /g' >> $@; \
 	rm -f .$@.*
+
+endif					# requires Git
 
 ifneq ($(MKOCTFILE),false)		# build extension modules
 
@@ -177,6 +181,7 @@ no_mkoctfile :
 endif					# build extension modules
 
 # run test scripts
+.PHONY : check
 check : all
 	$(verbose)testfiles=; \
 	for testfile in $(patsubst $(curdir)/src/%,%,$(srctestfiles)); do \
@@ -263,6 +268,7 @@ check : all
 	}
 
 # generate HTML documentation
+.PHONY : html
 html : all
 	$(verbose)texifiles=; texifilesdirs=; texidirs=; \
 	for texifile in $(patsubst $(curdir)/src/%,%,$(srctexifiles)); do \
@@ -308,16 +314,21 @@ html : all
 	source octapps-user-env.sh; \
 	$(OCTAVE) --eval "__octapps_make_html__('$*');"
 
-# generate tags
-ifneq ($(CTAGSEX),false)
+ifneq ($(CTAGSEX),false)		# requires Exuberant Ctags
 
+# generate tags
 all .PHONY : TAGS
 TAGS :
 	$(making) "$@"; \
 	$(CTAGSEX) -e $(srcmfiles) $(srccfiles)
 
-endif # neq ($(CTAGSEX),false)
+endif					# requires Exuberant Ctags
+
+ifneq ($(GIT),false)			# requires Git
 
 # cleanup
+.PHONY : clean
 clean :
 	$(verbose)$(GIT) clean -Xdf
+
+endif					# requires Git
