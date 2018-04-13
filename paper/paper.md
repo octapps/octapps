@@ -51,14 +51,14 @@ Gravitational waves are minute ripples in spacetime, first predicted by Einstein
 Their existence has now been confirmed by the recent successful detections of gravitational waves from the collision and merger of binary black holes [@LIGOVirg2016a] and binary neutron stars [@LIGOVirg2017a] in data from the [LIGO](https://www.ligo.org) and [Virgo](http://www.virgo-gw.eu) gravitational-wave detectors.
 Gravitational waves from rapidly-rotating neutron stars, whose shape deviates from perfect axisymmetry, are another potential astrophysical source of gravitational waves, but which so far have not been detected.
 The search for this type of signals, also known as continuous waves, presents a significant data analysis challenge, as their weak signatures are expected to be buried deep within the instrumental noise of the LIGO and Virgo detectors.
-For reviews of continuous-wave sources, data analysis techniques, and recent searches of LIGO and Virgo data, see for example [@Prix2009a, @Rile2017a].
+For reviews of continuous-wave sources, data analysis techniques, and recent searches of LIGO and Virgo data, see for example [@Prix2009a] and [@Rile2017a].
 
 The *OctApps* library provides various functions, written in Octave [@Octave2015], intended to aid research scientists who perform searches for continuous gravitational waves.
 They are organized into the following directories:
 
 - `src/cw-data-analysis`: general-purpose functions for continuous-wave data analysis.
 - `src/cw-line-veto`: functions which implement detection statistics which are robust to instrumental disturbances in the detector data, as described in [@KeitEtAl2014a].
-- `src/cw-metric-template-banks`: functions which determine the number of filtering operations required to search for continuous waves over various astrophysical parameter spaces, described further in [@WettPrix2013a, @LeacPrix2015a].
+- `src/cw-metric-template-banks`: functions which determine the number of filtering operations required to search for continuous waves over various astrophysical parameter spaces, described further in [@WettPrix2013a] and [@LeacPrix2015a].
 - `src/cw-optimal-search-setup`: functions which determine the optimally-sensitive search for continuous gravitational waves, given a fixed computing budget, following the method of [@PrixShal2012a].
 - `src/cw-sensitivity`: functions which predict the sensitivity of a search for continuous waves, following the method of [@Wett2012a].
 - `src/cw-weave-models`: functions which characterize the behaviour of *Weave*, an implementation of an optimized search pipeline for continuous waves [@Wett2018a].
