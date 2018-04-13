@@ -51,7 +51,7 @@ Gravitational waves are minute ripples in spacetime, first predicted by Einstein
 Their existence has now been confirmed by the recent successful detections of gravitational waves from the collision and merger of binary black holes [@LIGOVirg2016a] and binary neutron stars [@LIGOVirg2017a] in data from the [LIGO](https://www.ligo.org) and [Virgo](http://www.virgo-gw.eu) gravitational-wave detectors.
 Gravitational waves from rapidly-rotating neutron stars, whose shape deviates from perfect axisymmetry, are another potential astrophysical source of gravitational waves, but which so far have not been detected.
 The search for this type of signals, also known as continuous waves, presents a significant data analysis challenge, as their weak signatures are expected to be buried deep within the instrumental noise of the LIGO and Virgo detectors.
-For reviews of continuous-wave sources, data analysis techniques, and recent searches of LIGO and Virgo data, see for example [@Prix2009a] and [@Rile2017a].
+For reviews of continuous-wave sources, data analysis techniques, and recent searches of LIGO and Virgo data, see for example @Prix2009a and @Rile2017a.
 
 The *OctApps* library provides various functions, written in Octave [@Octave2015], intended to aid research scientists who perform searches for continuous gravitational waves.
 They are organized into the following directories:
@@ -90,3 +90,5 @@ A [reference listing](https://octapps.github.io) of functions in *OctApps* in HT
 
 We acknowledge that *OctApps* includes contributions from Zdravko Botev, Ronaldas Macas, John McNabb, and Daniel de Torre Herrera.
 This paper has document number LIGO-P1800078-v3.
+
+# References
