@@ -89,6 +89,7 @@ A [reference listing](https://octapps.github.io) of functions in *OctApps* in HT
 ## Acknowledgements
 
 We acknowledge that *OctApps* includes contributions from Zdravko Botev, Ronaldas Macas, John McNabb, and Daniel de Torre Herrera.
-This paper has document number LIGO-P1800078-v3.
+We thank Steven R. Brandt for reviewing this paper and providing the `Dockerfile` for building and testing *OctApps*.
+This paper has document number LIGO-P1800078-v4.
 
 # References

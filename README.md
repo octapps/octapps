@@ -9,6 +9,10 @@ Downloading
 *OctApps* is hosted on [GitHub](https://github.com).
 Please see the [project homepage](https://github.com/octapps/octapps) for instructions for checking out the repository with `git clone`.
 
+Alternatively, a [Docker](https://www.docker.com) image containing the latest version of *OctApps* can be built by running
+
+> $ docker build https://github.com/octapps/octapps.git
+
 Dependencies
 ------------
 
