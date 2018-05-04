@@ -120,16 +120,22 @@ VPATH = $(srcfilepath)
 
 ALL_CFLAGS = -Wno-narrowing -Wno-deprecated-declarations
 
-Compile = rm -f $@ && $(MKOCTFILE) $(vershex) -g -c -o $@ $< $(ALL_CFLAGS) $(CFLAGS) $1 && test -f $@
-Link = rm -f $@ && $(MKOCTFILE) -g -o $@ $(filter %.o,$^) $(LIBS) $1 && test -f $@
+Compile = rm -f $@ \
+	&& CFLAGS=`test "x$(DEPENDS)" = x || $(PKGCONFIG) --cflags $(DEPENDS)` \
+	&& $(MKOCTFILE) $(vershex) -g -c -o $@ $< $(ALL_CFLAGS) $${CFLAGS} $1 \
+	&& test -f $@
+
+Link = rm -f $@ \
+	&& LIBS=`test "x$(DEPENDS)" = x || $(PKGCONFIG) --libs $(DEPENDS)` \
+	&& $(MKOCTFILE) -g -o $@ $(filter %.o,$^) $${LIBS} $1 \
+	&& test -f $@
 
 octs += depends
 
 ifeq ($(call CheckPkg, cfitsio),true)		# compile FITS reading module
 
 octs += fitsread
-$(octdir)/fitsread.oct : CFLAGS = $(shell $(PKGCONFIG) --cflags cfitsio)
-$(octdir)/fitsread.oct : LIBS = $(shell $(PKGCONFIG) --libs cfitsio)
+$(octdir)/fitsread.oct : DEPENDS = cfitsio
 
 endif						# compile FITS reading module
 
@@ -147,8 +153,7 @@ $(octdir)/%.oct : $(octdir)/%.o Makefile
 ifneq ($(SWIG),false)				# generate SWIG extension modules
 
 swig_octs += gsl
-$(octdir)/gsl.oct : CFLAGS = $(shell $(PKGCONFIG) --cflags gsl)
-$(octdir)/gsl.oct : LIBS = $(shell $(PKGCONFIG) --libs gsl)
+$(octdir)/gsl.oct : DEPENDS = gsl
 
 all : $(swig_octs:%=$(octdir)/%.oct)
 
