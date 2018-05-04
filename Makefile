@@ -6,12 +6,15 @@ SHELL = /bin/bash
 curdir := $(shell pwd -L)
 
 # use "make V=1" to display verbose output
-making = $(making_$(V))
-making_ = $(making_0)
-making_0 = @echo "Making"
 verbose = $(verbose_$(V))
 verbose_ = $(verbose_0)
 verbose_0 = @
+making = $(making_$(V))
+making_ = $(making_0)
+making_0 = @echo "Making $@";
+makingdoc = $(makingdoc_$(V))
+makingdoc_ = $(makingdoc_0)
+makingdoc_0 = @echo "Making documentation for" `echo $* | $(SED) 's|@@|@|g;s|::|/|g;'`;
 
 # check for a program in a list using type -P, or return false
 CheckProg = $(strip $(shell $(1:%=type -P % || ) echo false))
@@ -72,8 +75,7 @@ all :
 # generate links in bin/ directory
 all .PHONY : bin
 bin :
-	$(making) "$@"; \
-	mkdir -p $(curdir)/bin; \
+	$(making)mkdir -p $(curdir)/bin; \
 	rm -f $(curdir)/bin/octapps_run; \
 	ln -s $(curdir)/src/command-line/octapps_run $(curdir)/bin/octapps_run; \
 	for octappsrunlink in `$(GREP) -l '\#\# octapps_run_link' $(srcmfiles)`; do \
@@ -86,8 +88,7 @@ bin :
 # generate environment scripts
 all .PHONY : octapps-user-env.sh octapps-user-env.csh
 octapps-user-env.sh octapps-user-env.csh : Makefile
-	$(making) "$@"; \
-	case $@ in \
+	$(making)case $@ in \
 		*.csh) empty='?'; setenv='setenv'; equals=' ';; \
 		*) empty='#'; setenv='export'; equals='=';; \
 	esac; \
@@ -105,8 +106,7 @@ ifneq ($(GIT),false)			# requires Git
 # generate author list, sorted by last name
 all .PHONY : AUTHORS
 AUTHORS : Makefile
-	$(making) "$@"; \
-	( $(GIT) shortlog -s | $(SED) 's/^[^A-Z]*//'; $(GIT) grep Copyright src/ | $(SED) 's/\s*([^()][^()]*)//g;s/^.*Copyright [-0-9, ]*//' | $(TR) ',' '\n' | $(SED) 's/^ *//' ) | $(SORT) -u > .$@.all; \
+	$(making)( $(GIT) shortlog -s | $(SED) 's/^[^A-Z]*//'; $(GIT) grep Copyright src/ | $(SED) 's/\s*([^()][^()]*)//g;s/^.*Copyright [-0-9, ]*//' | $(TR) ',' '\n' | $(SED) 's/^ *//' ) | $(SORT) -u > .$@.all; \
 	awkscript='/^[A-Z].*@.*$$/ { name = $$0 } /^[0-9]/ { lines[name] += $$1 } END { for (name in lines) printf "%i\t%s\n", lines[name], name }'; \
 	$(GIT) log --pretty='format:%aN <%aE>' --numstat | $(AWK) "$${awkscript}" | $(SORT) -k1,1 -n -r | $(SED) -n 's/^[^A-Z]*//;s/ <[^@]*@[^@]*>$$//p' > $@; \
 	echo >> $@; $(SORT) .$@.all $@ $@ | $(UNIQ) -u | $(SED) 's/ \([a-z][a-z]*\) / \1@/;t;s/ \([^ ][^ ]*\)$$/@\1/' | $(SORT) -t @ -k2,2 | $(SED) 's/@/ /g' >> $@; \
@@ -137,12 +137,10 @@ $(octdir) :
 	$(verbose)mkdir -p $@
 
 $(octdir)/%.o : %.cc Makefile
-	$(making) "$@"; \
-	$(call Compile, -Wall -Wno-narrowing)
+	$(making)$(call Compile, -Wall -Wno-narrowing)
 
 $(octdir)/%.oct : $(octdir)/%.o Makefile
-	$(making) "$@"; \
-	$(call Link)
+	$(making)$(call Link)
 
 ifneq ($(SWIG),false)				# generate SWIG extension modules
 
@@ -153,16 +151,13 @@ $(octdir)/gsl.oct : LIBS = $(shell $(PKGCONFIG) --libs gsl)
 all : $(swig_octs:%=$(octdir)/%.oct)
 
 $(swig_octs:%=$(octdir)/%.o) : $(octdir)/%.o : oct/%.cc Makefile
-	$(making) "$@"; \
-	$(call Compile, -Wno-narrowing)
+	$(making)$(call Compile, -Wno-narrowing)
 
 $(swig_octs:%=oct/%.cc) : oct/%.cc : %.i Makefile
-	$(making) "$@"; \
-	$(SWIG) $(vershex) -octave -c++ -globals "." -o $@ $<
+	$(making)$(SWIG) $(vershex) -octave -c++ -globals "." -o $@ $<
 
 $(swig_octs:%=$(octdir)/%.oct) : $(octdir)/%.oct : $(octdir)/%.o Makefile
-	$(making) "$@"; \
-	$(call Link)
+	$(making)$(call Link)
 
 else						# generate SWIG extension modules
 
@@ -310,8 +305,7 @@ html : all
 	echo "=================================================="
 
 %.texi :
-	$(making) "documentation for" `echo $* | $(SED) 's|@@|@|g'`; \
-	source octapps-user-env.sh; \
+	$(makingdoc)source octapps-user-env.sh; \
 	$(OCTAVE) --eval "__octapps_make_html__('$*');"
 
 ifneq ($(CTAGSEX),false)		# requires Exuberant Ctags
@@ -319,8 +313,7 @@ ifneq ($(CTAGSEX),false)		# requires Exuberant Ctags
 # generate tags
 all .PHONY : TAGS
 TAGS :
-	$(making) "$@"; \
-	$(CTAGSEX) -e $(srcmfiles) $(srccfiles)
+	$(making)$(CTAGSEX) -e $(srcmfiles) $(srccfiles)
 
 endif					# requires Exuberant Ctags
 
