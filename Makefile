@@ -118,7 +118,9 @@ ifneq ($(MKOCTFILE),false)		# build extension modules
 
 VPATH = $(srcfilepath)
 
-Compile = rm -f $@ && $(MKOCTFILE) $(vershex) -g -c -o $@ $< $(CFLAGS) $1 && test -f $@
+ALL_CFLAGS = -Wno-narrowing
+
+Compile = rm -f $@ && $(MKOCTFILE) $(vershex) -g -c -o $@ $< $(ALL_CFLAGS) $(CFLAGS) $1 && test -f $@
 Link = rm -f $@ && $(MKOCTFILE) -g -o $@ $(filter %.o,$^) $(LIBS) $1 && test -f $@
 
 octs += depends
@@ -137,7 +139,7 @@ $(octdir) :
 	$(verbose)mkdir -p $@
 
 $(octdir)/%.o : %.cc Makefile
-	$(making)$(call Compile, -Wall -Wno-narrowing)
+	$(making)$(call Compile, -Wall)
 
 $(octdir)/%.oct : $(octdir)/%.o Makefile
 	$(making)$(call Link)
@@ -151,7 +153,7 @@ $(octdir)/gsl.oct : LIBS = $(shell $(PKGCONFIG) --libs gsl)
 all : $(swig_octs:%=$(octdir)/%.oct)
 
 $(swig_octs:%=$(octdir)/%.o) : $(octdir)/%.o : oct/%.cc Makefile
-	$(making)$(call Compile, -Wno-narrowing)
+	$(making)$(call Compile)
 
 $(swig_octs:%=oct/%.cc) : oct/%.cc : %.i Makefile
 	$(making)$(SWIG) $(vershex) -octave -c++ -globals "." -o $@ $<
