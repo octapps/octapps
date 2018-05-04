@@ -118,7 +118,7 @@ ifneq ($(MKOCTFILE),false)		# build extension modules
 
 VPATH = $(srcfilepath)
 
-ALL_CFLAGS = -Wno-narrowing
+ALL_CFLAGS = -Wno-narrowing -Wno-deprecated-declarations
 
 Compile = rm -f $@ && $(MKOCTFILE) $(vershex) -g -c -o $@ $< $(ALL_CFLAGS) $(CFLAGS) $1 && test -f $@
 Link = rm -f $@ && $(MKOCTFILE) -g -o $@ $(filter %.o,$^) $(LIBS) $1 && test -f $@
