@@ -49,7 +49,6 @@ script:
     && make -j2 check NOSKIP=1
     && make -j2 html
     ; fi
-  - echo "$TRAVIS_OS_NAME" "$TRAVIS_REPO_SLUG" "$TRAVIS_BRANCH" "$TRAVIS_EVENT_TYPE"; if test "x$ACCESS_TOKEN" != x; then echo SET; fi
   - if test "$TRAVIS_OS_NAME" = "linux" && test "$TRAVIS_REPO_SLUG" = "octapps/octapps" && test "$TRAVIS_BRANCH" = "master" && test "$TRAVIS_EVENT_TYPE" = "push" && test "x$ACCESS_TOKEN" != x; then true
     && echo -e "machine github.com\\nlogin kwwette\\npassword $ACCESS_TOKEN" > ~/.netrc
     && git clone https://github.com/octapps/octapps.github.io.git /tmp/octapps.github.io
