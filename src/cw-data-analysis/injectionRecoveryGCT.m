@@ -666,7 +666,7 @@ function results = injectionRecoveryGCT ( varargin )
 endfunction ## measureGCTmismatch()
 
 %!test
-%!  if isempty(file_in_path(getenv("PATH"), "lalapps_ComputeFstatistic_v2"))
+%!  if isempty(file_in_path(getenv("PATH"), "lalapps_HierarchSearchGCT"))
 %!    disp("skipping test: LALApps programs not available"); return;
 %!  endif
 %!  oldpwd = pwd;
