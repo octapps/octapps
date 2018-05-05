@@ -95,6 +95,12 @@ function metrics = ComputeSuperskyMetrics(varargin)
                {"use_cache", "logical,scalar", true},
                []);
 
+  ## disable cache for older versions of LAL libraries
+  if !exist("XLALCopySuperskyMetrics", "file")
+    use_cache = false;
+    warning("%s: Supersky metric cache disabled for older installed version of LAL libraries", funcName);
+  endif
+
   ## load ephemerides if not supplied
   if isempty(ephemerides)
     ephemerides = loadEphemerides();
@@ -199,12 +205,20 @@ function metrics = ComputeSuperskyMetrics(varargin)
     end_try_catch
 
     ## compute supersky metrics
+    if exist("SUPERSKY_METRIC_TYPE", "var")
+      XLALComputeSuperskyMetrics_args = { ...
+                                          SUPERSKY_METRIC_TYPE, ...
+                                          spindowns, ref_time, SegmentList, fiducial_freq, ...
+                                          MultiLALDet, MultiNoise, DetMotion, ephemerides ...
+                                        };
+    else
+      XLALComputeSuperskyMetrics_args = { ...
+                                          spindowns, ref_time, SegmentList, fiducial_freq, ...
+                                          MultiLALDet, MultiNoise, DetMotion, ephemerides ...
+                                        };
+    endif
     try
-      metrics = XLALComputeSuperskyMetrics( ...
-                                            SUPERSKY_METRIC_TYPE, ...
-                                            spindowns, ref_time, SegmentList, fiducial_freq, ...
-                                            MultiLALDet, MultiNoise, DetMotion, ephemerides ...
-                                          );
+      metrics = XLALComputeSuperskyMetrics(XLALComputeSuperskyMetrics_args{:});
     catch
       if use_cache
         DebugPrintf(2, "\n");

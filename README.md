@@ -9,6 +9,10 @@ Downloading
 *OctApps* is hosted on [GitHub](https://github.com).
 Please see the [project homepage](https://github.com/octapps/octapps) for instructions for checking out the repository with `git clone`.
 
+Alternatively, a [Docker](https://www.docker.com) image containing the latest version of *OctApps* can be built by running
+
+> $ docker build https://github.com/octapps/octapps.git
+
 Dependencies
 ------------
 
@@ -20,13 +24,17 @@ Dependencies
 <tr><td> GNU Find Utilities </td><td> Used to build <i>OctApps</i> </td><td> installed as standard </td><td> <tt>brew install findutils</tt> </td></tr>
 <tr><td> GNU Sed </td><td> Used to build <i>OctApps</i> </td><td> installed as standard </td><td> <tt>brew install gnu-sed</tt> </td></tr>
 <tr><td> GNU Awk </td><td> Used to build <i>OctApps</i> </td><td> installed as standard </td><td> <tt>brew install gawk</tt> </td></tr>
+<tr><td> GNU Make </td><td> Used to build <i>OctApps</i> </td><td> <tt>apt install make</tt> </td><td> <tt>brew install make</tt> </td></tr>
+<tr><td> pkg-config </td><td> Used to build <i>OctApps</i> </td><td> <tt>apt install pkg-config</tt> </td><td> <tt>brew install pkg-config</tt> </td></tr>
 <tr><td> Octave </td><td> Running <i>OctApps</i> </td><td> <tt>apt install octave</tt> </td><td> <tt>brew install octave</tt> </td></tr>
 <tr><td> Octave development headers </td><td> Used to build extension modules </td><td> <tt>apt install liboctave-dev</tt> </td><td> <tt>brew install octave</tt> </td></tr>
 <tr><td> SWIG </td><td> Used to build extension modules </td><td> <tt>apt install swig3.0</tt> </td><td> <tt>brew install swig</tt> </td></tr>
 <tr><td> GNU Texinfo </td><td> Used to build HTML documentation </td><td> <tt>apt install texinfo</tt> </td><td> <tt>brew install texinfo</tt> </td></tr>
-<tr><td> LSC Algorithm Library (LALSuite) Octave bindings </td><td> Used by continuous gravitational-wave functions </td><td colspan="2"> See <a href="https://wiki.ligo.org/DASWG/LALSuite">project homepage</a> for build instructions </td></tr>
+<tr><td> LSC Algorithm Library (LALSuite) </td><td> Continuous gravitational-wave functions require packages <tt>lal-octave</tt>, <tt>lalxml-octave</tt>, <tt>lalpulsar-octave</tt>, and <tt>lalapps</tt> </td><td colspan="2"> See <a href="https://wiki.ligo.org/DASWG/LALSuite">project homepage</a> for build instructions </td></tr>
 <tr><td> GNU Scientific Library </td><td> Used by <tt>gsl</tt> module </td><td> <tt>apt install libgsl-dev</tt> </td><td> <tt>brew install gsl</tt> </td></tr>
 <tr><td> FFmpeg </td><td> Used by <tt>ezmovie()</tt> function </td><td> <tt>apt install ffmpeg</tt> </td><td> <tt>brew install ffmpeg</tt> </td></tr>
+<tr><td> CFITSIO </td><td> Used by <tt>fitsread()</tt> function </td><td> <tt>apt install libcfitsio-dev</tt> </td><td> <tt>brew install cfitsio</tt> </td></tr>
+<tr><td> bzip2 </td><td> Used by <tt>SuperskyMetricsCache()</tt> function </td><td> <tt>apt install bzip2</tt> </td><td> <tt>brew install bzip2</tt> </td></tr>
 </table>
 
 Building

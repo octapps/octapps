@@ -666,8 +666,13 @@ function results = injectionRecoveryGCT ( varargin )
 endfunction ## measureGCTmismatch()
 
 %!test
-%!  if isempty(file_in_path(getenv("PATH"), "lalapps_ComputeFstatistic_v2"))
+%!  if isempty(file_in_path(getenv("PATH"), "lalapps_HierarchSearchGCT"))
 %!    disp("skipping test: LALApps programs not available"); return;
+%!  endif
+%!  output = nthargout(2, @system, "lalapps_HierarchSearchGCT --version");
+%!  LALApps_version = versionstr2hex(nthargout(5, @regexp, output, "LALApps: ([0-9.]+)"){1}{1,1});
+%!  if LALApps_version <= 0x06210000
+%!    disp("cannot run test as version of lalapps_HierarchSearchGCT is too old"); return;
 %!  endif
 %!  oldpwd = pwd;
 %!  basedir = mkpath(tempname(tempdir));

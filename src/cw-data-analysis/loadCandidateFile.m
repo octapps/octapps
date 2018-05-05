@@ -62,6 +62,11 @@ endfunction
 %!  if isempty(file_in_path(getenv("PATH"), "lalapps_ComputeFstatistic_v2"))
 %!    disp("skipping test: LALApps programs not available"); return;
 %!  endif
+%!  output = nthargout(2, @system, "lalapps_ComputeFstatistic_v2 --version");
+%!  LALApps_version = versionstr2hex(nthargout(5, @regexp, output, "LALApps: ([0-9.]+)"){1}{1,1});
+%!  if LALApps_version <= 0x06210000
+%!    disp("cannot run test as version of lalapps_ComputeFstatistic_v2 is too old"); return;
+%!  endif
 %!  args = struct;
 %!  args.Alpha = 1.2;
 %!  args.Delta = 3.4;
