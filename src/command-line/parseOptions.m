@@ -71,9 +71,9 @@
 ##
 ## @item
 ## @var{opts} should contain options of the form
-## @verbatim
+## @example
 ##   reg, reg, ..., "key", val, "key", val, ...
-## @end verbatim
+## @end example
 ## where @var{reg} are regular options, and @var{key} and @var{val} are
 ## keyword-value option pairs. Regular options are assigned in the order they
 ## were given as @var{optspec}s; regular options may also be given as

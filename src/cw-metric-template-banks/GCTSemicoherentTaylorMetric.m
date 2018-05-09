@@ -31,8 +31,6 @@
 ##
 ## @heading Options
 ##
-## @heading Options
-##
 ## @table @code
 ## @item smax
 ## number of spindowns (up to second spindown)

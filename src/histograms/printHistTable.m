@@ -28,7 +28,7 @@
 ##
 ## @end table
 ##
-## @heading and options are
+## @heading Options
 ##
 ## @table @var
 ## @item dbins

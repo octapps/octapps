@@ -34,8 +34,6 @@
 ##
 ## @heading Options
 ##
-## @heading Options
-##
 ## @table @code
 ## @item t0
 ## value of @var{t0}, an overall reference time

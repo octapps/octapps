@@ -139,9 +139,9 @@
 ## @item MBDataPerDetSeg
 ## memory to hold all data @strong{per detector}, @strong{per-segment} (original+buffered) [in MBytes]
 ## ie total data memory would be
-## @verbatim
+## @example
 ##   memData[all] = Nseg * Ndet * memDataPerDetSeg
-## @end verbatim
+## @end example
 ##
 ## @end table
 ##

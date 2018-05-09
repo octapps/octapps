@@ -33,8 +33,6 @@
 ##
 ## @heading Options
 ##
-## @heading Options
-##
 ## @table @code
 ## @item fracSky
 ## fraction of sky covered by search

@@ -24,15 +24,15 @@
 ## called from the command line. For these functions, keywords are
 ## naturally translated into command-line options, for example:
 ##
-## @verbatim
+## @example
 ##   function --option1 value1 --option2=value2
-## @end verbatim
+## @end example
 ##
 ## is translated into the Octave function call
 ##
-## @verbatim
+## @example
 ##   function("option1", value1, "option2", value2)
-## @end verbatim
+## @end example
 ##
 ## By default the first output argument of the called function is printed.
 ## Additional arguments are supported for controlling how the output of

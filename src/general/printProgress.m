@@ -21,7 +21,7 @@
 ## the number of tasks completed, CPU usage, time elasped/remaining
 ##
 ## @heading Example
-## @verbatim
+## @example
 ## prog = [];
 ## for i = 1:5000
 ##   for j = 1:5
@@ -30,7 +30,7 @@
 ##   endfor
 ##   prog = printProgress(prog, [i, j], [5000, 5]);
 ## endfor
-## @end verbatim
+## @end example
 ##
 ## @end deftypefn
 

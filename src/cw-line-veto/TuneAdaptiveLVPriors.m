@@ -23,9 +23,9 @@
 ##
 ## @heading Example
 ##
-## @verbatim
+## @example
 ## octapps_run TuneAdaptiveLVPriors --sftdir=sfts --sft_filenamebit=S6GC1 --freqmin=50 --freqmax=50.5
-## @end verbatim
+## @end example
 ##
 ## @end deftypefn
 

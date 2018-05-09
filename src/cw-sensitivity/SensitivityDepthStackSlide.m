@@ -72,7 +72,8 @@
 ## @end table
 ##
 ## @heading Example
-## @verbatim
+##
+## @example
 ## ## two different setups with 5 stages (5 columns, 2 rows)
 ## Nseg = [90,90,44,44,22;100,100,50,50,25]
 ## ## different for every stage but the same for every trial
@@ -80,10 +81,10 @@
 ## ## as we have 5 stages there must be five thrqesholds
 ## avg2Fth = [6.109,6.109,7.38,8.82,15]
 ## ## we also need one mismatch histogram per stage
-## misHist = {mismatch1, mismatch2, mismatch3, mismatch4, mismatch5}
+## misHist = @{mismatch1, mismatch2, mismatch3, mismatch4, mismatch5@}
 ## ## a column with two false dimissal probabilitites, one for each trial
 ## pFD = [0.1,0.05]'
-## @end verbatim
+## @end example
 ##
 ## @end deftypefn
 

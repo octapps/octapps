@@ -48,13 +48,13 @@
 ## @end table
 ##
 ## @heading Example
-## @verbatim
+## @example
 ## ezmovie("start", "opt", val, ...);
 ## plot(...);
 ## ezmovie add;
 ## plot(...);
 ## ezmovie add;
-## @end verbatim
+## @end example
 ##
 ## @end deftypefn
 

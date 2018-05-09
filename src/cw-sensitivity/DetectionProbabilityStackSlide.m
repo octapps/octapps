@@ -22,7 +22,7 @@
 ##
 ## Estimate detection probability for given fixed sensitivity-depth signal @var{Depth} = sqrt(S)/h0
 ##
-## @heading where Options are
+## @heading Options
 ##
 ## @table @code
 ## @item Nseg

@@ -85,10 +85,10 @@
 ## @end indentedblock
 ##
 ## @heading Example
-## @verbatim
+## @example
 ## data=[randn(100,1);randn(100,1)*2+35 ;randn(100,1)+55];
 ## kde(data,2^14,min(data)-5,max(data)+5);
-## @end verbatim
+## @end example
 ##
 ## @end deftypefn
 

@@ -473,8 +473,8 @@ public:
 };
 
 static const char *const depends_usage = "-*- texinfo -*- \n\
-@deftypefn {Loadable Function} {[@var{deps},@var{extras}] =} depends(@var{function}, @dots{})\n\
-@deftypefnx{Loadable Function} {[@var{deps},@var{extras}] =} depends(@var{exclude}, @var{function}, @dots{})\n\
+@deftypefn {Loadable Function} {[@var{deps},@var{extras}] =} depends ( @var{function}, @dots{} )\n\
+@deftypefnx{Loadable Function} {[@var{deps},@var{extras}] =} depends ( @var{exclude}, @var{function}, @dots{} )\n\
 \n\n\
 Returns a struct containing the names (keys) and filenames (values) of functions required by the supplied @var{function}s. \
 If @var{exclude} (a cell array of strings) is given, exclude all functions whose filepaths start with one of the filepath prefixes in @var{exclude}. \
