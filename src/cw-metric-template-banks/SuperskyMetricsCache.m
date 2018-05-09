@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn {Function File} {@var{cache_dir} =} @command{SuperskyMetricsCache ( ) }
+## @deftypefn {Function File} {@var{cache_dir} =} SuperskyMetricsCache ( )
 ## @deftypefnx{Function File} {} SuperskyMetricsCache @samp{action}
 ##
 ## Manage cache of computed supersky metrics
