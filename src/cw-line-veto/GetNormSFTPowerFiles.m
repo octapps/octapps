@@ -19,8 +19,14 @@
 ## @deftypefn {Function File} {@var{ret} =} GetNormSFTPowerFiles ( @var{varargin} )
 ##
 ## function to produce files of normalized SFT power over a large set of frequency bands (input sft files) for a single IFO
+##
 ## command-line parameters can be taken from parseOptions call below
-## example call: octapps_run GetNormSFTPowerFiles --sftdir=sfts --sft_filenamebit=S6GC1 --IFO=h1 --freqmin=50.5
+##
+## @heading Example
+##
+## @example
+## octapps_run GetNormSFTPowerFiles --sftdir=sfts --sft_filenamebit=S6GC1 --IFO=h1 --freqmin=50.5
+## @end example
 ##
 ## @end deftypefn
 
