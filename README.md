@@ -92,4 +92,6 @@ A [reference listing](https://octapps.github.io) of functions in *OctApps* in HT
 Contributing
 ------------
 
-Bugs should be reported on the [issue tracker](https://github.com/octapps/octapps/issues) on GitHub, and patches submitted via [pull requests](https://github.com/octapps/octapps/pulls).
+Contributions to *OctApps* are welcome.
+Bug reports and other requests for support should be raised on the [issue tracker](https://github.com/octapps/octapps/issues) on GitHub.
+Bug fixes and new contributions should be submitted as [pull requests](https://github.com/octapps/octapps/pulls) to the main *OctApps* repository.
