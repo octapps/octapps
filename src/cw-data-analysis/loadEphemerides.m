@@ -29,8 +29,6 @@
 ##
 ## @heading Options
 ##
-## @heading Options
-##
 ## @table @code
 ## @item earth_file
 ## Earth ephemerides file (default: @file{earth00-19-DE405.dat.gz})
