@@ -32,7 +32,7 @@ function __octapps_make_html__(f)
   if htext(2) == " "
     htext = strrep(htext, "\n ", "\n");
   endif
-  if isempty(strfind(htext, "@example"))
+  if isempty(strfind(htext, "@heading Example"))
     ffn = file_in_loadpath(fn, "all");
     if isempty(ffn)
       ffn = file_in_loadpath([fn ".m"], "all");
