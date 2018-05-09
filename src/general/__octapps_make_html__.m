@@ -47,7 +47,7 @@ function __octapps_make_html__(f)
     etext = "";
     while ischar(line = fgets(fid))
       if strncmp(line, "%!assert", 8)
-        etext = strcat(etext, sprintf("\n@verbatim\n%s\n@end verbatim\n", line(9:end)));
+        etext = strcat(etext, sprintf("\n@verbatim\n%s\n@end verbatim\n", line(3:end)));
       elseif strncmp(line, "%!test disp", 11)
         continue
       elseif strncmp(line, "%!test", 6) || strncmp(line, "%!shared", 8)
