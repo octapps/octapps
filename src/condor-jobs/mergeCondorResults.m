@@ -295,5 +295,4 @@ function mergeCondorResults(varargin)
 
 endfunction
 
-%!test
-%!  disp("no test exists for this function as it requires access to an HTCondor computer cluster");
+%!test disp("no test exists for this function as it requires access to an HTCondor computer cluster")

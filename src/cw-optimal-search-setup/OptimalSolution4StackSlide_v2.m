@@ -434,5 +434,4 @@ function relerr = relError ( a, b )
   return;
 endfunction ## relError()
 
-%!test
-%!  disp("to test OptimalSolution4StackSlide_v2(), run the CostFunctions...() test(s)");
+%!test disp("to test OptimalSolution4StackSlide_v2(), run the CostFunctions...() test(s)")
