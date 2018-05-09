@@ -82,6 +82,10 @@
 ## @item delta
 ## source declination (default: all-sky)
 ##
+## @item Bayesian
+## if true, compute the sensitivity depth corresponding to a Bayesian upper limit, otherwise assume standard frequentist upper limit
+## (default: false)
+##
 ## @end table
 ##
 ## @heading Examples
@@ -104,6 +108,7 @@ function sensDepth = SensitivityDepthStackSlide ( varargin )
                         {"detweights", "real,strictpos,vector", []},
                         {"alpha", "real,vector", [0, 2*pi]},
                         {"delta", "real,vector", [-pi/2, pi/2]},
+                        {"Bayesian", "logical,scalar", false},
                         []);
 
   ## check input
@@ -122,7 +127,12 @@ function sensDepth = SensitivityDepthStackSlide ( varargin )
 
   ## compute sensitivity SNR
   Rsqr = SqrSNRGeometricFactorHist("detectors", uvar.detectors, "detweights", uvar.detweights, "alpha", uvar.alpha, "sdelta", sin(uvar.delta) );
-  [sensDepth, pd_Depth] = SensitivityDepth ( "pd", uvar.pFD, "Ns", uvar.Nseg, "Tdata",uvar.Tdata, "Rsqr", Rsqr,"misHist",uvar.misHist, "stat", {"ChiSqr", FAarg{:}} );
+
+  if !uvar.Bayesian
+    [sensDepth, pd_Depth] = SensitivityDepth ( "pd", uvar.pFD, "Ns", uvar.Nseg, "Tdata", uvar.Tdata, "Rsqr", Rsqr, "misHist", uvar.misHist, "stat", {"ChiSqr", FAarg{:}} );
+  else
+    sensDepth = SensitivityDepthBayesian ( "pd", uvar.pFD, "Ns", uvar.Nseg, "Tdata",uvar.Tdata, "Rsqr", Rsqr,"misHist",uvar.misHist, "stat", {"ChiSqr", FAarg{:}} );
+  endif
 
 endfunction
 
