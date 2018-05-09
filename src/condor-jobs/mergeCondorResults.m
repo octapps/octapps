@@ -40,9 +40,9 @@
 ## @item merge_function
 ## jobs with the same arguments, as determined by
 ## the DAG job name 'vars' field. Syntax is:
-## @verbatim
+## @example
 ##   merged_res = merge_function(merged_res, res, args)
-## @end verbatim
+## @end example
 ## where 'res' are to be merged into 'merged_res', and
 ## 'args' are the arguments passed to the job.
 ## One function per element of job 'results' must be given.
@@ -50,9 +50,9 @@
 ## @item norm_function
 ## If given, function(s) used to normalise merged results
 ## after all Condor jobs have been processed. Syntax is:
-## @verbatim
+## @example
 ##   merged_res = norm_function(merged_res, n)
-## @end verbatim
+## @end example
 ## where 'n' is the number of merged Condor jobs.
 ## One function per element of job 'results' must be given.
 ##

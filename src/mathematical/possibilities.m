@@ -21,16 +21,16 @@
 ## from the vector x, in the order that would be given by an N-dimensional
 ## nested loop. For example:
 ##
-## @verbatim
+## @example
 ## M = [];
 ## for ii = possibilities(-1:1, 3);
 ##   M = [M, ii];
 ## endfor
-## @end verbatim
+## @end example
 ##
 ## will produce the same matrix M as:
 ##
-## @verbatim
+## @example
 ## M = [];
 ## for i = -1:1
 ##   for j = -1:1
@@ -39,7 +39,7 @@
 ##     endfor
 ##   endfor
 ## endfor
-## @end verbatim
+## @end example
 ##
 ## except that the dimensionality N can be determine at run time
 ##

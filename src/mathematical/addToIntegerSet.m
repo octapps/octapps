@@ -24,9 +24,9 @@
 ## @table @var
 ## @item intset
 ## set of integers, stored as a Nx2 matrix of intervals:
-## @verbatim
+## @example
 ## [min1, max1; min2, max2; min3, max3; ...]
-## @end verbatim
+## @end example
 ##
 ## @item ints
 ## integers to add to set

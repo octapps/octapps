@@ -29,9 +29,9 @@
 ## @itemx g
 ## @itemx b
 ## m-by-2 arrays of interpolation coefficients
-## @verbatim
+## @example
 ## [x1, c1; x2, c2; ...]
-## @end verbatim
+## @end example
 ## where x indexes the colour @var{map}, 0<=x<=1
 ## c is the red/gree/blue colour at x
 ##

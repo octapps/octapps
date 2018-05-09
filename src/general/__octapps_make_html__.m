@@ -32,7 +32,7 @@ function __octapps_make_html__(f)
   if htext(2) == " "
     htext = strrep(htext, "\n ", "\n");
   endif
-  if isempty(strfind(htext, "@heading Example"))
+  if isempty(strfind(htext, "@example"))
     ffn = file_in_loadpath(fn, "all");
     if isempty(ffn)
       ffn = file_in_loadpath([fn ".m"], "all");
@@ -46,14 +46,17 @@ function __octapps_make_html__(f)
     assert(fid >= 0, "could not open '%s' for reading", ffn);
     etext = "";
     while ischar(line = fgets(fid))
+      line = regexprep(line, "([@{}])", "@$1");
+      line = strtrim(line);
       if strncmp(line, "%!assert", 8)
-        etext = strcat(etext, sprintf("\n@verbatim\n%s\n@end verbatim\n", line(3:end)));
+        etext = strcat(etext, sprintf("\n@example\n%s\n@end example\n", line(3:end)));
       elseif strncmp(line, "%!test disp", 11)
         continue
       elseif strncmp(line, "%!test", 6) || strncmp(line, "%!shared", 8)
         econtents = "";
         linestart = 0;
         while ischar(line = fgets(fid)) && strncmp(line, "%!", 2) && !(strncmp(line, "%!test", 6) || strncmp(line, "%!shared", 8))
+          line = regexprep(line, "([@{}])", "@$1");
           line = line(3:end);
           if linestart == 0 && any(!isspace(line))
             linestart = min(find(!isspace(line)));
@@ -63,14 +66,18 @@ function __octapps_make_html__(f)
           endif
           econtents = strcat(econtents, line);
         endwhile
-        etext = strcat(etext, sprintf("\n@verbatim\n%s\n@end verbatim\n", strtrim(econtents)));
+        econtents = strtrim(econtents);
+        if length(econtents) > 0
+          etext = strcat(etext, sprintf("\n@example\n%s\n@end example\n", strtrim(econtents)));
+        endif
       endif
     endwhile
+    etext = strtrim(etext);
     if length(etext) > 0
-      if length(strfind(etext, "@verbatim"))
-        etext = strcat("@heading Examples\n", etext);
+      if length(strfind(etext, "@example"))
+        etext = strcat("@heading Examples\n\n", etext);
       else
-        etext = strcat("@heading Example\n", etext);
+        etext = strcat("@heading Example\n\n", etext);
       endif
       endhtext = strfind(htext, "@end deftypefn");
       assert(length(endhtext) == 1);
