@@ -32,6 +32,50 @@ function __octapps_make_html__(f)
   if htext(2) == " "
     htext = strrep(htext, "\n ", "\n");
   endif
+  if isempty(strfind(htext, "@heading Example"))
+    ffn = file_in_loadpath(fn, "all");
+    if isempty(ffn)
+      ffn = file_in_loadpath([fn ".m"], "all");
+    endif
+    if isempty(ffn)
+      ffn = file_in_loadpath([fn ".cc"], "all");
+    endif
+    assert(iscell(ffn));
+    ffn = ffn{1};
+    fid = fopen(ffn, "rt");
+    assert(fid >= 0, "could not open '%s' for reading", ffn);
+    etext = "";
+    while ischar(line = fgets(fid))
+      if strncmp(line, "%!assert", 8)
+        etext = strcat(etext, sprintf("\n@verbatim\n%s\n@end verbatim\n", line(9:end)));
+      elseif strncmp(line, "%!test disp", 11)
+        continue
+      elseif strncmp(line, "%!test", 6) || strncmp(line, "%!shared", 8)
+        econtents = "";
+        linestart = 0;
+        while ischar(line = fgets(fid)) && strncmp(line, "%!", 2)
+          line = line(3:end);
+          if linestart == 0 && any(!isspace(line))
+            linestart = min(find(!isspace(line)));
+          endif
+          if linestart > 0
+            line = line(linestart:end);
+          endif
+          econtents = strcat(econtents, line);
+        endwhile
+        etext = strcat(etext, sprintf("\n@verbatim\n%s\n@end verbatim\n", strtrim(econtents)));
+      endif
+    endwhile
+    assert(length(etext) > 0, "cannot find embedded tests to use as help examples");
+    if length(strfind(etext, "@verbatim"))
+      etext = strcat("@heading Examples\n", etext);
+    else
+      etext = strcat("@heading Example\n", etext);
+    endif
+    endhtext = strfind(htext, "@end deftypefn");
+    assert(length(endhtext) == 1);
+    htext = cstrcat(htext(1:endhtext-1), etext, "\n", htext(endhtext:end));
+  endif
   of = fullfile(getenv("OCTAPPS_TMPDIR"), sprintf("%s.texi", f));
   fid = fopen(of, "w");
   assert(fid >= 0, "could not open '%s' for writing", of);
