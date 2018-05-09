@@ -22,7 +22,11 @@
 #include <algorithm>
 
 #include <octave/oct.h>
+#if OCTAVE_VERSION_HEX >= 0x040200
+#include <octave/interpreter.h>
+#else
 #include <octave/toplev.h>
+#endif
 
 #if OCTAVE_VERSION_HEX <= 0x030204
 #define octave_map Octave_map
@@ -53,7 +57,9 @@ int transform_keyword(int c) {
 DEFUN_DLD( fitsread, args, nargout, fitsread_usage ) {
 
   // Prevent octave from crashing ...
+#if OCTAVE_VERSION_HEX < 0x040400
   octave_exit = ::_Exit;
+#endif
 
   // Check input and output
   if (args.length() != 1 || nargout > 1) {
