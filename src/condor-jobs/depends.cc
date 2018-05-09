@@ -35,6 +35,11 @@
 #define octave_map Octave_map
 #endif
 
+#if OCTAVE_VERSION_HEX >= 0x040400
+using namespace octave;
+#define tree_argument_list octave::tree_argument_list
+#endif
+
 // Walker for Octave parse tree which finds function
 // names referred to in the parse tree, and stores them
 class
@@ -51,9 +56,20 @@ public:
 
   std::set<std::string> extra_files;
 
+#if OCTAVE_VERSION_HEX >= 0x040400
+  octave::interpreter& interp;
+
+  dependency_walker(octave::interpreter& interp0, const Cell& exclude0)
+    : functions(dim_vector(1,1)), exclude(exclude0), interp(interp0)
+  { }
+
+#else
+
   dependency_walker(const Cell& exclude0)
     : functions(dim_vector(1,1)), exclude(exclude0)
   { }
+
+#endif
 
   ~dependency_walker(void) { }
 
@@ -64,6 +80,13 @@ public:
     if (!functions.contains(n)) {
       octave_value v;
       {
+#if OCTAVE_VERSION_HEX >= 0x040400
+        octave::symbol_table& symtab = interp.get_symbol_table();
+        octave::symbol_scope curr_scope = symtab.current_scope();
+        octave::symbol_scope fcn_scope = stack.empty() ? curr_scope : stack.back()->scope();
+        symtab.set_scope(fcn_scope);
+        v = symtab.find_function(n);
+#else
 #if OCTAVE_VERSION_HEX >= 0x040200
         octave::unwind_protect frame;
 #else
@@ -74,6 +97,7 @@ public:
         symbol_table::scope_id fcn_scope = stack.empty() ? curr_scope : stack.back()->scope();
         symbol_table::set_scope(fcn_scope);
         v = symbol_table::find_function(n);
+#endif
       }
       if (v.is_function() && !v.is_builtin_function()) {
         octave_function *f = v.function_value();
@@ -96,9 +120,11 @@ public:
     if (t.parameter_list()) {
       t.parameter_list()->accept(*this);
     }
+#if OCTAVE_VERSION_HEX < 0x040400
     if (t.body()) {
       t.body()->accept(*this);
     }
+#endif
   }
 
   void visit_argument_list(tree_argument_list& t) {
@@ -134,11 +160,13 @@ public:
 
   void visit_continue_command(tree_continue_command&) { }
 
+#if OCTAVE_VERSION_HEX < 0x040400
   void visit_global_command(tree_global_command& t) {
     if (t.initializer_list()) {
       t.initializer_list()->accept(*this);
     }
   }
+#endif
 
 #if OCTAVE_VERSION_HEX < 0x030800
   void visit_static_command(tree_static_command& t) {
@@ -146,7 +174,7 @@ public:
       t.initializer_list()->accept(*this);
     }
   }
-#else
+#elif OCTAVE_VERSION_HEX < 0x040400
   void visit_persistent_command(tree_persistent_command& t) {
     if (t.initializer_list()) {
       t.initializer_list()->accept(*this);
@@ -170,6 +198,14 @@ public:
       }
     }
   }
+
+#if OCTAVE_VERSION_HEX >= 0x040400
+  void visit_decl_command(tree_decl_command& t) {
+    if (t.initializer_list()) {
+      t.initializer_list()->accept(*this);
+    }
+  }
+#endif
 
   void visit_simple_for_command(tree_simple_for_command& t) {
     if (t.left_hand_side()) {
@@ -203,7 +239,11 @@ public:
 
   void visit_octave_user_function(octave_user_function& t) {
     if (t.name().compare("__depends_extra_files__") == 0) {
+#if OCTAVE_VERSION_HEX >= 0x040400
+      octave_value_list files = t.do_index_op(octave_value());
+#else
       octave_value_list files = t.do_multi_index_op(1, octave_value());
+#endif
       for (octave_idx_type i = 0; i < files.length(); ++i) {
         std::string file = files(i).string_value();
         if (file.length() > 0) {
@@ -444,10 +484,16 @@ It is determined by calling any dependent function named '__depends_extra_files_
 \n\n\
 @end deftypefn";
 
+#if OCTAVE_VERSION_HEX >= 0x040400
+DEFMETHOD_DLD( depends, interp, args, nargout, depends_usage ) {
+#else
 DEFUN_DLD( depends, args, nargout, depends_usage ) {
+#endif
 
   // Prevent octave from crashing ...
+#if OCTAVE_VERSION_HEX < 0x040400
   octave_exit = ::_Exit;
+#endif
 
   // Check input and output
   if (args.length() == 0 || nargout != 2) {
@@ -470,7 +516,11 @@ DEFUN_DLD( depends, args, nargout, depends_usage ) {
   }
 
   // Create dependency walker class
+#if OCTAVE_VERSION_HEX >= 0x040400
+  dependency_walker dep_walk(interp, exclude);
+#else
   dependency_walker dep_walk(exclude);
+#endif
 
   // Iterate over input arguments
   for (; i < args.length(); ++i) {
