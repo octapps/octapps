@@ -70,5 +70,4 @@ function [sfts, firstsft, sfts_cell] = get_EatH_sft_paths ( sftdir, filenamebit,
 
 endfunction ## get_EatH_sft_paths()
 
-%!test
-%!  disp("no test exists for this function as it requires access to data not included in OctApps");
+%!test disp("no test exists for this function as it requires access to data not included in OctApps")

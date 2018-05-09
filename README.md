@@ -83,9 +83,15 @@ To get help on any Octave function, run
 
 > $ octave:1> help \<name-of-function>
 
-A [reference listing](https://octapps.github.io) of functions in *OctApps* in HTML format is regularly generated from the [master](https://github.com/octapps/octapps/tree/master) branch on GitHub.
+Example usage for many *OctApps* functions can be found in the embedded tests, which can be printed using
+
+> $ octave:1> test \<name-of-function> verbose
+
+A [reference listing](https://octapps.github.io) of functions in *OctApps* in HTML format, including example usages, is regularly generated from the [master](https://github.com/octapps/octapps/tree/master) branch on GitHub.
 
 Contributing
 ------------
 
-Bugs should be reported on the [issue tracker](https://github.com/octapps/octapps/issues) on GitHub, and patches submitted via [pull requests](https://github.com/octapps/octapps/pulls).
+Contributions to *OctApps* are welcome.
+Bug reports and other requests for support should be raised on the [issue tracker](https://github.com/octapps/octapps/issues) on GitHub.
+Bug fixes and new contributions should be submitted as [pull requests](https://github.com/octapps/octapps/pulls) to the main *OctApps* repository.

@@ -16,8 +16,11 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
+## @deftypefn {Function File} {} UnitsConstants
 ##
 ## Define common units and physical constants
+##
+## @end deftypefn
 
 ## 1 erg = 1 g cm^2 / s^2
 ## 1 Joule = 1e7 ergs
