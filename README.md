@@ -83,7 +83,11 @@ To get help on any Octave function, run
 
 > $ octave:1> help \<name-of-function>
 
-A [reference listing](https://octapps.github.io) of functions in *OctApps* in HTML format is regularly generated from the [master](https://github.com/octapps/octapps/tree/master) branch on GitHub.
+Example usage for many *OctApps* functions can be found in the embedded tests, which can be printed using
+
+> $ octave:1> test \<name-of-function> verbose
+
+A [reference listing](https://octapps.github.io) of functions in *OctApps* in HTML format, including example usages, is regularly generated from the [master](https://github.com/octapps/octapps/tree/master) branch on GitHub.
 
 Contributing
 ------------
