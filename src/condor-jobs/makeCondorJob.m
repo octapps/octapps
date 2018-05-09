@@ -450,5 +450,4 @@ function job_file = makeCondorJob(varargin)
 
 endfunction
 
-%!test
-%!  disp("to test makeCondorJob(), run the makeCondorDAG() test(s)");
+%!test disp("to test makeCondorJob(), run the makeCondorDAG() test(s)")

@@ -35,5 +35,4 @@ function num_SFTs = GetNumSFTsFromFile ( sftfile )
 
 endfunction ## GetNumSFTsFromFile()
 
-%!test
-%!  disp("no test exists for this function as it requires access to data not included in OctApps");
+%!test disp("no test exists for this function as it requires access to data not included in OctApps")

@@ -315,5 +315,4 @@ function formatstring_body = write_header_to_details_file ( outfile_detail, lala
 
 endfunction ## write_header_to_details_file()
 
-%!test
-%!  disp("no test exists for this function as it requires access to data not included in OctApps");
+%!test disp("no test exists for this function as it requires access to data not included in OctApps")
