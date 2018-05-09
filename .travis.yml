@@ -47,6 +47,8 @@ install:
   - if test "${TRAVIS_OS_NAME}" = "osx"; then true
     && travis_retry brew update --verbose
     && travis_retry brew bundle --verbose --file=./Brewfile
+    && travis_retry brew unlink octave
+    && travis_retry brew install https://raw.github.com/Homebrew/homebrew-core/74604d97f33f351e49dbcf294e3d6050369f1258/Formula/octave.rb
     ; fi
 
 script:
