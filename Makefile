@@ -36,6 +36,11 @@ SWIG := $(call CheckProg, swig3.0 swig2.0 swig)
 TR := $(call CheckProg, tr)
 UNIQ := $(call CheckProg, uniq)
 
+# check for latest version of SWIG
+SWIG := $(shell ( for swigbin in swig swig2.0 swig3.0 swig4.0; do \
+		swigbin=`type -P $${swigbin} || echo false`; $${swigbin} -version | $(SED) -n "s|\.| |g;s|^SWIG Version|$${swigbin}|p"; \
+		done; echo false 0 0 0 ) | sort -r -n -k2,4 | $(SED) -n 's| .*$$||;1p' )
+
 # check for existence of package using pkg-config
 CheckPkg = $(shell $(PKGCONFIG) --exists $1 && echo true)
 
