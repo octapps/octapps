@@ -17,6 +17,7 @@ COPY . /tmp/octapps
 WORKDIR /tmp/octapps
 
 RUN make
-RUN echo source /octapps/octapps-user-env.sh >> /root/.bashrc
+RUN echo ". /tmp/octapps/octapps-user-env.sh" >> /root/.bashrc
+RUN . /root/.bashrc
 RUN make -j2 check NOSKIP=1
 RUN make -j2 html
