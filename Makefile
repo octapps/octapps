@@ -14,7 +14,7 @@ making_ = $(making_0)
 making_0 = @echo "Making $@";
 makingdoc = $(makingdoc_$(V))
 makingdoc_ = $(makingdoc_0)
-makingdoc_0 = @echo "Making documentation for" `echo $* | $(SED) 's|@@|@|g;s|::|/|g;'`;
+makingdoc_0 = @echo "Making documentation for" `echo $* | $(SED) "s|^$${OCTAPPS_TMPDIR}/||;"'s|@@|@|g;s|::|/|g;'`;
 
 # check for a program in a list using type -P, or return false
 CheckProg = $(strip $(shell $(1:%=type -P % || ) echo false))
@@ -223,9 +223,15 @@ check : all
 	else \
 		echo "Running all tests"; \
 	fi; \
-	export OCTAPPS_TMPDIR=`mktemp -d -t octapps-make-check.XXXXXX`; \
+	export OCTAPPS_TMPDIR='/tmp/octapps-make-check'; \
+	if test "x$(NOCLEANUP)" = x; then \
+		rm -rf "$${OCTAPPS_TMPDIR}"; \
+		export OCTAPPS_TMPDIR=`mktemp -d -t octapps-make-check.XXXXXX`; \
+	else \
+		mkdir -p "$${OCTAPPS_TMPDIR}"; \
+	fi; \
 	echo "Created temporary directory $${OCTAPPS_TMPDIR}"; \
-	$(MAKE) `printf "%s.test\n" $${testfiles} | $(SORT)` || exit 1; \
+	$(MAKE) `printf "$${OCTAPPS_TMPDIR}/%s.test\n" $${testfiles} | $(SORT)` || exit 1; \
 	if test "x$(NOCLEANUP)" = x; then \
 		rm -rf "$${OCTAPPS_TMPDIR}"; \
 		echo "Removed temporary directory $${OCTAPPS_TMPDIR}"; \
@@ -242,10 +248,9 @@ check : all
 		*j*) cn='\n'; cr='';; \
 		*) cn=''; cr='\r';; \
 	esac; \
-	test=`echo "$*" | $(SED) 's|::|/|g'`; \
+	test=`echo "$*" | $(SED) "s|^$${OCTAPPS_TMPDIR}/||;"'s|::|/|g'`; \
 	printf "%-48s: $${cn}" "$${test}"; \
-	OCTAPPS_TEST_LOG="$${OCTAPPS_TMPDIR}/.$*.log"; \
-	env TMPDIR="$${OCTAPPS_TMPDIR}" $(OCTAVE) --eval "__octapps_make_check__('$${test}');" 2>&1 | tee "$${OCTAPPS_TEST_LOG}" | { \
+	env TMPDIR="$${OCTAPPS_TMPDIR}" $(OCTAVE) --eval "__octapps_make_check__('$${test}');" 2>&1 | tee $@ | { \
 		while read line; do \
 			case "$${line}" in \
 				"error: help"*) action=missinghelp;; \
@@ -265,7 +270,7 @@ check : all
 			esac; \
 			if test "x$${status}" = x1; then \
 				printf "%-72s\n" "$${test}:" | $(SED) 's/ /-/g;s/:-/: /'; \
-				$(SED) "s|^|$${test}: |" "$${OCTAPPS_TEST_LOG}"; \
+				$(SED) "s|^|$${test}: |" $@; \
 				printf "%-72s\n" "$${test}:" | $(SED) 's/ /-/g;s/:-/: /'; \
 			fi; \
 			if test "x$${status}" != x; then \
@@ -291,7 +296,13 @@ html : all
 		texidirfiles="$${texidirfiles} $${texidirname} "`echo $${texifilename} | $(SED) 's|@|@@|g'`; \
 		texidirs="$${texidirs} "`echo $${texidirname} | $(SED) 's|@|@@|g'`; \
 	done; \
-	export OCTAPPS_TMPDIR=`mktemp -d -t octapps-make-html.XXXXXX`; \
+	export OCTAPPS_TMPDIR='/tmp/octapps-make-html'; \
+	if test "x$(NOCLEANUP)" = x; then \
+		rm -rf "$${OCTAPPS_TMPDIR}"; \
+		export OCTAPPS_TMPDIR=`mktemp -d -t octapps-make-html.XXXXXX`; \
+	else \
+		mkdir -p "$${OCTAPPS_TMPDIR}"; \
+	fi; \
 	echo "Created temporary directory $${OCTAPPS_TMPDIR}"; \
 	printf "$${OCTAPPS_TMPDIR}/%s.dir.texi %s.texi\n" $${texidirfiles} | $(SORT) | $(AWK) '{ printf "@include %s\n", $$2 >> $$1}'; \
 	$(OCTAVE) --eval "fid = fopen('$${OCTAPPS_TMPDIR}/all.texi', 'w'); assert(fid >= 0); fprintf(fid, '@include %s\n', texi_macros_file()); fclose(fid);"; \
@@ -302,7 +313,7 @@ html : all
 		printf "@node @file{%s}\n@unnumberedsec @file{%s}\n@include %s\n" "$${dir}" "$${dir}" "$${texidir}.dir.texi" >> "$${OCTAPPS_TMPDIR}/all.texi"; \
 	done; \
 	printf "@end menu\n" >> "$${OCTAPPS_TMPDIR}/menu.texi"; \
-	$(MAKE) `printf "%s.texi\n" $${texifiles} | $(SORT)` || exit 1; \
+	$(MAKE) `printf "$${OCTAPPS_TMPDIR}/%s.texi\n" $${texifiles} | $(SORT)` || exit 1; \
 	mkdir -p "$(curdir)/html"; \
 	rm -rf "$(curdir)/html"/*; \
 	( cd "$${OCTAPPS_TMPDIR}" && $(MAKEINFO) --html -o "$(curdir)/html" "$(curdir)/doc/home.texi" ) || exit 1; \
