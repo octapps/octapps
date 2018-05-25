@@ -305,14 +305,14 @@ html : all
 	fi; \
 	echo "Created temporary directory $${OCTAPPS_TMPDIR}"; \
 	printf "$${OCTAPPS_TMPDIR}/%s.dir.texi %s.texi\n" $${texidirfiles} | $(SORT) | $(AWK) '{ printf "@include %s\n", $$2 >> $$1}'; \
-	$(OCTAVE) --eval "fid = fopen('$${OCTAPPS_TMPDIR}/all.texi', 'w'); assert(fid >= 0); fprintf(fid, '@include %s\n', texi_macros_file()); fclose(fid);"; \
-	printf "@menu\n" > "$${OCTAPPS_TMPDIR}/menu.texi"; \
+	$(OCTAVE) --eval "fid = fopen('$${OCTAPPS_TMPDIR}/directory-index.texi', 'w'); assert(fid >= 0); fprintf(fid, '@include %s\n', texi_macros_file()); fclose(fid);"; \
+	printf "@menu\n" > "$${OCTAPPS_TMPDIR}/directory-index-menu.texi"; \
 	for texidir in `printf "%s\n" $${texidirs} | $(SORT) -u`; do \
 		dir=`echo $${texidir} | $(SED) 's|::|/|g;'`; \
-		printf "* @file{%s}::\n" "$${dir}" >> "$${OCTAPPS_TMPDIR}/menu.texi"; \
-		printf "@node @file{%s}\n@unnumberedsec @file{%s}\n@include %s\n" "$${dir}" "$${dir}" "$${texidir}.dir.texi" >> "$${OCTAPPS_TMPDIR}/all.texi"; \
+		printf "* @file{%s}:: Functions in the @file{%s} directory.\n" "$${dir}" "$${dir}" >> "$${OCTAPPS_TMPDIR}/directory-index-menu.texi"; \
+		printf "@node @file{%s}\n@section @file{%s}\n@include %s\n" "$${dir}" "$${dir}" "$${texidir}.dir.texi" >> "$${OCTAPPS_TMPDIR}/directory-index.texi"; \
 	done; \
-	printf "@end menu\n" >> "$${OCTAPPS_TMPDIR}/menu.texi"; \
+	printf "@end menu\n" >> "$${OCTAPPS_TMPDIR}/directory-index-menu.texi"; \
 	$(MAKE) `printf "$${OCTAPPS_TMPDIR}/%s.texi\n" $${texifiles} | $(SORT)` || exit 1; \
 	mkdir -p "$(curdir)/html"; \
 	rm -rf "$(curdir)/html"/*; \
