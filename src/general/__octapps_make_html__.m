@@ -23,6 +23,8 @@
 
 function __octapps_make_html__(f)
   crash_dumps_octave_core(0);
+  assert(strncmp(f, getenv("OCTAPPS_TMPDIR"), length(getenv("OCTAPPS_TMPDIR"))));
+  f = f((length(getenv("OCTAPPS_TMPDIR"))+2):end);
   fn = strrep(f, "::", "/");
   [d, n] = fileparts(fn);
   fn = fullfile(d, n);

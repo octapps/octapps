@@ -84,7 +84,7 @@ In addition, *OctApps* provides various general-purpose functions, which may be 
 
 Development of *OctApps* is hosted on [GitHub](https://github.com/octapps/octapps); a test suite of all functions in *OctApps* is regularly integrated on [Travis CI](https://travis-ci.org/octapps/octapps).
 The [README](https://github.com/octapps/octapps/blob/master/README.md) file provides instructions for building, testing, and contributing to *OctApps*, as well as a full list of prerequisite software required by *OctApps*.
-A [reference listing](https://octapps.github.io) of functions in *OctApps* in HTML format is available; documentation of each *OctApps* function can also be accessed through the `help` function in Octave.
+A [reference manual](https://octapps.github.io) for *OctApps* in HTML format is available; documentation of each *OctApps* function can also be accessed through the `help` function in Octave.
 
 ## Acknowledgements
 

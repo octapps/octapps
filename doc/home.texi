@@ -1,9 +1,9 @@
 \input texinfo
 
-@settitle OctApps Function Reference
+@settitle OctApps Reference Manual
 
 @copying
-This document is a reference listing of functions in OctApps.
+This document is the reference manual for OctApps.
 
 Copyright @copyright{} 2018 The Authors of OctApps.
 
@@ -17,27 +17,32 @@ notice and this notice are preserved.
 @contents
 
 @node Top
-@top OctApps Function Reference
+@top OctApps Reference Manual
 
-This document is a reference listing of functions in @emph{OctApps}.
-
+@emph{OctApps} provides various functions intended to aid research scientists who perform searches for continuous gravitational waves.
+In also provides various general-purpose functions which may be of broader interest to users of Octave.
 Please see the @url{https://github.com/octapps/octapps, project homepage} for further information on @emph{OctApps}.
 
+This manual provides a series of @ref{Tutorials, tutorials} which illustrate some of the functionality of @emph{OctApps}.
+It also provides indexes of @emph{OctApps} functions organised by @ref{Directory Index, directory}, as well as @ref{Function Index, alphabetically}.
+
 @menu
-* Directories::
-* Function Index::
+* Tutorials::           Tutorials illustrating @emph{OctApps} functionality.
+* Directory Index::     Functions in each @emph{OctApps} directory.
+* Function Index::      Index of all functions in @emph{OctApps}.
 @end menu
 
-@node Directories
-@unnumbered Directories
+@node Tutorials
+@chapter Tutorials
+@include tutorials.texi
 
-@include menu.texi
-
-@include all.texi
+@node Directory Index
+@chapter Directory Index
+@include directory-index-menu.texi
+@include directory-index.texi
 
 @node Function Index
-@unnumbered Function Index
-
+@chapter Function Index
 @printindex fn
 
 @bye

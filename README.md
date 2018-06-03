@@ -78,8 +78,10 @@ Current build status: [![Build Status](https://travis-ci.org/octapps/octapps.svg
 Documentation
 -------------
 
-Documentation for *OctApps* is embedded in Octave function files, and is written in [Texinfo](https://www.gnu.org/software/texinfo) format.
-To get help on any Octave function, run
+A [reference manual](https://octapps.github.io) for *OctApps* in HTML format is regularly generated from the [master](https://github.com/octapps/octapps/tree/master) branch on GitHub.
+It includes tutorials on several important features of *OctApps*, documentation for each function in the library, and example usages.
+
+Documentation can also be obtained from within Octave on any *OctApps* function by running
 
 > $ octave:1> help \<name-of-function>
 
@@ -87,11 +89,10 @@ Example usage for many *OctApps* functions can be found in the embedded tests, w
 
 > $ octave:1> test \<name-of-function> verbose
 
-A [reference listing](https://octapps.github.io) of functions in *OctApps* in HTML format, including example usages, is regularly generated from the [master](https://github.com/octapps/octapps/tree/master) branch on GitHub.
-
 Contributing
 ------------
 
 Contributions to *OctApps* are welcome.
 Bug reports and other requests for support should be raised on the [issue tracker](https://github.com/octapps/octapps/issues) on GitHub.
 Bug fixes and new contributions should be submitted as [pull requests](https://github.com/octapps/octapps/pulls) to the main *OctApps* repository.
+Documentation for *OctApps* is embedded in Octave function files, and is written in [Texinfo](https://www.gnu.org/software/texinfo) format.

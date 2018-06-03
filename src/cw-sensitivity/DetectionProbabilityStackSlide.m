@@ -59,6 +59,10 @@
 ##
 ## @end table
 ##
+## @heading Examples
+##
+## See the @ref{@command{SensitivityDepthStackSlide()}, tutorial on @command{SensitivityDepthStackSlide()}}.
+##
 ## @end deftypefn
 
 function pDET = DetectionProbabilityStackSlide ( varargin )

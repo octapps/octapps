@@ -53,6 +53,10 @@
 ##
 ## @end table
 ##
+## @heading Examples
+##
+## See the @ref{@command{LatticeMismatchHist()}, tutorial on @command{LatticeMismatchHist()}}.
+##
 ## @end deftypefn
 
 function hgrm = LatticeMismatchHist( dim, lattice, varargin )
