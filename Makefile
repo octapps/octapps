@@ -317,6 +317,7 @@ html : all
 	mkdir -p "$(curdir)/html"; \
 	rm -rf "$(curdir)/html"/*; \
 	( cd "$${OCTAPPS_TMPDIR}" && $(MAKEINFO) --html -o "$(curdir)/html" "$(curdir)/doc/home.texi" ) || exit 1; \
+	cp "$(curdir)/doc"/*.png "$(curdir)/html"; \
 	if test "x$(NOCLEANUP)" = x; then \
 		rm -rf "$${OCTAPPS_TMPDIR}"; \
 		echo "Removed temporary directory $${OCTAPPS_TMPDIR}"; \

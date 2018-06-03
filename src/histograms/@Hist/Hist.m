@@ -49,6 +49,10 @@
 ##
 ## @end table
 ##
+## @heading Examples
+##
+## See the @ref{@code{Hist}, tutorial on @code{Hist}}.
+##
 ## @end deftypefn
 
 function hgrm = Hist(dim, varargin)

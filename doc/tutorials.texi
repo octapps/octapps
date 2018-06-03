@@ -1,0 +1,366 @@
+@emph{OctApps} provides both general-purpose functions which may be useful for writing Octave programs, and functions specialised to research into continuous gravitational waves.
+The tutorials in this chapter illustrate both general-purpose and research-specific functions.
+
+@menu
+* General-Purpose Functions:: Tutorials on some general-purpose @emph{OctApps} functions.
+@end menu
+
+@node General-Purpose Functions
+@section General-Purpose Functions
+
+The tutorials in this section illustrate some general-purpose functions provided by @emph{OctApps}.
+
+@menu
+* @command{parseOptions()}::  Tutorial on @command{parseOptions()}, a general-purpose function argument parser.
+* @code{Hist}::               Tutorial on @code{Hist}, a Octave class representing a multi-dimensional histogram.
+@end menu
+
+@node @command{parseOptions()}
+@subsection @command{parseOptions()}
+
+@command{parseOptions()} is a general-purpose argument parser for Octave functions.
+It provides parsing of keyword-value arguments as well as powerful type-checking of argument values.
+Together with @command{octapps_run}, a Unix shell script, Octave functions written using @command{parseOptions} may be called directly from the Unix command line with no additional changes.
+
+@node Simple Example
+@subsubsection Simple Example
+
+Consider the following simple function:
+@example
+function function1(varargin)
+
+  parseOptions(varargin,
+               @{"message", "char"@},
+               []);
+
+  printf("%s\n", message);
+
+endfunction
+@end example
+This defines a function called @command{function1()}, whose arguments are parsed by @command{parseOptions()}.
+The first argument to @command{parseOptions()} are the arguments passed to @command{function1()}, which are contained in the cell array @var{varargin}.
+The second and subsequent@footnote{
+The last argument to @command{parseOptions}, @code{[]}, is a convenience to allow the closing bracket of @command{parseOptions} to be on its own line, and to allow each @code{@{ @dots{} @}} specification to end with a comma to facilitate easy addition/removal/reordering of specifications.
+} arguments to @command{parseOptions()} define specifications which define which arguments are accepted by @command{parseOptions()}.
+Each specification is given by a cell array @code{@{ @dots{} @}} with at least two arguments: the first argument is the keyword given to the argument, and the second argument defines the allowed type of the argument.
+
+In this example, @command{function1()} takes a single keyword argument, @var{message}, whose value must satisfy the type specification @samp{char}.
+The type specifications generally map naturally to Octave functions which test for various types: a type specification @samp{<type>} calls the Octave function @code{is<type>()} on the argument value, which must return @samp{true} for the argument value to be accepted.
+In this case, the type specification @samp{char} calls the Octave function @code{ischar()}, which returns @samp{true} only if the argument value is a @emph{string}.
+
+The function @command{function1()} is called from within Octave like this:
+@example
+octave> function1("message", "Hello world!")
+Hello world!
+@end example
+
+Incorrect calls to @command{function1()} are handled with error messages:
+@example
+octave> function1
+error: parseOptions: missing required option 'message'
+error: called from
+    parseOptions at line 409 column 9
+    function1 at line 3 column 3
+
+octave> function1("message")
+error: parseOptions: expected 'key',value pairs following regular options in args
+error: called from
+    parseOptions at line 329 column 5
+    function1 at line 3 column 3
+
+octave> function1("message", 1.23)
+error: parseOptions: value of 'message' must satisfy ( ischar(x) )
+error: called from
+    parseOptions at line 379 column 11
+    function1 at line 3 column 3
+@end example
+
+The function @command{function1()} can also be called directly from the Unix command line, using the script @command{octapps_run} installed by @emph{OctApps}, like this:
+@example
+$ source octapps-user-env.sh
+
+$ octapps_run function1 --message "Hello world!"
+Hello world!
+@end example
+The @code{"keyword", value} syntax used to call @command{function1()} from within Octave translates straightforwardly into the usual @code{--keyword value} or @code{--keyword=value} syntax used by Unix command-line programs.
+
+@node More Complicated Example
+@subsubsection More Complicated Example
+
+Now consider a more complicated example:
+@example
+function function2(varargin)
+
+  parseOptions(varargin,
+               @{"message", "char"@},
+               @{"count", "integer,strictpos,scalar"@},
+               @{"offset", "integer,scalar", 0@},
+               @{"scale", "real,positive,scalar", 2.34@},
+               @{"direction", "column,rows:2", [1.3; 5.7]@},
+               @{"transform", "matrix,cols:2", eye(2)@},
+               []);
+
+  printf("%s\n", message);
+  printf("count = %i, count + offset = %i, count * scale = %g\n", count, count + offset, count * scale);
+  printf("direction = [%g; %g], transform * direction = [%g; %g]\n", direction, transform * direction);
+
+endfunction
+@end example
+This example introduces some new features of @command{parseOptions()}:
+@itemize
+
+@item
+@command{parseOptions()} includes many builtin type specifications:
+@table @samp
+
+@item bool
+@itemx logical
+Argument value must be a Boolean/logical value, i.e. @code{true} or @code{false} or @code{1} or @code{0}.
+
+@item cell
+Argument value must a cell array.
+
+@item function
+Argument value must be a function handle.
+
+@item complex
+Argument value must be numeric and complex-valued.
+
+@item real
+Argument value must be numeric and real-values.
+
+@item integer
+Argument value must be numeric and integer-valued.
+
+@item evenint
+Argument value must be numeric and an even integer.
+
+@item oddint
+Argument value must be numeric and an odd integer.
+
+@item nonzero
+Argument value must be numeric and non-zero.
+
+@item positive
+Argument value must be numeric and either zero or positively valued.
+
+@item negative
+Argument value must be numeric and either zero or negatively valued.
+
+@item strictpos
+Argument value must be numeric and strictly positive.
+
+@item strictneg
+Argument value must be numeric and strictly negative.
+
+@item unit
+Argument value must be numeric and between 0 and 1 (including 0 and 1).
+
+@item strictunit
+Argument value must be numeric and strictly between 0 and 1 (i.e. not including 0 and 1).
+
+@item a:<class>
+Argument value must be an instance of the Octave class @samp{<class>}, as determined by the Octave function @command{isa()}.
+
+@item acell:<class>
+Argument value must be a cell array whose members are instances of the Octave class @samp{<class>}, as determined by the Octave function @command{isa()}.
+
+@item size:<size>
+The size of the argument value must match @samp{<size>}.
+
+@item numel:<n>
+The number of elements of the argument value must match @samp{<n>}.
+
+@item rows:<n>
+The number of rows of the argument value must match @samp{<n>}.
+
+@item cols:<n>
+The number of columns of the argument value must match @samp{<n>}.
+
+@end table
+
+@item
+Type specifications can take several requirements separated by commas.
+
+@item
+Argument specifications can include a third argument which gives a default value for the function argument.
+
+@end itemize
+
+Returning to the example @command{function2()}, the argument specifications are therefore interpreted as follows:
+@table @var
+
+@item message
+Argument value must be a string.
+
+@item count
+Argument value must be a strictly-positive integer scalar.
+
+@item offset
+Argument value must be a integer scalar; default value is @samp{0}.
+
+@item scale
+Argument value must be a postive real scalar; default value is @samp{2.34}.
+
+@item direction
+Argument value must be a column vector with 2 rows; default value is @samp{[1.3; 5.7]}.
+
+@item transform
+Argument value must be a matrix with 2 columns: default value is @code{eye(2)}, i.e. the 2-by-2 identity matrix.
+
+@item
+
+@end table
+
+The function @command{function2()} is called from within Octave like this:
+@example
+octave> function2("message", "Hello world!", "count", 3)
+Hello world!
+count = 3, count + offset = 3, count * scale = 7.02
+direction = [1.3; 5.7], transform * direction = [1.3; 5.7]
+
+octave> function2("message", "Hello world!", "count", 3, "offset", -7)
+Hello world!
+count = 3, count + offset = -4, count * scale = 7.02
+direction = [1.3; 5.7], transform * direction = [1.3; 5.7]
+
+octave> function2("message", "Hello world!", "count", 3, "scale", 0.35)
+Hello world!
+count = 3, count + offset = 3, count * scale = 1.05
+direction = [1.3; 5.7], transform * direction = [1.3; 5.7]
+
+octave> function2("message", "Hello world!", "count", 3, "transform", [1,2;3,4])
+Hello world!
+count = 3, count + offset = 3, count * scale = 7.02
+direction = [1.3; 5.7], transform * direction = [12.7; 26.7]
+@end example
+
+or from the Unix command line using @command{octapps_run} like this:
+@example
+$ source octapps-user-env.sh
+
+$ octapps_run function2 --message "Hello world!" --count=3
+Hello world!
+count = 3, count + offset = 3, count * scale = 7.02
+direction = [1.3; 5.7], transform * direction = [1.3; 5.7]
+
+$ octapps_run function2 --message "Hello world!" --count=3 --offset=-7
+Hello world!
+count = 3, count + offset = -4, count * scale = 7.02
+direction = [1.3; 5.7], transform * direction = [1.3; 5.7]
+
+$ octapps_run function2 --message "Hello world!" --count=3 --scale 0.35
+Hello world!
+count = 3, count + offset = 3, count * scale = 1.05
+direction = [1.3; 5.7], transform * direction = [1.3; 5.7]
+
+$ octapps_run function2 --message "Hello world!" --count=3 --transform '[1,2;3,4]'
+Hello world!
+count = 3, count + offset = 3, count * scale = 7.02
+direction = [1.3; 5.7], transform * direction = [12.7; 26.7]
+@end example
+
+@node @code{Hist}
+@subsection @code{Hist}
+
+@code{Hist} is a Octave class which represents a multi-dimensional histogram.
+It is useful for accumulating data of a statistical nature and determining its properties.
+
+A one-dimensional histogram is created with the following command:
+@example
+octave> hgrm = Hist(1, @{"lin", "dbin", 0.01@})
+hgrm = @{histogram: count=0, range=[NaN,NaN]@}
+@end example
+This histogram will store data in bins with linear boundaries of width 0.01.
+The @code{Hist} class can also store data in bins with logarithmic boundaries:
+@example
+octave> Hist(1, @{"log", "minrange", 0.02, "binsper10", 20@})
+ans = @{histogram: count=0, range=[NaN,NaN]@}
+@end example
+
+To add data to a histogram, use the @command{addDataToHist()} function.
+Let's add some Gaussian-distributed data:
+@example
+octave> hgrm = addDataToHist(hgrm, normrnd(10.7, 3.42, [1e4, 1]))
+hgrm = @{histogram: count=10000, range=[-1.44,22.8]@}
+@end example
+We can call @command{addDataToHist()} many time to add more data to the histogram:
+@example
+octave> hgrm = addDataToHist(hgrm, normrnd(10.7, 3.42, [1e4, 1]))
+hgrm = @{histogram: count=20000, range=[-1.86,24.05]@}
+octave> hgrm = addDataToHist(hgrm, normrnd(10.7, 3.42, [1e4, 1]))
+hgrm = @{histogram: count=30000, range=[-2.05,24.05]@}
+octave> hgrm = addDataToHist(hgrm, normrnd(10.7, 3.42, [1e4, 1]))
+hgrm = @{histogram: count=40000, range=[-2.42,24.05]@}
+octave> hgrm = addDataToHist(hgrm, normrnd(10.7, 3.42, [1e4, 1]))
+hgrm = @{histogram: count=50000, range=[-2.42,24.05]@}
+@end example
+
+We can now compute some basic statistical properties of the data, e.g.:
+@itemize
+
+@item
+mean:
+@example
+octave> meanOfHist(hgrm)
+ans =  10.730
+@end example
+
+@item
+standard deviation:
+@example
+octave> stdvOfHist(hgrm)
+ans =  3.3879
+@end example
+
+@item
+cumulative distribution:
+@example
+octave> arrayfun(@@(x) cumulativeDistOfHist(hgrm, x), meanOfHist(hgrm) + (-2:2)*stdvOfHist(hgrm))
+ans =
+
+   0.023173   0.157702   0.501401   0.841628   0.977569
+
+@end example
+
+@item
+quantile function:
+@example
+octave> arrayfun(@@(p) quantileFuncOfHist(hgrm, p), 0.5 + 0.5*[-0.95, -0.68, 0, 0.68, 0.95])
+ans =
+
+    4.0630    7.3755   10.7183   14.0960   17.3700
+
+octave> (ans - meanOfHist(hgrm)) / stdvOfHist(hgrm)
+ans =
+
+  -1.9679992  -0.9902454  -0.0035522   0.9934369   1.9598407
+
+@end example
+
+@end itemize
+
+The histogram can also be plotted:
+@example
+octave> graphics_toolkit gnuplot
+octave> plotHist(hgrm, "b");
+ezprint("Hist-plot-1.png", "width", 180, "fontsize", 6);
+@end example
+@image{Hist-plot-1}
+
+The bin size can be changed by resampling the histogram to a coarser bin size:
+@example
+octave> plotHist(resampleHist(hgrm, -5:0.2:25), "r");
+octave> ezprint("Hist-plot-2.png", "width", 180, "fontsize", 6);
+@end example
+@image{Hist-plot-2}
+
+Histograms can be transformed by an arbitrary function.
+Here we plot the histogram of the squares of the samples:
+@example
+octave> plotHist(resampleHist(transformHist(hgrm, @@(x) x.^2), -10:10:650), "k");
+octave> ezprint("Hist-plot-3.png", "width", 180, "fontsize", 6);
+@end example
+@image{Hist-plot-3}
+
+Further histogram functions are documented in the @ref{@file{histograms}} and @ref{@file{histograms/@@Hist}} directories.

@@ -23,10 +23,18 @@ notice and this notice are preserved.
 In also provides various general-purpose functions which may be of broader interest to users of Octave.
 Please see the @url{https://github.com/octapps/octapps, project homepage} for further information on @emph{OctApps}.
 
+This manual provides a series of @ref{Tutorials, tutorials} which illustrate some of the functionality of @emph{OctApps}.
+It also provides indexes of @emph{OctApps} functions organised by @ref{Directory Index, directory}, as well as @ref{Function Index, alphabetically}.
+
 @menu
+* Tutorials::           Tutorials illustrating @emph{OctApps} functionality.
 * Directory Index::     Functions in each @emph{OctApps} directory.
 * Function Index::      Index of all functions in @emph{OctApps}.
 @end menu
+
+@node Tutorials
+@chapter Tutorials
+@include tutorials.texi
 
 @node Directory Index
 @chapter Directory Index

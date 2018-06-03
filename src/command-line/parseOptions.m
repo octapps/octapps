@@ -81,6 +81,10 @@
 ##
 ## @end itemize
 ##
+## @heading Examples
+##
+## See the @ref{@command{parseOptions()}, tutorial on @command{parseOptions()}}.
+##
 ## @end deftypefn
 
 function varargout = parseOptions(opts, varargin)
