@@ -79,7 +79,7 @@ Documentation
 -------------
 
 A [reference manual](https://octapps.github.io) for *OctApps* in HTML format is regularly generated from the [master](https://github.com/octapps/octapps/tree/master) branch on GitHub.
-It includes documentation for each function, and example usages.
+It includes tutorials on several important features of *OctApps*, documentation for each function in the library, and example usages.
 
 Documentation can also be obtained from within Octave on any *OctApps* function by running
 

@@ -1,5 +1,5 @@
 @emph{OctApps} provides both general-purpose functions which may be useful for writing Octave programs, and functions specialised to research into continuous gravitational waves.
-The tutorials in this chapter illustrate both general-purpose and research-specific functions.
+The tutorials in this chapter illustrate several important general-purpose and research-specific functions.
 
 @menu
 * General-Purpose Functions:: Tutorials on some general-purpose @emph{OctApps} functions.
@@ -22,9 +22,6 @@ The tutorials in this section illustrate some general-purpose functions provided
 @command{parseOptions()} is a general-purpose argument parser for Octave functions.
 It provides parsing of keyword-value arguments as well as powerful type-checking of argument values.
 Together with @command{octapps_run}, a Unix shell script, Octave functions written using @command{parseOptions} may be called directly from the Unix command line with no additional changes.
-
-@node Simple Example
-@subsubsection Simple Example
 
 Consider the following simple function:
 @example
@@ -84,9 +81,6 @@ $ octapps_run function1 --message "Hello world!"
 Hello world!
 @end example
 The @code{"keyword", value} syntax used to call @command{function1()} from within Octave translates straightforwardly into the usual @code{--keyword value} or @code{--keyword=value} syntax used by Unix command-line programs.
-
-@node More Complicated Example
-@subsubsection More Complicated Example
 
 Now consider a more complicated example:
 @example
@@ -201,7 +195,7 @@ Argument value must be a strictly-positive integer scalar.
 Argument value must be a integer scalar; default value is @samp{0}.
 
 @item scale
-Argument value must be a postive real scalar; default value is @samp{2.34}.
+Argument value must be a positive real scalar; default value is @samp{2.34}.
 
 @item direction
 Argument value must be a column vector with 2 rows; default value is @samp{[1.3; 5.7]}.
