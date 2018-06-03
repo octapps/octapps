@@ -117,6 +117,10 @@
 ##
 ## @end table
 ##
+## @heading Examples
+##
+## See the @ref{@command{ComputeDopplerMetric()}, tutorial on @command{ComputeDopplerMetric()}}.
+##
 ## @end deftypefn
 
 function [metric, coordIDs] = ComputeDopplerMetric(varargin)

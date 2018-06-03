@@ -135,6 +135,10 @@
 ##
 ## @end table
 ##
+## @heading Examples
+##
+## See the @ref{@command{DoFstatInjections()}, tutorial on @command{DoFstatInjections()}}.
+##
 ## @end deftypefn
 
 function [results, multiSFTs, multiTser] = DoFstatInjections(varargin)

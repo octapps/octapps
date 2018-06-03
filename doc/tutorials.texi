@@ -3,6 +3,7 @@ The tutorials in this chapter illustrate both general-purpose and research-speci
 
 @menu
 * General-Purpose Functions:: Tutorials on some general-purpose @emph{OctApps} functions.
+* Continuous-Wave Functions:: Tutorials on some @emph{OctApps} functions specific to continuous gravitational-wave research.
 @end menu
 
 @node General-Purpose Functions
@@ -364,3 +365,225 @@ octave> ezprint("Hist-plot-3.png", "width", 180, "fontsize", 6);
 @image{Hist-plot-3}
 
 Further histogram functions are documented in the @ref{@file{histograms}} and @ref{@file{histograms/@@Hist}} directories.
+
+@node Continuous-Wave Functions
+@section Continuous-Wave Functions
+
+The tutorials in this section illustrate @emph{OctApps} functions specialised to research into continuous gravitational waves.
+
+@menu
+* @command{DoFstatInjections()}::                 Tutorial on @command{DoFstatInjections()}, which creates and searches for simulated continuous gravitational-wave signals.
+* @command{ComputeDopplerMetric()}::              Tutorial on @command{ComputeDopplerMetric()}, which computes the parameter-space metric for continuous gravitational-wave searches.
+* @command{LatticeMismatchHist()}::               Tutorial on @command{LatticeMismatchHist()}, which generates theoretical mismatch histograms.
+* @command{SensitivityDepthStackSlide()}::        Tutorial on @command{SensitivityDepthStackSlide()}, which estimates the sensitivity of a continuous gravitational-wave search.
+* @command{OptimalSolution4StackSlide_v2()}::     Tutorial on @command{OptimalSolution4StackSlide_v2()}, which finds the optimal setup of a continuous gravitational-wave search.
+@end menu
+
+@node @command{DoFstatInjections()}
+@subsection @command{DoFstatInjections()}
+
+@command{DoFstatInjections()} creates gravitational-wave data containing a simulated continuous gravitational-wave signal, then searches for them using the F-statistic.
+
+First we define the parameters of the simulated continuous gravitational-wave signal:
+@example
+octave> Alpha = 3.92;
+octave> Delta = 0.83;
+octave> Freq = 200;
+octave> f1dot = 1e-9;
+@end example
+We then define some common arguments to @command{DoFstatInjections()} (see the documentation for details):
+@example
+octave> Tobs = 86400;
+octave> DFIargs = @{"ref_time", 731163327, "start_time", 850468953, "time_span", Tobs, "detectors", "H1,L1", "sft_time_span", 1800, "sft_overlap", 0, "sft_noise_window", 50, "inj_h0", 0.55, "inj_cosi", 0.31, "inj_psi", 0.22, "inj_phi0", 1.82, "inj_alpha", Alpha, "inj_delta", Delta, "inj_fndot", [Freq; f1dot], "Dterms", 8, "randSeed", 1234@};
+@end example
+
+We perform a simple search over just frequency, all other parameters being perfectly matched:
+@example
+octave> dFreq = 0.2 / Tobs;
+octave> sch_Freq = linspace(Freq - 50*dFreq, Freq + 50*dFreq, 90);
+octave> sch_f1dot = f1dot * ones(size(sch_Freq));
+octave> sch_fndot = [sch_Freq; sch_f1dot];
+octave> sch_Alpha = Alpha * ones(size(sch_Freq));
+octave> sch_Delta = Delta * ones(size(sch_Freq));
+octave> res = DoFstatInjections(DFIargs@{:@}, "det_sqrt_PSD", 1.0, "OrbitParams", false, "sch_fndot", sch_fndot, "sch_alpha", sch_Alpha, "sch_delta", sch_Delta);
+@end example
+If none of the @var{sch_...} variables are passed to @command{DoFstatInjections()}, it searches at the exact parameters of the injected signal:
+@example
+octave> res0 = DoFstatInjections(DFIargs@{:@}, "det_sqrt_PSD", 1.0, "OrbitParams", false);
+@end example
+
+Finally, we plot the results:
+@example
+octave> graphics_toolkit gnuplot
+octave> plot(res.sch_fndot(1,:) - Freq, res.sch_twoF, "kx-", res0.sch_fndot(1,:) - Freq, res0.sch_twoF, "ro");
+octave> xlabel("Search - Injection Frequency [Hz]");
+octave> ylabel("2F");
+octave> ezprint("DoFstatInjections-plot-1.png", "width", 180, "fontsize", 6);
+@end example
+@image{DoFstatInjections-plot-1}
+
+@node @command{ComputeDopplerMetric()}
+@subsection @command{ComputeDopplerMetric()}
+
+@command{ComputeDopplerMetric()} computes the parameter-space metric which determines the template resolution of continuous gravitational-wave searches.
+
+We compute the metric in the frequency and spindown parameters:
+@example
+octave> Alpha = 3.92;
+octave> Delta = 0.83;
+octave> Freq = 200;
+octave> f1dot = 1e-9;
+octave> Tobs = 86400;
+octave> metric = ComputeDopplerMetric("coords", "freq,fdots", "spindowns", 1, "segment_list", 850468953 + [0,Tobs], "ref_time", 731163327, "fiducial_freq", Freq, "detectors", "H1,L1", "det_motion", "spin+orbit", "alpha", Alpha, "delta", Delta);
+octave> metric.g_ij
+ans =
+
+   2.4559e+10   2.9311e+18
+   2.9311e+18   3.4982e+26
+
+@end example
+
+We can use the metric to generate random frequency and spindown offsets with random metric mismatches:
+@example
+octave> dx = randPointInNSphere(2, 0.1 * rand(1, 500));
+octave> dfndot = inv(chol(metric.g_ij)) * dx;
+octave> mu = dot(dfndot, metric.g_ij * dfndot);
+octave> [min(mu), max(mu)]
+ans =
+
+   1.9605e-04   9.9810e-02
+
+@end example
+
+We can use the generated offsets to compute the F-statistic with @command{DoFstatInjections()} to compute the actual mismatch:
+@example
+octave> DFIargs = @{"ref_time", 731163327, "start_time", 850468953, "time_span", Tobs, "detectors", "H1,L1", "sft_time_span", 1800, "sft_overlap", 0, "sft_noise_window", 50, "inj_h0", 0.55, "inj_cosi", 0.31, "inj_psi", 0.22, "inj_phi0", 1.82, "inj_alpha", Alpha, "inj_delta", Delta, "inj_fndot", [Freq; f1dot], "Dterms", 8, "randSeed", 1234@};
+octave> sch_fndot = [Freq + dfndot(1,:); f1dot + dfndot(2,:)];
+octave> sch_Alpha = Alpha * ones(size(sch_fndot(1,:)));
+octave> sch_Delta = Delta * ones(size(sch_fndot(1,:)));
+octave> res = DoFstatInjections(DFIargs@{:@}, "det_sqrt_PSD", 1.0, "OrbitParams", false, "sch_fndot", sch_fndot, "sch_alpha", sch_Alpha, "sch_delta", sch_Delta);
+octave> res0 = DoFstatInjections(DFIargs@{:@}, "det_sqrt_PSD", 1.0, "OrbitParams", false);
+octave> sch_mu = (res0.sch_twoF - res.sch_twoF') ./ res0.sch_twoF;
+@end example
+
+We can plot the actual F-statistic mismatches as a function of frequency and spindown offsets:
+@example
+octave> graphics_toolkit gnuplot;
+octave> scatter(sch_fndot(1,:) - Freq, sch_fndot(2,:) - f1dot, [], sch_mu);
+octave> colorbar;
+octave> xlabel("Search - Injection Frequency [Hz]");
+octave> ylabel("Search - Injection Spindown [Hz/s]");
+octave> set(gca, "position", [0.2, 0.11, 0.55, 0.815]);
+octave> ezprint("ComputeDopplerMetric-plot-1.png", "width", 180, "fontsize", 4);
+@end example
+@image{ComputeDopplerMetric-plot-1}
+Due to significant correlations between parameters, it is often better to plot in the @emph{normalised} coordinates @var{dx}:
+@example
+octave> scatter(dx(1,:), dx(2,:), [], sch_mu);
+octave> colorbar;
+octave> xlabel("Normalised Coordinate 1");
+octave> ylabel("Normalised Coordinate 2");
+octave> ezprint("ComputeDopplerMetric-plot-2.png", "width", 180, "fontsize", 4);
+@end example
+@image{ComputeDopplerMetric-plot-2}
+
+Finally, we can compare F-statistic and metric mismatches:
+@example
+octave> plot(mu, sch_mu, "bx");
+octave> xlabel("Metric Mismatch");
+octave> ylabel("F-statistic Mismatch");
+octave> set(gca, "position", [0.2, 0.11, 0.705, 0.815]);
+octave> ezprint("ComputeDopplerMetric-plot-3.png", "width", 180, "fontsize", 4);
+@end example
+@image{ComputeDopplerMetric-plot-3}
+
+@node @command{LatticeMismatchHist()}
+@subsection @command{LatticeMismatchHist()}
+
+@command{LatticeMismatchHist()} generates theoretical mismatch histograms, assuming a continuous gravitational-wave search grid is constructed using a particular lattice. Common lattices are the @emph{A-n-star} lattices:
+@example
+octave> Ans2 = LatticeMismatchHist(2, "Ans");
+octave> Ans3 = LatticeMismatchHist(3, "Ans");
+octave> Ans4 = LatticeMismatchHist(4, "Ans");
+@end example
+and the @emph{hypercubic} lattices:
+@example
+octave> Zn2 = LatticeMismatchHist(2, "Zn");
+octave> Zn3 = LatticeMismatchHist(3, "Zn");
+octave> Zn4 = LatticeMismatchHist(4, "Zn");
+@end example
+Their mismatch histograms are plotted below:
+@example
+octave> graphics_toolkit gnuplot;
+octave> plotHist(Ans2, "r;A-n-star;", Ans3, "r", Ans4, "r", Zn2, "b;hypercubic;", Zn3, "b", Zn4, "b");
+octave> xlabel("Normalised Mismatch");
+octave> ylabel("p(Normalised Mismatch)");
+octave> ezprint("LatticeMismatchHist-plot-1.png", "width", 180, "fontsize", 6);
+@end example
+@image{LatticeMismatchHist-plot-1}
+
+@node @command{SensitivityDepthStackSlide()}
+@subsection @command{SensitivityDepthStackSlide()}
+
+@command{SensitivityDepthStackSlide()} estimates the sensitivity of a continuous gravitational-wave search.
+Given the search parameters:
+@example
+octave> Nseg = 90;
+octave> Tseg = 60 * 3600;
+octave> Tdata = 12080 * 1800;
+octave> avg2Fth = 6.109;
+octave> sum2Fth = Nseg * avg2Fth;
+octave> pFA = falseAlarm_chi2(sum2Fth, 4 * Nseg);
+octave> misHistSC = createDeltaHist (0.7);
+@end example
+and the desired false dismissal probability, the search sensitivity is estimated as a @emph{sensitivity depth}:
+@example
+octave> pDET = [0.95; 0.9; 0.85];
+octave> Depths = SensitivityDepthStackSlide("Nseg", Nseg, "Tdata", Tdata, "misHist", misHistSC, "pFD", 1-pDET, "pFA", pFA, "detectors", "H1,L1")
+Depths =
+
+   38.683
+   41.919
+   44.495
+
+@end example
+The inverse function @command{DetectionProbabilityStackSlide()} instead computes the detection probabilities from the desired sensitivity depths:
+@example
+octave> detProbs = DetectionProbabilityStackSlide("Nseg", Nseg, "Tdata", Tdata, "misHist", misHistSC, "pFA", pFA, "detectors", "H1,L1", "Depth", Depths)
+detProbs =
+
+   0.95000
+   0.90000
+   0.85000
+
+@end example
+
+@node @command{OptimalSolution4StackSlide_v2()}
+@subsection @command{OptimalSolution4StackSlide_v2()}
+
+@command{OptimalSolution4StackSlide_v2()} finds the optimal setup of a continuous gravitational-wave search, under the constraint of fixed computational cost.
+
+The computational cost of a continuous gravitational-wave search is given by a function; the following example is based on the Einstein@@Home search for Cassiopeia A using LIGO S6 data:
+@example
+octave> UnitsConstants;
+octave> costFuns = CostFunctionsDirected("fmin", 120, "fmax", 1000, "tau_min", 300 * YRSID_SI, "detectors", "H1,L1", "coh_duty", 0.53375, "resampling", false, "coh_c0_demod", 7.4e-8 / 1800, "inc_c0", 4.7e-9, "lattice", "Zn", "boundaryType", "EaHCasA");
+octave> cost0 = 3.1451 * EM2014;
+octave> TobsMax = 256.49 * DAYS;
+@end example
+Given a starting guess:
+@example
+octave> refParams.Nseg = 10;
+octave> refParams.Tseg = 24 * 86400;
+octave> refParams.mCoh = 0.5;
+octave> refParams.mInc = 0.5;
+@end example
+@command{OptimalSolution4StackSlide_v2()} iteratively converges to the optimal solution under the given constraints:
+@example
+octave> sol = OptimalSolution4StackSlide_v2("costFuns", costFuns, "cost0", cost0, "TobsMax", TobsMax, "stackparamsGuess", refParams, "debugLevel", 1);
+Completing stackparams of starting point ... done: @{Nseg =   10.0, Tseg =   24.00 d, Tobs =  240.00 d, mCoh = 0.5    , mInc = 0.5    @} : dCC0=+1e+01 : L0LIN=+7.01e+06
+Running solver [Unconstrained]:   iteration = 07/10 [converged]: @{Nseg =   50.6, Tseg =    5.07 d, Tobs =  256.49 d, mCoh = 0.075  , mInc = 0.52   @} : dCC0=-7e-01 : L0LIN=+3.91e+06 ==> FEASIBLE!
+Running solver [TobsMax]:         iteration = 05/10 [converged]: @{Nseg =   32.1, Tseg =    8.00 d, Tobs =  256.49 d, mCoh = 0.12   , mInc = 0.41   @} : dCC0=-4e-03 : L0LIN=+5.19e+06 ==> FEASIBLE!
+==============================
+--> Best solution found: [TobsMax]: @{Nseg =   32.1, Tseg =    8.00 d, Tobs =  256.49 d, mCoh = 0.12   , mInc = 0.41   @} : dCC0=-4e-03 : L0LIN=+5.19e+06
+==============================
+@end example
