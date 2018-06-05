@@ -9,13 +9,13 @@ tags:
 authors:
   - name: Karl Wette
     orcid: 0000-0002-4394-7179
-    affiliation: 1
+    affiliation: "1, 2, 3"
   - name: Reinhard Prix
     orcid: 0000-0002-3789-6424
     affiliation: "2, 3"
   - name: David Keitel
     orcid: 0000-0002-2824-626X
-    affiliation: 4
+    affiliation: "4, 2, 3"
   - name: Matthew Pitkin
     orcid: 0000-0003-4548-526X
     affiliation: 4
@@ -23,24 +23,26 @@ authors:
     affiliation: "2, 3"
   - name: John T. Whelan
     orcid: 0000-0001-5710-6576
-    affiliation: 5
+    affiliation: "5, 6"
   - name: Paola Leaci
-    affiliation: "6, 7"
+    affiliation: "7, 8, 6"
 affiliations:
   - name: ARC Centre of Excellence for Gravitational Wave Discovery (OzGrav) and Centre for Gravitational Physics, Research School of Physics and Engineering, The Australian National University, ACT 0200, Australia
     index: 1
-  - name: Max Planck Institute for Gravitational Physics (Albert Einstein Institute), D-30167 Hannover, Germany
+  - name: Max-Planck-Institut für Gravitationsphysik (Albert-Einstein-Institut), D-30167 Hannover, Germany
     index: 2
   - name: Leibniz Universität Hannover, D-30167 Hannover, Germany
     index: 3
-  - name: Institute for Gravitational Research, SUPA, University of Glasgow, Glasgow G12 8QQ, UK
+  - name: Institute for Gravitational Research, SUPA, University of Glasgow, Glasgow G12 8QQ, U.K.
     index: 4
-  - name: Rochester Institute of Technology, Rochester, NY 14623, USA
+  - name: School of Mathematical Sciences and Center for Computational Relativity & Gravitation, Rochester Institute of Technology, Rochester, NY 14623, U.S.A.
     index: 5
-  - name: Università di Roma 'La Sapienza,' I-00185 Roma, Italy
+  - name: Max-Planck-Institut für Gravitationsphysik (Albert-Einstein-Institut), D-14476 Golm, Germany
     index: 6
-  - name: INFN, Sezione di Roma, I-00185 Roma, Italy
+  - name: Università di Roma ‘La Sapienza’, I-00185 Roma, Italy
     index: 7
+  - name: INFN, Sezione di Roma, I-00185 Roma, Italy
+    index: 8
 date: 26 March 2018
 bibliography: paper.bib
 ---
@@ -90,6 +92,9 @@ A [reference manual](https://octapps.github.io) for *OctApps* in HTML format is 
 
 We acknowledge that *OctApps* includes contributions from Zdravko Botev, Ronaldas Macas, John McNabb, and Daniel de Torre Herrera.
 We thank Steven R. Brandt for reviewing this paper and providing the `Dockerfile` for building and testing *OctApps*.
+This work was supported by the Max Planck Society, by German Research Foundation (DFG) grant SFB/TR 7, and by the German Aerospace Center (DLR).
+KW is supported by Australian Research Council (ARC) grant CE170100004.
+MP is funded by the UK Science & Technology Facilities Council (STFC) under grant ST/N005422/1.
 This paper has document number LIGO-P1800078-v4.
 
 # References
