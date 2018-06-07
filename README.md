@@ -105,7 +105,7 @@ If you make use of *OctApps*, please cite our paper [![DOI](http://joss.theoj.or
 ```
 @article{octapps,
   author = {Karl Wette and Reinhard Prix and David Keitel and Matthew Pitkin and Christoph Dreissigacker and John T. Whelan and Paola Leaci},
-  title = {OctApps: a library of Octave functions for continuous gravitational-wave data analysis},
+  title = {{OctApps: a library of Octave functions for continuous gravitational-wave data analysis}},
   journal = {Journal of Open Source Software},
   year = {2018},
   volume = {3},
