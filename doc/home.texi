@@ -26,6 +26,25 @@ Please see the @url{https://github.com/octapps/octapps, project homepage} for fu
 This manual provides a series of @ref{Tutorials, tutorials} which illustrate some of the functionality of @emph{OctApps}.
 It also provides indexes of @emph{OctApps} functions organised by @ref{Directory Index, directory}, as well as @ref{Function Index, alphabetically}.
 
+@heading Acknowledgement
+
+If you make use of @emph{OctApps}, please cite our @url{https://doi.org/10.21105/joss.00707,paper} in the @url{http://joss.theoj.org,Journal of Open Source Software}:
+
+@verbatim
+@article{octapps,
+  author = {Karl Wette and Reinhard Prix and David Keitel and Matthew Pitkin and Christoph Dreissigacker and John T. Whelan and Paola Leaci},
+  title = {OctApps: a library of Octave functions for continuous gravitational-wave data analysis},
+  journal = {Journal of Open Source Software},
+  year = {2018},
+  volume = {3},
+  number = {26},
+  pages = {707},
+  doi = {10.21105/joss.00707},
+}
+@end verbatim
+
+@heading Chapters
+
 @menu
 * Tutorials::           Tutorials illustrating @emph{OctApps} functionality.
 * Directory Index::     Functions in each @emph{OctApps} directory.
