@@ -96,3 +96,21 @@ Contributions to *OctApps* are welcome.
 Bug reports and other requests for support should be raised on the [issue tracker](https://github.com/octapps/octapps/issues) on GitHub.
 Bug fixes and new contributions should be submitted as [pull requests](https://github.com/octapps/octapps/pulls) to the main *OctApps* repository.
 Documentation for *OctApps* is embedded in Octave function files, and is written in [Texinfo](https://www.gnu.org/software/texinfo) format.
+
+Acknowledgement
+---------------
+
+If you make use of *OctApps*, please cite our paper [![DOI](http://joss.theoj.org/papers/10.21105/joss.00707/status.svg)](https://doi.org/10.21105/joss.00707) in the [Journal of Open Source Software](http://joss.theoj.org):
+
+```
+@article{octapps,
+  author = {Karl Wette and Reinhard Prix and David Keitel and Matthew Pitkin and Christoph Dreissigacker and John T. Whelan and Paola Leaci},
+  title = {OctApps: a library of Octave functions for continuous gravitational-wave data analysis},
+  journal = {Journal of Open Source Software},
+  year = {2018},
+  volume = {3},
+  number = {26},
+  pages = {707},
+  doi = {10.21105/joss.00707},
+}
+```
