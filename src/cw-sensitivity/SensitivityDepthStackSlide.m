@@ -84,6 +84,12 @@
 ## @item delta
 ## source declination (default: all-sky)
 ##
+## @item cosi
+## orientation angle (default: isotropic average)
+##
+## @item psi
+## polarization angle (default: isotropic average)
+##
 ## @end table
 ##
 ## @heading Examples
@@ -106,6 +112,8 @@ function sensDepth = SensitivityDepthStackSlide ( varargin )
                         {"detweights", "real,strictpos,vector", []},
                         {"alpha", "real,vector", [0, 2*pi]},
                         {"delta", "real,vector", [-pi/2, pi/2]},
+                        {"cosi", "real,vector", [-1, 1]},
+                        {"psi", "real,vector", [0, 2*pi]},
                         []);
 
   ## check input
@@ -123,8 +131,8 @@ function sensDepth = SensitivityDepthStackSlide ( varargin )
   endif
 
   ## compute sensitivity SNR
-  Rsqr = SqrSNRGeometricFactorHist("detectors", uvar.detectors, "detweights", uvar.detweights, "alpha", uvar.alpha, "sdelta", sin(uvar.delta) );
-  [sensDepth, pd_Depth] = SensitivityDepth ( "pd", uvar.pFD, "Ns", uvar.Nseg, "Tdata",uvar.Tdata, "Rsqr", Rsqr,"misHist",uvar.misHist, "stat", {"ChiSqr", FAarg{:}} );
+  Rsqr = SqrSNRGeometricFactorHist("detectors", uvar.detectors, "detweights", uvar.detweights, "alpha", uvar.alpha, "sdelta", sin(uvar.delta), "cosi", uvar.cosi, "psi", uvar.psi );
+  [sensDepth, pd_Depth] = SensitivityDepth ( "pd", uvar.pFD, "Ns", uvar.Nseg, "Tdata", uvar.Tdata, "Rsqr", Rsqr, "misHist", uvar.misHist, "stat", {"ChiSqr", FAarg{:}} );
 
 endfunction
 
