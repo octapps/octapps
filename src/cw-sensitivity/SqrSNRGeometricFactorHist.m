@@ -68,6 +68,9 @@
 ## @item hist_err
 ## histogram error target
 ##
+## @item use_cache
+## if true [default], use a cached version of the histogram if available for the given input parameters
+##
 ## @end table
 ##
 ## @end deftypefn
@@ -75,7 +78,7 @@
 function Rsqr = SqrSNRGeometricFactorHist(varargin)
 
   ## parse options
-  parseOptions(varargin,
+  [ dummy, uvar ] = parseOptions(varargin,
                {"T", "real,scalar", inf},
                {"detectors", "char", "L1"},
                {"detweights", "real,strictpos,vector", []},
@@ -87,10 +90,28 @@ function Rsqr = SqrSNRGeometricFactorHist(varargin)
                {"zmstime", "real,scalar", 0},
                {"hist_dx", "real,scalar", 5e-3},
                {"hist_N", "real,scalar", 20000},
-               {"hist_err", "real,scalar", 1e-4}
-              );
+               {"hist_err", "real,scalar", 1e-4},
+               {"use_cache", "logical,scalar", true},
+               []);
+
   assert(all(isalnum(detectors) | detectors == ","), ...
          "%s: invalid detectors '%s'", funcName, detectors);
+
+  ## handle caching of results
+  uvar = rmfield ( uvar, "use_cache" );
+  ss = stringify ( orderfields ( uvar ) );
+  key = md5sum(ss,true);
+  cache_dir = mkpath(getenv("HOME"), ".cache", "octapps", "SqrSNRGeometricFactorHist");
+  cached_resfile = sprintf ("%s/%s", cache_dir, key );
+  if ( use_cache )
+    if ( exist ( cached_resfile, "file" ) )
+      uvar_in = uvar;
+      load ( cached_resfile );
+      if ( isequal ( uvar_in, uvar ) )	## make sure nothing gone wrong in hashing
+        return;
+      endif
+    endif
+  endif
 
   ## product of angular sidereal frequency and observation time
   OmegaT = 2*pi*T;   ## T is in sidereal days
@@ -178,6 +199,12 @@ function Rsqr = SqrSNRGeometricFactorHist(varargin)
   ##   meanOfHist(Rsqr) should not give 1 because it is not averaging over sky
   Rsqr = rescaleHistBins(Rsqr, 1.0 / apxnorm);
 
+  ## always store new results in cache
+  save ("-binary", cached_resfile, "Rsqr", "uvar" );
+
 endfunction
 
-%!assert(class(SqrSNRGeometricFactorHist()), "Hist")
+%!test
+%! Rsqr0  = SqrSNRGeometricFactorHist("use_cache", false);	## stores results in cache
+%! Rsqr0c = SqrSNRGeometricFactorHist("use_cache", true );
+%! assert ( isequal ( Rsqr0, Rsqr0c ) );
