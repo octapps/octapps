@@ -85,7 +85,7 @@ function p = ChiSquare_pdf(x, k, lambda=0)
 
     ## approximate by normal distribution if chi^2 failed
     kk = ii & ( !isfinite(logp_ts) | (logp_ts > 0) );
-    if any(kk)
+    if any(kk(:))
       p(kk) = normpdf(x(kk), k(kk) + lambda(kk), sqrt( 2.* ( k(kk) + 2.*lambda(kk) ) ));
       normal_approx = 1;
     endif
