@@ -68,7 +68,9 @@
 ##
 ## @item pFA
 ## false-alarm probability (-ies) *per template* (every row is one trial, every column is for one stage )
-## "avg2Fth"          ALTERNATIVE to @var{pFA}: average-2F threshold (every row is one trial, every column is for one stage )
+##
+## @item avg2Fth
+## ALTERNATIVE to @var{pFA}: average-2F threshold (every row is one trial, every column is for one stage )
 ##
 ## @item detectors
 ## CSV list of @var{detectors} to use ("H1"=Hanford, "L1"=Livingston, "V1"=Virgo, @var{...})
