@@ -42,14 +42,14 @@ function Depth = SensitivityDepthBayesian(varargin)
 
   ## parse options
   parseOptions(varargin,
-	       {"pd", "real,strictunit,column"},
-	       {"Ns", "integer,strictpos,matrix"},
-	       {"Tdata","real, matrix"},
-	       {"Rsqr", "a:Hist", []},
-	       {"misHist","acell:Hist", []},
-	       {"stat", "cell,vector"},
-	       {"prog", "logical,scalar", false},
-	       []);
+               {"pd", "real,strictunit,column"},
+               {"Ns", "integer,strictpos,matrix"},
+               {"Tdata","real, matrix"},
+               {"Rsqr", "a:Hist", []},
+               {"misHist","acell:Hist", []},
+               {"stat", "cell,vector"},
+               {"prog", "logical,scalar", false},
+               []);
   assert(histDim(Rsqr) == 1, "%s: R^2 must be a 1D histogram", funcName);                 #add for mismatch
   assert(length(stat) > 1 && ischar(stat{1}), "%s: first element of 'stat' must be a string", funcName);
   assert(isempty(misHist) || size(Ns,2) == length(misHist),"#stages unclear, #columns in Nseg must match #mismatch histograms.\n");
@@ -182,24 +182,55 @@ function Depth = SensitivityDepthBayesian(varargin)
 
   ## initialise variables
   Depth = nan(length(ii), 1);
-  points = 2000;
-  invDepthRange = linspace(0, 1,points + 1)(2:end);
   pdf_Depth = [];
-  for d = 1:length(invDepthRange)
-    invDepth = invDepthRange(d).*ones(size(Depth));
-    pdf_Depth(:,d) = callFDP(1./invDepth,ii,
-           jj,kk,Ns, Tdata,Rsqr_x,Rsqr_w,mism_x, mism_w,
-           FDP,fdp_vars,fdp_opts);
-  endfor
-%%  plot(invDepthRange,pdf_Depth)
-  Norm = sum(pdf_Depth,2);
-  cumDepth = cumsum(pdf_Depth,2);
+
+  ## calculate first pdf
+  maxDepth = 1;
+  DepthRange = 1;
+  linDepth = DepthRange.*ones(size(Depth));
+  pdf_Depth(:,1) = callFDP(linDepth,ii,
+                              jj,kk,Ns, Tdata,Rsqr_x,Rsqr_w,mism_x, mism_w,
+                              FDP,fdp_vars,fdp_opts);
+  Norm = 1;
+  do
+    oldNorm = Norm;
+    maxDepth +=1;
+    DepthRange = linspace(1,maxDepth,10*(maxDepth-1)+1);
+    for d = 1: 10
+      linDepth = DepthRange(end-10+d).*ones(size(Depth)); ## depth resolution 0.1
+      pdf_Depth(:,end+1) = callFDP(linDepth,ii,
+                                      jj,kk,Ns, Tdata,Rsqr_x,Rsqr_w,mism_x, mism_w,
+                                      FDP,fdp_vars,fdp_opts);
+    endfor
+
+    Norm = sum(pdf_Depth./DepthRange.^2,2);
+    if (Norm != 0) && (oldNorm != 0)
+      err = abs(Norm./oldNorm) - 1;
+    else
+      err = 1;
+    endif
+  until err < 1e-4
+  DepthRange = DepthRange(end:-1:1);
+  pdf_Depth = pdf_Depth(:,end:-1:1);
+  points = length(DepthRange)
+  # old implementation
+  ## points = 20000;
+  ## DepthRange = linspace(1, 2000,points)(end:-1:1);
+  ## pdf_Depth = [];
+
+  ## for d = 1:length(DepthRange)
+  ##   linDepth = DepthRange(d).*ones(size(Depth));
+  ##   pdf_Depth(:,d) = callFDP(linDepth,ii,
+  ##          jj,kk,Ns, Tdata,Rsqr_x,Rsqr_w,mism_x, mism_w,
+  ##          FDP,fdp_vars,fdp_opts);
+  ## endfor
+  ## Norm = sum(pdf_Depth./DepthRange.^2,2);
+
+  cumDepth = cumsum(pdf_Depth./DepthRange.^2,2);
   [xx, Depth_i] = min(abs(cumDepth./Norm -(1 -pd)),[],2);
-  Depth = 1./(invDepthRange(:,Depth_i));
-%  plotHist(hist_Depth{1})
-%  Norm = cellfun(@quantileFuncOfHist,hist_Depth,{1})
-%  preDepth = cellfun(@quantileFuncOfHist,hist_Depth,{1-pd})
-%  Depth = 1./(cellfun(@quantileFuncOfHist,hist_Depth,{1-pd})./Norm);
+  Depth = DepthRange(:,Depth_i)
+  hold off;plot(DepthRange,pdf_Depth(1,:)./DepthRange.^2)
+  hold on; line([Depth(1),Depth(1)],ylim(),"color","r")
 
   ## display progress updates?
   if prog
@@ -210,15 +241,15 @@ endfunction
 
 ## call a false dismissal probability calculation equation
 function pd_Depth = callFDP(Depth,ii,
-			  jj,kk,Ns, Tdata,Rsqr_x,Rsqr_w,mism_x, mism_w,
-			  FDP,fdp_vars,fdp_opts)
+                          jj,kk,Ns, Tdata,Rsqr_x,Rsqr_w,mism_x, mism_w,
+                          FDP,fdp_vars,fdp_opts)
   if any(ii)
     for i = 1:length(mism_x)
       ##integrating over the mismatch distributions
       pdfs(:,:,i) = sum((feval(FDP,Ns{i}(ii,jj,kk{i}),                       ## lower dimensional arrays are copied to the remaining dimensions
-		       (2 / 5 .*sqrt(Tdata{i}(ii,jj,kk{i}) ./Ns{i}(ii,jj,kk{i}))./Depth(ii,jj,kk{i})).^2 .*Rsqr_x(ii,:,kk{i}).*(1 - mism_x{i}(ii,jj,:)), ## might be better to do that before the loop
-		       cellfun(@(x) x{i}(ii,jj,kk{i}),fdp_vars,"UniformOutput",false),
-		       fdp_opts )) .*mism_w{i}(ii,jj,:),3);
+                       (2 / 5 .*sqrt(Tdata{i}(ii,jj,kk{i}) ./Ns{i}(ii,jj,kk{i}))./Depth(ii,jj,kk{i})).^2 .*Rsqr_x(ii,:,kk{i}).*(1 - mism_x{i}(ii,jj,:)), ## might be better to do that before the loop
+                       cellfun(@(x) x{i}(ii,jj,kk{i}),fdp_vars,"UniformOutput",false),
+                       fdp_opts )) .*mism_w{i}(ii,jj,:),3);
     endfor
     ## product of the mismatch integrals, integration over R^2
     pd_Depth = sum(prod(pdfs,3).* Rsqr_w(ii,:) , 2);
