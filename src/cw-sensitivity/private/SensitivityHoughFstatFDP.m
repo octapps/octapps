@@ -51,7 +51,7 @@ function [pd, Ns, FDP, fdp_vars, fdp_opts] = SensitivityHoughFstatFDP(pd, Ns, ar
       error("%s: nth, pd, and Ns are not of common size", funcName);
     endif
     FAP = @(nth, Ns) falseAlarm_HoughF(nth, Ns, Fth);
-    nth = arrayfun(FAP, nth, Ns);
+    paNt = arrayfun(FAP, nth, Ns);
   endif
 
   ## variables
