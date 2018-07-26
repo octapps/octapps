@@ -20,54 +20,74 @@
 ## Calculate the false dismissal probability of a chi^2 detection statistic,
 ## such as the F-statistic
 
-function [calcPh0R2, stat_th, perSeg_th] = SensitivitySelectStat(Nseg, Bayesian, stat)
+function [calcPdet, calcPDF, stat_th, perSeg_th] = SensitivitySelectStat(varargin)
 
   ## options
-  parseOptions(stat{2:end},
+  uvar = parseOptions(varargin,
+	       {"Nseg", "integer,strictpos,vector"},
+	       {"stat", "char","ChiSqr"},
                {"pval", "real,strictunit,matrix", []},
-               {"stat_th", "real,strictpos,matrix", []},
-	       {"perSeg_th","real,strictpos,matrix",0},
-              );
+               {"stat_th", "real,strictpos,matrix"},
+	       {"perSeg_th","real,positive,matrix",0},
+	       {"dof", "integer,strictpos,scalar",4},
+	       {"mism_w", "real,vector",1}
+	      );
+  Nseg = uvar.Nseg;
+  stat = uvar.stat;
+  pval = uvar.pval;
+  stat_th = uvar.stat_th
+  perSeg_th = uvar.perSeg_th;
+  dof = uvar.dof;
+  mism_w = uvar.mism_w;
+
+  
   ## check if p-value or threshold is given
   if !xor(isempty(pval), isempty(stat_th))
     error("%s: 'pval' and 'stat_th' are mutually exclusive options", funcName);
   endif
   ## make inputs common size and convert p-value to threshold
   if !isempty(pval)
+    ## if pval is given convert to stat_th
     [cserr, pval,  Nseg, perSeg_th] = common_size(pval,  Nseg, perSeg_th);
     if cserr > 0
       error("%s: pval and Nseg are not of common size", funcName);
     endif
-    switch stat{1}
+    switch stat
       case "ChiSqr"
 	stat_th = invFalseAlarm_chi2(pval, Nseg.*4);
-	if !Bayesian
-	  calcPh0R2 = @StackSlide_cdf
-	else
-	  calcPh0R2 = @StackSlide_pdf
-	endif
+	calcPdet = @(rhosqr_eff) StackSlide_cdf(Nseg, rhosqr_eff, mism_w,stat_th);
+	calcPDF = @(rhosqr_eff) StackSlide_pdf(Nseg, rhosqr_eff, mism_w,stat_th);
       case "HoughFstat"
 	STAT_TH = @(pval, Nseg) invFalseAlarm_HoughF(pval, Nseg, Fth);
 	stat_th = arrayfun(STAT_TH, pval, Nseg);
-	if !Bayesian
-	  calcPh0R2 = @HoughF_cdf
-	else
-	  calcPh0R2 = @HoughF_pdf
-	endif
+	
+	calcPdet = @(rhosqr_eff) HoughF_cdf(Nseg, rhosqr_eff, mism_w, stat_th, perSeg_th)
+	calcPDF = @(rhosqr_eff) HoughF_pdf(Nseg, rhosqr_eff, mism_w, stat_th, perSeg_th)
       otherwise
 	error("%s: invalid detection statistic '%s'", funcName, stat{1});
     endswitch
   else
+    ## if stat_th is given just proceed
     [cserr, stat_th, Nseg, perSeg_th] = common_size(stat_th, Nseg, perSeg_th);
     if cserr > 0
       error("%s: stat_th  and Nseg are not of common size", funcName);
     endif
+        switch stat
+      case "ChiSqr"
+	calcPdet = @(rhosqr_eff) StackSlide_cdf(Nseg, rhosqr_eff, mism_w,stat_th);
+	calcPDF = @(rhosqr_eff) StackSlide_pdf(Nseg, rhosqr_eff, mism_w,stat_th);
+      case "HoughFstat"
+	calcPdet = @(rhosqr_eff) HoughF_cdf(Nseg, rhosqr_eff, mism_w, stat_th, perSeg_th)
+	calcPDF = @(rhosqr_eff) HoughF_pdf(Nseg, rhosqr_eff, mism_w, stat_th, perSeg_th)
+      otherwise
+	error("%s: invalid detection statistic '%s'", funcName, stat{1});
+    endswitch
   endif
   
 endfunction
 
 ## Calculate Pdet(h_0, R^2) for the StackSlide method
-function P_h0R2 = StackSlide_cdf(Nseg, rhosqr_eff, mism_w, stat_th , perSeg_th =[] )
+function Pdet = StackSlide_cdf(Nseg, rhosqr_eff, mism_w, stat_th )
 
   ## degrees of freedom
   dof = 4.*Nseg;
@@ -77,12 +97,12 @@ function P_h0R2 = StackSlide_cdf(Nseg, rhosqr_eff, mism_w, stat_th , perSeg_th =
 
   ## integrate over mismatch
   
-  Pstat_h0R2 = sum(cdf.*mism_w,5);
+  Pdet= 1 - sum(cdf.*mism_w,5);
   
 endfunction
     
 ## Calculate P(2F|h_0, R^2) for the StackSlide method
-function P_h0R2 = StackSlide_pdf(Nseg, rhosqr_eff, mism_w, stat_th , perSeg_th =[] )
+function PDF = StackSlide_pdf(Nseg, rhosqr_eff, mism_w, stat_th )
 
   ## degrees of freedom
   dof = 4.*Nseg;
@@ -92,12 +112,12 @@ function P_h0R2 = StackSlide_pdf(Nseg, rhosqr_eff, mism_w, stat_th , perSeg_th =
 
   ## integrate over mismatch
   
-  Pstat_h0R2 = sum(pdf.*mism_w,5);
+  PDF = sum(pdf.*mism_w,5);
   
 endfunction
 
 ##  Calculate Pdet(h_0, R^2) for the HoughF method
-function P_h0R2 = HoughF_cdf(Nseg, rhosqr_eff, mism_w, stat_th, perSeg_th)
+function Pdet = HoughF_cdf(Nseg, rhosqr_eff, mism_w, stat_th, perSeg_th)
 
   ## calculate per segment cdf from chisquare
   perSeg_cdf = ChiSquare_cdf(perSeg_th, 4, rhosqr_eff);
@@ -106,11 +126,13 @@ function P_h0R2 = HoughF_cdf(Nseg, rhosqr_eff, mism_w, stat_th, perSeg_th)
   p_th = sum(perSeg_cdf.*mism_w,5);
 
   ## calculate binomial expression
-  nc = [0:stat_th].*ones(size(p_th));
+  ## dimensions not correct
+  nc = [0:stat_th];
+
   pdf_h0R2 = 1./(Nseg+1).*binomialRatePDF(p_th,Nseg,nc);
 
   ## integrate over numbercount
-  P_h0R2 = sum(pdf_h0R2,
+  Pdet = 1 - sum(pdf_h0R2)
  
   
 endfunction
@@ -127,37 +149,4 @@ function P_h0R2 = HoughF_pdf(Nseg, rhosqr_eff, mism_w, stat_th, perSeg_th)
   ## calculate binomial expression
   Pstat_h0R2 = 1./(Nseg+1).*binomialRatePDF(p_th,Nseg,stat_val);
   
-endfunction
-    
-function pd_rhosqr = HoughFstatFDP(pd, Ns, rhosqr, fdp_vars, fdp_opts)
-
-  ## F-statistic threshold per segment
-  Fth = fdp_opts.Fth;
-
-  ## false alarm probability per template, and number count false alarm threshold
-  paNt = fdp_vars{1};
-  nth = fdp_vars{2};
-
-  ## false dismissal probability
-  if fdp_opts.zero
-
-    ## calculate the false dismissal probability using the
-    ## zeroth-order approximation for the Hough-on-Fstat statistic
-    ## valid in the limit of N>>1 and rho<<1
-    ## this is based on Eq.(6.39) in KrishnanEtAl2004 Hough paper
-    alpha = falseAlarm_chi2 ( 2*Fth, 4 );
-    sa = erfcinv_asym(2*paNt);
-    ## Theta from Eq.(5.28) in Hough paper, dropping second term in "large N limit" (s Eq.(6.40))
-    Theta = sqrt ( Ns ./ ( 2*alpha.*(1-alpha)) );  ## + (1 - 2*alpha)./(1-alpha) .* (sa ./(2*alpha))
-    pd_rhosqr = 0.5 * erfc ( - sa + 0.25 * Theta .* exp(-Fth) .* Fth.^2 .* rhosqr );
-
-  else
-
-    ## calculate the false dismissal probability using the
-    ## exact distribution for the Hough-on-Fstat statistic
-    FDP = @(nth, Ns, rhosqr) falseDismissal_HoughF(nth, Ns, Fth, rhosqr);
-    pd_rhosqr = arrayfun(FDP, nth, Ns, rhosqr);
-
-  endif
-
 endfunction
