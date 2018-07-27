@@ -20,22 +20,22 @@
 ## Calculate the false dismissal probability of a chi^2 detection statistic,
 ## such as the F-statistic
 
-function [calcPdet, calcPDF, stat_th, perSeg_th] = SensitivitySelectStat(varargin)
+function [calcPdet, calcPDF] = SensitivitySelectStat(varargin)
 
   ## options
   uvar = parseOptions(varargin,
 	       {"Nseg", "integer,strictpos,vector"},
 	       {"stat", "char","ChiSqr"},
                {"pval", "real,strictunit,matrix", []},
-               {"stat_th", "real,strictpos,matrix"},
+               {"stat_th", "real,strictpos,matrix",[]},
 	       {"perSeg_th","real,positive,matrix",0},
 	       {"dof", "integer,strictpos,scalar",4},
-	       {"mism_w", "real,vector",1}
+	       {"mism_w", "real",1} # multi-dimensional array != matrix, vector
 	      );
   Nseg = uvar.Nseg;
   stat = uvar.stat;
   pval = uvar.pval;
-  stat_th = uvar.stat_th
+  stat_th = uvar.stat_th;
   perSeg_th = uvar.perSeg_th;
   dof = uvar.dof;
   mism_w = uvar.mism_w;
@@ -72,7 +72,7 @@ function [calcPdet, calcPDF, stat_th, perSeg_th] = SensitivitySelectStat(varargi
     if cserr > 0
       error("%s: stat_th  and Nseg are not of common size", funcName);
     endif
-        switch stat
+    switch stat
       case "ChiSqr"
 	calcPdet = @(rhosqr_eff) StackSlide_cdf(Nseg, rhosqr_eff, mism_w,stat_th);
 	calcPDF = @(rhosqr_eff) StackSlide_pdf(Nseg, rhosqr_eff, mism_w,stat_th);
@@ -93,7 +93,7 @@ function Pdet = StackSlide_cdf(Nseg, rhosqr_eff, mism_w, stat_th )
   dof = 4.*Nseg;
   
   ## calculate pdf from chisquare
-  cdf = ChiSquare_cdf(stat_th , dof, Nseg.*rhosqr_eff);
+  cdf = ChiSquare_cdf(stat_th , dof, rhosqr_eff);
 
   ## integrate over mismatch
   
@@ -108,7 +108,7 @@ function PDF = StackSlide_pdf(Nseg, rhosqr_eff, mism_w, stat_th )
   dof = 4.*Nseg;
   
   ## calculate pdf from chisquare
-  pdf = ChiSquare_pdf(stat_th , dof, Nseg.*rhosqr_eff);
+  pdf = ChiSquare_pdf(stat_th , dof, rhosqr_eff);
 
   ## integrate over mismatch
   

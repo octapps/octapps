@@ -21,6 +21,6 @@
 
 function rhosqr_eff = Rhosqr_eff(Tdata, Depth, Rsqr_x, mism_x = 0)
 
-  rhosqr_eff = ( 2 / 5 .*sqrt(Tdata)./Depth ).^2 .*Rsqr_x.*( 1 - mism_x );
+  rhosqr_eff = ( 2 / 5 ./Depth ).^2.*Tdata .*Rsqr_x.*( 1 - mism_x );
 
 endfunction
