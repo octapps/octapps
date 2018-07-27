@@ -53,6 +53,10 @@ function p = ChiSquare_pdf(x, k, lambda=0)
   if any(ii(:))
     p(ii) = 0;
   endif
+  ii = isinf(lambda);
+  if any(ii(:))
+    p(ii) = 0;
+  endif
 
   ## compute the central chi^2 PDF for special case lambda==0
   ii = !isfinite(p) & (lambda == 0);
