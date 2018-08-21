@@ -69,6 +69,8 @@ script:
     && sudo docker build .
     ; fi
   - if test "${TRAVIS_OS_NAME}" = "osx"; then true
+    && export CC="clang -std=c++11"
+    && export CXX="clang++ -std=c++11"
     && make
     ; fi
   - if test "${TRAVIS_OS_NAME}|${DOCKER}" = "linux|no" && test "${TRAVIS_REPO_SLUG}" = "octapps/octapps" && test "${TRAVIS_BRANCH}" = "master" && test "${TRAVIS_EVENT_TYPE}" = "push" && test "x${ACCESS_TOKEN}" != x; then true
