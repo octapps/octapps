@@ -27,7 +27,7 @@ FIND := $(call CheckProg, gfind find)
 GIT := $(call CheckProg, git)
 GREP := $(call CheckProg, grep)
 MAKEINFO := $(call CheckProg, makeinfo) --force --no-warn --no-validate -c TOP_NODE_UP_URL='https://github.com/octapps/octapps'
-MKOCTFILE := env CC= CXX= $(call CheckProg, mkoctfile)
+MKOCTFILE := env CC="$(CC)" CXX="$(CXX)" $(call CheckProg, mkoctfile)
 OCTAVE := $(call CheckProg, octave-cli, octave) --no-gui --silent --norc --no-history --no-window-system
 PKGCONFIG := $(call CheckProg, pkg-config)
 SED := $(call CheckProg, gsed sed)
