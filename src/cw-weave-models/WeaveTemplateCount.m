@@ -134,7 +134,7 @@ function [coh_Nt, semi_Nt, dfreq] = WeaveTemplateCount(varargin)
   if !isempty(setup_file)
     setup = WeaveReadSetup(setup_file);
     Nsegments  = setup.Nsegments;
-    detectors  = setup.detectors;
+    detectors  = strjoin(setup.detectors, ",");
     ref_time   = setup.ref_time;
     coh_Tspan  = setup.coh_Tspan;
     semi_Tspan = setup.semi_Tspan;
@@ -183,7 +183,7 @@ function [coh_Nt, semi_Nt, dfreq] = WeaveTemplateCount(varargin)
       segment_list = CreateSegmentList(ref_time, Nsegments_interp(i), coh_Tspan_interp(j), semi_Tspan, []);
 
       ## compute supersky metrics
-      metrics = ComputeSuperskyMetrics("spindowns", size(fkdot_bands, 1) - 1, "segment_list", segment_list, "ref_time", ref_time, "fiducial_freq", freq_max, "detectors", strjoin(detectors, ","));
+      metrics = ComputeSuperskyMetrics("spindowns", size(fkdot_bands, 1) - 1, "segment_list", segment_list, "ref_time", ref_time, "fiducial_freq", freq_max, "detectors", detectors);
 
       ## equalise frequency spacing between coherent and semicoherent metrics
       XLALEqualizeReducedSuperskyMetricsFreqSpacing(metrics, coh_max_mismatch, semi_max_mismatch);
