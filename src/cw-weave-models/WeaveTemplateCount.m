@@ -130,14 +130,22 @@ function [coh_Nt, semi_Nt, dfreq] = WeaveTemplateCount(varargin)
   ## load ephemerides
   ephemerides = loadEphemerides();
 
+  interpolation = true; 	## default
+
   ## if given, load setup file and extract various parameters
   if !isempty(setup_file)
     setup = WeaveReadSetup(setup_file);
     Nsegments  = setup.Nsegments;
-    detectors  = setup.detectors;
+    detectors  = strjoin(setup.detectors, ",");
     ref_time   = setup.ref_time;
     coh_Tspan  = setup.coh_Tspan;
     semi_Tspan = setup.semi_Tspan;
+  endif
+  if ( Nsegments == 1 )
+    interpolation = false;
+  endif
+  if ( Nsegments > 1 && (coh_max_mismatch == 0) )
+    interpolation = false;
   endif
 
   ## if given, load result file and extract various parameters
@@ -151,8 +159,18 @@ function [coh_Nt, semi_Nt, dfreq] = WeaveTemplateCount(varargin)
     f1dot_max = result_hdr.semiparam_maxf1dot;
     f2dot_min = getoptfield(0, result_hdr, "semiparam_minf2dot");
     f2dot_max = getoptfield(0, result_hdr, "semiparam_maxf2dot");
-    coh_max_mismatch = str2double(result_hdr.progarg_coh_max_mismatch);
     semi_max_mismatch = str2double(result_hdr.progarg_semi_max_mismatch);
+    if ( isfield ( result_hdr, "progarg_interpolation") )
+      interpolation = strcmpi ( result_hdr.progarg_interpolation, "TRUE" );
+    endif
+    if ( interpolation )
+      coh_max_mismatch = str2double(result_hdr.progarg_coh_max_mismatch);
+    endif
+  endif
+
+  if ( !interpolation )
+    assert ( isempty(coh_max_mismatch) || (coh_max_mismatch == 0) );
+    coh_max_mismatch = semi_max_mismatch;	## for XLALEqualizeReducedSuperskyMetricsFreqSpacing(), following Weave.c
   endif
 
   ## create frequency/spindown parameter space
@@ -183,18 +201,22 @@ function [coh_Nt, semi_Nt, dfreq] = WeaveTemplateCount(varargin)
       segment_list = CreateSegmentList(ref_time, Nsegments_interp(i), coh_Tspan_interp(j), semi_Tspan, []);
 
       ## compute supersky metrics
-      metrics = ComputeSuperskyMetrics("spindowns", size(fkdot_bands, 1) - 1, "segment_list", segment_list, "ref_time", ref_time, "fiducial_freq", freq_max, "detectors", strjoin(detectors, ","));
+      metrics = ComputeSuperskyMetrics("spindowns", size(fkdot_bands, 1) - 1, "segment_list", segment_list, "ref_time", ref_time, "fiducial_freq", freq_max, "detectors", detectors);
 
       ## equalise frequency spacing between coherent and semicoherent metrics
       XLALEqualizeReducedSuperskyMetricsFreqSpacing(metrics, coh_max_mismatch, semi_max_mismatch);
 
-      ## compute number of coherent templates
-      for k = 1:metrics.num_segments
-        coh_Nt_interp(i, j) += coh_Nt_scale * number_of_lattice_templates(lattice, metrics.coh_rssky_metric{k}.data, coh_max_mismatch, sky_area, fkdot_bands);
-      endfor
-
       ## compute number of semicoherent templates
       semi_Nt_interp(i, j) = semi_Nt_scale * number_of_lattice_templates(lattice, metrics.semi_rssky_metric.data, semi_max_mismatch, sky_area, fkdot_bands);
+
+      ## compute number of coherent templates
+      for k = 1:metrics.num_segments
+        if ( interpolation )
+          coh_Nt_interp(i, j) += coh_Nt_scale * number_of_lattice_templates(lattice, metrics.coh_rssky_metric{k}.data, coh_max_mismatch, sky_area, fkdot_bands);
+        else
+          coh_Nt_interp(i, j) += semi_Nt_interp(i, j);
+        endif
+      endfor
 
       ## compute frequency spacing
       dfreq_interp(i, j) = 2 * sqrt(semi_max_mismatch / metrics.semi_rssky_metric.data(end, end));
