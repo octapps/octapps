@@ -54,15 +54,6 @@ install:
     && travis_retry sudo apt-get -qq update
     && travis_retry sudo apt-get -qq -y -o Dpkg::Options::="--force-confnew" install docker-ce
     ; fi
-  - if test "${TRAVIS_OS_NAME}" = "osx"; then true
-    && git clone --depth=50 --branch=master https://github.com/swig/swig.git /tmp/swig
-    && pushd /tmp/swig
-    && ./autogen.sh
-    && ./configure --prefix=/usr/local
-    && make -j2
-    && make install
-    && popd
-    ; fi
 
 script:
   - git log -1
