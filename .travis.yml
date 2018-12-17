@@ -16,8 +16,8 @@ matrix:
     - os: osx
       compiler: clang
       env:
-        - CC="clang -std=c++11"
-        - CXX="clang++ -std=c++11"
+        - CFLAGS="${CFLAGS} -std=c++11"
+        - CXXFLAGS="${CXXFLAGS} -std=c++11"
 
 addons:
   apt:
