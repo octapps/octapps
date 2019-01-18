@@ -15,6 +15,8 @@
 \usepackage{amssymb,amsmath}
 \usepackage{ifxetex,ifluatex}
 \usepackage{seqsplit}
+\usepackage{xstring}
+
 \usepackage{fixltx2e} % provides \textsubscript
 \usepackage[
   backend=biber,
@@ -22,6 +24,41 @@
 %  citestyle=numeric
 ]{biblatex}
 \bibliography{paper.bib}
+
+% --- Splitting \texttt --------------------------------------------------
+
+\let\textttOrig=\texttt
+\def\texttt#1{\expandafter\textttOrig{\seqsplit{#1}}}
+\renewcommand{\seqinsert}{\ifmmode
+  \allowbreak
+  \else\penalty6000\hspace{0pt plus 0.02em}\fi}
+
+
+% --- Pandoc does not distinguish between links like [foo](bar) and
+% --- [foo](foo) -- a simplistic Markdown model.  However, this is
+% --- wrong:  in links like [foo](foo) the text is the url, and must
+% --- be split correspondingly.
+% --- Here we detect links \href{foo}{foo}, and also links starting
+% --- with https://doi.org, and use path-like splitting (but not
+% --- escaping!) with these links.
+% --- Another vile thing pandoc does is the different escaping of
+% --- foo and bar.  This may confound our detection.
+% --- This problem we do not try to solve at present, with the exception
+% --- of doi-like urls, which we detect correctly.
+
+
+\makeatletter
+\let\href@Orig=\href
+\def\href@Urllike#1#2{\href@Orig{#1}{\begingroup
+    \def\Url@String{#2}\Url@FormatString
+    \endgroup}}
+\def\href@Notdoi#1#2{\def\tempa{#1}\def\tempb{#2}%
+  \ifx\tempa\tempb\relax\href@Urllike{#1}{#2}\else
+  \href@Orig{#1}{#2}\fi}
+\def\href#1#2{%
+  \IfBeginWith{#1}{https://doi.org}%
+  {\href@Urllike{#1}{#2}}{\href@Notdoi{#1}{#2}}}
+\makeatother
 
 
 % --- Page layout -------------------------------------------------------------
@@ -61,7 +98,7 @@
 \fancyhead[R]{}
 \renewcommand{\footrulewidth}{0.25pt}
 
-\fancyfoot[L]{\footnotesize{\sffamily Wette et al., (2018). OctApps: a library of Octave functions for continuous gravitational-wave data analysis. \textit{Journal of Open Source Software}, 3(26), 707. \href{https://doi.org/10.21105/joss.00707}{https://doi.org/10.21105/joss.00707}}}
+\fancyfoot[L]{\parbox[t]{0.98\headwidth}{\footnotesize{\sffamily Wette et al., (2018). . \textit{Journal of Open Source Software}, 3(26), 707. \url{https://doi.org/10.21105/joss.00707}}}}
 
 
 \fancyfoot[R]{\sffamily \thepage}
@@ -230,7 +267,7 @@ D-14476 Golm, Germany}
   {\bfseries Published:} 06 June 2018
 
   \vspace{2mm}
-  {\bfseries Licence}\\
+  {\bfseries License}\\
   Authors of papers retain copyright and release the work under a Creative Commons Attribution 4.0 International License (\href{http://creativecommons.org/licenses/by/4.0/}{\color{linky}{CC-BY}}).
 }
 
@@ -288,7 +325,7 @@ following directories:
 \end{itemize}
 
 Many of these scripts make use of C functions from the
-\href{https://wiki.ligo.org/DASWG/LALSuite}{LSC Algorithm Library Suite
+\href{https://doi.org/10.7935/GT1W-FZ16}{LSC Algorithm Library Suite
 (LALSuite)}, using \href{http://www.swig.org}{SWIG} to provide the
 C-to-Octave interface.
 
@@ -375,9 +412,10 @@ thank Steven R. Brandt for reviewing this paper and providing the
 \texttt{Dockerfile} for building and testing \emph{OctApps}. This work
 was supported by the Max Planck Society, by German Research Foundation
 (DFG) grant SFB/TR 7, and by the German Aerospace Center (DLR). KW is
-supported by Australian Research Council (ARC) grant CE170100004. MP is
-funded by the UK Science \& Technology Facilities Council (STFC) under
-grant ST/N005422/1. This paper has document number LIGO-P1800078-v4.
+supported by Australian Research Council (ARC) grant CE170100004. DK was
+funded by EU H2020-MSCA-IF-2015 grant 704094 GRANITE. MP is funded by
+the UK Science \& Technology Facilities Council (STFC) under grant
+ST/N005422/1. This paper has document number LIGO-P1800078-v4.
 
 \section*{References}\label{references}
 \addcontentsline{toc}{section}{References}
