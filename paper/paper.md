@@ -94,6 +94,7 @@ We acknowledge that *OctApps* includes contributions from Zdravko Botev, Ronalda
 We thank Steven R. Brandt for reviewing this paper and providing the `Dockerfile` for building and testing *OctApps*.
 This work was supported by the Max Planck Society, by German Research Foundation (DFG) grant SFB/TR 7, and by the German Aerospace Center (DLR).
 KW is supported by Australian Research Council (ARC) grant CE170100004.
+DK was funded by EU H2020-MSCA-IF-2015 grant 704094 GRANITE.
 MP is funded by the UK Science & Technology Facilities Council (STFC) under grant ST/N005422/1.
 This paper has document number LIGO-P1800078-v4.
 
