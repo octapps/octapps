@@ -65,7 +65,7 @@ They are organized into the following directories:
 - `src/cw-sensitivity`: functions which predict the sensitivity of a search for continuous waves, following the method of [@Wett2012a].
 - `src/cw-weave-models`: functions which characterize the behaviour of *Weave*, an implementation of an optimized search pipeline for continuous waves [@Wett2018a].
 
-Many of these scripts make use of C functions from the [LSC Algorithm Library Suite (LALSuite)](https://wiki.ligo.org/DASWG/LALSuite), using [SWIG](http://www.swig.org) to provide the C-to-Octave interface.
+Many of these scripts make use of C functions from the [LSC Algorithm Library Suite (LALSuite)](https://doi.org/10.7935/GT1W-FZ16), using [SWIG](http://www.swig.org) to provide the C-to-Octave interface.
 
 In addition, *OctApps* provides various general-purpose functions, which may be of broader interest to users of Octave, organized into the following directories:
 
