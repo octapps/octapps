@@ -18,6 +18,9 @@ matrix:
       env:
         - CFLAGS="${CFLAGS} -std=c++11"
         - CXXFLAGS="${CXXFLAGS} -std=c++11"
+  allow_failures:
+    - os: linux
+      env: DOCKER=no
 
 addons:
   apt:
@@ -34,6 +37,7 @@ addons:
       - libgsl0-dev
       - libav-tools
       - texinfo
+      - docker-ce
   homebrew:
     update: true
     brewfile: true
@@ -50,10 +54,6 @@ install:
     && popd
     && source /tmp/lalsuite/_inst/etc/lalsuite-user-env.sh
     ; fi
-  - if test "${TRAVIS_OS_NAME}|${DOCKER}" = "linux|yes"; then true
-    && travis_retry sudo apt-get -qq update
-    && travis_retry sudo apt-get -qq -y -o Dpkg::Options::="--force-confnew" install docker-ce
-    ; fi
 
 script:
   - git log -1
@@ -68,10 +68,10 @@ script:
     && sudo docker build .
     ; fi
   - if test "${TRAVIS_OS_NAME}" = "osx"; then true
-    && make
+    && make SWIG=false
     ; fi
-  - if test "${TRAVIS_OS_NAME}|${DOCKER}" = "linux|no" && test "${TRAVIS_REPO_SLUG}" = "octapps/octapps" && test "${TRAVIS_BRANCH}" = "master" && test "${TRAVIS_EVENT_TYPE}" = "push" && test "x${ACCESS_TOKEN}" != x; then true
-    && echo -e "machine github.com\\nlogin kwwette\\npassword ${ACCESS_TOKEN}" > ~/.netrc
+  - if test "${TRAVIS_OS_NAME}|${DOCKER}" = "linux|no" && test "${TRAVIS_REPO_SLUG}" = "octapps/octapps" && test "${TRAVIS_BRANCH}" = "master" && test "${TRAVIS_EVENT_TYPE}" = "push" && test "x${GITHUB_TOKEN}" != x; then true
+    && echo -e "machine github.com\\nlogin kwwette\\npassword ${GITHUB_TOKEN}" > ~/.netrc
     && git clone https://github.com/octapps/octapps.github.io.git /tmp/octapps.github.io
     && rm -rf /tmp/octapps.github.io/*
     && mv -f html/* /tmp/octapps.github.io/
