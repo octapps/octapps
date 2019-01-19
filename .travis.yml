@@ -41,6 +41,11 @@ addons:
       - liboctave-dev
       - swig3.0
       - libgsl0-dev
+      - gnuplot-nox
+      - ghostscript
+      - epstool
+      - transfig
+      - pstoedit
       - libav-tools
       - texinfo
       - docker-ce

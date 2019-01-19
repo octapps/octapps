@@ -32,6 +32,7 @@ Dependencies
 <tr><td> GNU Texinfo </td><td> Used to build HTML documentation </td><td> <tt>apt install texinfo</tt> </td><td> <tt>brew install texinfo</tt> </td></tr>
 <tr><td> LSC Algorithm Library (LALSuite) </td><td> Continuous gravitational-wave functions require packages <tt>lal-octave</tt>, <tt>lalxml-octave</tt>, <tt>lalpulsar-octave</tt>, and <tt>lalapps</tt> </td><td colspan="2"> See <a href="https://wiki.ligo.org/DASWG/LALSuite">project homepage</a> for build instructions </td></tr>
 <tr><td> GNU Scientific Library </td><td> Used by <tt>gsl</tt> module </td><td> <tt>apt install libgsl-dev</tt> </td><td> <tt>brew install gsl</tt> </td></tr>
+<tr><td> Gnuplot </td><td> Used by <tt>ezprint()</tt> function </td><td> <tt>apt install gnuplot</tt> </td><td> <tt>brew install gnuplot</tt> </td></tr>
 <tr><td> FFmpeg </td><td> Used by <tt>ezmovie()</tt> function </td><td> <tt>apt install ffmpeg</tt> </td><td> <tt>brew install ffmpeg</tt> </td></tr>
 <tr><td> CFITSIO </td><td> Used by <tt>fitsread()</tt> function </td><td> <tt>apt install libcfitsio-dev</tt> </td><td> <tt>brew install cfitsio</tt> </td></tr>
 <tr><td> bzip2 </td><td> Used by <tt>SuperskyMetricsCache()</tt> function </td><td> <tt>apt install bzip2</tt> </td><td> <tt>brew install bzip2</tt> </td></tr>
