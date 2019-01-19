@@ -18,7 +18,7 @@ matrix:
       env:
         - CFLAGS="${CFLAGS} -std=c++11"
         - CXXFLAGS="${CXXFLAGS} -std=c++11"
-    - if: repo = octapps/octapps && branch = master
+    - if: repo = octapps/octapps && branch = master && env(GITHUB_TOKEN) =~ /./
       os: linux
       compiler: gcc
       sudo: required
@@ -27,10 +27,6 @@ matrix:
   allow_failures:
     - os: linux
       env: DOCKER=no
-
-stages:
-  - name: deploy
-    if: repo = octapps/octapps && branch = master && env(DOCUMENTATION) = yes
 
 addons:
   apt:
@@ -81,16 +77,15 @@ script:
     ; fi
   - if test "${TRAVIS_OS_NAME}|${DOCUMENTATION}" = "linux|yes"; then true
     && make -j2 html
+    && echo -e "machine github.com\\nlogin kwwette\\npassword ${GITHUB_TOKEN}" > ~/.netrc
+    && git clone https://github.com/octapps/octapps.github.io.git /tmp/octapps.github.io
+    && rm -rf /tmp/octapps.github.io/*
+    && mv -f html/* /tmp/octapps.github.io/
+    && cd /tmp/octapps.github.io
+    && git config user.name "${USER}"
+    && git config user.email "<>"
+    && git add --all
+    && git commit --amend -C HEAD --date="`date -R`"
+    && git push --force origin master
+    && rm -f ~/.netrc
     ; fi
-
-deploy:
-  provider: pages
-  on:
-    repo: octapps/octapps
-    branch: master
-  skip-cleanup: true
-  github-token: $GITHUB_TOKEN
-  local-dir: html/
-  repo: octapps/octapps.github.io
-  target-branch: master
-  verbose: true
