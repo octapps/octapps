@@ -1,7 +1,7 @@
 language: cpp
 cache: ccache
 
-jobs:
+matrix:
   include:
     - os: linux
       compiler: gcc
@@ -29,8 +29,8 @@ jobs:
       env: DOCKER=no
 
 stages:
-  -name: deploy
-   if: repo = octapps/octapps && branch = master
+  - name: deploy
+    if: repo = octapps/octapps && branch = master
 
 addons:
   apt:
