@@ -70,8 +70,8 @@ script:
   - if test "${TRAVIS_OS_NAME}" = "osx"; then true
     && make SWIG=false
     ; fi
-  - if test "${TRAVIS_OS_NAME}|${DOCKER}" = "linux|no" && test "${TRAVIS_REPO_SLUG}" = "octapps/octapps" && test "${TRAVIS_BRANCH}" = "master" && test "${TRAVIS_EVENT_TYPE}" = "push" && test "x${ACCESS_TOKEN}" != x; then true
-    && echo -e "machine github.com\\nlogin kwwette\\npassword ${ACCESS_TOKEN}" > ~/.netrc
+  - if test "${TRAVIS_OS_NAME}|${DOCKER}" = "linux|no" && test "${TRAVIS_REPO_SLUG}" = "octapps/octapps" && test "${TRAVIS_BRANCH}" = "master" && test "${TRAVIS_EVENT_TYPE}" = "push" && test "x${GITHUB_TOKEN}" != x; then true
+    && echo -e "machine github.com\\nlogin kwwette\\npassword ${GITHUB_TOKEN}" > ~/.netrc
     && git clone https://github.com/octapps/octapps.github.io.git /tmp/octapps.github.io
     && rm -rf /tmp/octapps.github.io/*
     && mv -f html/* /tmp/octapps.github.io/
