@@ -30,7 +30,7 @@ matrix:
 
 stages:
   - name: deploy
-    if: repo = octapps/octapps && branch = master
+    if: repo = octapps/octapps && branch = master && env(DOCUMENTATION) = yes
 
 addons:
   apt:
