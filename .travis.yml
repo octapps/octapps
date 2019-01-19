@@ -18,6 +18,9 @@ matrix:
       env:
         - CFLAGS="${CFLAGS} -std=c++11"
         - CXXFLAGS="${CXXFLAGS} -std=c++11"
+  allow_failures:
+    - os: linux
+      env: DOCKER=no
 
 addons:
   apt:
