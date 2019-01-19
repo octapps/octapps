@@ -1,5 +1,7 @@
 language: cpp
 cache: ccache
+services:
+  - docker
 
 matrix:
   include:
@@ -36,7 +38,6 @@ addons:
       - sourceline: "deb https://packagecloud.io/github/git-lfs/ubuntu/ trusty main"
         key_url: "https://packagecloud.io/github/git-lfs/gpgkey"
     packages:
-      - docker-ce
       - epstool
       - ghostscript
       - git-lfs
