@@ -34,6 +34,7 @@ addons:
       - libgsl0-dev
       - libav-tools
       - texinfo
+      - docker-ce
   homebrew:
     update: true
     brewfile: true
@@ -49,10 +50,6 @@ install:
     && make install
     && popd
     && source /tmp/lalsuite/_inst/etc/lalsuite-user-env.sh
-    ; fi
-  - if test "${TRAVIS_OS_NAME}|${DOCKER}" = "linux|yes"; then true
-    && travis_retry sudo apt-get -qq update
-    && travis_retry sudo apt-get -qq -y -o Dpkg::Options::="--force-confnew" install docker-ce
     ; fi
 
 script:
