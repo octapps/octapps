@@ -36,19 +36,19 @@ addons:
       - sourceline: "deb https://packagecloud.io/github/git-lfs/ubuntu/ trusty main"
         key_url: "https://packagecloud.io/github/git-lfs/gpgkey"
     packages:
-      - git-lfs
-      - lalsuite-dev-deps
-      - liboctave-dev
-      - swig3.0
-      - libgsl0-dev
-      - gnuplot-nox
-      - ghostscript
-      - epstool
-      - transfig
-      - pstoedit
-      - libav-tools
-      - texinfo
       - docker-ce
+      - epstool
+      - ghostscript
+      - git-lfs
+      - gnuplot-nox
+      - lalsuite-dev-deps
+      - libav-tools
+      - libgsl0-dev
+      - liboctave-dev
+      - pstoedit
+      - swig3.0
+      - texinfo
+      - transfig
   homebrew:
     update: true
     brewfile: true
