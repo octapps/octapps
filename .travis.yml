@@ -46,6 +46,8 @@ addons:
       - libav-tools
       - libgsl0-dev
       - liboctave-dev
+      - make
+      - pkg-config
       - pstoedit
       - swig3.0
       - texinfo
