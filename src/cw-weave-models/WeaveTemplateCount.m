@@ -192,6 +192,14 @@ function [coh_Nt, semi_Nt, dfreq] = WeaveTemplateCount(varargin)
   coh_Nt_scale = 1.436;
   semi_Nt_scale = 1.000;
 
+  ## coordinate spacing correction factor vs 'naive' maximal coordinate distance m=g_ij dl^i dl^j (covering vs packing)
+  dim_sky = ifelse ( sky_area > 0, 2, 0 );
+  dim_fkdot = sum( fkdot_bands > 0 );
+  dim = dim_sky + dim_fkdot;
+  Rcover = LatticeCoveringRadius ( dim, lattice );
+  Rpack  = LatticePackingRadius ( dim, lattice );
+  spacing_correction = Rpack / Rcover;
+
   ## compute interpolation grid for number of templates
   coh_Nt_interp = semi_Nt_interp = dfreq_interp = zeros(length(Nsegments_interp), length(coh_Tspan_interp));
   for i = 1:length(Nsegments_interp)
@@ -219,7 +227,7 @@ function [coh_Nt, semi_Nt, dfreq] = WeaveTemplateCount(varargin)
       endfor
 
       ## compute frequency spacing
-      dfreq_interp(i, j) = 2 * sqrt(semi_max_mismatch / metrics.semi_rssky_metric.data(end, end));
+      dfreq_interp(i, j) = 2 * spacing_correction * sqrt(semi_max_mismatch / metrics.semi_rssky_metric.data(end, end));
 
     endfor
   endfor
