@@ -9,12 +9,12 @@ matrix:
       compiler: gcc
       sudo: required
       dist: trusty
-      env: DOCKER=no
+      env: BUILD_LALSUITE=yes
     - os: linux
       compiler: gcc
       sudo: required
       dist: trusty
-      env: DOCKER=yes
+      env: BUILD_DOCKER=yes
     - os: osx
       compiler: clang
       env:
@@ -24,10 +24,10 @@ matrix:
       compiler: gcc
       sudo: required
       dist: trusty
-      env: DOCUMENTATION=yes
+      env: BUILD_DOCS=yes
   allow_failures:
     - os: linux
-      env: DOCKER=no
+      env: BUILD_LALSUITE=yes
 
 addons:
   apt:
@@ -56,7 +56,7 @@ addons:
     brewfile: true
 
 install:
-  - if test "${TRAVIS_OS_NAME}|${DOCKER}" = "linux|no"; then true
+  - if test "${TRAVIS_OS_NAME}|${BUILD_LALSUITE}" = "linux|yes"; then true
     && ccache -s
     && git clone --depth=50 --branch=master https://git.ligo.org/lscsoft/lalsuite.git /tmp/lalsuite
     && pushd /tmp/lalsuite
@@ -70,22 +70,22 @@ install:
 
 script:
   - git log -1
-  - if test "${TRAVIS_OS_NAME}|${DOCKER}" = "linux|no"; then true
+  - if test "${TRAVIS_OS_NAME}|${BUILD_LALSUITE}" = "linux|yes"; then true
     && make check NOSKIP=1 TESTS=funcName
     && make check NOSKIP=1 TESTS=src/general/funcName.m
     && make check NOSKIP=1 TESTDIR=src/general/
     && make -j2 check NOSKIP=1
     ; fi
-  - if test "${TRAVIS_OS_NAME}|${DOCKER}" = "linux|yes"; then true
+  - if test "${TRAVIS_OS_NAME}|${BUILD_DOCKER}" = "linux|yes"; then true
     && sudo docker build .
     ; fi
   - if test "${TRAVIS_OS_NAME}" = "osx"; then true
     && make SWIG=false
     ; fi
-  - if test "${TRAVIS_OS_NAME}|${DOCUMENTATION}" = "linux|yes"; then true
+  - if test "${TRAVIS_OS_NAME}|${BUILD_DOCS}" = "linux|yes"; then true
     && make -j2 html
     ; fi
-  - if test "${TRAVIS_OS_NAME}|${DOCUMENTATION}" = "linux|yes" && test "${TRAVIS_REPO_SLUG}" = "octapps/octapps" && test "${TRAVIS_BRANCH}" = "master" && test "${TRAVIS_EVENT_TYPE}" = "push" && test "x${GITHUB_TOKEN}" != x; then true
+  - if test "${TRAVIS_OS_NAME}|${BUILD_DOCS}" = "linux|yes" && test "${TRAVIS_REPO_SLUG}" = "octapps/octapps" && test "${TRAVIS_BRANCH}" = "master" && test "${TRAVIS_EVENT_TYPE}" = "push" && test "x${GITHUB_TOKEN}" != x; then true
     && echo -e "machine github.com\\nlogin kwwette\\npassword ${GITHUB_TOKEN}" > ~/.netrc
     && git clone https://github.com/octapps/octapps.github.io.git /tmp/octapps.github.io
     && rm -rf /tmp/octapps.github.io/*
