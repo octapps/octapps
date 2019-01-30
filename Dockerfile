@@ -8,10 +8,8 @@ RUN apt-get install -y --allow-unauthenticated deb-multimedia-keyring
 RUN apt-get install -y --allow-unauthenticated lscsoft-archive-keyring
 
 RUN apt-get update
-RUN apt-get install -y git
-RUN apt-get install -y make pkg-config octave liboctave-dev swig3.0 texinfo libgsl-dev
-RUN apt-get install -y lal-octave lalxml-octave lalpulsar-octave lalapps
-RUN apt-get install -y ffmpeg libcfitsio-dev
+RUN apt-get install -y git lal-octave lalxml-octave lalpulsar-octave lalapps
+RUN apt-get install -y epstool ffmpeg ghostscript gnuplot-nox libcfitsio-dev libgsl-dev liboctave-dev make pkg-config pstoedit swig3.0 texinfo transfig
 
 COPY . /tmp/octapps
 WORKDIR /tmp/octapps

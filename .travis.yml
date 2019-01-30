@@ -1,5 +1,7 @@
 language: cpp
 cache: ccache
+services:
+  - docker
 
 matrix:
   include:
@@ -7,29 +9,54 @@ matrix:
       compiler: gcc
       sudo: required
       dist: trusty
-      env: DOCKER=no
+      env: BUILD_LALSUITE=yes
     - os: linux
       compiler: gcc
       sudo: required
       dist: trusty
-      env: DOCKER=yes
+      env: BUILD_DOCKER=yes
     - os: osx
       compiler: clang
+      env:
+        - CFLAGS="${CFLAGS} -std=c++11"
+        - CXXFLAGS="${CXXFLAGS} -std=c++11"
+    - os: linux
+      compiler: gcc
+      sudo: required
+      dist: trusty
+      env: BUILD_DOCS=yes
+  allow_failures:
+    - os: linux
+      env: BUILD_LALSUITE=yes
+
+addons:
+  apt:
+    sources:
+      - sourceline: "ppa:git-core/ppa"
+      - sourceline: "ppa:kwwette/lscsoft"
+      - sourceline: "deb https://packagecloud.io/github/git-lfs/ubuntu/ trusty main"
+        key_url: "https://packagecloud.io/github/git-lfs/gpgkey"
+    packages:
+      - epstool
+      - ghostscript
+      - git-lfs
+      - gnuplot-nox
+      - lalsuite-dev-deps
+      - libav-tools
+      - libgsl0-dev
+      - liboctave-dev
+      - make
+      - pkg-config
+      - pstoedit
+      - swig3.0
+      - texinfo
+      - transfig
+  homebrew:
+    update: true
+    brewfile: true
 
 install:
-  - if test "${TRAVIS_OS_NAME}|${DOCKER}" = "linux|no"; then true
-    && sudo rm -rf /etc/apt/sources.list.d/*
-    && travis_retry sudo add-apt-repository -y ppa:git-core/ppa
-    && travis_retry sudo add-apt-repository -y ppa:kwwette/lalsuite-dev
-    && travis_retry curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh > /tmp/script.deb.sh
-    && travis_retry sudo bash /tmp/script.deb.sh
-    && travis_retry sudo apt-get -qq update
-    && travis_retry sudo apt-get -qq install
-       git-lfs lalsuite-dev-deps
-       liboctave-dev swig3.0 libgsl0-dev libav-tools
-       texinfo
-    ; fi
-  - if test "${TRAVIS_OS_NAME}|${DOCKER}" = "linux|no"; then true
+  - if test "${TRAVIS_OS_NAME}|${BUILD_LALSUITE}" = "linux|yes"; then true
     && ccache -s
     && git clone --depth=50 --branch=master https://git.ligo.org/lscsoft/lalsuite.git /tmp/lalsuite
     && pushd /tmp/lalsuite
@@ -40,34 +67,26 @@ install:
     && popd
     && source /tmp/lalsuite/_inst/etc/lalsuite-user-env.sh
     ; fi
-  - if test "${TRAVIS_OS_NAME}|${DOCKER}" = "linux|yes"; then true
-    && travis_retry sudo apt-get -qq update
-    && travis_retry sudo apt-get -qq -y -o Dpkg::Options::="--force-confnew" install docker-ce
-    ; fi
-  - if test "${TRAVIS_OS_NAME}" = "osx"; then true
-    && travis_retry brew update --verbose
-    && travis_retry brew bundle --verbose --file=./Brewfile
-    && travis_retry brew unlink octave
-    && travis_retry brew install https://raw.github.com/Homebrew/homebrew-core/74604d97f33f351e49dbcf294e3d6050369f1258/Formula/octave.rb
-    ; fi
 
 script:
   - git log -1
-  - if test "${TRAVIS_OS_NAME}|${DOCKER}" = "linux|no"; then true
+  - if test "${TRAVIS_OS_NAME}|${BUILD_LALSUITE}" = "linux|yes"; then true
     && make check NOSKIP=1 TESTS=funcName
     && make check NOSKIP=1 TESTS=src/general/funcName.m
     && make check NOSKIP=1 TESTDIR=src/general/
     && make -j2 check NOSKIP=1
-    && make -j2 html
     ; fi
-  - if test "${TRAVIS_OS_NAME}|${DOCKER}" = "linux|yes"; then true
+  - if test "${TRAVIS_OS_NAME}|${BUILD_DOCKER}" = "linux|yes"; then true
     && sudo docker build .
     ; fi
   - if test "${TRAVIS_OS_NAME}" = "osx"; then true
-    && make
+    && make SWIG=false
     ; fi
-  - if test "${TRAVIS_OS_NAME}|${DOCKER}" = "linux|no" && test "${TRAVIS_REPO_SLUG}" = "octapps/octapps" && test "${TRAVIS_BRANCH}" = "master" && test "${TRAVIS_EVENT_TYPE}" = "push" && test "x${ACCESS_TOKEN}" != x; then true
-    && echo -e "machine github.com\\nlogin kwwette\\npassword ${ACCESS_TOKEN}" > ~/.netrc
+  - if test "${TRAVIS_OS_NAME}|${BUILD_DOCS}" = "linux|yes"; then true
+    && make -j2 html
+    ; fi
+  - if test "${TRAVIS_OS_NAME}|${BUILD_DOCS}" = "linux|yes" && test "${TRAVIS_REPO_SLUG}" = "octapps/octapps" && test "${TRAVIS_BRANCH}" = "master" && test "${TRAVIS_EVENT_TYPE}" = "push" && test "x${GITHUB_TOKEN}" != x; then true
+    && echo -e "machine github.com\\nlogin kwwette\\npassword ${GITHUB_TOKEN}" > ~/.netrc
     && git clone https://github.com/octapps/octapps.github.io.git /tmp/octapps.github.io
     && rm -rf /tmp/octapps.github.io/*
     && mv -f html/* /tmp/octapps.github.io/

@@ -27,7 +27,7 @@ FIND := $(call CheckProg, gfind find)
 GIT := $(call CheckProg, git)
 GREP := $(call CheckProg, grep)
 MAKEINFO := $(call CheckProg, makeinfo) --force --no-warn --no-validate -c TOP_NODE_UP_URL='https://github.com/octapps/octapps'
-MKOCTFILE := env CC= CXX= $(call CheckProg, mkoctfile)
+MKOCTFILE := env CC="$(CC)" CXX="$(CXX)" $(call CheckProg, mkoctfile)
 OCTAVE := $(call CheckProg, octave-cli, octave) --no-gui --silent --norc --no-history --no-window-system
 PKGCONFIG := $(call CheckProg, pkg-config)
 SED := $(call CheckProg, gsed sed)
@@ -245,13 +245,14 @@ check : all
 %.test :
 	$(verbose)source octapps-user-env.sh; \
 	case "X$(MAKEFLAGS)" in \
-		*j*) cn='\n'; cr='';; \
-		*) cn=''; cr='\r';; \
+		*j*) cn='\n'; cr=''; cl='';; \
+		*) cn=''; cr='\r'; cl='\n';; \
 	esac; \
 	test=`echo "$*" | $(SED) "s|^$${OCTAPPS_TMPDIR}/||;"'s|::|/|g'`; \
-	printf "%-48s: $${cn}" "$${test}"; \
+	printf "%-48s: %-16s$${cn}" "$${test}" "test(s) running"; \
 	env TMPDIR="$${OCTAPPS_TMPDIR}" $(OCTAVE) --eval "__octapps_make_check__('$${test}');" 2>&1 | tee $@ | { \
-		while read line; do \
+		while true; do \
+			read -t 60 line; \
 			case "$${line}" in \
 				"error: help"*) action=missinghelp;; \
 				"?????"*) action=missingtest;; \
@@ -261,11 +262,11 @@ check : all
 				*) action=;; \
 			esac; \
 			case "$${action}" in \
-				missinghelp) printf "$${cr}%-48s: HELP MESSAGE ERROR\n" "$${test}"; status=1;; \
-				missingtest) printf "$${cr}%-48s: MISSING TEST(S)\n" "$${test}"; status=1;; \
-				skip) printf "$${cr}%-48s: skipping test(s)\n" "$${test}"; status=0;; \
-				pass) printf "$${cr}%-48s: test(s) passed\n" "$${test}"; status=0;; \
-				fail) printf "$${cr}%-48s: TEST(S) FAILED\n" "$${test}"; status=1;; \
+				missinghelp) printf "$${cr}%-48s: %-16s\n" "$${test}" "HELP MESSAGE ERROR"; status=1;; \
+				missingtest) printf "$${cr}%-48s: %-16s\n" "$${test}" "MISSING TEST(S)"; status=1;; \
+				skip) printf "$${cr}%-48s: %-16s\n" "$${test}" "skipping test(s)"; status=0;; \
+				pass) printf "$${cr}%-48s: %-16s\n" "$${test}" "test(s) passed"; status=0;; \
+				fail) printf "$${cr}%-48s: %-16s\n" "$${test}" "TEST(S) FAILED"; status=1;; \
 				*) status=;; \
 			esac; \
 			if test "x$${status}" = x1; then \
@@ -275,6 +276,9 @@ check : all
 			fi; \
 			if test "x$${status}" != x; then \
 				exit $${status}; \
+			fi; \
+			if test "x$${line}" = x; then \
+				printf "$${cl}%-48s: %-16s$${cn}" "$${test}" "test(s) running"; \
 			fi; \
 		done; \
 	}
