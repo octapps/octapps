@@ -18,7 +18,7 @@
 ## MA  02111-1307  USA
 
 ## Run Octave function from the command line.
-OCTAVE="octave --silent --norc --no-history --no-window-system"
+OCTAVE="octave --silent --norc --no-history --no-window-system --no-gui"
 
 ## Check for command line arguments
 if [ "x$1" = x ]; then
