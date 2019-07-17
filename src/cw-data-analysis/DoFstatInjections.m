@@ -16,7 +16,7 @@
 ## <http://www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn {Function File} { [ @var{results}, @var{multiSFTs}, @var{multiTser} ] =} DoFstatInjections ( @var{opt}, @var{val}, @dots{} )
+## @deftypefn {Function File} { @var{results} =} DoFstatInjections ( @var{opt}, @var{val}, @dots{} )
 ##
 ## Perform full software injections in generated SFTs using LALPulsar functions.
 ##
@@ -25,12 +25,6 @@
 ## @table @var
 ## @item result
 ## results structure
-##
-## @item multiSFTs
-## multi-vector of SFTs containing simulated signal
-##
-## @item multiTser
-## multi-time series vector containing simulated signal
 ##
 ## @end table
 ##
@@ -141,7 +135,7 @@
 ##
 ## @end deftypefn
 
-function [results, multiSFTs, multiTser] = DoFstatInjections(varargin)
+function results = DoFstatInjections(varargin)
 
   ## load LAL libraries
   lal;
