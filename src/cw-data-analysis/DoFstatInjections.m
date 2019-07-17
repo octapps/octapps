@@ -279,8 +279,20 @@ function results = DoFstatInjections(varargin)
 
   ## create and fill CW sources vector
   sources = XLALCreatePulsarParamsVector(1);
-  sources.data{1}.Amp.h0   = inj_h0;
-  sources.data{1}.Amp.cosi = inj_cosi;
+  try ## lalpulsar API change (aff93c4) in PulsarAmplitudeParams
+    h0 = sources.data{1}.Amp.h0;
+    have_h0 = true;
+  catch
+    have_h0 = false;
+  end_try_catch
+  if have_h0
+    sources.data{1}.Amp.h0   = inj_h0;
+    sources.data{1}.Amp.cosi = inj_cosi;
+  else
+    ## Convert {h0, cosi} coordinates into {A+, Ax}, using Eq.(30) in [CFSv2Notes]
+    sources.data{1}.Amp.aPlus  = 0.5 * inj_h0 * (1.0 + inj_cosi**2);
+    sources.data{1}.Amp.aCross = inj_h0 * inj_cosi;
+  endif
   sources.data{1}.Amp.psi  = inj_psi;
   sources.data{1}.Amp.phi0 = inj_phi0;
   sources.data{1}.Doppler.Alpha = inj_alpha;
