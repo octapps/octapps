@@ -43,8 +43,8 @@
 ## @item detectors
 ## comma-separated list of detector names
 ##
-## @item det_sqrt_PSD
-## sqrt(single-sided noise PSD) to assume for each detector
+## @item det_sqrt_sqrtSX
+## sqrt(single-sided noise sqrtSX) to assume for each detector
 ##
 ## @item ephemerides
 ## Earth/Sun ephemerides from @command{loadEphemerides()}
@@ -58,8 +58,8 @@
 ## @item sft_noise_window
 ## number of bins used when estimating SFT noise (default: 50)
 ##
-## @item inj_sqrt_PSD
-## inject Gaussian random noise with sqrt(single-sided noise PSD) for each detector
+## @item inj_sqrt_sqrtSX
+## inject Gaussian random noise with sqrt(single-sided noise sqrtSX) for each detector
 ##
 ## @item *inj_h0
 ## injected h0 strain amplitude (default: 1.0)
@@ -147,12 +147,12 @@ function results = DoFstatInjections(varargin)
                {"start_time", "real,strictpos,scalar", []},
                {"time_span", "real,strictpos,scalar"},
                {"detectors", "char"},
-               {"det_sqrt_PSD", "real,positive,vector,+atmostone:inj_sqrt_PSD", []},
+               {"det_sqrt_sqrtSX", "real,positive,vector,+atmostone:inj_sqrt_sqrtSX", []},
                {"ephemerides", "a:swig_ref", []},
                {"sft_time_span", "real,strictpos,scalar", 1800},
                {"sft_overlap", "real,positive,scalar", 0},
                {"sft_noise_window", "integer,strictpos,scalar", 50},
-               {"inj_sqrt_PSD", "real,positive,vector,+atmostone:det_sqrt_PSD", []},
+               {"inj_sqrt_sqrtSX", "real,positive,vector,+atmostone:det_sqrt_sqrtSX", []},
                {"inj_h0", "real,positive,scalar", 1.0},
                {"inj_cosi", "real,scalar", -1 + 2*rand()},
                {"inj_psi", "real,scalar", 2*pi*rand()},
@@ -223,17 +223,17 @@ function results = DoFstatInjections(varargin)
 
   ## parse detector names and PSDs
   detNames = XLALCreateStringVector(strsplit(detectors, ","){:});
-  if !isempty(det_sqrt_PSD)
+  if !isempty(det_sqrt_sqrtSX)
     assumeSqrtSX = new_MultiNoiseFloor;
     assumeSqrtSX.length = detNames.length;
-    assumeSqrtSX.sqrtSn(1:detNames.length) = det_sqrt_PSD;
+    assumeSqrtSX.sqrtSn(1:detNames.length) = det_sqrt_sqrtSX;
   else
     assumeSqrtSX = [];
   endif
-  if !isempty(inj_sqrt_PSD)
+  if !isempty(inj_sqrt_sqrtSX)
     injectSqrtSX = new_MultiNoiseFloor;
     injectSqrtSX.length = detNames.length;
-    injectSqrtSX.sqrtSn(1:detNames.length) = inj_sqrt_PSD;
+    injectSqrtSX.sqrtSn(1:detNames.length) = inj_sqrt_sqrtSX;
   else
     injectSqrtSX = [];
   endif
@@ -387,11 +387,12 @@ endfunction
 %!  catch
 %!    disp("skipping test: LALSuite bindings not available"); return;
 %!  end_try_catch
-%!  res = DoFstatInjections(common_args{:}, "det_sqrt_PSD", 1.0, "OrbitParams", false);
+%!  res = DoFstatInjections(common_args{:}, "det_sqrt_sqrtSX", 1.0, "OrbitParams", false);
 %!  assert(res.inj_alpha == res.sch_alpha);
 %!  assert(res.inj_delta == res.sch_delta);
 %!  assert(res.inj_fndot == res.sch_fndot);
 %!  ref_twoF = 4240.3; ref_twoFPerDet = [2314.9; 1925.4];
+%!  printf("res.sch_twoF = %g\n", res.sch_twoF);
 %!  assert(abs(res.sch_twoF - ref_twoF) < 0.05 * ref_twoF);
 %!  assert(abs(res.sch_twoFPerDet - ref_twoFPerDet) < 0.05 * ref_twoFPerDet);
 
@@ -402,7 +403,7 @@ endfunction
 %!  catch
 %!    disp("skipping test: LALSuite bindings not available"); return;
 %!  end_try_catch
-%!  res = DoFstatInjections(common_args{:}, "inj_sqrt_PSD", 1.0, "OrbitParams", false);
+%!  res = DoFstatInjections(common_args{:}, "inj_sqrt_sqrtSX", 1.0, "OrbitParams", false);
 %!  assert(res.inj_alpha == res.sch_alpha);
 %!  assert(res.inj_delta == res.sch_delta);
 %!  assert(res.inj_fndot == res.sch_fndot);
@@ -417,7 +418,7 @@ endfunction
 %!  catch
 %!    disp("skipping test: LALSuite bindings not available"); return;
 %!  end_try_catch
-%!  res = DoFstatInjections(common_args{:}, "det_sqrt_PSD", 1.0, "OrbitParams", true, ...
+%!  res = DoFstatInjections(common_args{:}, "det_sqrt_sqrtSX", 1.0, "OrbitParams", true, ...
 %!                          "inj_orbitasini", 1e-5, "inj_orbitPeriod", 10800, ...
 %!                          "inj_orbitEcc", 0, "inj_orbitTpSSB", 0.3, "inj_orbitArgp", 5.2);
 %!  assert(res.inj_alpha == res.sch_alpha);

@@ -1,8 +1,7 @@
-FROM debian:jessie
+FROM debian:stretch
 
-RUN echo deb http://httpredir.debian.org/debian jessie-backports main >> /etc/apt/sources.list
-RUN echo deb http://www.deb-multimedia.org jessie main non-free >> /etc/apt/sources.list
-RUN echo deb http://software.ligo.org/lscsoft/debian jessie contrib >> /etc/apt/sources.list
+RUN echo deb http://www.deb-multimedia.org stretch main non-free >> /etc/apt/sources.list
+RUN echo deb http://software.ligo.org/lscsoft/debian stretch contrib >> /etc/apt/sources.list
 RUN apt-get update
 RUN apt-get install -y --allow-unauthenticated deb-multimedia-keyring
 RUN apt-get install -y --allow-unauthenticated lscsoft-archive-keyring
