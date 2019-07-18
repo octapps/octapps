@@ -16,7 +16,7 @@
 ## <http://www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn {Function File} { [ @var{results}, @var{multiSFTs}, @var{multiTser} ] =} DoFstatInjections ( @var{opt}, @var{val}, @dots{} )
+## @deftypefn {Function File} { @var{results} =} DoFstatInjections ( @var{opt}, @var{val}, @dots{} )
 ##
 ## Perform full software injections in generated SFTs using LALPulsar functions.
 ##
@@ -25,12 +25,6 @@
 ## @table @var
 ## @item result
 ## results structure
-##
-## @item multiSFTs
-## multi-vector of SFTs containing simulated signal
-##
-## @item multiTser
-## multi-time series vector containing simulated signal
 ##
 ## @end table
 ##
@@ -141,7 +135,7 @@
 ##
 ## @end deftypefn
 
-function [results, multiSFTs, multiTser] = DoFstatInjections(varargin)
+function results = DoFstatInjections(varargin)
 
   ## load LAL libraries
   lal;
@@ -285,8 +279,20 @@ function [results, multiSFTs, multiTser] = DoFstatInjections(varargin)
 
   ## create and fill CW sources vector
   sources = XLALCreatePulsarParamsVector(1);
-  sources.data{1}.Amp.h0   = inj_h0;
-  sources.data{1}.Amp.cosi = inj_cosi;
+  try ## lalpulsar API change (aff93c4) in PulsarAmplitudeParams
+    h0 = sources.data{1}.Amp.h0;
+    have_h0 = true;
+  catch
+    have_h0 = false;
+  end_try_catch
+  if have_h0
+    sources.data{1}.Amp.h0   = inj_h0;
+    sources.data{1}.Amp.cosi = inj_cosi;
+  else
+    ## Convert {h0, cosi} coordinates into {A+, Ax}, using Eq.(30) in [CFSv2Notes]
+    sources.data{1}.Amp.aPlus  = 0.5 * inj_h0 * (1.0 + inj_cosi**2);
+    sources.data{1}.Amp.aCross = inj_h0 * inj_cosi;
+  endif
   sources.data{1}.Amp.psi  = inj_psi;
   sources.data{1}.Amp.phi0 = inj_phi0;
   sources.data{1}.Doppler.Alpha = inj_alpha;
