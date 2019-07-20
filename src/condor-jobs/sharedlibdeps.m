@@ -83,4 +83,8 @@ function deps = sharedlibdeps(varargin)
 endfunction
 
 %!test
-%!  deps = sharedlibdeps(glob(fullfile(octave_config_info("libdir"), "liboct*.so")){:});
+%!  libdir = octave_config_info("libdir");
+%!  version = octave_config_info("version");
+%!  dirs0 = glob(fullfile(libdir, "liboct*.so"));
+%!  dirs1 = glob(fullfile(libdir,"octave", version, "liboct*.so"));
+%!  deps = sharedlibdeps(dirs0{:}, dirs1{:});
