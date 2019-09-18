@@ -7,13 +7,7 @@ matrix:
   include:
     - os: linux
       compiler: gcc
-      sudo: required
-      dist: trusty
-      env: BUILD_LALSUITE=yes
-    - os: linux
-      compiler: gcc
-      sudo: required
-      dist: trusty
+      dist: bionic
       env: BUILD_DOCKER=yes
     - os: osx
       compiler: clang
@@ -22,26 +16,15 @@ matrix:
         - CXXFLAGS="${CXXFLAGS} -std=c++11"
     - os: linux
       compiler: gcc
-      sudo: required
-      dist: trusty
+      dist: bionic
       env: BUILD_DOCS=yes
-  allow_failures:
-    - os: linux
-      env: BUILD_LALSUITE=yes
 
 addons:
   apt:
-    sources:
-      - sourceline: "ppa:git-core/ppa"
-      - sourceline: "ppa:kwwette/lscsoft"
-      - sourceline: "deb https://packagecloud.io/github/git-lfs/ubuntu/ trusty main"
-        key_url: "https://packagecloud.io/github/git-lfs/gpgkey"
     packages:
       - epstool
       - ghostscript
-      - git-lfs
       - gnuplot-nox
-      - lalsuite-dev-deps
       - libav-tools
       - libgsl0-dev
       - liboctave-dev
@@ -55,27 +38,8 @@ addons:
     update: true
     brewfile: true
 
-install:
-  - if test "${TRAVIS_OS_NAME}|${BUILD_LALSUITE}" = "linux|yes"; then true
-    && ccache -s
-    && git clone --depth=50 --branch=master https://git.ligo.org/lscsoft/lalsuite.git /tmp/lalsuite
-    && pushd /tmp/lalsuite
-    && ./00boot
-    && ./configure --enable-cfitsio --enable-swig-octave --disable-swig-python --disable-all-lal --enable-lalframe --enable-lalpulsar --enable-lalapps
-    && make -j2
-    && make install
-    && popd
-    && source /tmp/lalsuite/_inst/etc/lalsuite-user-env.sh
-    ; fi
-
 script:
   - git log -1
-  - if test "${TRAVIS_OS_NAME}|${BUILD_LALSUITE}" = "linux|yes"; then true
-    && make check NOSKIP=1 TESTS=funcName
-    && make check NOSKIP=1 TESTS=src/general/funcName.m
-    && make check NOSKIP=1 TESTDIR=src/general/
-    && make -j2 check NOSKIP=1
-    ; fi
   - if test "${TRAVIS_OS_NAME}|${BUILD_DOCKER}" = "linux|yes"; then true
     && sudo docker build .
     ; fi
