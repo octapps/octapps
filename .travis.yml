@@ -23,9 +23,9 @@ addons:
   apt:
     packages:
       - epstool
+      - ffmpeg
       - ghostscript
       - gnuplot-nox
-      - libav-tools
       - libgsl0-dev
       - liboctave-dev
       - make
