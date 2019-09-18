@@ -130,7 +130,7 @@ function [coh_Nt, semi_Nt, dfreq] = WeaveTemplateCount(varargin)
   ## load ephemerides
   ephemerides = loadEphemerides();
 
-  interpolation = true; 	## default
+  interpolation = true;         ## default
 
   ## if given, load setup file and extract various parameters
   if !isempty(setup_file)
