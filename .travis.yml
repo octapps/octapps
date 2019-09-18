@@ -26,6 +26,7 @@ addons:
       - ffmpeg
       - ghostscript
       - gnuplot-nox
+      - libcfitsio-dev
       - libgsl0-dev
       - liboctave-dev
       - make
