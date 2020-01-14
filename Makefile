@@ -1,3 +1,5 @@
+PREFIX = $(shell echo $$PWD/_inst)
+
 SHELL = /bin/bash
 .DELETE_ON_ERROR :
 .SECONDARY :
@@ -26,9 +28,11 @@ DIFF := $(call CheckProg, diff)
 FIND := $(call CheckProg, gfind find)
 GIT := $(call CheckProg, git)
 GREP := $(call CheckProg, grep)
+INSTALL := $(call CheckProg, install)
 MAKEINFO := $(call CheckProg, makeinfo) --force --no-warn --no-validate -c TOP_NODE_UP_URL='https://github.com/octapps/octapps'
 MKOCTFILE := env CC="$(CC)" CXX="$(CXX)" $(call CheckProg, mkoctfile)
 OCTAVE := $(call CheckProg, octave-cli, octave) --no-gui --silent --norc --no-history --no-window-system
+OCTCONFIG := env CC="$(CC)" CXX="$(CXX)" $(call CheckProg, octave-config)
 PKGCONFIG := $(call CheckProg, pkg-config)
 SED := $(call CheckProg, gsed sed)
 SORT := LC_ALL=C $(call CheckProg, sort) -f
@@ -60,7 +64,7 @@ srctexifiles = $(srctestfiles)
 octdir := oct/$(version)
 
 # main target
-.PHONY : all
+.PHONY : all install
 
 # print list of deprecated functions at finish
 all :
@@ -335,6 +339,39 @@ html : all
 %.texi :
 	$(makingdoc)source octapps-user-env.sh; \
 	$(OCTAVE) --eval "__octapps_make_html__('$*');"
+
+# install to PREFIX
+install: all
+	$(verbose)prefix=`$(OCTCONFIG) -p PREFIX`; test "x$${prefix}" = x && prefix=`$(OCTCONFIG) -p OCTAVE_HOME`; \
+	octsitedir=`$(OCTCONFIG) --oct-site-dir | sed "s|^$${prefix}|$(PREFIX)|"`; \
+	msitedir=`$(OCTCONFIG) --m-site-dir | sed "s|^$${prefix}|$(PREFIX)|"`; \
+	$(INSTALL) -m755 -d $(PREFIX)/bin $(PREFIX)/etc $${octsitedir} $${msitedir} $${msitedir}/octapps; \
+	$(INSTALL) $(curdir)/bin/octapps_run $(PREFIX)/bin; \
+	$(INSTALL) $(octdir)/*.oct $${octsitedir}; \
+	for n in $(patsubst $(curdir)/%,%,$(srcmfiles)); do \
+		$(INSTALL) -D -m644 $(curdir)/$$n $${msitedir}/octapps/$$n || exit 1; \
+	done; \
+	for n in octapps-user-env.sh octapps-user-env.csh; do \
+		case $$n in \
+			*.csh) empty='?'; setenv='setenv'; equals=' ';; \
+			*) empty='#'; setenv='export'; equals='=';; \
+		esac; \
+		echo "# source this file to access OctApps" > $(PREFIX)/etc/$$n; \
+		echo "test \$${$${empty}OCTAVE_PATH} -eq 0 && $${setenv} OCTAVE_PATH" >> $(PREFIX)/etc/$$n; \
+		echo "$${setenv} OCTAVE_PATH$${equals}$${octsitedir}"`$(FIND) $${msitedir}/octapps -type d -printf ':%p' | $(SORT)`":\$${OCTAVE_PATH}" >> $(PREFIX)/etc/$$n; \
+		echo "test \$${$${empty}PATH} -eq 0 && $${setenv} PATH" >> $(PREFIX)/etc/$$n; \
+		echo "$${setenv} PATH$${equals}$(PREFIX)/bin:$${PATH}" >> $(PREFIX)/etc/$$n; \
+		chmod 644 $(PREFIX)/etc/$$n; \
+	done
+	@echo "=================================================="; \
+	echo "OctApps has been successfully installed in"; \
+	echo "  $(PREFIX)"; \
+	echo "To set up your environment, please add the line"; \
+	echo "  . $(PREFIX)/etc/octapps-user-env.sh"; \
+	echo "to ~/.profile for Bourne shells (e.g. bash), or"; \
+	echo "  source $(PREFIX)/etc/octapps-user-env.csh"; \
+	echo "to ~/.login for C shells (e.g. tcsh)."; \
+	echo "=================================================="
 
 ifneq ($(CTAGSEX),false)		# requires Exuberant Ctags
 

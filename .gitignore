@@ -2,6 +2,7 @@
 /.deprecated*
 /AUTHORS
 /TAGS
+/_inst
 /bin/
 /html/
 /oct/
