@@ -67,7 +67,7 @@ function hgrm = createGaussianHist ( varargin )
   hgrm = Hist( 1, {"lin", "dbin", uvar.binsize} );
 
   ## initialise histogram to a Gaussian PDF
-  hgrm = initHistFromFunc(hgrm, @(x) normpdf(x, uvar.mean, uvar.std), uvar.domain);
+  hgrm = initHistFromFunc(hgrm, @(x) octforge_normpdf(x, uvar.mean, uvar.std), uvar.domain);
 
 endfunction
 

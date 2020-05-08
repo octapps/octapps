@@ -163,7 +163,7 @@ function p = gsl_chi2cdf(x, k)
     gsl;
     p = gsl_sf_gamma_inc_P(k/2, x/2);
   catch
-    p = chi2cdf(x, k);
+    p = octforge_chi2cdf(x, k);
   end_try_catch
 endfunction
 

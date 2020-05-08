@@ -71,7 +71,7 @@ function pd_rhosqr = ChiSqrFDP(pd, Ns, rhosqr, fdp_vars, fdp_opts)
     ## use normal approximation
     mean = Ns.*( nu + rhosqr );
     stdv = sqrt( 2.*Ns .* ( nu + 2.*rhosqr ) );
-    pd_rhosqr = normcdf(sa, mean, stdv);
+    pd_rhosqr = octforge_normcdf(sa, mean, stdv);
 
   else
 

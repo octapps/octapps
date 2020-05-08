@@ -57,7 +57,7 @@ function p = ChiSquare_pdf(x, k, lambda=0)
   ## compute the central chi^2 PDF for special case lambda==0
   ii = !isfinite(p) & (lambda == 0);
   if any(ii(:))
-    p(ii) = chi2pdf(x(ii), k(ii));
+    p(ii) = octforge_chi2pdf(x(ii), k(ii));
   endif
 
   ## compute the non-central chi^2 PDF for special case x==0
@@ -86,7 +86,7 @@ function p = ChiSquare_pdf(x, k, lambda=0)
     ## approximate by normal distribution if chi^2 failed
     kk = ii & ( !isfinite(logp_ts) | (logp_ts > 0) );
     if any(kk(:))
-      p(kk) = normpdf(x(kk), k(kk) + lambda(kk), sqrt( 2.* ( k(kk) + 2.*lambda(kk) ) ));
+      p(kk) = octforge_normpdf(x(kk), k(kk) + lambda(kk), sqrt( 2.* ( k(kk) + 2.*lambda(kk) ) ));
       normal_approx = 1;
     endif
 

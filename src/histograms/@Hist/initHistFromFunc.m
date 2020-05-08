@@ -64,11 +64,11 @@ endfunction
 
 %!test
 %!  hgrm = Hist(1, {"lin", "dbin", 0.1});
-%!  hgrm = initHistFromFunc(hgrm, @(x) normpdf(x, 1.3, 2.7), [-20, 20]);
+%!  hgrm = initHistFromFunc(hgrm, @(x) octforge_normpdf(x, 1.3, 2.7), [-20, 20]);
 %!  assert(abs(meanOfHist(hgrm) - 1.3) < 1e-3);
 %!  assert(abs(stdvOfHist(hgrm) - 2.7) < 1e-3);
 
 %!test
 %!  hgrm = Hist(2, {"lin", "dbin", 0.1}, {"lin", "dbin", 0.1});
-%!  hgrm = initHistFromFunc(hgrm, @(x, y) normpdf(x, y, 1.0), [-20, 20], [0, 10]);
+%!  hgrm = initHistFromFunc(hgrm, @(x, y) octforge_normpdf(x, y, 1.0), [-20, 20], [0, 10]);
 %!  assert(abs(meanOfHist(hgrm, 1) - linspace(0.05, 9.95, 100)) < 1e-4);

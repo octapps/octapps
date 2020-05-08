@@ -86,9 +86,9 @@ endfunction
 ## test cumulative distribution function with Gaussian/uniform histogram
 %!shared hgrm
 %!  hgrm = Hist(2, {"lin", "dbin", 0.1}, {"lin", "dbin", 0.1});
-%!  hgrm = addDataToHist(hgrm, [normrnd(1.7, sqrt(2.3), 1e7, 1), rand(1e7, 1)]);
-%!assert(abs(cumulativeDistOfHist(hgrm, 1.7 - sqrt(2.3), 1) - normcdf(-1)) < 0.005)
-%!assert(abs(cumulativeDistOfHist(hgrm, 1.7, 1) - normcdf(0)) < 0.005)
-%!assert(abs(cumulativeDistOfHist(hgrm, 1.7 + sqrt(2.3), 1) - normcdf(+1)) < 0.005)
+%!  hgrm = addDataToHist(hgrm, [octforge_normrnd(1.7, sqrt(2.3), 1e7, 1), rand(1e7, 1)]);
+%!assert(abs(cumulativeDistOfHist(hgrm, 1.7 - sqrt(2.3), 1) - octforge_normcdf(-1)) < 0.005)
+%!assert(abs(cumulativeDistOfHist(hgrm, 1.7, 1) - octforge_normcdf(0)) < 0.005)
+%!assert(abs(cumulativeDistOfHist(hgrm, 1.7 + sqrt(2.3), 1) - octforge_normcdf(+1)) < 0.005)
 %!assert(max(abs(cumulativeDistOfHist(hgrm, 0.33, 2)(50:end-50) - 0.33)) < 0.05)
 %!assert(max(abs(cumulativeDistOfHist(hgrm, 0.77, 2)(50:end-50) - 0.77)) < 0.05)
