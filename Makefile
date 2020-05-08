@@ -59,6 +59,11 @@ srcmfiles := $(wildcard $(srcfilepath:%=%/*.m))
 srccfiles := $(wildcard $(srcfilepath:%=%/*.hpp) $(srcfilepath:%=%/*.cc))
 srctestfiles := $(filter-out %__.m, $(wildcard $(srcfilepath:%=%/*.m) $(srcfilepath:%=%/@*/*.m) $(srcfilepath:%=%/*.cc) $(srcfilepath:%=%/*.i)))
 srctexifiles = $(srctestfiles)
+srcotherfiles = \
+	$(wildcard src/histograms/@Hist/*.m) \
+	$(wildcard src/histograms/@Hist/private/*.m) \
+	src/lattices/lattice_mismatch_hgrms.bin.gz \
+	$(end_of_list)
 
 # OctApps extension module directory
 octdir := oct/$(version)
@@ -348,7 +353,7 @@ install: all
 	$(INSTALL) -m755 -d $(PREFIX)/bin $(PREFIX)/etc $${octsitedir} $${msitedir} $${msitedir}/octapps; \
 	$(INSTALL) $(curdir)/bin/octapps_run $(PREFIX)/bin; \
 	$(INSTALL) $(octdir)/*.oct $${octsitedir}; \
-	for n in $(patsubst $(curdir)/%,%,$(srcmfiles)); do \
+	for n in $(patsubst $(curdir)/%,%,$(srcmfiles)) $(srcotherfiles); do \
 		$(INSTALL) -D -m644 $(curdir)/$$n $${msitedir}/octapps/$$n || exit 1; \
 	done; \
 	for n in octapps-user-env.sh octapps-user-env.csh; do \
