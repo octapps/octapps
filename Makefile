@@ -365,7 +365,7 @@ install: all
 		echo "test \$${$${empty}OCTAVE_PATH} -eq 0 && $${setenv} OCTAVE_PATH" >> $(PREFIX)/etc/$$n; \
 		echo "$${setenv} OCTAVE_PATH$${equals}$${octsitedir}"`$(FIND) $${msitedir}/octapps -type d -printf ':%p' | $(SORT)`":\$${OCTAVE_PATH}" >> $(PREFIX)/etc/$$n; \
 		echo "test \$${$${empty}PATH} -eq 0 && $${setenv} PATH" >> $(PREFIX)/etc/$$n; \
-		echo "$${setenv} PATH$${equals}$(PREFIX)/bin:$${PATH}" >> $(PREFIX)/etc/$$n; \
+		echo "$${setenv} PATH$${equals}$(PREFIX)/bin:\$${PATH}" >> $(PREFIX)/etc/$$n; \
 		chmod 644 $(PREFIX)/etc/$$n; \
 	done
 	@echo "=================================================="; \
