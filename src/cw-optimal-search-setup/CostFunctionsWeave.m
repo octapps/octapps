@@ -89,6 +89,10 @@
 ## @item lattice
 ## Type of @var{lattice} to use (default: Ans)
 ##
+## @item timings
+## the name of a Weave result file to read fundamental timing constants
+## from, or else the string "default" to use default timings
+##
 ## @item grid_interpolation
 ## If true, compute cost of interpolating search (i.e. semicoherent
 ## grid interpolates results on coherent grids)
@@ -123,6 +127,7 @@ function cost_funs = CostFunctionsWeave(varargin)
                {"Fmethod", "char,+exactlyone:result_file", []},
                {"stats", "char"},
                {"lattice", "char", "Ans"},
+               {"timings", "char"},
                {"grid_interpolation", "logical,scalar", true},
                {"TSFT", "integer,strictpos,scalar", 1800},
                []);
@@ -180,6 +185,7 @@ function cost_funs = CostFunctionsWeave(varargin)
   run_time_args.NSFTs = NSFTs;
   run_time_args.Fmethod = Fmethod;
   run_time_args.stats = stats;
+  run_time_args.timings = timings;
   run_time_args.TSFT = TSFT;
 
   ## return cost functions for use with OptimalSolution4StackSlide_v2
