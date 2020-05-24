@@ -140,7 +140,7 @@ function metrics = ComputeSuperskyMetrics(varargin)
                           segment_list_props.num_segments,
                           round(segment_list_props.coh_mean_Tspan),
                           round(segment_list_props.inc_Tspan),
-                          md5sum(sprintf("-%0.9f", segment_list(:)), true))
+                          hash("md5", sprintf("-%0.9f", segment_list(:))))
     };
     cache_file_short = fullfile(cache_file{end-1:end});
     cache_file = fullfile(mkpath(cache_dir, cache_file{1:end-1}), cache_file{end});
