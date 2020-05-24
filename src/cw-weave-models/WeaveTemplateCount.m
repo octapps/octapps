@@ -244,6 +244,9 @@ endfunction
 
 function Nt = number_of_lattice_templates(lattice, metric, max_mismatch, sky_area, fkdot_bands)
 
+  ## ensure metric is symmetric
+  metric = 0.5 * (metric + transpose(metric));
+
   ## calculate bounding box of metric
   bbox_metric = metricBoundingBox(metric, max_mismatch);
 
