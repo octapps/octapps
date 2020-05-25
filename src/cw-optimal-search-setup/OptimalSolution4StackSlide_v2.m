@@ -258,8 +258,8 @@ function sol = iterateSolver ( solverFun, startGuess, funs, tol, maxiter )
 
     ## ----- saftey valve against (N,Tseg,Tobs)-constraint-violating intermediate solutions that might trip up certain cost function ----------
     if ( stackparams.Nseg < funs.constraints.NsegMinSemi )
-      DebugPrintf ( 3, "\n%s: Nseg = %g < (NsegMinSemi = %d) --> setting Nseg=1\n", funcName, stackparams.Nseg, funs.constraints.NsegMinSemi );
-      stackparams.Nseg = 1;
+      DebugPrintf ( 3, "\n%s: Nseg = %g < (NsegMinSemi = %d) --> setting Nseg=NsegMinSemi\n", funcName, stackparams.Nseg, funs.constraints.NsegMinSemi );
+      stackparams.Nseg = funs.constraints.NsegMinSemi;
       stackparams.hitNsegMinSemi = true;        ## flag this to solvers
     endif
     if ( stackparams.Tseg < funs.constraints.TsegMin )
