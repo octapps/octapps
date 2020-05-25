@@ -141,10 +141,7 @@ function [coh_Nt, semi_Nt, dfreq] = WeaveTemplateCount(varargin)
     coh_Tspan  = setup.coh_Tspan;
     semi_Tspan = setup.semi_Tspan;
   endif
-  if ( Nsegments == 1 )
-    interpolation = false;
-  endif
-  if ( Nsegments > 1 && (coh_max_mismatch == 0) )
+  if ( isempty(coh_max_mismatch) || (coh_max_mismatch == 0) )
     interpolation = false;
   endif
 
@@ -169,7 +166,6 @@ function [coh_Nt, semi_Nt, dfreq] = WeaveTemplateCount(varargin)
   endif
 
   if ( !interpolation )
-    assert ( isempty(coh_max_mismatch) || (coh_max_mismatch == 0) );
     coh_max_mismatch = semi_max_mismatch;	## for XLALEqualizeReducedSuperskyMetricsFreqSpacing(), following Weave.c
   endif
 
