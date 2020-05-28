@@ -71,6 +71,9 @@
 ## @item tol
 ## tolerance on the obtained relative difference of the solution, required for convergence [1e-2]
 ##
+## @item stepsize
+## step sized used to advance solution at each iteration [0.9]
+##
 ## @item maxiter
 ## maximal allowed number of iterations [10]
 ##
@@ -125,6 +128,7 @@ function sol = OptimalSolution4StackSlide_v2 ( varargin )
                         {"pFA", "real,strictpos,scalar", 1e-10 },
                         {"pFD", "real,strictpos,scalar", 0.1 },
                         {"tol", "real,strictpos,scalar", 1e-2 },
+                        {"stepsize", "real,strictpos,scalar", 0.9 },
                         {"maxiter", "integer,strictpos,scalar", 10 },
                         {"sensApprox", "char", [] },
                         {"nonlinearMismatch", "logical,scalar", false },
@@ -214,7 +218,7 @@ function sol = OptimalSolution4StackSlide_v2 ( varargin )
   for i = 1:length(trial)
     DebugPrintf ( 1, "------------------------------\n");
     DebugPrintf ( 1, "Running solver %s:\n", sprintf("[%s]", trial{i}.name) );
-    sol_i = iterateSolver ( trial{i}.solverFun, trial{i}.startGuess, funs, uvar.tol, uvar.maxiter );
+    sol_i = iterateSolver ( trial{i}.solverFun, trial{i}.startGuess, funs, uvar.tol, uvar.stepsize, uvar.maxiter );
     DebugPrintf ( 1, "\n");
     if ( isempty ( sol_i ) )
       DebugPrintf ( 1, "%s: ", sprintf("[%s]", "FAILED")); DebugPrintf ( 1, "no solutions found\n" );
@@ -249,7 +253,7 @@ function sol = OptimalSolution4StackSlide_v2 ( varargin )
 
 endfunction ## OptimalSolution4StackSlide_v2()
 
-function sol = iterateSolver ( solverFun, startGuess, funs, tol, maxiter )
+function sol = iterateSolver ( solverFun, startGuess, funs, tol, stepsize, maxiter )
   global DAYS = 86400;
   sol = [];
 
@@ -290,7 +294,7 @@ function sol = iterateSolver ( solverFun, startGuess, funs, tol, maxiter )
     if ( iter > 0 )
       DebugPrintf ( 1, "\r" );
     endif
-    DebugPrintf ( 1, "Iteration = %02d/%02d: ", iter+1, maxiter );
+    DebugPrintf ( 1, "Iteration = %d/%d: ", iter+1, maxiter );
     DebugPrintStackparams ( 1, stackparams );
     if ( iter > 0 )
       stackparams.converged = checkConvergence ( stackparams, solpath, tol );
@@ -313,7 +317,6 @@ function sol = iterateSolver ( solverFun, startGuess, funs, tol, maxiter )
       return;
     endif
 
-    stepsize  = 0.9 ^ (iter - 1);
     step_Nseg = stepsize * (new.Nseg - stackparams.Nseg);
     step_Tseg = stepsize * (new.Tseg - stackparams.Tseg);
     step_mCoh = stepsize * (new.mCoh - stackparams.mCoh);
