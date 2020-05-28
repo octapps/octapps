@@ -86,16 +86,16 @@ function sol = NONI_unconstrained ( stackparams, funs )
   ## --------------------------------
 
   ## check if an unconstrained solution is even deemed possible at all: did we hit one of the 'hard' boundaries?
-  if ( isfield(stackparams, "hitNsegMinSemi") && stackparams.hitNsegMinSemi && (a < -powerEps) )
+  if ( ( stackparams.hitNsegMinSemi > 0 ) && (a < -powerEps) )
     DebugPrintf ( 2, "\n%s: Hit NsegMinSemi at a = %g < 0 ==> computing coherent unconstrained solution!\n", funcName, a );
     sol = COH_unconstrained ( stackparams, funs );
     return;
   endif
-  if ( isfield(stackparams, "hitTsegMin") && stackparams.hitTsegMin && (a > powerEps) )
+  if ( ( stackparams.hitTsegMin > stackparams.hitMaxTimes ) && (a > powerEps) )
     DebugPrintf ( 2, "\n%s: Hit TsegMin at a = %g > 0 ==> giving up!\n", funcName, a );
     return;
   endif
-  if ( isfield(stackparams, "hitTobsMax") && stackparams.hitTobsMax )
+  if ( stackparams.hitTobsMax > stackparams.hitMaxTimes )
     if ( (a > powerEps) && (eps > powerEps) )
       DebugPrintf ( 2, "\n%s: Hit TobsMax at (a = %g > 0 && eps = %g > 0) ==> giving up!\n", funcName, a, eps );
       return;
@@ -223,11 +223,11 @@ function sol = NONI_constrainedTobs ( stackparams, funs, Tobs0 )
   NsegOpt = exp ( logNopt );
   TsegOpt = Tobs0 / NsegOpt;
 
-  if ( (TsegOpt < funs.constraints.TsegMin) && isfield(stackparams, "hitTsegMin") && stackparams.hitTsegMin )   ## keeps pushing down->give up
+  if ( (TsegOpt < funs.constraints.TsegMin) && ( stackparams.hitTsegMin > stackparams.hitMaxTimes ) )   ## keeps pushing down->give up
     DebugPrintf ( 2, "\n%s: TsegOpt = %g d: keeps pushing below TsegMin = %g d ==> giving up!\n", funcName, TsegOpt/DAYS, funs.constraints.TsegMin/DAYS );
     return;
   endif
-  if ( (TsegOpt > funs.constraints.TsegMax) && isfield(stackparams, "hitTsegMax") && stackparams.hitTsegMax ) ## keeps pushing up->give up
+  if ( (TsegOpt > funs.constraints.TsegMax) && ( stackparams.hitTsegMax > stackparams.hitMaxTimes ) ) ## keeps pushing up->give up
     DebugPrintf ( 2, "\n%s: TsegOpt = %g d: keeps pushing above TsegMax = %g d ==> giving up!\n", funcName, TsegOpt/DAYS, funs.constraints.TsegMax/DAYS );
     return;
   endif
@@ -285,14 +285,14 @@ function sol = NONI_constrainedTseg ( stackparams, funs, Tseg0 )
   logNopt = 1/eta * ( log(cost0/k) + n/2 * log(mOpt) - delta * log(Tseg0) );
   NsegOpt = exp ( logNopt );
 
-  if ( (NsegOpt < funs.constraints.NsegMinSemi) && isfield ( stackparams, "hitNsegMinSemi" ) && stackparams.hitNsegMinSemi )
+  if ( (NsegOpt < funs.constraints.NsegMinSemi) && ( stackparams.hitNsegMinSemi > 0 ) )
     DebugPrintf ( 2, "\n%s: NsegOpt = %g: keeps pushing below NsegMinSemi = %g: calling COH_constrainedTobs()\n", funcName, NsegOpt, funs.constraints.NsegMinSemi );
     sol = COH_constrainedTobs ( stackparams, funs, Tseg0 );
     return;
   endif
 
   TobsOpt = NsegOpt * Tseg0;
-  if ( (TobsOpt > funs.constraints.TobsMax) && isfield ( stackparams, "hitTobsMax" ) && stackparams.hitTobsMax );
+  if ( (TobsOpt > funs.constraints.TobsMax) && ( stackparams.hitTobsMax > stackparams.hitMaxTimes ) );
     DebugPrintf ( 2, "\n%s: TobsOpt = %g d: keeps pushing above TsegMax = %g d ==> giving up\n", funcName, TobsOpt/DAYS, funs.constraints.TobsMax/DAYS );
     return;
   endif
@@ -452,11 +452,11 @@ function sol = INT_constrainedTobs ( stackparams, funs, Tobs0 )
     NsegOpt = exp ( logN );
     TsegOpt = Tobs0 / NsegOpt;
 
-    if ( (TsegOpt < funs.constraints.TsegMin) && isfield(stackparams, "hitTsegMin") && stackparams.hitTsegMin ) ## keeps pushing down->give up
+    if ( (TsegOpt < funs.constraints.TsegMin) && ( stackparams.hitTsegMin > stackparams.hitMaxTimes ) ) ## keeps pushing down->give up
       DebugPrintf ( 2, "\n%s: TsegOpt = %g d: keeps pushing below TsegMin = %g d ==> giving up!\n", funcName, TsegOpt/DAYS, funs.constraints.TsegMin/DAYS );
       return;
     endif
-    if ( (TsegOpt > funs.constraints.TsegMax) && isfield(stackparams, "hitTsegMax") && stackparams.hitTsegMax ) ## keeps pushing up->give up
+    if ( (TsegOpt > funs.constraints.TsegMax) && ( stackparams.hitTsegMax > stackparams.hitMaxTimes ) ) ## keeps pushing up->give up
       DebugPrintf ( 2, "\n%s: TsegOpt = %g d: keeps pushing above TsegMax = %g ==> giving up!\n", funcName, TsegOpt/DAYS, funs.constraints.TsegMax/DAYS );
       return;
     endif
@@ -516,7 +516,7 @@ function sol = INT_constrainedTseg ( stackparams, funs, Tseg0 )
   TsegOpt = Tseg0;
 
   TobsOpt = NsegOpt * Tseg0;
-  if ( (TobsOpt > funs.constraints.TobsMax) && isfield ( stackparams, "hitTobsMax" ) && stackparams.hitTobsMax );
+  if ( (TobsOpt > funs.constraints.TobsMax) && ( stackparams.hitTobsMax > stackparams.hitMaxTimes ) );
     DebugPrintf ( 2, "\n%s: TobsOpt = %g d: keeps pushing above TsegMax = %g d ==> giving up\n", funcName, TobsOpt/DAYS, funs.constraints.TobsMax/DAYS );
     return;
   endif
@@ -755,16 +755,16 @@ function sol = NONI_unconstrained_prev ( stackparams, funs )
   ## --------------------------------
 
   ## check if an unconstrained solution is even deemed possible at all: did we hit one of the 'hard' boundaries?
-  if ( isfield(stackparams, "hitNsegMinSemi") && stackparams.hitNsegMinSemi && (a < -powerEps) )
+  if ( ( stackparams.hitNsegMinSemi > 0 ) && (a < -powerEps) )
     DebugPrintf ( 2, "\n%s: Hit NsegMinSemi at a = %g < 0 ==> computing coherent unconstrained solution!\n", funcName, a );
     sol = COH_unconstrained ( stackparams, funs );
     return;
   endif
-  if ( isfield(stackparams, "hitTsegMin") && stackparams.hitTsegMin && (a > powerEps) )
+  if ( ( stackparams.hitTsegMin > stackparams.hitMaxTimes ) && (a > powerEps) )
     DebugPrintf ( 2, "\n%s: Hit TsegMin at a = %g > 0 ==> giving up!\n", funcName, a );
     return;
   endif
-  if ( isfield(stackparams, "hitTobsMax") && stackparams.hitTobsMax )
+  if ( stackparams.hitTobsMax > stackparams.hitMaxTimes )
     if ( (a > powerEps) && (eps > powerEps) )
       DebugPrintf ( 2, "\n%s: Hit TobsMax at (a = %g > 0 && eps = %g > 0) ==> giving up!\n", funcName, a, eps );
       return;

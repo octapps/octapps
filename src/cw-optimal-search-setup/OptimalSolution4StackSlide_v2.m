@@ -77,6 +77,9 @@
 ## @item maxiter
 ## maximal allowed number of iterations [10]
 ##
+## @item hitmaxtimes
+## how many times solutions are allowed to rail againt constraints before giving up [1]
+##
 ## @item sensApprox
 ## sensitivity approximation to use in @command{SensitivityScalingDeviationN()}, one of:
 ## @itemize
@@ -130,6 +133,7 @@ function sol = OptimalSolution4StackSlide_v2 ( varargin )
                         {"tol", "real,strictpos,scalar", 1e-2 },
                         {"stepsize", "real,strictpos,scalar", 0.9 },
                         {"maxiter", "integer,strictpos,scalar", 10 },
+                        {"hitmaxtimes", "integer,strictpos,scalar", 1 },
                         {"sensApprox", "char", [] },
                         {"nonlinearMismatch", "logical,scalar", false },
                         {"debugLevel", "integer,positive,scalar", [] },
@@ -218,7 +222,7 @@ function sol = OptimalSolution4StackSlide_v2 ( varargin )
   for i = 1:length(trial)
     DebugPrintf ( 1, "------------------------------\n");
     DebugPrintf ( 1, "Running solver %s:\n", sprintf("[%s]", trial{i}.name) );
-    sol_i = iterateSolver ( trial{i}.solverFun, trial{i}.startGuess, funs, uvar.tol, uvar.stepsize, uvar.maxiter );
+    sol_i = iterateSolver ( trial{i}.solverFun, trial{i}.startGuess, funs, uvar.tol, uvar.stepsize, uvar.maxiter, uvar.hitmaxtimes );
     DebugPrintf ( 1, "\n");
     if ( isempty ( sol_i ) )
       DebugPrintf ( 1, "%s: ", sprintf("[%s]", "FAILED")); DebugPrintf ( 1, "no solutions found\n" );
@@ -253,7 +257,7 @@ function sol = OptimalSolution4StackSlide_v2 ( varargin )
 
 endfunction ## OptimalSolution4StackSlide_v2()
 
-function sol = iterateSolver ( solverFun, startGuess, funs, tol, stepsize, maxiter )
+function sol = iterateSolver ( solverFun, startGuess, funs, tol, stepsize, maxiter, hitmaxtimes )
   global DAYS = 86400;
   sol = [];
 
@@ -261,28 +265,35 @@ function sol = iterateSolver ( solverFun, startGuess, funs, tol, stepsize, maxit
   solpath = cell();
 
   stackparams = startGuess;
+
+  stackparams.hitNsegMinSemi = 0;
+  stackparams.hitTsegMin = 0;
+  stackparams.hitTsegMax = 0;
+  stackparams.hitTobsMax = 0;
+  stackparams.hitMaxTimes = hitmaxtimes;
+
   while true
 
     ## ----- saftey valve against (N,Tseg,Tobs)-constraint-violating intermediate solutions that might trip up certain cost function ----------
     if ( stackparams.Nseg < funs.constraints.NsegMinSemi )
       DebugPrintf ( 3, "\n%s: Nseg = %g < (NsegMinSemi = %d) --> setting Nseg=NsegMinSemi\n", funcName, stackparams.Nseg, funs.constraints.NsegMinSemi );
       stackparams.Nseg = funs.constraints.NsegMinSemi;
-      stackparams.hitNsegMinSemi = true;        ## flag this to solvers
+      stackparams.hitNsegMinSemi++;        ## flag this to solvers
     endif
     if ( stackparams.Tseg < funs.constraints.TsegMin )
       DebugPrintf ( 3, "\n%s: Tseg = %g d < (TsegMin = %g d) --> resetting to Tseg=TsegMin\n", funcName, stackparams.Tseg/DAYS, funs.constraints.TsegMin/DAYS );
       stackparams.Tseg = funs.constraints.TsegMin;
-      stackparams.hitTsegMin = true;    ## flag this to solvers
+      stackparams.hitTsegMin++;    ## flag this to solvers
     endif
     if ( stackparams.Tseg > funs.constraints.TsegMax )
       DebugPrintf ( 3, "\n%s: Tseg = %g d > (TsegMax = %g d) --> resetting to Tseg=TsegMax\n", funcName, stackparams.Tseg/DAYS, funs.constraints.TsegMax/DAYS );
       stackparams.Tseg = funs.constraints.TsegMax;
-      stackparams.hitTsegMax = true;    ## flag this to solvers
+      stackparams.hitTsegMax++;    ## flag this to solvers
     endif
     if ( stackparams.Nseg * stackparams.Tseg > funs.constraints.TobsMax )
       DebugPrintf ( 3, "\n%s: Tobs = %g d > (TobsMax = %g d) --> resetting to Tobs=TobsMax\n", funcName, stackparams.Nseg*stackparams.Tseg/DAYS, funs.constraints.TobsMax/DAYS );
       stackparams.Nseg = funs.constraints.TobsMax / stackparams.Tseg;
-      stackparams.hitTobsMax = true;    ## flag this to solvers
+      stackparams.hitTobsMax++;    ## flag this to solvers
     endif
     ## --------------------
 
@@ -326,6 +337,12 @@ function sol = iterateSolver ( solverFun, startGuess, funs, tol, stepsize, maxit
     next.Tseg = stackparams.Tseg + step_Tseg;
     next.mCoh = stackparams.mCoh + step_mCoh;
     next.mInc = stackparams.mInc + step_mInc;
+
+    next.hitNsegMinSemi = stackparams.hitNsegMinSemi;
+    next.hitTsegMin = stackparams.hitTsegMin;
+    next.hitTsegMax = stackparams.hitTsegMax;
+    next.hitTobsMax = stackparams.hitTobsMax;
+    next.hitMaxTimes = stackparams.hitMaxTimes;
 
     stackparams = next;
   endwhile
