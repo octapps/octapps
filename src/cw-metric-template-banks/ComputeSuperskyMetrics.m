@@ -149,12 +149,12 @@ function metrics = ComputeSuperskyMetrics(varargin)
     cache_key = sprintf("key_%s", cache_file);
 
     ## check for supersky metrics in cache
-    DebugPrintf(2, "%s: checking for cached metric %s ...\n", funcName, cache_file_short);
+    DebugPrintf(4, "%s: checking for cached metric %s ...\n", funcName, cache_file_short);
     if isfield(supersky_metrics_cache, cache_key)
 
       ## retrieve from in-memory cache
       metrics = getfield(supersky_metrics_cache, cache_key);
-      DebugPrintf(2, "%s:    found in memory\n", funcName);
+      DebugPrintf(4, "%s:    found in memory\n", funcName);
 
     elseif exist(cache_file, "file")
 
@@ -163,9 +163,9 @@ function metrics = ComputeSuperskyMetrics(varargin)
         fits_file = XLALFITSFileOpenRead(cache_file);
         metrics = XLALFITSReadSuperskyMetrics(fits_file);
         clear fits_file;
-        DebugPrintf(2, "%s:    found on disk\n", funcName);
+        DebugPrintf(4, "%s:    found on disk\n", funcName);
       catch
-        DebugPrintf(2, "%s:    found on disk, but could not load\n", funcName);
+        DebugPrintf(4, "%s:    found on disk, but could not load\n", funcName);
       end_try_catch
 
       ## add to in-memory cache
@@ -178,9 +178,9 @@ function metrics = ComputeSuperskyMetrics(varargin)
   ## compute supersky metrics if not in cache
   if isempty(metrics)
     if use_cache
-      DebugPrintf(2, "%s:    not found, computing metrics ...", funcName);
+      DebugPrintf(4, "%s:    not found, computing metrics ...", funcName);
     else
-      DebugPrintf(2, "%s: computing metrics ...", funcName);
+      DebugPrintf(4, "%s: computing metrics ...", funcName);
     endif
 
     ## create LAL segment list
@@ -221,11 +221,11 @@ function metrics = ComputeSuperskyMetrics(varargin)
       metrics = XLALComputeSuperskyMetrics(XLALComputeSuperskyMetrics_args{:});
     catch
       if use_cache
-        DebugPrintf(2, "\n");
+        DebugPrintf(4, "\n");
       endif
       error("%s: Could no compute supersky metrics", funcName);
     end_try_catch
-    DebugPrintf(2, " done");
+    DebugPrintf(4, " done");
 
     if use_cache
 
@@ -234,9 +234,9 @@ function metrics = ComputeSuperskyMetrics(varargin)
         fits_file = XLALFITSFileOpenWrite(cache_file);
         XLALFITSWriteSuperskyMetrics(fits_file, metrics);
         clear fits_file;
-        DebugPrintf(2, "... saved to disk");
+        DebugPrintf(4, "... saved to disk");
       catch
-        DebugPrintf(2, "\n");
+        DebugPrintf(4, "\n");
         error("%s: Could not save supersky metrics to disk", funcName);
       end_try_catch
 
@@ -245,7 +245,7 @@ function metrics = ComputeSuperskyMetrics(varargin)
 
     endif
 
-    DebugPrintf(2, "\n");
+    DebugPrintf(4, "\n");
   endif
 
   ## make copy of metrics from cache to allow safe modification
