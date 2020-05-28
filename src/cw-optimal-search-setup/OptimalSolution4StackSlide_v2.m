@@ -158,13 +158,13 @@ function sol = OptimalSolution4StackSlide_v2 ( varargin )
   funs = OptimalSolution4StackSlide_v2_helpers ( uvar.costFuns, constraints, uvar.pFA, uvar.pFD, uvar.nonlinearMismatch, uvar.sensApprox );
 
   guess = uvar.stackparamsGuess;
-  DebugPrintf ( 1, "Completing stackparams of starting point ...");
+  DebugPrintf ( 1, "Starting point ... ");
   guess = funs.complete_stackparams ( guess, funs );
   if ( isempty ( guess ) )
     DebugPrintf ( 1, "failed.\n");
     return;
   endif
-  DebugPrintf ( 1, " done: ");
+  DebugPrintf ( 1, ": ");
   DebugPrintStackparams ( 1, guess );
   DebugPrintf ( 1, "\n" );
 
@@ -212,15 +212,17 @@ function sol = OptimalSolution4StackSlide_v2 ( varargin )
 
   best_solution = [];
   for i = 1:length(trial)
-    DebugPrintf ( 1, "Running solver %-18s ", sprintf("[%s]:", trial{i}.name) );
+    DebugPrintf ( 1, "------------------------------\n");
+    DebugPrintf ( 1, "Running solver %s:\n", sprintf("[%s]", trial{i}.name) );
     sol_i = iterateSolver ( trial{i}.solverFun, trial{i}.startGuess, funs, uvar.tol, uvar.maxiter );
+    DebugPrintf ( 1, "\n");
     if ( isempty ( sol_i ) )
-      DebugPrintf ( 1, " %-11s: ", sprintf("[%s]", "FAILED")); DebugPrintf ( 1, "no solutions found\n" );
+      DebugPrintf ( 1, "%s: ", sprintf("[%s]", "FAILED")); DebugPrintf ( 1, "no solutions found\n" );
     else
       conv = ifelse ( sol_i.converged == 0, "maxiter", ifelse ( sol_i.converged == 1, "converged", "cyclical" ) );
-      DebugPrintf ( 1, " %-11s: ", sprintf("[%s]", conv)); DebugPrintStackparams ( 1, sol_i );
+      DebugPrintf ( 1, "%s: ", sprintf("[%s]", conv)); DebugPrintStackparams ( 1, sol_i );
       [ passed, msg] = checkConstraints ( sol_i, constraints, uvar.tol );
-      DebugPrintf ( 1, " ==> %s\n", msg );
+      DebugPrintf ( 1, "==> %s\n", msg );
       if ( passed )
         if ( isempty ( best_solution ) || ( sol_i.L0 > best_solution.L0 ) )
           best_solution = sol_i;
@@ -228,6 +230,7 @@ function sol = OptimalSolution4StackSlide_v2 ( varargin )
         endif ## if new best solution
       endif ## if !constraints violated
     endif ## if solution found
+    DebugPrintf ( 1, "------------------------------\n");
   endfor ## i : length(trial)
 
   if ( !isempty ( best_solution  ) )
@@ -284,10 +287,11 @@ function sol = iterateSolver ( solverFun, startGuess, funs, tol, maxiter )
       return;
     endif
 
-    if ( iter > 0 ) cr = ""; else cr = ""; endif
-    DebugPrintf ( 3, "\n" );
-    DebugPrintf ( 1, "%siteration = %02d/%02d", cr, iter+1, maxiter );
-    DebugPrintf (3, ": " ); DebugPrintStackparams ( 3, stackparams ); DebugPrintf ( 3, "\n" );
+    if ( iter > 0 )
+      DebugPrintf ( 1, "\r" );
+    endif
+    DebugPrintf ( 1, "Iteration = %02d/%02d: ", iter+1, maxiter );
+    DebugPrintStackparams ( 1, stackparams );
     if ( iter > 0 )
       stackparams.converged = checkConvergence ( stackparams, solpath, tol );
       assert ( any ( stackparams.converged == [-1, 0, 1] ), "Unknown convergence type returned by checkConvergence = %g\n", stackparams.converged);
