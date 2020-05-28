@@ -674,14 +674,7 @@ function stackparams = complete_stackparams ( stackparams, funs )
 
   if ( !isfield ( stackparams, "coefCoh" ) || !isfield ( stackparams, "coefInc" ) )
     ## ---------- coherent- and incoherent cost coefficients ----------
-    try
-      [ stackparams.coefCoh, stackparams.coefInc ] = funs.local_cost_coefs ( funs.costFuns, stackparams );
-    catch err
-      DebugPrintf ( 3, "%s: funs.local_cost_coefs() failed for stackparams = ", funcName );
-      if ( debugLevel >= 3 ) stackparams, err, endif
-      stackparams = [];
-      return;
-    end_try_catch
+    [ stackparams.coefCoh, stackparams.coefInc ] = funs.local_cost_coefs ( funs.costFuns, stackparams );
 
     stackparams.coefCoh.eps = stackparams.coefCoh.delta - stackparams.coefCoh.eta;
     stackparams.coefCoh.a   = 2 * stackparams.w * stackparams.coefCoh.eps - stackparams.coefCoh.delta;
