@@ -233,5 +233,3 @@ function [costCoh, costInc] = weave_cost_function(Nseg, Tseg, mCoh, mInc, templa
   endfor
 
 endfunction
-
-%!test disp("to test CostFunctionsWeave(), run the WeaveSensDepth() test(s)")
