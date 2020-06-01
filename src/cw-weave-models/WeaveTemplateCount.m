@@ -177,12 +177,20 @@ function [coh_Nt, semi_Nt, dfreq] = WeaveTemplateCount(varargin)
   fkdot_bands = [fkdot_bands(2:end, :); fkdot_bands(1, :)];
 
   ## interpolation grid on number of segments
-  Nsegments_interp = unique(max(1, round(Nsegments) + (-1:1)));
+  if Nsegments == round(Nsegments)
+    Nsegments_interp = Nsegments;
+  else
+    Nsegments_interp = unique(max(1, round(Nsegments) + (-1:1)));
+  endif
 
   ## interpolation grid on coherent timespan
-  coh_Tspan_min = 81000;
   coh_Tspan_step = 21600;
-  coh_Tspan_interp = max(coh_Tspan_min, unique(max(1, round(coh_Tspan / coh_Tspan_step) + (-1:1))) * coh_Tspan_step);
+  if mod(coh_Tspan, coh_Tspan_step) == 0
+    coh_Tspan_interp = coh_Tspan;
+  else
+    coh_Tspan_min = 86400;
+    coh_Tspan_interp = unique(max(coh_Tspan_min, max(1, round(coh_Tspan / coh_Tspan_step) + (-1:1)) * coh_Tspan_step));
+  endif
 
   ## empirical factors used to scale number of templates to match output of Weave
   coh_Nt_scale = 1.436;
@@ -229,12 +237,39 @@ function [coh_Nt, semi_Nt, dfreq] = WeaveTemplateCount(varargin)
   endfor
 
   ## compute interpolated number of templates at requested Nsegments and coh_Tspan
-  coh_Nt = ceil(interp2(coh_Tspan_interp, Nsegments_interp, coh_Nt_interp, coh_Tspan, max(1, Nsegments), "spline"));
-  assert(!isnan(coh_Nt), "%s: could not evaluate coh_Nt(Nsegments=%g, coh_Tspan=%g)", funcName, Nsegments, coh_Tspan);
-  semi_Nt = ceil(interp2(coh_Tspan_interp, Nsegments_interp, semi_Nt_interp, coh_Tspan, max(1, Nsegments), "spline"));
-  assert(!isnan(semi_Nt), "%s: could not evaluate semi_Nt(Nsegments=%g, coh_Tspan=%g)", funcName, Nsegments, coh_Tspan);
-  dfreq = interp2(coh_Tspan_interp, Nsegments_interp, dfreq_interp, coh_Tspan, max(1, Nsegments), "spline");
-  assert(!isnan(dfreq), "%s: could not evaluate dfreq(Nsegments=%g, coh_Tspan=%g)", funcName, Nsegments, coh_Tspan);
+  if length(coh_Tspan_interp) > 1
+    if length(Nsegments_interp) > 1
+      coh_Nt = ceil(interp2(coh_Tspan_interp, Nsegments_interp, coh_Nt_interp, coh_Tspan, max(1, Nsegments), "spline"));
+      assert(!isnan(coh_Nt), "%s: could not evaluate coh_Nt(Nsegments=%g, coh_Tspan=%g)", funcName, Nsegments, coh_Tspan);
+      semi_Nt = ceil(interp2(coh_Tspan_interp, Nsegments_interp, semi_Nt_interp, coh_Tspan, max(1, Nsegments), "spline"));
+      assert(!isnan(semi_Nt), "%s: could not evaluate semi_Nt(Nsegments=%g, coh_Tspan=%g)", funcName, Nsegments, coh_Tspan);
+      dfreq = interp2(coh_Tspan_interp, Nsegments_interp, dfreq_interp, coh_Tspan, max(1, Nsegments), "spline");
+      assert(!isnan(dfreq), "%s: could not evaluate dfreq(Nsegments=%g, coh_Tspan=%g)", funcName, Nsegments, coh_Tspan);
+    else
+      coh_Nt = ceil(interp1(coh_Tspan_interp, coh_Nt_interp, coh_Tspan, "spline"));
+      assert(!isnan(coh_Nt), "%s: could not evaluate coh_Nt(coh_Tspan=%g)", funcName, coh_Tspan);
+      semi_Nt = ceil(interp1(coh_Tspan_interp, semi_Nt_interp, coh_Tspan, "spline"));
+      assert(!isnan(semi_Nt), "%s: could not evaluate semi_Nt(coh_Tspan=%g)", funcName, coh_Tspan);
+      dfreq = interp1(coh_Tspan_interp, dfreq_interp, coh_Tspan, "spline");
+      assert(!isnan(dfreq), "%s: could not evaluate dfreq(coh_Tspan=%g)", funcName, coh_Tspan);
+    endif
+  else
+    if length(Nsegments_interp) > 1
+      coh_Nt = ceil(interp1(Nsegments_interp, coh_Nt_interp, Nsegments, "spline"));
+      assert(!isnan(coh_Nt), "%s: could not evaluate coh_Nt(Nsegments=%g)", funcName, Nsegments);
+      semi_Nt = ceil(interp1(Nsegments_interp, semi_Nt_interp, Nsegments, "spline"));
+      assert(!isnan(semi_Nt), "%s: could not evaluate semi_Nt(Nsegments=%g)", funcName, Nsegments);
+      dfreq = interp1(Nsegments_interp, dfreq_interp, Nsegments, "spline");
+      assert(!isnan(dfreq), "%s: could not evaluate dfreq(Nsegments=%g)", funcName, Nsegments);
+    else
+      coh_Nt = ceil(coh_Nt_interp);
+      assert(!isnan(coh_Nt), "%s: could not evaluate coh_Nt", funcName);
+      semi_Nt = ceil(semi_Nt_interp);
+      assert(!isnan(semi_Nt), "%s: could not evaluate semi_Nt", funcName);
+      dfreq = dfreq_interp;
+      assert(!isnan(dfreq), "%s: could not evaluate dfreq", funcName);
+    endif
+  endif
 
 endfunction
 
