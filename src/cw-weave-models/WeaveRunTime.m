@@ -75,9 +75,6 @@
 ## @item f2dot_min/max
 ## minimum/maximum 2nd spindown (optional)
 ##
-## @item NSFTs
-## total number of SFTs
-##
 ## @item Fmethod
 ## F-statistic method used by search
 ##
@@ -148,7 +145,6 @@ function [times, maxmem, tau] = WeaveRunTime(varargin)
                {"f1dot_max", "real,scalar,+exactlyone:result_file", []},
                {"f2dot_min", "real,scalar,+atmostone:result_file", 0},
                {"f2dot_max", "real,scalar,+atmostone:result_file", 0},
-               {"NSFTs", "integer,strictpos,scalar,+exactlyone:result_file", []},
                {"Fmethod", "char,+exactlyone:result_file", []},
                {"Ncohres", "integer,strictpos,scalar,+exactlyone:result_file", []},
                {"Nsemitpl", "integer,strictpos,scalar,+exactlyone:result_file", []},
@@ -228,7 +224,6 @@ function [times, maxmem, tau] = WeaveRunTime(varargin)
     f1dot_max = result_hdr.semiparam_maxf1dot;
     f2dot_min = getoptfield(0, result_hdr, "semiparam_minf2dot");
     f2dot_max = getoptfield(0, result_hdr, "semiparam_maxf2dot");
-    NSFTs = result_hdr.nsfts;
     Fmethod = result_hdr.fstat_method;
     Ncohres = result_hdr.ncohres;
     Nsemitpl = result_hdr.nsemitpl;
@@ -266,7 +261,7 @@ function [times, maxmem, tau] = WeaveRunTime(varargin)
   args.tau0_FFT = [tau.resamp_fstat_fft_le18, tau.resamp_fstat_fft_gt18];
   args.tau0_spin = tau.resamp_fstat_spin;
   args.tau0_bary = tau.resamp_fstat_bary;
-  args.Nsft = NSFTs / (Nsegments * Ndetectors);
+  args.Nsft = 0;   # use default
   args.Tsft = TSFT;
   [resamp_info, demod_info] = fevalstruct(@predictFstatTimeAndMemory, args);
   if strncmpi(Fmethod, "Resamp", 6)

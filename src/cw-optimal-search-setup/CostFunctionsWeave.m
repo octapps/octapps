@@ -78,9 +78,6 @@
 ## @item f2dot_min/max
 ## Minimum/maximum 2nd spindown (optional)
 ##
-## @item NSFTs
-## total number of SFTs
-##
 ## @item Fmethod
 ## F-statistic method used by search
 ##
@@ -126,7 +123,6 @@ function cost_funs = CostFunctionsWeave(varargin)
                {"f1dot_max", "real,scalar,+exactlyone:result_file", []},
                {"f2dot_min", "real,scalar,+atmostone:result_file", 0},
                {"f2dot_max", "real,scalar,+atmostone:result_file", 0},
-               {"NSFTs", "integer,strictpos,scalar,+exactlyone:result_file", []},
                {"Fmethod", "char,+exactlyone:result_file", []},
                {"stats", "char"},
                {"lattice", "char", "Ans"},
@@ -155,7 +151,6 @@ function cost_funs = CostFunctionsWeave(varargin)
     f1dot_max = result_hdr.semiparam_maxf1dot;
     f2dot_min = getoptfield(0, result_hdr, "semiparam_minf2dot");
     f2dot_max = getoptfield(0, result_hdr, "semiparam_maxf2dot");
-    NSFTs = result_hdr.nsfts;
     Fmethod = result_hdr.fstat_method;
   endif
 
@@ -185,7 +180,6 @@ function cost_funs = CostFunctionsWeave(varargin)
   run_time_args.f1dot_max = f1dot_max;
   run_time_args.f2dot_min = f2dot_min;
   run_time_args.f2dot_max = f2dot_max;
-  run_time_args.NSFTs = NSFTs;
   run_time_args.Fmethod = Fmethod;
   run_time_args.stats = stats;
   run_time_args.timings = timings;
