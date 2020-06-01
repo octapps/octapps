@@ -28,7 +28,7 @@
 ## the devation from the WSG-scaling.
 ##
 ## @itemize
-## @item @code{approx} == "":
+## @item @code{approx} == "none":
 ## use full chi^2_(4*@var{Nseg}) distribution
 ## @item @code{approx} == "Gauss":
 ## use the Gaussian (N>>1) approximation
@@ -40,7 +40,7 @@
 ##
 ## @end deftypefn
 
-function w = SensitivityScalingDeviationN ( pFA, pFD, Nseg, approx = [] )
+function w = SensitivityScalingDeviationN ( pFA, pFD, Nseg, approx = "none" )
 
   if ( (length(pFA) != 1) || (length(pFD) != 1))
     error ("Sorry: can only deal with single input-values for 'pFA' and 'pFD'\n");
@@ -48,7 +48,7 @@ function w = SensitivityScalingDeviationN ( pFA, pFD, Nseg, approx = [] )
 
   ## ----- treat trivial 'WSG' case first
   w = ones ( size ( Nseg ) );
-  if ( !isempty(approx) && (strcmpi ( approx, "WSG" ) == 1) )
+  if ( strcmpi ( approx, "WSG" ) == 1 )
     return;
   endif
 
@@ -71,7 +71,7 @@ endfunction
 %!  assert ( wGauss1_10, 1.38029957237533, tol );
 %!  wGauss13_10 = SensitivityScalingDeviationN ( 1e-10, pFD, 13, approx = "Gauss" );
 %!  assert ( wGauss13_10, 1.15371666877782, tol );
-%!  w1_2 = SensitivityScalingDeviationN ( 1e-2, pFD, 1, approx = [] );
+%!  w1_2 = SensitivityScalingDeviationN ( 1e-2, pFD, 1, approx = "none" );
 %!  assert ( w1_2, 1.88370817833829, tol );
-%!  w13_2 = SensitivityScalingDeviationN ( 1e-2, pFD, 13, approx = [] );
+%!  w13_2 = SensitivityScalingDeviationN ( 1e-2, pFD, 13, approx = "none" );
 %!  assert ( w13_2, 1.29212548567877, tol );

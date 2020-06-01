@@ -83,7 +83,6 @@
 ## @item sensApprox
 ## sensitivity approximation to use in @command{SensitivityScalingDeviationN()}, one of:
 ## @itemize
-## @item @code{[]}
 ## @item @code{none} [default]
 ## @item @code{Gauss}
 ## @item @code{WSG}
@@ -134,7 +133,7 @@ function sol = OptimalSolution4StackSlide_v2 ( varargin )
                         {"stepsize", "real,strictpos,scalar", 0.9 },
                         {"maxiter", "integer,strictpos,scalar", 10 },
                         {"hitmaxtimes", "integer,strictpos,scalar", 1 },
-                        {"sensApprox", "char", [] },
+                        {"sensApprox", "char", "none" },
                         {"nonlinearMismatch", "logical,scalar", false },
                         {"debugLevel", "integer,positive,scalar", [] },
                         []);

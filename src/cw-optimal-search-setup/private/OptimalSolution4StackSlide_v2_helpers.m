@@ -16,7 +16,7 @@
 
 ## Helper function for OptimalSolution4StackSlide_v2()
 
-function funs = OptimalSolution4StackSlide_v2_helpers ( costFuns, constraints, pFA = 1e-10, pFD = 0.1, nonlinearMismatch = false, sensApprox = [] )
+function funs = OptimalSolution4StackSlide_v2_helpers ( costFuns, constraints, pFA = 1e-10, pFD = 0.1, nonlinearMismatch = false, sensApprox = "none" )
 
   funs = struct();
   funs.par.small_m = 1e-2;
