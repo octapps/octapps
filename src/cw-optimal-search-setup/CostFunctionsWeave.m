@@ -66,6 +66,9 @@
 ## @item @strong{OR}
 ## @table @code
 ##
+## @item sky_area
+## Area of sky to cover (4*pi = entire sky)
+##
 ## @item freq_min/max
 ## Minimum/maximum frequency range
 ##
