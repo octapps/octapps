@@ -194,12 +194,12 @@ function cost_funs = CostFunctionsWeave(varargin)
 
 endfunction
 
-function [costCoh, costInc] = weave_cost_function(Nseg, Tseg, mCoh, mInc, template_count_args, run_time_args)
+function [costCoh, costInc, cohNt, semiNt] = weave_cost_function(Nseg, Tseg, mCoh, mInc, template_count_args, run_time_args)
 
   [err, Nseg, Tseg, mCoh, mInc] = common_size ( Nseg, Tseg, mCoh, mInc );
   assert ( err == 0 );
 
-  costCoh = costInc = zeros ( size ( Nseg ) );
+  costCoh = costInc = cohNt = semiNt = zeros ( size ( Nseg ) );
 
   for i = 1 : numel(Nseg)
 
@@ -208,14 +208,14 @@ function [costCoh, costInc] = weave_cost_function(Nseg, Tseg, mCoh, mInc, templa
     template_count_args.coh_Tspan = Tseg(i);
     template_count_args.coh_max_mismatch = mCoh(i);
     template_count_args.semi_max_mismatch = mInc(i);
-    [coh_Nt, semi_Nt, dfreq] = fevalstruct(@WeaveTemplateCount, template_count_args);
+    [cohNt_i, semiNt_i, dfreq] = fevalstruct(@WeaveTemplateCount, template_count_args);
 
     ## compute total cost
     run_time_args.Nsegments = round ( Nseg(i) );
     run_time_args.coh_Tspan = Tseg(i);
     run_time_args.dfreq = dfreq;
-    run_time_args.Ncohres = coh_Nt;
-    run_time_args.Nsemitpl = semi_Nt;
+    run_time_args.Ncohres = cohNt_i;
+    run_time_args.Nsemitpl = semiNt_i;
     costs = fevalstruct(@WeaveRunTime, run_time_args);
 
     ## split into coherent and incoherent costs
@@ -230,6 +230,8 @@ function [costCoh, costInc] = weave_cost_function(Nseg, Tseg, mCoh, mInc, templa
 
     costCoh(i) = costCoh_i;
     costInc(i) = costInc_i;
+    cohNt(i) = cohNt_i;
+    semiNt(i) = semiNt_i;
   endfor
 
 endfunction
