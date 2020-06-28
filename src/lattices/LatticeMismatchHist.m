@@ -113,7 +113,7 @@ function hgrm = LatticeMismatchHist( dim, lattice, varargin )
   ## generate N random points, at most 1e5 at a time
   while N > 0
     n = min(N, 1e5);
-    N -= n;
+    N = N - n;
 
     ## generate n random points within dim-D box [0, R]
     ## - size of box is important to get unbiased histograms
