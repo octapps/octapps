@@ -33,6 +33,9 @@
 ## @item grid_interpolation
 ## boolean flag about whether to use coherent-grid interpolation or not
 ##
+## @item nDim
+## (optional) fix number of dimensions [default: compute from cost scaling]
+##
 ## @item lattice
 ## string specifying the template-bank @var{lattice} to use
 ##

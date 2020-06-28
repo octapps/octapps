@@ -186,8 +186,13 @@ function cost_funs = CostFunctionsWeave(varargin)
   run_time_args.TSFT = TSFT;
 
   ## return cost functions for use with OptimalSolution4StackSlide_v2
+  nDim = 4;
+  if f2dot_max != f2dot_min
+     nDim += 1;
+  endif
   cost_funs = struct( ...
                       "grid_interpolation", grid_interpolation, ...
+                      "nDim", nDim,
                       "lattice", lattice, ...
                       "f", @(Nseg, Tseg, mCoh=0.5, mInc=0.5) weave_cost_function(Nseg, Tseg, mCoh, mInc, template_count_args, run_time_args) ...
                     );
