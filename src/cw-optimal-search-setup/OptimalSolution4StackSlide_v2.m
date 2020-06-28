@@ -83,6 +83,9 @@
 ## @item hitmaxtimes
 ## how many times solutions are allowed to rail againt constraints before giving up [1]
 ##
+## @item minMismatch
+## minimum allowed mismatch for solution [0]
+##
 ## @item sensApprox
 ## sensitivity approximation to use in @command{SensitivityScalingDeviationN()}, one of:
 ## @itemize
@@ -136,6 +139,7 @@ function sol = OptimalSolution4StackSlide_v2 ( varargin )
                         {"stepsize", "real,strictpos,scalar", 0.9 },
                         {"maxiter", "integer,strictpos,scalar", 10 },
                         {"hitmaxtimes", "integer,strictpos,scalar", 1 },
+                        {"minMismatch", "real,positive,scalar", 0 },
                         {"sensApprox", "char", "none" },
                         {"nonlinearMismatch", "logical,scalar", false },
                         {"debugLevel", "integer,positive,scalar", [] },
@@ -224,7 +228,7 @@ function sol = OptimalSolution4StackSlide_v2 ( varargin )
   for i = 1:length(trial)
     DebugPrintf ( 1, "------------------------------\n");
     DebugPrintf ( 1, "Running solver %s:\n", sprintf("[%s]", trial{i}.name) );
-    sol_i = iterateSolver ( trial{i}.solverFun, trial{i}.startGuess, funs, uvar.tol, uvar.stepsize, uvar.maxiter, uvar.hitmaxtimes );
+    sol_i = iterateSolver ( trial{i}.solverFun, trial{i}.startGuess, funs, uvar.tol, uvar.stepsize, uvar.maxiter, uvar.hitmaxtimes, uvar.minMismatch );
     DebugPrintf ( 1, "\n");
     if ( isempty ( sol_i ) )
       DebugPrintf ( 1, "%s: ", sprintf("[%s]", "FAILED")); DebugPrintf ( 1, "no solutions found\n" );
@@ -259,7 +263,7 @@ function sol = OptimalSolution4StackSlide_v2 ( varargin )
 
 endfunction ## OptimalSolution4StackSlide_v2()
 
-function sol = iterateSolver ( solverFun, startGuess, funs, tol, stepsize, maxiter, hitmaxtimes )
+function sol = iterateSolver ( solverFun, startGuess, funs, tol, stepsize, maxiter, hitmaxtimes, minMismatch )
   global DAYS = 86400;
   sol = [];
 
@@ -339,6 +343,9 @@ function sol = iterateSolver ( solverFun, startGuess, funs, tol, stepsize, maxit
     next.Tseg = stackparams.Tseg + step_Tseg;
     next.mCoh = stackparams.mCoh + step_mCoh;
     next.mInc = stackparams.mInc + step_mInc;
+
+    next.mCoh = max( minMismatch, next.mCoh );
+    next.mInc = max( minMismatch, next.mInc );
 
     next.hitNsegMinSemi = stackparams.hitNsegMinSemi;
     next.hitTsegMin = stackparams.hitTsegMin;
