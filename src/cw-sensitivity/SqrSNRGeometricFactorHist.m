@@ -100,7 +100,7 @@ function Rsqr = SqrSNRGeometricFactorHist(varargin)
   ## handle caching of results
   uvar = rmfield ( uvar, "use_cache" );
   ss = stringify ( orderfields ( uvar ) );
-  key = hash("md5", ss);
+  key = octapps_md5sum(ss);
   cache_dir = mkpath(getenv("HOME"), ".cache", "octapps", "SqrSNRGeometricFactorHist");
   cached_resfile = sprintf ("%s/%s", cache_dir, key );
   if ( use_cache )
