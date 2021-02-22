@@ -227,7 +227,7 @@ function [times, maxmem, tau] = WeaveRunTime(varargin)
     Fmethod = result_hdr.fstat_method;
     Ncohres = result_hdr.ncohres;
     Nsemitpl = result_hdr.nsemitpl;
-    cache_max = result_hdr.cachemax;
+    cache_max = result_hdr.cachemmx;
   endif
   Nsemiseg = Nsemitpl * Nsegments;
   Nsemisegm = Nsemitpl * (Nsegments - 1);
