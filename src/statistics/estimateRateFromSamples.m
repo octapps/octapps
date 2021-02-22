@@ -52,7 +52,7 @@ endfunction
 
 %!test
 %!  Ntrials = 100;
-%!  DATA = normrnd ( 0, 1, 1, Ntrials );
+%!  DATA = octforge_normrnd ( 0, 1, 1, Ntrials );
 %!  threshold = linspace ( 0, 1, 10 );
 %!  [fMPE0, fLower0, fUpper0] = estimateRateFromSamples ( DATA, threshold, confidence=0.95 );
 %!  for i = 1:length(threshold)

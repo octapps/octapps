@@ -89,15 +89,20 @@ function [ coefCoh, coefInc ] = LocalCostCoefficients_v2 ( costFuns, Nseg, Tseg,
   coefInc.delta = delta(2);
 
   ## Eq.(64)
-  dlogCostMis = diff ( log ( cM ) );
-  nDim = sqrt( mean( ( -2 * dlogCostMis ./ dlM ).^2 ) );
-  coefCoh.nDim = nDim(1);
-  coefInc.nDim = nDim(2);
+  if isfield( costFuns, "nDim" )
+    coefCoh.nDim = costFuns.nDim;
+    coefInc.nDim = costFuns.nDim;
+  else
+    dlogCostMis = diff ( log ( cM ) );
+    nDim = sqrt( mean( ( -2 * dlogCostMis ./ dlM ).^2 ) );
+    coefCoh.nDim = nDim(1);
+    coefInc.nDim = nDim(2);
+  endif
 
   coefCoh.cost = cc0;
   coefInc.cost = ci0;
-  coefCoh.xi = meanOfHist ( LatticeMismatchHist ( round ( coefCoh.nDim ), costFuns.lattice ) );
-  coefInc.xi = meanOfHist ( LatticeMismatchHist ( round ( coefInc.nDim ), costFuns.lattice ) );
+  coefCoh.xi = meanOfHist ( LatticeMismatchHist ( ceil ( coefCoh.nDim ), costFuns.lattice ) );
+  coefInc.xi = meanOfHist ( LatticeMismatchHist ( ceil ( coefInc.nDim ), costFuns.lattice ) );
 
   ## Eq.(63)
   coefCoh.kappa = coefCoh.cost / ( mCoh^(-0.5*coefCoh.nDim) * Nseg^coefCoh.eta * Tseg^coefCoh.delta );

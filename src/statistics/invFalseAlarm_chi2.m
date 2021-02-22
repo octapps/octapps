@@ -38,7 +38,7 @@ function thresh = invFalseAlarm_chi2 ( fA, dof )
   thresh(ii) = invFalseAlarm_chi2_asym( fA(ii), dof(ii) );
 
   ## otherwise use Octave function
-  thresh(!ii) = chi2inv( 1 - fA(!ii), dof(!ii) );
+  thresh(!ii) = octforge_chi2inv( 1 - fA(!ii), dof(!ii) );
 
 endfunction
 

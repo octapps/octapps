@@ -69,6 +69,14 @@
 
 function __octapps_run_driver__(func, varargin)
 
+  ## horrible hack to prevent Octave memory corruption on exit
+  gsl;
+  if exist("atexit") == 5 && exist("swig_exit") == 3
+    global exit_code;
+    exit_code = 1;
+    atexit("__octapps_clean_exit__");
+  endif
+
   ## check input
   assert(ischar(func));
   try
@@ -251,6 +259,9 @@ function __octapps_run_driver__(func, varargin)
 
     endfor
   endfor
+
+  ## exit cleanly
+  exit_code = 0;
 
 endfunction
 

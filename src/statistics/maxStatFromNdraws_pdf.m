@@ -80,7 +80,7 @@ endfunction
 %! pdf0 = maxChi2FromNdraws_pdf ( twoF, Ndraws, dof=4 );
 %!
 %! hgrm = Hist ( 1, {"lin", "dbin", 0.05, "bin0", 0 } );
-%! F = @(x) chi2pdf(x, 4);
+%! F = @(x) octforge_chi2pdf(x, 4);
 %! hgrm = initHistFromFunc(hgrm, F, [0, 50] );
 %! pdf1 = maxStatFromNdraws_pdf ( twoF, Ndraws, hgrm );
 %! relerr = max ( abs ( pdf0 - pdf1 ) ./ pdf0 );

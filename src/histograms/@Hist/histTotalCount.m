@@ -45,5 +45,5 @@ endfunction
 
 %!test
 %!  hgrm = Hist(2, {"lin", "dbin", 0.01}, {"lin", "dbin", 0.1});
-%!  hgrm = addDataToHist(hgrm, [normrnd(1.7, 4.3, 13579, 1), rand(13579, 1)]);
+%!  hgrm = addDataToHist(hgrm, [octforge_normrnd(1.7, 4.3, 13579, 1), rand(13579, 1)]);
 %!  assert(histTotalCount(hgrm), 13579);

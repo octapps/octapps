@@ -16,7 +16,7 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn {Function File} {@var{noncent} =} CriticalNoncentralityStackSlide ( @var{pFA}, @var{pFD}, @var{Nseg}, @var{approx}= [ ] )
+## @deftypefn {Function File} {@var{noncent} =} CriticalNoncentralityStackSlide ( @var{pFA}, @var{pFD}, @var{Nseg}, @var{approx}="none" )
 ##
 ## function to compute the 'critical' non-centrality parameter required to obtain
 ## exactly @var{pFD} false-dismissal probability at given @var{pFA} false-alarm
@@ -31,7 +31,7 @@
 ##
 ## the optional argument @var{approx} allows to control the level of approximation:
 ## @itemize
-## @item @code{approx} == "":
+## @item @code{approx} == "none":
 ## use full chi^2_(4*@var{Nseg}) distribution
 ## @item @code{approx} == "Gauss":
 ## use the Gaussian (N>>1) approximation
@@ -41,7 +41,7 @@
 ##
 ## @end deftypefn
 
-function noncent = CriticalNoncentralityStackSlide ( pFA, pFD, Nseg, approx = [] )
+function noncent = CriticalNoncentralityStackSlide ( pFA, pFD, Nseg, approx = "none" )
 
   ## make sure pFa, pFD, Nseg are the same size
   [cserr, pFA, pFD, Nseg] = common_size ( pFA, pFD, Nseg );
@@ -52,7 +52,7 @@ function noncent = CriticalNoncentralityStackSlide ( pFA, pFD, Nseg, approx = []
   alpha = erfcinv_asym ( 2*pFA );
   beta  = erfcinv_asym ( 2*pFD );
 
-  if ( isempty ( approx ) )
+  if ( strcmpi ( approx, "none" ) )
     ## ----- no approximations, fully numerical solution
 
     dof = 4 * Nseg;     ## degrees of freedom
@@ -85,7 +85,7 @@ function noncent = CriticalNoncentralityStackSlide ( pFA, pFD, Nseg, approx = []
     noncent = 4 * sqrt(Nseg) .* ( alpha + beta );
 
   else
-    error ("Invalid input 'approx' = '%s': allowed values are { [], \"Gauss\" or \"WSG\" }\n", approx );
+    error ("Invalid input 'approx' = '%s': allowed values are { \"none\", \"Gauss\" or \"WSG\" }\n", approx );
   endif
 
   return;

@@ -48,6 +48,6 @@ endfunction
 ## test histogram mean deviation with Gaussian/uniform histogram
 %!shared hgrm
 %!  hgrm = Hist(2, {"lin", "dbin", 0.01}, {"lin", "dbin", 0.1});
-%!  hgrm = addDataToHist(hgrm, [normrnd(1.7, 4.3, 1e6, 1), rand(1e6, 1)]);
+%!  hgrm = addDataToHist(hgrm, [octforge_normrnd(1.7, 4.3, 1e6, 1), rand(1e6, 1)]);
 %!assert(abs(stdvOfHist(hgrm) - 4.3) < 5e-2)
 %!assert(abs(stdvOfHist(hgrm) - sqrt(varianceOfHist(hgrm))) < 5e-2)

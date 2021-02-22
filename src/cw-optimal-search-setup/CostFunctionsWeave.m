@@ -66,6 +66,9 @@
 ## @item @strong{OR}
 ## @table @code
 ##
+## @item sky_area
+## Area of sky to cover (4*pi = entire sky)
+##
 ## @item freq_min/max
 ## Minimum/maximum frequency range
 ##
@@ -74,9 +77,6 @@
 ##
 ## @item f2dot_min/max
 ## Minimum/maximum 2nd spindown (optional)
-##
-## @item NSFTs
-## total number of SFTs
 ##
 ## @item Fmethod
 ## F-statistic method used by search
@@ -88,6 +88,10 @@
 ##
 ## @item lattice
 ## Type of @var{lattice} to use (default: Ans)
+##
+## @item timings
+## the name of a Weave result file to read fundamental timing constants
+## from, or else the string "default" to use default timings
 ##
 ## @item grid_interpolation
 ## If true, compute cost of interpolating search (i.e. semicoherent
@@ -119,10 +123,10 @@ function cost_funs = CostFunctionsWeave(varargin)
                {"f1dot_max", "real,scalar,+exactlyone:result_file", []},
                {"f2dot_min", "real,scalar,+atmostone:result_file", 0},
                {"f2dot_max", "real,scalar,+atmostone:result_file", 0},
-               {"NSFTs", "integer,strictpos,scalar,+exactlyone:result_file", []},
                {"Fmethod", "char,+exactlyone:result_file", []},
                {"stats", "char"},
                {"lattice", "char", "Ans"},
+               {"timings", "char"},
                {"grid_interpolation", "logical,scalar", true},
                {"TSFT", "integer,strictpos,scalar", 1800},
                []);
@@ -147,7 +151,6 @@ function cost_funs = CostFunctionsWeave(varargin)
     f1dot_max = result_hdr.semiparam_maxf1dot;
     f2dot_min = getoptfield(0, result_hdr, "semiparam_minf2dot");
     f2dot_max = getoptfield(0, result_hdr, "semiparam_maxf2dot");
-    NSFTs = result_hdr.nsfts;
     Fmethod = result_hdr.fstat_method;
   endif
 
@@ -177,26 +180,31 @@ function cost_funs = CostFunctionsWeave(varargin)
   run_time_args.f1dot_max = f1dot_max;
   run_time_args.f2dot_min = f2dot_min;
   run_time_args.f2dot_max = f2dot_max;
-  run_time_args.NSFTs = NSFTs;
   run_time_args.Fmethod = Fmethod;
   run_time_args.stats = stats;
+  run_time_args.timings = timings;
   run_time_args.TSFT = TSFT;
 
   ## return cost functions for use with OptimalSolution4StackSlide_v2
+  nDim = 4;
+  if f2dot_max != f2dot_min
+     nDim += 1;
+  endif
   cost_funs = struct( ...
                       "grid_interpolation", grid_interpolation, ...
+                      "nDim", nDim,
                       "lattice", lattice, ...
                       "f", @(Nseg, Tseg, mCoh=0.5, mInc=0.5) weave_cost_function(Nseg, Tseg, mCoh, mInc, template_count_args, run_time_args) ...
                     );
 
 endfunction
 
-function [costCoh, costInc] = weave_cost_function(Nseg, Tseg, mCoh, mInc, template_count_args, run_time_args)
+function [costCoh, costInc, cohNt, semiNt] = weave_cost_function(Nseg, Tseg, mCoh, mInc, template_count_args, run_time_args)
 
   [err, Nseg, Tseg, mCoh, mInc] = common_size ( Nseg, Tseg, mCoh, mInc );
   assert ( err == 0 );
 
-  costCoh = costInc = zeros ( size ( Nseg ) );
+  costCoh = costInc = cohNt = semiNt = zeros ( size ( Nseg ) );
 
   for i = 1 : numel(Nseg)
 
@@ -205,14 +213,14 @@ function [costCoh, costInc] = weave_cost_function(Nseg, Tseg, mCoh, mInc, templa
     template_count_args.coh_Tspan = Tseg(i);
     template_count_args.coh_max_mismatch = mCoh(i);
     template_count_args.semi_max_mismatch = mInc(i);
-    [coh_Nt, semi_Nt, dfreq] = fevalstruct(@WeaveTemplateCount, template_count_args);
+    [cohNt_i, semiNt_i, dfreq] = fevalstruct(@WeaveTemplateCount, template_count_args);
 
     ## compute total cost
     run_time_args.Nsegments = round ( Nseg(i) );
     run_time_args.coh_Tspan = Tseg(i);
     run_time_args.dfreq = dfreq;
-    run_time_args.Ncohres = coh_Nt;
-    run_time_args.Nsemitpl = semi_Nt;
+    run_time_args.Ncohres = cohNt_i;
+    run_time_args.Nsemitpl = semiNt_i;
     costs = fevalstruct(@WeaveRunTime, run_time_args);
 
     ## split into coherent and incoherent costs
@@ -227,8 +235,8 @@ function [costCoh, costInc] = weave_cost_function(Nseg, Tseg, mCoh, mInc, templa
 
     costCoh(i) = costCoh_i;
     costInc(i) = costInc_i;
+    cohNt(i) = cohNt_i;
+    semiNt(i) = semiNt_i;
   endfor
 
 endfunction
-
-%!test disp("to test CostFunctionsWeave(), run the WeaveSensDepth() test(s)")

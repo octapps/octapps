@@ -75,9 +75,6 @@
 ## @item f2dot_min/max
 ## minimum/maximum 2nd spindown (optional)
 ##
-## @item NSFTs
-## total number of SFTs
-##
 ## @item Fmethod
 ## F-statistic method used by search
 ##
@@ -94,6 +91,10 @@
 ##
 ## @item stats
 ## Comma-separated list of statistics being computed
+##
+## @item timings
+## the name of a Weave result file to read fundamental timing constants
+## from, or else the string "default" to use default timings
 ##
 ## @item TSFT
 ## Length of an SFT (default: 1800s)
@@ -144,12 +145,12 @@ function [times, maxmem, tau] = WeaveRunTime(varargin)
                {"f1dot_max", "real,scalar,+exactlyone:result_file", []},
                {"f2dot_min", "real,scalar,+atmostone:result_file", 0},
                {"f2dot_max", "real,scalar,+atmostone:result_file", 0},
-               {"NSFTs", "integer,strictpos,scalar,+exactlyone:result_file", []},
                {"Fmethod", "char,+exactlyone:result_file", []},
                {"Ncohres", "integer,strictpos,scalar,+exactlyone:result_file", []},
                {"Nsemitpl", "integer,strictpos,scalar,+exactlyone:result_file", []},
                {"cache_max", "integer,strictpos,scalar,+atmostone:result_file", []},
                {"stats", "char"},
+               {"timings", "char"},
                {"TSFT", "integer,strictpos,scalar", 1800},
                []);
   stats = strsplit(stats, ",");
@@ -158,25 +159,48 @@ function [times, maxmem, tau] = WeaveRunTime(varargin)
   times = maxmem = tau = struct;
 
   ## fundamental timing constants
-  tau.iter_psemi                          = 1.36256e-10; ## mean
-  tau.query_psemi_pseg                    = 8.55514e-11; ## mean
-  tau.semiseg_sum2f_psemi_psegm           = 7.33955e-10; ## mean
-  tau.semi_mean2f_psemi                   = 8.28286e-10; ## mean
-  tau.output_psemi_ptopl                  = 7.91060e-10; ## mean
-  tau.semiseg_max2f_psemi_psegm           = 1.16579e-09; ## mean
-  tau.semiseg_max2f_det_psemi_psegm       = 1.12084e-09; ## mean
-  tau.semiseg_sum2f_det_psemi_psegm       = 6.85809e-10; ## mean
-  tau.semi_log10bsgl_psemi                = 9.89425e-09; ## mean
-  tau.semi_log10bsgltl_psemi              = 1.77331e-08; ## mean
-  tau.semi_log10btsgltl_psemi             = 1.79320e-08; ## mean
-  demod_fstat_tau0_coreld                 = 5.05010e-08; ## mean
-  demod_fstat_tau0_bufferld               = 8.61947e-07; ## mean
-  resamp_fstat_tau0_fbin                  = 6.97346e-08; ## mean
-  resamp_fstat_tau0_spin                  = 6.41612e-08; ## mean
-  resamp_fstat_tau0_fft_le18              = 2.51857e-10; ## mean
-  resamp_fstat_tau0_fft_gt18              = 4.50738e-10; ## mean
-  resamp_fstat_tau0_bary                  = 4.18658e-07; ## mean
-  fstat_b                                 = 5.35952e-01; ## mean
+  tau.iter_psemi                        = 1.36256e-10; ## mean
+  tau.query_psemi_pseg                  = 8.55514e-11; ## mean
+  tau.semiseg_sum2f_psemi_psegm         = 7.33955e-10; ## mean
+  tau.semi_mean2f_psemi                 = 8.28286e-10; ## mean
+  tau.output_psemi_ptopl                = 7.91060e-10; ## mean
+  tau.semiseg_max2f_psemi_psegm         = 1.16579e-09; ## mean
+  tau.semiseg_max2f_det_psemi_psegm     = 1.12084e-09; ## mean
+  tau.semiseg_sum2f_det_psemi_psegm     = 6.85809e-10; ## mean
+  tau.semi_log10bsgl_psemi              = 9.89425e-09; ## mean
+  tau.semi_log10bsgltl_psemi            = 1.77331e-08; ## mean
+  tau.semi_log10btsgltl_psemi           = 1.79320e-08; ## mean
+  tau.demod_fstat_coreld                = 5.05010e-08; ## mean
+  tau.demod_fstat_bufferld              = 8.61947e-07; ## mean
+  tau.resamp_fstat_fbin                 = 6.97346e-08; ## mean
+  tau.resamp_fstat_spin                 = 6.41612e-08; ## mean
+  tau.resamp_fstat_fft_le18             = 2.51857e-10; ## mean
+  tau.resamp_fstat_fft_gt18             = 4.50738e-10; ## mean
+  tau.resamp_fstat_bary                 = 4.18658e-07; ## mean
+  tau.fstat_b                           = 5.35952e-01; ## mean
+  if !strcmpi(timings, "default")
+    tims = fitsread(timings);
+    tims_hdr = tims.primary.header;
+    tau.iter_psemi                      = getoptfield(tau.iter_psemi,                     tims_hdr, "tau_iter_psemi");
+    tau.query_psemi_pseg                = getoptfield(tau.query_psemi_pseg,               tims_hdr, "tau_query_psemi_pseg");
+    tau.semiseg_sum2f_psemi_psegm       = getoptfield(tau.semiseg_sum2f_psemi_psegm,      tims_hdr, "tau_semiseg_sum2f_psemi_psegm");
+    tau.semi_mean2f_psemi               = getoptfield(tau.semi_mean2f_psemi,              tims_hdr, "tau_semi_mean2f_psemi");
+    tau.output_psemi_ptopl              = getoptfield(tau.output_psemi_ptopl,             tims_hdr, "tau_output_psemi_ptopl");
+    tau.semiseg_max2f_psemi_psegm       = getoptfield(tau.semiseg_max2f_psemi_psegm,      tims_hdr, "tau_semiseg_max2f_psemi_psegm");
+    tau.semiseg_max2f_det_psemi_psegm   = getoptfield(tau.semiseg_max2f_det_psemi_psegm,  tims_hdr, "tau_semiseg_max2f_det_psemi_psegm");
+    tau.semiseg_sum2f_det_psemi_psegm   = getoptfield(tau.semiseg_sum2f_det_psemi_psegm,  tims_hdr, "tau_semiseg_sum2f_det_psemi_psegm");
+    tau.semi_log10bsgl_psemi            = getoptfield(tau.semi_log10bsgl_psemi,           tims_hdr, "tau_semi_log10bsgl_psemi");
+    tau.semi_log10bsgltl_psemi          = getoptfield(tau.semi_log10bsgltl_psemi,         tims_hdr, "tau_semi_log10bsgltl_psemi");
+    tau.semi_log10btsgltl_psemi         = getoptfield(tau.semi_log10btsgltl_psemi,        tims_hdr, "tau_semi_log10btsgltl_psemi");
+    tau.demod_fstat_coreld              = getoptfield(tau.demod_fstat_coreld,             tims_hdr, "fstat_tau0_coreld");
+    tau.demod_fstat_bufferld            = getoptfield(tau.demod_fstat_bufferld,           tims_hdr, "fstat_tau0_bufferld");
+    tau.resamp_fstat_fbin               = getoptfield(tau.resamp_fstat_fbin,              tims_hdr, "fstat_tau0_fbin");
+    tau.resamp_fstat_spin               = getoptfield(tau.resamp_fstat_spin,              tims_hdr, "fstat_tau0_spin");
+    tau.resamp_fstat_fft_le18           = getoptfield(tau.resamp_fstat_fft_le18,          tims_hdr, "fstat_tau0_fft");
+    tau.resamp_fstat_fft_gt18           = getoptfield(tau.resamp_fstat_fft_gt18,          tims_hdr, "fstat_tau0_fft");
+    tau.resamp_fstat_bary               = getoptfield(tau.resamp_fstat_bary,              tims_hdr, "fstat_tau0_bary");
+    tau.fstat_b                         = getoptfield(tau.fstat_b,                        tims_hdr, "fstat_b");
+  endif
 
   ## if given, load setup file and extract various parameters
   if !isempty(setup_file)
@@ -200,7 +224,6 @@ function [times, maxmem, tau] = WeaveRunTime(varargin)
     f1dot_max = result_hdr.semiparam_maxf1dot;
     f2dot_min = getoptfield(0, result_hdr, "semiparam_minf2dot");
     f2dot_max = getoptfield(0, result_hdr, "semiparam_maxf2dot");
-    NSFTs = result_hdr.nsfts;
     Fmethod = result_hdr.fstat_method;
     Ncohres = result_hdr.ncohres;
     Nsemitpl = result_hdr.nsemitpl;
@@ -232,20 +255,20 @@ function [times, maxmem, tau] = WeaveRunTime(varargin)
   args.f2dot0 = f2dot_min;
   args.f2dotBand = f2dot_max - f2dot_min;
   args.refTimeShift = (ref_time - start_time) / semi_Tspan;
-  args.tau0_coreLD = demod_fstat_tau0_coreld;
-  args.tau0_bufferLD = demod_fstat_tau0_bufferld;
-  args.tau0_Fbin = resamp_fstat_tau0_fbin;
-  args.tau0_FFT = [resamp_fstat_tau0_fft_le18, resamp_fstat_tau0_fft_gt18];
-  args.tau0_spin = resamp_fstat_tau0_spin;
-  args.tau0_bary = resamp_fstat_tau0_bary;
-  args.Nsft = NSFTs / (Nsegments * Ndetectors);
+  args.tau0_coreLD = tau.demod_fstat_coreld;
+  args.tau0_bufferLD = tau.demod_fstat_bufferld;
+  args.tau0_Fbin = tau.resamp_fstat_fbin;
+  args.tau0_FFT = [tau.resamp_fstat_fft_le18, tau.resamp_fstat_fft_gt18];
+  args.tau0_spin = tau.resamp_fstat_spin;
+  args.tau0_bary = tau.resamp_fstat_bary;
+  args.Nsft = 0;   # use default
   args.Tsft = TSFT;
   [resamp_info, demod_info] = fevalstruct(@predictFstatTimeAndMemory, args);
   if strncmpi(Fmethod, "Resamp", 6)
-    tau.Fstat = resamp_info.tauF_core + fstat_b * resamp_info.tauF_buffer;
+    tau.Fstat = resamp_info.tauF_core + tau.fstat_b * resamp_info.tauF_buffer;
     maxmem.Fstat = resamp_info.MBWorkspace + resamp_info.MBDataPerDetSeg * Ndetectors * Nsegments;
   elseif strncmpi(Fmethod, "Demod", 5)
-    tau.Fstat = demod_info.tauF_core + fstat_b * demod_info.tauF_buffer;
+    tau.Fstat = demod_info.tauF_core + tau.fstat_b * demod_info.tauF_buffer;
     maxmem.Fstat = demod_info.MBDataPerDetSeg * Ndetectors * Nsegments;
   else
     error("%s: unknown F-statistic method '%s'", funcName, Fmethod);

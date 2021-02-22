@@ -69,8 +69,8 @@
 ## @item ephemerides
 ## Earth/Sun ephemerides [default: load from @command{loadEphemerides()}]
 ##
-## @item use_cache
-## use cache of previously-computed metrics [default: true]
+## @item cache_size
+## size of cache of previously-computed metrics to use [default: 100; 0=no cache]
 ##
 ## @end table
 ##
@@ -92,12 +92,12 @@ function metrics = ComputeSuperskyMetrics(varargin)
                {"detector_weights", "real,strictpos,vector", []},
                {"detector_motion", "char", "spin+orbit"},
                {"ephemerides", "a:swig_ref", []},
-               {"use_cache", "logical,scalar", true},
+               {"cache_size", "integer,positive,scalar", 100},
                []);
 
   ## disable cache for older versions of LAL libraries
   if !exist("XLALCopySuperskyMetrics", "file")
-    use_cache = false;
+    cache_size = 0;
     warning("%s: Supersky metric cache disabled for older installed version of LAL libraries", funcName);
   endif
 
@@ -114,12 +114,14 @@ function metrics = ComputeSuperskyMetrics(varargin)
   ## set supersky metrics struct
   metrics = [];
 
-  if use_cache
+  if cache_size > 0
 
     ## set in-memory cache of supersky metrics structs
     global supersky_metrics_cache;
     if isempty(supersky_metrics_cache)
       supersky_metrics_cache = struct;
+      supersky_metrics_cache.lookup = struct;
+      supersky_metrics_cache.usage = {};
     endif
 
     ## get cache directory
@@ -140,7 +142,7 @@ function metrics = ComputeSuperskyMetrics(varargin)
                           segment_list_props.num_segments,
                           round(segment_list_props.coh_mean_Tspan),
                           round(segment_list_props.inc_Tspan),
-                          md5sum(sprintf("-%0.9f", segment_list(:)), true))
+                          octapps_md5sum(sprintf("-%0.9f", segment_list(:))))
     };
     cache_file_short = fullfile(cache_file{end-1:end});
     cache_file = fullfile(mkpath(cache_dir, cache_file{1:end-1}), cache_file{end});
@@ -149,12 +151,12 @@ function metrics = ComputeSuperskyMetrics(varargin)
     cache_key = sprintf("key_%s", cache_file);
 
     ## check for supersky metrics in cache
-    DebugPrintf(2, "%s: checking for cached metric %s ...\n", funcName, cache_file_short);
-    if isfield(supersky_metrics_cache, cache_key)
+    DebugPrintf(4, "%s: checking for cached metric %s ...\n", funcName, cache_file_short);
+    if isfield(supersky_metrics_cache.lookup, cache_key)
 
       ## retrieve from in-memory cache
-      metrics = getfield(supersky_metrics_cache, cache_key);
-      DebugPrintf(2, "%s:    found in memory\n", funcName);
+      metrics = getfield(supersky_metrics_cache.lookup, cache_key);
+      DebugPrintf(4, "%s:    found in memory\n", funcName);
 
     elseif exist(cache_file, "file")
 
@@ -163,13 +165,10 @@ function metrics = ComputeSuperskyMetrics(varargin)
         fits_file = XLALFITSFileOpenRead(cache_file);
         metrics = XLALFITSReadSuperskyMetrics(fits_file);
         clear fits_file;
-        DebugPrintf(2, "%s:    found on disk\n", funcName);
+        DebugPrintf(4, "%s:    found on disk\n", funcName);
       catch
-        DebugPrintf(2, "%s:    found on disk, but could not load\n", funcName);
+        DebugPrintf(4, "%s:    found on disk, but could not load\n", funcName);
       end_try_catch
-
-      ## add to in-memory cache
-      supersky_metrics_cache = setfield(supersky_metrics_cache, cache_key, metrics);
 
     endif
 
@@ -177,10 +176,10 @@ function metrics = ComputeSuperskyMetrics(varargin)
 
   ## compute supersky metrics if not in cache
   if isempty(metrics)
-    if use_cache
-      DebugPrintf(2, "%s:    not found, computing metrics ...", funcName);
+    if cache_size > 0
+      DebugPrintf(4, "%s:    not found, computing metrics ...", funcName);
     else
-      DebugPrintf(2, "%s: computing metrics ...", funcName);
+      DebugPrintf(4, "%s: computing metrics ...", funcName);
     endif
 
     ## create LAL segment list
@@ -220,37 +219,47 @@ function metrics = ComputeSuperskyMetrics(varargin)
     try
       metrics = XLALComputeSuperskyMetrics(XLALComputeSuperskyMetrics_args{:});
     catch
-      if use_cache
-        DebugPrintf(2, "\n");
+      if cache_size > 0
+        DebugPrintf(4, "\n");
       endif
       error("%s: Could no compute supersky metrics", funcName);
     end_try_catch
-    DebugPrintf(2, " done");
+    DebugPrintf(4, " done");
 
-    if use_cache
+    if cache_size > 0
 
       ## save to cache file
       try
         fits_file = XLALFITSFileOpenWrite(cache_file);
         XLALFITSWriteSuperskyMetrics(fits_file, metrics);
         clear fits_file;
-        DebugPrintf(2, "... saved to disk");
+        DebugPrintf(4, "... saved to disk");
       catch
-        DebugPrintf(2, "\n");
+        DebugPrintf(4, "\n");
         error("%s: Could not save supersky metrics to disk", funcName);
       end_try_catch
 
-      ## add to in-memory cache
-      supersky_metrics_cache = setfield(supersky_metrics_cache, cache_key, metrics);
-
     endif
 
-    DebugPrintf(2, "\n");
+    DebugPrintf(4, "\n");
   endif
 
-  ## make copy of metrics from cache to allow safe modification
-  if use_cache
+  if cache_size > 0
+
+    ## add to in-memory cache
+    if !isfield(supersky_metrics_cache.lookup, cache_key)
+      supersky_metrics_cache.lookup = setfield(supersky_metrics_cache.lookup, cache_key, metrics);
+    endif
+    supersky_metrics_cache.usage = supersky_metrics_cache.usage(find(!strcmp(supersky_metrics_cache.usage, cache_key)));
+    supersky_metrics_cache.usage{end+1} = cache_key;
+    while length(supersky_metrics_cache.usage) > cache_size
+      supersky_metrics_cache.lookup = rmfield(supersky_metrics_cache.lookup, supersky_metrics_cache.usage{1});
+      supersky_metrics_cache.usage = supersky_metrics_cache.usage(2:end);
+    endwhile
+
+    ## make copy of metrics from cache to allow safe modification
     metrics = XLALCopySuperskyMetrics(metrics);
+
   endif
 
   ## ensure fiducial frequency of metrics is as requested
@@ -269,12 +278,12 @@ endfunction
 %!                                   "segment_list", CreateSegmentList(1e9, 5, 86400, [], 0.75), ...
 %!                                   "fiducial_freq", 123.4, ...
 %!                                   "detectors", "H1,L1", ...
-%!                                   "use_cache", false ...
+%!                                   "cache_size", 0 ...
 %!                                 );
 %!  metrics = ComputeSuperskyMetrics( ...
 %!                                   "spindowns", 1, ...
 %!                                   "segment_list", CreateSegmentList(1e9, 5, 86400, [], 0.75), ...
 %!                                   "fiducial_freq", 123.4, ...
 %!                                   "detectors", "H1,L1", ...
-%!                                   "use_cache", true ...
+%!                                   "cache_size", 100 ...
 %!                                 );

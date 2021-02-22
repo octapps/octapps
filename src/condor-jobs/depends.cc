@@ -527,7 +527,7 @@ DEFUN_DLD( depends, args, nargout, depends_usage ) {
 
     // Check argument
     if (!args(i).is_string()) {
-      error("argument #%i is not a string", i+1);
+      error("argument #%li is not a string", (long) i+1);
       return octave_value();
     }
 

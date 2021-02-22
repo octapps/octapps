@@ -31,10 +31,10 @@
 ##
 ## @table @code
 ## @item earth_file
-## Earth ephemerides file (default: @file{earth00-19-DE405.dat.gz})
+## Earth ephemerides file (default: @file{earth00-40-DE405.dat.gz})
 ##
 ## @item sun_file
-## Sun ephemerides file (default: @file{sun00-19-DE405.dat.gz})
+## Sun ephemerides file (default: @file{sun00-40-DE405.dat.gz})
 ##
 ## @end table
 ##
@@ -48,8 +48,8 @@ function ephemerides = loadEphemerides(varargin)
 
   ## parse options
   parseOptions(varargin,
-               {"earth_file", "char", "earth00-19-DE405.dat.gz"},
-               {"sun_file", "char", "sun00-19-DE405.dat.gz"},
+               {"earth_file", "char", "earth00-40-DE405.dat.gz"},
+               {"sun_file", "char", "sun00-40-DE405.dat.gz"},
                []);
 
   ## use pre-loaded default ephemerides

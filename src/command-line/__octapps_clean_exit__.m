@@ -1,4 +1,4 @@
-## Copyright (C) 2013 David Keitel
+## Copyright (C) 2016 Karl Wette
 ##
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -16,16 +16,10 @@
 ## MA  02111-1307  USA
 
 ## -*- texinfo -*-
-## @deftypefn {Function File} {@var{SFTpower_fA} =} ComputeSFTPowerFAFromThreshold ( @var{SFTpower_thresh}, @var{num_SFTs} )
-##
-## Compute SFT power false alarm rate from a SFT power threshold.
-##
-## @end deftypefn
+## horrible hack to prevent Octave memory corruption on exit
+## @deftypefn
 
-function SFTpower_fA = ComputeSFTPowerFAFromThreshold ( SFTpower_thresh, num_SFTs )
-
-  SFTpower_fA = 1.0 - octforge_normcdf ( SFTpower_thresh, 1.0, 1.0/sqrt(num_SFTs) );
-
-endfunction ## ComputeSFTPowerFAFromThreshold()
-
-%!assert(ComputeSFTPowerFAFromThreshold(1.2326, 100), 0.01, 1e-3)
+function __octapps_clean_exit__
+  global exit_code;
+  swig_exit(exit_code);
+endfunction
