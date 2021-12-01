@@ -1,7 +1,7 @@
 name: CI
 on: [push, pull_request]
 jobs:
-  build-linux:
+  build-docker:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -9,14 +9,20 @@ jobs:
       - name: Run Dockerfile
         run: |
           sudo docker build .
-      - name: Deploy documentation
-        if: github.repository == 'octapps/octapps' && github.ref == 'refs/heads/master' && github.event_name == 'push'
-        uses: JamesIves/github-pages-deploy-action@4.1.7
-        with:
-          repository-name: octapps/octapps.github.io
-          branch: master
-          folder: html
-          ssh-key: ${{ secrets.DEPLOY_KEY }}
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install build dependencies
+        run: |
+          sudo apt-get install -y epstool ffmpeg ghostscript gnuplot-nox libcfitsio-dev libgsl0-dev liboctave-dev make pkg-config pstoedit texinfo transfig
+      - name: Build
+        run: |
+          make -j2
+      - name: Run test suite
+        run: |
+          # make -j2 check      FIXME: disable tests while getting GHA build working
   build-macosx:
     runs-on: macos-latest
     if: ${{ false }}   # FIXME: oct modules no longer build against modern Octave on MacOSX
@@ -29,3 +35,22 @@ jobs:
       - name: Build
         run: |
           make -j2 MKOCTFILE=false
+  build-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install build dependencies
+        run: |
+          sudo apt-get install -y libcfitsio-dev libgsl0-dev liboctave-dev make pkg-config texinfo
+      - name: Build documentation
+        run: |
+          make -j2
+      - name: Deploy documentation
+        if: github.repository == 'octapps/octapps' && github.ref == 'refs/heads/master' && github.event_name == 'push'
+        uses: JamesIves/github-pages-deploy-action@4.1.7
+        with:
+          repository-name: octapps/octapps.github.io
+          branch: master
+          folder: html
+          ssh-key: ${{ secrets.DEPLOY_KEY }}
