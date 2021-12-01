@@ -28,4 +28,4 @@ jobs:
           brew bundle
       - name: Build
         run: |
-          make SWIG=false
+          make -j2 MKOCTFILE=false
