@@ -16,7 +16,7 @@ jobs:
         uses: actions/checkout@v2
       - name: Install build dependencies
         run: |
-          sudo apt-get install -y epstool ffmpeg ghostscript gnuplot-nox libcfitsio-dev libgsl0-dev liboctave-dev make pkg-config pstoedit texinfo transfig
+          sudo apt-get install -y epstool ffmpeg ghostscript gnuplot-nox libcfitsio-dev libgsl0-dev liboctave-dev make pkg-config pstoedit swig texinfo transfig
       - name: Build
         run: |
           make -j2

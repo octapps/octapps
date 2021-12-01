@@ -8,7 +8,7 @@ RUN apt-get install -y --allow-unauthenticated lscsoft-archive-keyring
 
 RUN apt-get update
 RUN apt-get install -y git lal-octave lalxml-octave lalpulsar-octave lalapps
-RUN apt-get install -y epstool ffmpeg ghostscript gnuplot-nox libcfitsio-dev libgsl-dev liboctave-dev make pkg-config pstoedit swig3.0 texinfo transfig
+RUN apt-get install -y epstool ffmpeg ghostscript gnuplot-nox libcfitsio-dev libgsl-dev liboctave-dev make pkg-config pstoedit swig texinfo transfig
 
 COPY . /tmp/octapps
 WORKDIR /tmp/octapps
