@@ -52,6 +52,6 @@ jobs:
         with:
           ssh-key: ${{ secrets.DEPLOY_KEY }}
           repository-name: octapps/octapps.github.io
-          branch: master
+          branch: gh-pages
           folder: html
           single-commit: true
