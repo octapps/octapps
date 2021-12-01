@@ -50,7 +50,8 @@ jobs:
         if: github.repository == 'octapps/octapps' && github.ref == 'refs/heads/master' && github.event_name == 'push'
         uses: JamesIves/github-pages-deploy-action@4.1.7
         with:
+          ssh-key: ${{ secrets.DEPLOY_KEY }}
           repository-name: octapps/octapps.github.io
           branch: master
           folder: html
-          ssh-key: ${{ secrets.DEPLOY_KEY }}
+          single-commit: true
