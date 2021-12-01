@@ -1,0 +1,31 @@
+name: CI
+on: [push, pull_request]
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Run Dockerfile
+        run: |
+          sudo docker build .
+      - name: Deploy documentation
+        if: github.repository == 'octapps/octapps' && github.ref == 'refs/heads/master' && github.event == 'push'
+        uses: JamesIves/github-pages-deploy-action@4.1.7
+        with:
+          repository-name: octapps/octapps.github.io
+          branch: master
+          folder: html
+          ssh-key: ${{ secrets.DEPLOY_KEY }}
+  build-macosx:
+    runs-on: macos-latest
+    if: ${{ false }}   # FIXME: oct modules no longer build against modern Octave on MacOSX
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install build dependencies
+        run: |
+          brew bundle
+      - name: Build
+        run: |
+          make SWIG=false
