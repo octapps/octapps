@@ -327,6 +327,12 @@ html : all
 	done; \
 	printf "@end menu\n" >> "$${OCTAPPS_TMPDIR}/directory-index-menu.texi"; \
 	$(MAKE) `printf "$${OCTAPPS_TMPDIR}/%s.texi\n" $${texifiles} | $(SORT)` || exit 1; \
+	if test "x$(GIT)" != xfalse; then \
+		gitstatus=`( $(GIT) diff --quiet && echo "" ) || echo " @b{UNCLEAN}"`; \
+		$(GIT) log -1 --pretty="format:This manual was generated from @emph{OctApps} commit @t{%H}$${gitstatus}, %aD." > "$${OCTAPPS_TMPDIR}/gitinfo.texi"; \
+	else \
+		echo "This manual was last generated on @today{}." > "$${OCTAPPS_TMPDIR}/gitinfo.texi"; \
+	fi; \
 	mkdir -p "$(curdir)/html"; \
 	rm -rf "$(curdir)/html"/*; \
 	( cd "$${OCTAPPS_TMPDIR}" && $(MAKEINFO) --html -o "$(curdir)/html" "$(curdir)/doc/home.texi" ) || exit 1; \

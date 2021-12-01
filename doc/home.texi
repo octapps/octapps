@@ -26,7 +26,7 @@ Please see the @url{https://github.com/octapps/octapps, project homepage} for fu
 This manual provides a series of @ref{Tutorials, tutorials} which illustrate some of the functionality of @emph{OctApps}.
 It also provides indexes of @emph{OctApps} functions organised by @ref{Directory Index, directory}, as well as @ref{Function Index, alphabetically}.
 
-This manual was last generated on @today{}.
+@include gitinfo.texi
 
 @heading Acknowledgement
 
