@@ -141,9 +141,6 @@ function [coh_Nt, semi_Nt, dfreq] = WeaveTemplateCount(varargin)
     coh_Tspan  = setup.coh_Tspan;
     semi_Tspan = setup.semi_Tspan;
   endif
-  if ( isempty(coh_max_mismatch) || (coh_max_mismatch == 0) )
-    interpolation = false;
-  endif
 
   ## if given, load result file and extract various parameters
   if !isempty(result_file)
@@ -163,6 +160,10 @@ function [coh_Nt, semi_Nt, dfreq] = WeaveTemplateCount(varargin)
     if ( interpolation )
       coh_max_mismatch = str2double(result_hdr.progarg_coh_max_mismatch);
     endif
+  endif
+
+  if ( (Nsegments == 1) || isempty(coh_max_mismatch) || (coh_max_mismatch == 0) )
+    interpolation = false;
   endif
 
   if ( !interpolation )
