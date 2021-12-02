@@ -279,16 +279,16 @@ function results = injectionRecoveryGCT ( varargin )
     DebugPrintf ( 1, "Starting trial %04d/%04d:\n", iTrial, uvar.Ntrials );
 
     ## ---------- pick random signal parameters ----------
-    inj.cosi    = unifrnd ( -1, 1 );
-    inj.psi     = unifrnd ( 0, pi );
-    inj.phi0    = unifrnd ( 0, 2 *pi );
+    inj.cosi    = octforge_unifrnd ( -1, 1 );
+    inj.psi     = octforge_unifrnd ( 0, pi );
+    inj.phi0    = octforge_unifrnd ( 0, 2 *pi );
 
-    inj.Alpha = unifrnd ( min(uvar.inj_AlphaRange), max(uvar.inj_AlphaRange) * (1 + sign(max(uvar.inj_AlphaRange))*eps) );
+    inj.Alpha = octforge_unifrnd ( min(uvar.inj_AlphaRange), max(uvar.inj_AlphaRange) * (1 + sign(max(uvar.inj_AlphaRange))*eps) );
     sDeltaRange = sin ( uvar.inj_DeltaRange );
-    inj.Delta   = asin ( unifrnd ( min(sDeltaRange), max(sDeltaRange) * (1 + sign(max(sDeltaRange))*eps) )  );
-    inj.Freq    = unifrnd ( inj_FreqMin, inj_FreqMax * (1 + eps) );   #Freq is alway positive hence no sign()
+    inj.Delta   = asin ( octforge_unifrnd ( min(sDeltaRange), max(sDeltaRange) * (1 + sign(max(sDeltaRange))*eps) )  );
+    inj.Freq    = octforge_unifrnd ( inj_FreqMin, inj_FreqMax * (1 + eps) );   #Freq is alway positive hence no sign()
     for k = 1 : spindown_order
-      inj.fkdot(k)= unifrnd ( min(uvar.inj_fkdotRange(k, :)), max(uvar.inj_fkdotRange(k, :)) * (1 + sign(max(uvar.inj_fkdotRange(k, :)))*eps) );
+      inj.fkdot(k)= octforge_unifrnd ( min(uvar.inj_fkdotRange(k, :)), max(uvar.inj_fkdotRange(k, :)) * (1 + sign(max(uvar.inj_fkdotRange(k, :)))*eps) );
     endfor
 
     ## ---------- run PredictFstat on all segments ==> "perfect match Fstats" ----------
@@ -708,7 +708,7 @@ endfunction ## measureGCTmismatch()
 %!    fclose(fid);
 %!    fid = fopen(args.skyGridFile, "w");
 %!    for i = 1:50
-%!      fprintf(fid, "%.5f %.5f\n", unifrnd(0, 2*pi), unifrnd(-pi/2, pi/2));
+%!      fprintf(fid, "%.5f %.5f\n", octforge_unifrnd(0+eps, 2*pi-eps), octforge_unifrnd(-pi/2+eps, pi/2-eps));
 %!    endfor
 %!    fclose(fid);
 %!    fevalstruct(@injectionRecoveryGCT, args);

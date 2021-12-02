@@ -53,7 +53,7 @@ endfunction
 
 %!test
 %! Ntrials = 1000;
-%! LongLatIn = [ unifrnd(0, 2*pi, Ntrials, 1 ), unifrnd(-pi/2, pi/2, Ntrials, 1) ];
+%! LongLatIn = [ octforge_unifrnd(0, 2*pi, Ntrials, 1 ), octforge_unifrnd(-pi/2, pi/2, Ntrials, 1) ];
 %! vn = skyAngles2Vector ( LongLatIn );
 %! LongLatOut = skyVector2Angles ( vn );
 %! maxerr = max ( abs ( LongLatIn(:) - LongLatOut(:) ) );
