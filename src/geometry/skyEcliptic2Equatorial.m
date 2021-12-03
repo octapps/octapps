@@ -42,8 +42,8 @@ endfunction
 
 %!test
 %! Ntrials = 10;
-%! LongLatEclIn = [ unifrnd(0, 2*pi, Ntrials, 1 ), unifrnd(-pi/2, pi/2, Ntrials, 1 ) ];
-%! vnEclIn = unifrnd(-1, 1, Ntrials, 3 );
+%! LongLatEclIn = [ octforge_unifrnd(0, 2*pi, Ntrials, 1 ), octforge_unifrnd(-pi/2, pi/2, Ntrials, 1 ) ];
+%! vnEclIn = octforge_unifrnd(-1, 1, Ntrials, 3 );
 %!
 %! LongLatEqu1 = skyEcliptic2Equatorial ( LongLatEclIn );
 %! vnEqu1 = skyEcliptic2Equatorial ( vnEclIn );

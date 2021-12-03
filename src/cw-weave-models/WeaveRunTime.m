@@ -150,7 +150,7 @@ function [times, maxmem, tau] = WeaveRunTime(varargin)
                {"Nsemitpl", "integer,strictpos,scalar,+exactlyone:result_file", []},
                {"cache_max", "integer,strictpos,scalar,+atmostone:result_file", []},
                {"stats", "char"},
-               {"timings", "char"},
+               {"timings", "char", "default"},
                {"TSFT", "integer,strictpos,scalar", 1800},
                []);
   stats = strsplit(stats, ",");
@@ -227,7 +227,7 @@ function [times, maxmem, tau] = WeaveRunTime(varargin)
     Fmethod = result_hdr.fstat_method;
     Ncohres = result_hdr.ncohres;
     Nsemitpl = result_hdr.nsemitpl;
-    cache_max = result_hdr.cachemmx;
+    cache_max = result_hdr.cachemax;
   endif
   Nsemiseg = Nsemitpl * Nsegments;
   Nsemisegm = Nsemitpl * (Nsegments - 1);

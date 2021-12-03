@@ -66,7 +66,7 @@ function funs = OptimalSolution4StackSlide_v2_helpers ( costFuns, constraints, p
 
   funs.complete_stackparams = @(sp,funs) complete_stackparams ( sp, funs );
 
-  funs.local_cost_coefs = @(costFuns,sp) LocalCostCoefficients_v2 ( costFuns, ceil(sp.Nseg), sp.Tseg, sp.mCoh, sp.mInc );
+  funs.local_cost_coefs = @(costFuns,sp) LocalCostCoefficients_v2 ( costFuns, round(sp.Nseg), sp.Tseg, sp.mCoh, sp.mInc );
 
   return;
 

@@ -198,6 +198,8 @@ function cost_funs = CostFunctionsWeave(varargin)
                     );
 
 endfunction
+%!test disp("FIXME: no test exists for this function yet.")
+
 
 function [costCoh, costInc, cohNt, semiNt] = weave_cost_function(Nseg, Tseg, mCoh, mInc, template_count_args, run_time_args)
 

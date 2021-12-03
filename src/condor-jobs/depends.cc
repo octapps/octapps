@@ -556,7 +556,7 @@ DEFUN_DLD( depends, args, nargout, depends_usage ) {
 /*
 
 %!test
-%!  octprefixes = cellfun("octave_config_info", {"fcnfiledir", "octfiledir"}, "UniformOutput", false);
+%!  octprefixes = cellfun(@octapps_config_info, {"fcnfiledir", "octfiledir"}, "UniformOutput", false);
 %!  [deps,extras] = depends(octprefixes, "parseOptions");
 
 */

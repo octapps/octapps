@@ -70,7 +70,7 @@ function varargout = histBinGrids(hgrm, k, varargin)
 endfunction
 
 %!shared hgrm
-%!  hgrm = restrictHist(addDataToHist(Hist(2, {"lin", "dbin", 0.1}, {"lin", "dbin", 0.1}), unifrnd(0, 1, 1e6, 2)));
+%!  hgrm = restrictHist(addDataToHist(Hist(2, {"lin", "dbin", 0.1}, {"lin", "dbin", 0.1}), octforge_unifrnd(0, 1, 1e6, 2)));
 %!assert(histBinGrids(hgrm, 1, "lower"), [-inf, 0:0.1:0.9, inf]' * ones(1, 12), 1e-3)
 %!assert(histBinGrids(hgrm, 1, "centre"), [-inf, 0.05:0.1:0.95, inf]' * ones(1, 12), 1e-3)
 %!assert(histBinGrids(hgrm, 1, "upper"), [-inf, 0.1:0.1:1.0, inf]' * ones(1, 12), 1e-3)

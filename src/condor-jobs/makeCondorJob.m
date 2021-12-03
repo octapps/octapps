@@ -187,7 +187,7 @@ function job_file = makeCondorJob(varargin)
   endif
 
   ## add Octave executable to list of executable files
-  exec_files{end+1} = fullfile(octave_config_info("bindir"), "octave");
+  exec_files{end+1} = fullfile(octapps_config_info("bindir"), "octave");
 
   ## resolve locations of executable files
   unmanglePATH;
@@ -229,7 +229,7 @@ function job_file = makeCondorJob(varargin)
 
   ## prefixes of local Octave functions and shared libraries,
   ## which do not need to be distributed
-  octprefixes = cellfun("octave_config_info", {"fcnfiledir", "octfiledir"}, "UniformOutput", false);
+  octprefixes = cellfun(@octapps_config_info, {"fcnfiledir", "octfiledir"}, "UniformOutput", false);
   libprefixes = {"/lib", "/usr/lib"};
 
   ## get dependencies of job function
