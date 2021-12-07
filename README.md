@@ -73,8 +73,8 @@ or specific directories:
 
 > $ make check TESTDIR=src/general
 
-The *OctApps* test suite is regularly executed on [Travis CI](https://travis-ci.org).
-Current build status: [![Build Status](https://travis-ci.org/octapps/octapps.svg?branch=master)](https://travis-ci.org/octapps/octapps).
+The *OctApps* test suite is regularly executed via [GitHub Actions](https://github.com/features/actions).
+Current build status: [![Build Status](https://github.com/octapps/octapps/actions/workflows/ci.yml/badge.svg)](https://github.com/octapps/octapps/actions/workflows/ci.yml).
 
 Documentation
 -------------
