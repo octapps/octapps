@@ -133,7 +133,7 @@ endfunction ## CostFunctionsDirected()
 %!  cost0 = 3.1451 * EM2014;
 %!  TobsMax = 256.49 * DAYS;
 %!
-%!  sol_v2 = OptimalSolution4StackSlide_v2 ( "costFuns", costFuns, "cost0", cost0, "TobsMax", TobsMax, "stackparamsGuess", refParams, "debugLevel", 1 );
+%!  sol_v2 = OptimalSolution4StackSlide_v2 ( "costFuns", costFuns, "cost0", cost0, "TobsMax", TobsMax, "stackparamsGuess", refParams );
 %!
 %!  tol = -1e-2;
 %!  assert ( sol_v2.mCoh, 0.11892, tol );
@@ -164,7 +164,7 @@ endfunction ## CostFunctionsDirected()
 %!  cost0 = 472 * DAYS;
 %!  TobsMax = 365 * DAYS;
 %!
-%!  sol_v2 = OptimalSolution4StackSlide_v2 ( "costFuns", costFuns, "cost0", cost0, "TobsMax", TobsMax, "stackparamsGuess", refParams, "sensApprox", "WSG", "debugLevel", 1 );
+%!  sol_v2 = OptimalSolution4StackSlide_v2 ( "costFuns", costFuns, "cost0", cost0, "TobsMax", TobsMax, "stackparamsGuess", refParams, "sensApprox", "WSG" );
 %!
 %!  tol = -1e-2;
 %!  assert ( sol_v2.mCoh, 0.19219, tol );

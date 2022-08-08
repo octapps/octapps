@@ -102,9 +102,6 @@
 ## @item GCT_binary
 ## which GCT executable to use for searching
 ##
-## @item debugLevel
-## control debug-output level
-##
 ## @item cleanup
 ## boolean: remove intermediate output files at the end or not
 ##
@@ -139,12 +136,8 @@ function results = injectionRecoveryGCT ( varargin )
                         {"Fstar0sc", "real, positive, scalar", 0},
                         {"nCand", "real,strictpos,scalar", 1 },
                         {"GCT_binary", "char", "lalapps_HierarchSearchGCT"},
-                        {"debugLevel", "real,positive,scalar", 0},
                         {"cleanup", "bool,scalar", true},
                         []);
-
-  global debugLevel;
-  debugLevel = uvar.debugLevel;
 
   ## check input consistency
   have_h0 = !isempty(uvar.inj_h0);
@@ -237,7 +230,7 @@ function results = injectionRecoveryGCT ( varargin )
   MFD.IFOs = uvar.IFOs;
   MFD.timestampsFiles = uvar.timestampsFiles;
 
-  runCode ( MFD, "lalapps_Makefakedata_v5", (uvar.debugLevel > 0) );
+  runCode ( MFD, "lalapps_Makefakedata_v5", (DebugLevel() > 0) );
   results.mfd.args = MFD;
   SFTfiles = "*.sft";
 
@@ -314,7 +307,7 @@ function results = injectionRecoveryGCT ( varargin )
     for l = 1 : Nseg
       PFS.minStartTime = tSegStart ( l );
       PFS.maxStartTime = tSegEnd ( l );
-      out = runCode ( PFS, "lalapps_PredictFstat", (uvar.debugLevel > 0) );
+      out = runCode ( PFS, "lalapps_PredictFstat", (DebugLevel() > 0) );
       pfs.twoFl(l) = str2num ( out );
     endfor ## l = 1:Nseg
 
@@ -460,7 +453,7 @@ function results = injectionRecoveryGCT ( varargin )
     endif
     GCT.loudestTwoFPerSeg = true;
 
-    runCode ( GCT, uvar.GCT_binary, (uvar.debugLevel > 0) );
+    runCode ( GCT, uvar.GCT_binary, (DebugLevel() > 0) );
 
     ## ---------- load avg-Fstat results and parse results
     DebugPrintf ( 1, "Loading GCT toplist file '%s' ... ", GCT.fnameout );
@@ -618,7 +611,7 @@ function results = injectionRecoveryGCT ( varargin )
     GCTSig.nCand1       = 1;    ## keep this many candidates in toplist
     GCTSig.loudestTwoFPerSeg = false;
 
-    runCode ( GCTSig, uvar.GCT_binary, (uvar.debugLevel > 0) );
+    runCode ( GCTSig, uvar.GCT_binary, (DebugLevel() > 0) );
 
     ## load perfect-match GCT results
     outSig = load ( GCTSig.fnameout );

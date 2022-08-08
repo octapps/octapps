@@ -252,7 +252,7 @@ endfunction ## cost_coh_wparams()
 %!  cost0 = costCoh + costInc;
 %!  TobsMax = 365 * 86400;
 %!
-%!  sol_v2 = OptimalSolution4StackSlide_v2 ( "costFuns", costFuns, "cost0", cost0, "TobsMax", TobsMax, "TsegMin", 3600, "stackparamsGuess", refParams, "debugLevel", 1 );
+%!  sol_v2 = OptimalSolution4StackSlide_v2 ( "costFuns", costFuns, "cost0", cost0, "TobsMax", TobsMax, "TsegMin", 3600, "stackparamsGuess", refParams );
 %!
 %!  tol = -1e-3;
 %!  assert ( sol_v2.mCoh, 0.14458, tol );
