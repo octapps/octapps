@@ -17,24 +17,17 @@
 ## -*- texinfo -*-
 ## @deftypefn {Function File} {} DebugPrintf ( @var{level}, @var{args}@dots{} )
 ##
-## If @var{debugLevel} >= @var{level}, then print @var{args}@dots{} using
+## If @code{DebugLevel()} >= @var{level}, then print @var{args}@dots{} using
 ## @code{fprintf()} to @file{stdout}.
-##
-## @var{debugLevel} is a global variable declared with @code{global}.
 ##
 ## @end deftypefn
 
 function DebugPrintf ( level, varargin )
-  global debugLevel;
-  if ( isempty ( debugLevel ) ) debugLevel = 0; endif
-
-  if ( debugLevel >= level )
+  if ( DebugLevel() >= level )
     fprintf ( stdout, varargin{:} );
   endif
-  return;
 endfunction ## DebugPrintf()
 
 %!test
-%!  global debugLevel;
-%!  debugLevel = 1;
+%!  DebugLevel(1);
 %!  DebugPrintf(0, "Hi there\n");

@@ -15,10 +15,8 @@
 ## <http://www.gnu.org/licenses/>.
 
 function DebugPrintStackparams ( level, stackparams )
-  global debugLevel;
-  if ( isempty ( debugLevel ) ) debugLevel = 0; endif
 
-  if ( debugLevel < level )
+  if ( DebugLevel() < level )
     return;
   endif
   DAYS = 86400;

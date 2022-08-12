@@ -127,7 +127,7 @@ endfunction ## CostFunctionsBinary()
 %!  TobsMax = 360 * DAYS;
 %!  TsegMax = 10 * DAYS;
 %!
-%!  sol_v2 = OptimalSolution4StackSlide_v2 ( "costFuns", costFuns, "cost0", cost0, "TobsMax", TobsMax, "TsegMax", TsegMax, "stackparamsGuess", refParams, "debugLevel", 1, "maxiter", 3 );
+%!  sol_v2 = OptimalSolution4StackSlide_v2 ( "costFuns", costFuns, "cost0", cost0, "TobsMax", TobsMax, "TsegMax", TsegMax, "stackparamsGuess", refParams, "maxiter", 3 );
 %!
 %!  tol = -1e-2;
 %!  assert ( sol_v2.Nseg, 36, tol );
@@ -155,7 +155,7 @@ endfunction ## CostFunctionsBinary()
 %!  TobsMax = 360 * DAYS;
 %!  TsegMax = 10 * DAYS;
 %!
-%!  sol_v2 = OptimalSolution4StackSlide_v2 ( "costFuns", costFuns, "cost0", cost0, "TobsMax", TobsMax, "TsegMax", TsegMax, "stackparamsGuess", refParams, "debugLevel", 1, "maxiter", 3 );
+%!  sol_v2 = OptimalSolution4StackSlide_v2 ( "costFuns", costFuns, "cost0", cost0, "TobsMax", TobsMax, "TsegMax", TsegMax, "stackparamsGuess", refParams, "maxiter", 3 );
 %!
 %!  tol = -1e-2;
 %!  assert ( sol_v2.mCoh, 0.038235, tol );
@@ -184,7 +184,7 @@ endfunction ## CostFunctionsBinary()
 %!  TobsMax = 360 * DAYS;
 %!  TsegMax = 10 * DAYS;
 %!
-%!  sol_v2 = OptimalSolution4StackSlide_v2 ( "costFuns", costFuns, "cost0", cost0, "TobsMax", TobsMax, "TsegMax", TsegMax, "stackparamsGuess", refParams, "debugLevel", 1 );
+%!  sol_v2 = OptimalSolution4StackSlide_v2 ( "costFuns", costFuns, "cost0", cost0, "TobsMax", TobsMax, "TsegMax", TsegMax, "stackparamsGuess", refParams );
 %!
 %!  tol = -1e-2;
 %!  assert ( sol_v2.mCoh, 0.81274, tol );

@@ -94,9 +94,6 @@
 ## @item nonlinearMismatch
 ## use empirical nonlinear mismatch relation instead of linear @samp{mis} = xi * m
 ##
-## @item debugLevel
-## [optional] control level of debug output
-##
 ## @end table
 ##
 ## @heading Output
@@ -138,16 +135,9 @@ function sol = OptimalSolution4StackSlide_v2 ( varargin )
                         {"minMismatch", "real,positive,scalar", 0 },
                         {"sensApprox", "char", "none" },
                         {"nonlinearMismatch", "logical,scalar", false },
-                        {"debugLevel", "integer,positive,scalar", [] },
                         []);
+
   global powerEps; powerEps = 1e-5;     ## value practically considered "zero" for power-law coefficients
-  global debugLevel;
-  if ( !isempty(uvar.debugLevel) )
-    debugLevel = uvar.debugLevel;
-  endif
-  if ( isempty ( debugLevel ) )
-    debugLevel = 0;
-  endif
 
   assert( isfield( uvar.costFuns, "grid_interpolation" ) );
   assert( isfield( uvar.costFuns, "lattice" ) );

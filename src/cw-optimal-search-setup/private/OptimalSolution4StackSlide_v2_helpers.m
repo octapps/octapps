@@ -75,7 +75,7 @@ endfunction ## OptimalSolution4StackSlide_v2_helpers()
 ## ==================== NON-Interpolating solvers ====================
 
 function sol = NONI_unconstrained ( stackparams, funs )
-  global debugLevel; global powerEps;
+  global powerEps;
   sol = [];
   ## ----- local shortcuts ----------
   coef = stackparams.coefInc;
@@ -120,7 +120,7 @@ function sol = NONI_unconstrained ( stackparams, funs )
               funcName, INFO, residual, OUTPUT.iterations, OUTPUT.bracketx(1), OUTPUT.bracketx(2), OUTPUT.brackety(1), OUTPUT.brackety(2) );
     catch err
       DebugPrintf ( 3, "%s: 1st fzero() clause failed: trying to find mismatch range \n", funcName );
-      if ( debugLevel >= 3 ) err, endif
+      if ( DebugLevel() >= 3 ) err, endif
       return;
     end_try_catch
     logmRange(2) = 0.95 * pole; ## stay below from pole
@@ -142,7 +142,7 @@ function sol = NONI_unconstrained ( stackparams, funs )
     mOpt = exp ( log_mOpt );
   catch err
     DebugPrintf ( 3, "%s: 2nd fzero() clause failed: trying to solve for optimal mismatch\n", funcName );
-    if ( debugLevel >= 3) err, endif
+    if ( DebugLevel() >= 3) err, endif
     return;
   end_try_catch
 
@@ -168,7 +168,7 @@ function sol = NONI_unconstrained ( stackparams, funs )
 endfunction ## NONI_unconstrained()
 
 function sol = NONI_constrainedTobs ( stackparams, funs, Tobs0 )
-  global powerEps; global debugLevel; global DAYS;
+  global powerEps; global DAYS;
   sol = [];
 
   ## ----- local shortcuts ----------
@@ -201,7 +201,7 @@ function sol = NONI_constrainedTobs ( stackparams, funs, Tobs0 )
               INFO, residual, OUTPUT.iterations, OUTPUT.bracketx(1), OUTPUT.bracketx(2), OUTPUT.brackety(1), OUTPUT.brackety(2) );
     catch err
       DebugPrintf ( 3, "%s: 1st fzero() clause failed: trying to find mismatch range \n", funcName );
-      if ( debugLevel >= 3 ) err, endif
+      if ( DebugLevel() >= 3 ) err, endif
       return;
     end_try_catch
     logmRange(2) = 0.95 * pole; ## stay below from pole
@@ -215,7 +215,7 @@ function sol = NONI_constrainedTobs ( stackparams, funs, Tobs0 )
     mOpt = exp ( logOpt );
   catch err
     DebugPrintf ( 3, "%s: 2nd fzero() clause failed: trying to solve for optimal mismatch\n", funcName );
-    if ( debugLevel >= 3) err, endif
+    if ( DebugLevel() >= 3) err, endif
     return;
   end_try_catch
 
@@ -238,7 +238,7 @@ function sol = NONI_constrainedTobs ( stackparams, funs, Tobs0 )
 endfunction ## NONI_constrainedTobs()
 
 function sol = NONI_constrainedTseg ( stackparams, funs, Tseg0 )
-  global debugLevel; global DAYS;
+  global DAYS;
   sol = [];
 
   ## ----- local shortcuts ----------
@@ -264,7 +264,7 @@ function sol = NONI_constrainedTseg ( stackparams, funs, Tseg0 )
               INFO, residual, OUTPUT.iterations, OUTPUT.bracketx(1), OUTPUT.bracketx(2), OUTPUT.brackety(1), OUTPUT.brackety(2) );
     catch err
       DebugPrintf ( 3, "%s: 1st fzero() clause failed: trying to find mismatch range\n", funcName );
-      if ( debugLevel >= 3 ) err, endif
+      if ( DebugLevel() >= 3 ) err, endif
       return;
     end_try_catch
     logmRange(2) = 0.95 * pole; ## stay below from pole
@@ -278,7 +278,7 @@ function sol = NONI_constrainedTseg ( stackparams, funs, Tseg0 )
     mOpt = exp ( logOpt );
   catch err
     DebugPrintf ( 3, "%s: 2nd fzero() clause failed: trying to find optimal mismatch\n", funcName );
-    if ( debugLevel >= 3) err, endif
+    if ( DebugLevel() >= 3) err, endif
     return;
   end_try_catch
 
@@ -303,7 +303,6 @@ function sol = NONI_constrainedTseg ( stackparams, funs, Tseg0 )
 endfunction ## NONI_constrainedTseg()
 
 function sol = NONI_constrainedTobsTseg ( stackparams, funs, Tobs0, Tseg0 )
-  global debugLevel;
 
   assert ( Tseg0 <= Tobs0 );
   sol = [];
@@ -324,7 +323,7 @@ endfunction ## NONI_constrainedTobsTseg()
 
 ## ==================== Interpolating solvers ====================
 function sol = INT_unconstrained ( stackparams, funs )
-  global debugLevel; global powerEps;
+  global powerEps;
 
   sol = [];
   ## ----- local shortcuts ----------
@@ -357,7 +356,7 @@ function sol = INT_unconstrained ( stackparams, funs )
       mIncOpt = exp(X(2));
       assert ( (mCohOpt >= 0) && (mIncOpt >= 0), "%s: fsolve() converged, but invalid negative solution {mCoh = %g, mInc = %g} < 0\n", funcName(), mCohOpt, mIncOpt );
     catch err
-      if ( debugLevel >= 3) err, endif
+      if ( DebugLevel() >= 3) err, endif
       return;
     end_try_catch
     CostCoh0 = cost0 / ( 1 + 1/crOpt );
@@ -392,7 +391,7 @@ function sol = INT_unconstrained ( stackparams, funs )
 endfunction ## INT_unconstrained()
 
 function sol = INT_constrainedTobs ( stackparams, funs, Tobs0 )
-  global powerEps; global debugLevel; global DAYS;
+  global powerEps; global DAYS;
   sol = [];
 
   ## ----- local shortcuts ----------
@@ -437,7 +436,7 @@ function sol = INT_constrainedTobs ( stackparams, funs, Tobs0 )
       mIncOpt = exp(X(2));
       assert ( (mCohOpt >= 0) && (mIncOpt >= 0), "%s: fsolve() for fixed Tobs0 converged, but invalid negative solution {mCoh = %g, mInc = %g} < 0\n", funcName(), mCohOpt, mIncOpt );
     catch err
-      if ( debugLevel >= 3 ) err, endif
+      if ( DebugLevel() >= 3 ) err, endif
       return;
     end_try_catch
 
@@ -468,7 +467,7 @@ function sol = INT_constrainedTobs ( stackparams, funs, Tobs0 )
 endfunction ## INT_constrainedTobs()
 
 function sol = INT_constrainedTseg ( stackparams, funs, Tseg0 )
-  global debugLevel; global DAYS;
+  global DAYS;
 
   sol = [];
   ## ----- local shortcuts ----------
@@ -503,7 +502,7 @@ function sol = INT_constrainedTseg ( stackparams, funs, Tseg0 )
     mIncOpt = exp(X(2));
     assert ( (mCohOpt >= 0) && (mIncOpt >= 0), "%s: fsolve() for fixed Tseg0 converged, but invalid negative solution {mCoh = %g, mInc = %g} < 0\n", funcName, mCohOpt, mIncOpt );
   catch err
-    if ( debugLevel >= 3 ) err, endif
+    if ( DebugLevel() >= 3 ) err, endif
     return;
   end_try_catch
 
@@ -527,7 +526,6 @@ function sol = INT_constrainedTseg ( stackparams, funs, Tseg0 )
 endfunction ## INT_constrainedTseg()
 
 function sol = INT_constrainedTobsTseg ( stackparams, funs, Tobs0, Tseg0 )
-  global debugLevel;
   assert ( Tseg0 <= Tobs0 );
 
   sol = [];
@@ -565,7 +563,7 @@ function sol = INT_constrainedTobsTseg ( stackparams, funs, Tobs0, Tseg0 )
     mIncOpt = exp(X(2));
     assert ( (mCohOpt >= 0) && (mIncOpt >= 0), "%s: fsolve() for fixed Tseg0+Tobs0 converged, but invalid negative solution {mCoh = %g, mInc = %g} < 0\n", funcName(), mCohOpt, mIncOpt );
   catch err
-    if ( debugLevel >= 3 ) err, endif
+    if ( DebugLevel() >= 3 ) err, endif
     return;
   end_try_catch
 
@@ -578,7 +576,6 @@ endfunction ## INT_constrainedTobsTseg()
 
 ## ==================== fully COHERENT solvers ====================
 function sol = COH_unconstrained ( stackparams, funs )
-  global debugLevel;
 
   sol = [];
   ## ----- local shortcuts ----------
@@ -601,7 +598,7 @@ function sol = COH_unconstrained ( stackparams, funs )
               "fzero() failed to find pole of denominator: INFO=%i, residual=%g, iterations=%i, mCohOpt=[%g,%g], FCN=[%g,%g]\n",
               INFO, residual, OUTPUT.iterations, OUTPUT.bracketx(1), OUTPUT.bracketx(2), OUTPUT.brackety(1), OUTPUT.brackety(2) );
     catch err
-      if ( debugLevel >= 3 ) err, endif
+      if ( DebugLevel() >= 3 ) err, endif
       return;
     end_try_catch
     logmRange(2) = 0.95 * pole; ## stay below from pole
@@ -614,7 +611,7 @@ function sol = COH_unconstrained ( stackparams, funs )
             rCoh, INFO, residual, OUTPUT.iterations, OUTPUT.bracketx(1), OUTPUT.bracketx(2), OUTPUT.brackety(1), OUTPUT.brackety(2) );
     mCohOpt = exp ( logOpt );
   catch err
-    if ( debugLevel >= 3) err, endif
+    if ( DebugLevel() >= 3) err, endif
     return;
   end_try_catch
   logTseg = (1/deltaCoh) * ( log(cost0/kCoh) + nCoh/2 * log(mCohOpt) );
@@ -648,7 +645,6 @@ endfunction ## COH_constrainedTobs()
 function stackparams = complete_stackparams ( stackparams, funs )
   ## stackparams = complete_stackparams ( stackparams, funs )
   ## fill in a number of useful 'derived' stack parameter coefficients
-  global debugLevel;
 
   ## backwards-compatilibity fix: allow 'mc' 'mf' in lieu of 'mCoh', 'mInc'
   if ( !isfield ( stackparams, "mCoh" ) && isfield ( stackparams, "mc" ) )
@@ -737,7 +733,7 @@ endfunction
 
 ## ---------- kept for temporary reference
 function sol = NONI_unconstrained_prev ( stackparams, funs )
-  global debugLevel; global powerEps;
+  global powerEps;
   sol = [];
   ## ----- local shortcuts ----------
   coef = stackparams.coefInc;
@@ -783,7 +779,7 @@ function sol = NONI_unconstrained_prev ( stackparams, funs )
               funcName, INFO, residual, OUTPUT.iterations, OUTPUT.bracketx(1), OUTPUT.bracketx(2), OUTPUT.brackety(1), OUTPUT.brackety(2) );
     catch err
       DebugPrintf ( 3, "%s: 1st fzero() clause failed: trying to find mismatch range \n", funcName );
-      if ( debugLevel >= 3 ) err, endif
+      if ( DebugLevel() >= 3 ) err, endif
       return;
     end_try_catch
     logmRange(2) = 0.95 * pole; ## stay below from pole
@@ -803,7 +799,7 @@ function sol = NONI_unconstrained_prev ( stackparams, funs )
     mNseg = exp ( log_mNseg );
   catch err
     DebugPrintf ( 3, "%s: 2nd fzero() clause failed: trying to solve for optimal mismatch (using d_N L=0)\n", funcName );
-    if ( debugLevel >= 3) err, endif
+    if ( DebugLevel() >= 3) err, endif
     return;
   end_try_catch
 
@@ -826,7 +822,7 @@ function sol = NONI_unconstrained_prev ( stackparams, funs )
     mTseg = exp ( log_mTseg );
   catch err
     DebugPrintf ( 3, "%s: 3rd fzero() clause failed: trying to solve for optimal mismatch (using d_Tseg L=0) \n", funcName );
-    if ( debugLevel >= 3) err, endif
+    if ( DebugLevel() >= 3) err, endif
     return;
   end_try_catch
 
