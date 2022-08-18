@@ -135,14 +135,36 @@ VPATH = $(srcfilepath)
 ALL_CFLAGS = -Wno-narrowing -Wno-deprecated-declarations
 
 Compile = rm -f $@ \
+	&& ABIFLAG=`cat $(octdir)/abiflag.cfg` \
 	&& CFLAGS=`test "x$(DEPENDS)" = x || $(PKGCONFIG) --cflags $(DEPENDS)` \
-	&& $(MKOCTFILE) $(vershex) -g -c -o $@ $< $(ALL_CFLAGS) $${CFLAGS} $1 \
+	&& $(MKOCTFILE) $(vershex) -g -c -o $@ $< $(ALL_CFLAGS) $${ABIFLAG} $${CFLAGS} $1 \
 	&& test -f $@
 
 Link = rm -f $@ \
 	&& LIBS=`test "x$(DEPENDS)" = x || $(PKGCONFIG) --libs $(DEPENDS)` \
 	&& $(MKOCTFILE) -g -o $@ $(filter %.o,$^) $${LIBS} $1 \
 	&& test -f $@
+
+MakeABIFlagModule = rm -f $(octdir)/abiflag.oct \
+	&& $(MKOCTFILE) -D_GLIBCXX_USE_CXX11_ABI=$1 -c -o $(octdir)/abiflag.o $(octdir)/abiflag.cc \
+	&& $(MKOCTFILE) -o $(octdir)/abiflag.oct $(octdir)/abiflag.o \
+	&& $(OCTAVE) --path "$(octdir)" --eval "abiflag" >/dev/null 2>&1
+
+$(octdir) :
+	$(verbose)mkdir -p $@
+
+$(octdir)/abiflag.cfg : $(octdir) Makefile
+	$(making)echo "#include <octave/oct.h>" > $(octdir)/abiflag.cc; \
+	echo "DEFUN_DLD( abiflag, args, nargout, \"usage\" ) { return octave_value_list(); }" >> $(octdir)/abiflag.cc; \
+	( $(call MakeABIFlagModule,0) && echo "-D_GLIBCXX_USE_CXX11_ABI=0" > $@ ) || true; \
+	( $(call MakeABIFlagModule,1) && echo "-D_GLIBCXX_USE_CXX11_ABI=1" > $@ ) || true; \
+	rm -f $(octdir)/abiflag.cc $(octdir)/abiflag.o $(octdir)/abiflag.oct
+
+$(octdir)/%.o : %.cc $(octdir)/abiflag.cfg Makefile
+	$(making)$(call Compile,-Wall)
+
+$(octdir)/%.oct : $(octdir)/%.o Makefile
+	$(making)$(call Link)
 
 octs += depends
 
@@ -155,15 +177,6 @@ endif						# compile FITS reading module
 
 all : $(octdir) $(octs:%=$(octdir)/%.oct)
 
-$(octdir) :
-	$(verbose)mkdir -p $@
-
-$(octdir)/%.o : %.cc Makefile
-	$(making)$(call Compile, -Wall)
-
-$(octdir)/%.oct : $(octdir)/%.o Makefile
-	$(making)$(call Link)
-
 ifneq ($(SWIG),false)				# generate SWIG extension modules
 
 swig_octs += gsl
@@ -171,7 +184,7 @@ $(octdir)/gsl.oct : DEPENDS = gsl
 
 all : $(swig_octs:%=$(octdir)/%.oct)
 
-$(swig_octs:%=$(octdir)/%.o) : $(octdir)/%.o : oct/%.cc Makefile
+$(swig_octs:%=$(octdir)/%.o) : $(octdir)/%.o : oct/%.cc $(octdir)/abiflag.cfg Makefile
 	$(making)$(call Compile)
 
 $(swig_octs:%=oct/%.cc) : oct/%.cc : %.i Makefile
